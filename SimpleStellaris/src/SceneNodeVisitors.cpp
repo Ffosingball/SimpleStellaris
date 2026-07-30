@@ -1,0 +1,235 @@
+#include "SceneNodeVisitors.h"
+#include "ECSGame.h"
+#include "Components.h"
+#include "CommonGameCode.h"
+#include "EntitiesFunctions.h"
+#include <random>
+#include <iostream>
+#include <memory>
+#include <SFML/Audio.hpp>
+#include "SpaceObjectTypes.h"
+
+//Check if entity reached target position or not
+bool ReachedTargetPosition(const sf::Vector2f& currentPosition, const sf::Vector2f& targetPosition, const sf::Vector2f& velocity)
+{
+    bool closeByY{ false };
+    bool closeByX{ false };
+    //Check by y axis
+    if (velocity.y == 0.f)
+        closeByY = true;
+    else if (velocity.y < 0.f)
+    {
+        if (currentPosition.y < targetPosition.y)
+            closeByY = true;
+    }
+    else
+    {
+        if (currentPosition.y > targetPosition.y)
+            closeByY = true;
+    }
+
+    //Check by x axis
+    if (velocity.x == 0.f)
+        closeByX = true;
+    else if (velocity.x < 0.f)
+    {
+        if (currentPosition.x < targetPosition.x)
+            closeByX = true;
+    }
+    else
+    {
+        if (currentPosition.x > targetPosition.x)
+            closeByX = true;
+    }
+
+    //Return result by y and x axis
+    return closeByY && closeByX;
+}
+
+void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Get deltatime
+    float dt = ECSGame::Instance().GetDeltaTime();
+    //Check if pointer not null
+    if (spEntity != nullptr)
+    {
+        //Check if entity has a movement component
+        if (spEntity->HasComponent(ComponentType::Movement))
+        {
+            //If yes, then check which other component it has
+            if (spEntity->HasComponent(ComponentType::Camera)) 
+            {
+                //If it has camera component then move camera, not entity
+                std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spEntity);
+                //Check if we can move camera or not
+                if (spCameraCom->moveCamera)
+                {
+                    //Get movement component
+                    std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+
+                    //Move camera
+                    spCameraCom->view.move({ spMovementCom->velocity.x * dt,0 });
+                }
+            }
+            else if (spEntity->HasComponent(ComponentType::UIPart)) 
+            {
+                //Get components
+                std::shared_ptr<UIPartComponent> spTextCom = GetUIPartComponent(*spEntity);
+                std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+
+                //Check if it have special movement logic
+                if (spTextCom->moveIt) 
+                {
+                    sf::Transformable transformable = spEntity->GetTransformable();
+                    sf::Vector2f position = transformable.getPosition();
+
+                    //Move UIComponent
+                    position.x += spMovementCom->velocity.x * dt;
+                    position.y += spMovementCom->velocity.y * dt;
+                    //Check if it reached target position
+                    if (ReachedTargetPosition(position, spTextCom->targetPosition,spMovementCom->velocity))
+                    {
+                        //If it reached target position, then destroy it if needed
+                        //or just stop moving this entity
+                        if (spTextCom->destroyAtTarget)
+                        {
+                            signals::onDeleteEntity(spEntity);
+                        }
+                        else
+                        {
+                            position.x = spTextCom->targetPosition.x;
+                            position.y = spTextCom->targetPosition.y;
+                            spTextCom->moveIt = false;
+                            spMovementCom->velocity = { 0.f,0.f };
+                        }
+                    }
+
+                    //Apply movement
+                    transformable.setPosition(position);
+                    spEntity->SetTransformable(transformable);
+                }
+            }
+            else 
+            {
+                //Get component
+                std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+
+                //Move it
+                sf::Transformable transformable = spEntity->GetTransformable();
+                sf::Vector2f position = transformable.getPosition();
+                position.x += spMovementCom->velocity.x * dt;
+                position.y += spMovementCom->velocity.y * dt;
+
+                //Apply movement
+                transformable.setPosition(position);
+                spEntity->SetTransformable(transformable);
+            }
+        }
+    }
+}
+
+
+//UI processing function
+void SceneNodeVisitorUI::ProcessNode(SceneNode& node) 
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Get deltatime
+    float dt = ECSGame::Instance().GetDeltaTime();
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has UI component
+        if (spEntity->HasComponent(ComponentType::UIPart))
+        {
+            //Get UI component
+            std::shared_ptr<UIPartComponent> spEntityText = GetUIPartComponent(*spEntity);
+
+            //Check if this text blinks or not
+            if (spEntityText->isBlinking) 
+            {
+                //Process blink time
+                spEntityText->blinkTime += dt;
+                //Check if it is flatline or not
+                if(spEntityText->flatLine)
+                {
+                    if (spEntityText->blinkTime > spEntityText->flatLinePeriod)
+                    {
+                        //If flat period finishd than start change visibility
+                        spEntityText->blinkTime -= spEntityText->flatLinePeriod;
+                        spEntityText->flatLine = false;
+                    }
+                }
+                else
+                {
+                    if (spEntityText->blinkTime > spEntityText->blinkingPeriod)
+                    {
+                        //If blinkPeriod finished then show same visibility for some
+                        //period of time
+                        spEntityText->decreasingVisibility = !spEntityText->decreasingVisibility;
+                        spEntityText->blinkTime -= spEntityText->blinkingPeriod;
+                        spEntityText->flatLine = true;
+                    }
+                    //Get component
+                    std::shared_ptr<TextComponent> spEntityTextCom = GetTextComponent(*spEntity);
+
+                    //Get color values
+                    sf::Color color = spEntityTextCom->text->getFillColor();
+                    sf::Color outlineColor = spEntityTextCom->text->getOutlineColor();
+                    uint8_t alphaValue{255};
+                    //Check which state the text is and get correct alpha value
+                    if (spEntityText->decreasingVisibility)
+                        alphaValue = gel::linearInterpolation(255, 90, spEntityText->blinkTime / spEntityText->blinkingPeriod);
+                    else
+                        alphaValue = gel::linearInterpolation(90, 255, spEntityText->blinkTime / spEntityText->blinkingPeriod);
+
+                    //Set new alphaValue
+                    color.a = alphaValue;
+                    outlineColor.a = alphaValue;
+                    spEntityTextCom->text->setFillColor(color);
+                    spEntityTextCom->text->setOutlineColor(outlineColor);
+                }
+            }
+        }
+    }
+}
+
+//Render processing function
+void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Get deltatime
+    float dt = ECSGame::Instance().GetDeltaTime();
+    //Check if pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check that entity does not have UI component
+        if (!spEntity->HasComponent(ComponentType::UIPart))
+        {
+            //Now check which type of components entity has, becuase
+            //different components will be displayed differently
+            if (spEntity->HasComponent(ComponentType::TileMap))
+            {
+                //Get component
+                std::shared_ptr<Component> spEntityTileMapBase = spEntity->FindComponent(ComponentType::TileMap).lock();
+                std::shared_ptr<TileMapComponent> spEntityTileMap = std::static_pointer_cast<TileMapComponent>(spEntityTileMapBase);
+
+                //Draw entity
+                spEntityTileMap->tileMap.Render(renderWindow, node.GetCombinedTransform());
+            }
+
+            if (spEntity->HasComponent(ComponentType::RectangleShape))
+            {
+                //Get component
+                std::shared_ptr<Component> spEntityRecShapeBase = spEntity->FindComponent(ComponentType::RectangleShape).lock();
+                std::shared_ptr<RectangleShapeComponent> spEntityRecShape = std::static_pointer_cast<RectangleShapeComponent>(spEntityRecShapeBase);
+
+                //Get absolute position of the entity in the world
+                sf::RenderStates states;
+                states.transform = node.GetCombinedTransform();
+                //Draw entity
+                renderWindow.draw(spEntityRecShape->shape, states);
+            }
+        }
+    }
+}
