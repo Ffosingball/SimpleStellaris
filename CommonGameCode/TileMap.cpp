@@ -4,6 +4,7 @@
 #include "TileMap.h"
 #include "ResourceManager.h"
 #include <memory>
+#include <random> //For random generation
 
 //Read data from the file
 std::vector<int> ReadTileMapFromCSV(const std::string fname, sf::Vector2i& tilemapSize)
@@ -41,13 +42,25 @@ void TileMap::Initialize()
 	tiles.setPrimitiveType(sf::PrimitiveType::Triangles);
 	renderStates.coordinateType = sf::CoordinateType::Pixels;
 	//Set texture
-	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture("media/textures/kenney_shmup_tiles.png");
+	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(tilesTexturePath);
 	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
 	renderStates.texture = sTexture.get();
 
-	// Read the tilemap
 	sf::Vector2i tilemapSize(0, 0);
-	std::vector<int> tilemap = ReadTileMapFromCSV(tileSetPath, tilemapSize);
+	std::vector<int> tilemap;
+
+	if (!randomlySelectTiles)
+	{
+		// Read the tilemap
+		//std::cout << "Reading from the file?!";
+		tilemap = ReadTileMapFromCSV(tileSetPath, tilemapSize);
+	}
+	else
+		tilemapSize = mapSize;
+
+	std::mt19937 randomizer{ seed };
+	std::uniform_int_distribution nextTile{ 0, (numTilesInTileset.x * numTilesInTileset.y)-1 };
+	std::uniform_int_distribution nextRotation{ 0, 3 };
 	// [ margin ][ tile0 ][ padding ][ tile 1 ][ padding ][ tile 2 ]
 	//[padding] ...[tile N - 1][margin]
 	//int numPixelsX = marginSize.x * 2 + (numTilesInTileset.x - 1) * paddingSize.x + numTilesInTileset.x * tileSize.x;
@@ -57,7 +70,7 @@ void TileMap::Initialize()
 	//Current width and height in tilemap
 	int curWidth = 0;
 	int curHeight = -1;
-	for (int tileNum : tilemap)
+	for (int i{0}; i<tilemapSize.x*tilemapSize.y; i++)
 	{
 		//Check if we reached the end of the tilemap width
 		if (curWidth % tilemapSize.x == 0)
@@ -83,18 +96,76 @@ void TileMap::Initialize()
 		v6.position = sf::Vector2f{ static_cast<float>(tileSize.x * (curWidth + 1))+ shiftBy, static_cast<float>(tileSize.y * (curHeight + 1))+ shiftBy };
 
 		//Calculate texture coordinates
-		int height = tileNum / numTilesInTileset.x;
-		int width = tileNum - (height * numTilesInTileset.x);
+		int height{ 0 };
+		int width{ 0 };
+		int tileNum{ -1 };
+		if (randomlySelectTiles) 
+			tileNum = nextTile(randomizer);
+		else 
+			tileNum = tilemap[i];
+
+		//std::cout <<"tileNum: " << tileNum<<'\n';
+		height = tileNum / numTilesInTileset.x;
+		width = tileNum - (height * numTilesInTileset.x);
 		int rectWidth = (tileSize.x * width) + (paddingSize.x * width) + marginSize.x;
 		int rectHeight = (tileSize.y * height) + (paddingSize.y * height) + marginSize.y;
 
 		//Set their coordinates in the texture
-		v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
-		v2.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
-		v3.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
-		v4.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
-		v5.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
-		v6.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+		if (!randomlySelectTiles) 
+		{
+			//Do not rotate tiles
+			v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+			v2.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+			v3.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+			v4.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+			v5.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+			v6.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+		}
+		else 
+		{
+			//rotate randomly tiles
+			switch (nextRotation(randomizer)) 
+			{
+				//Left-Top: static_cast<float>(rectWidth), static_cast<float>(rectHeight)
+				//Left-Bottom: static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y)
+				//Right-Top: static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight)
+				//Right-Bottom: static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y)
+
+				//Do not rotate
+			case 0:
+				v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+				v2.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+				v3.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+				v4.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+				v5.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+				v6.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+				break;
+			case 1://Rotate 90 deg anticlockwise
+				v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+				v2.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+				v3.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+				v4.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+				v5.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+				v6.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+				break;
+			case 2://Rotate 180 deg
+				v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+				v2.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+				v3.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+				v4.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+				v5.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+				v6.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+				break;
+			case 3://Rotate 90 deg clockwise
+				v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight) };
+				v2.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+				v3.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+				v4.texCoords = sf::Vector2f{ static_cast<float>(rectWidth + tileSize.x), static_cast<float>(rectHeight + tileSize.y) };
+				v5.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
+				v6.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y) };
+				break;
+			}
+		}
 
 		//Add them to the VertexArray
 		tiles.append(v1);

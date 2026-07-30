@@ -120,13 +120,16 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	//Get component
 	std::shared_ptr<TileMapComponent> spTileMapCom = GetTileMapComponent(*spTileMap);
 	//set tilemap properties
-	spTileMapCom->tileMap.tileSize = sf::Vector2i{16,16};
+	spTileMapCom->tileMap.tileSize = sf::Vector2i{64,64};
 	spTileMapCom->tileMap.marginSize = sf::Vector2i{ 0,0 };
-	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 1,1 };
-	spTileMapCom->tileMap.numTilesInTileset = sf::Vector2i{ 12,10 };
-	spTileMapCom->tileMap.tileSetPath = "media/other/kenney_shmup_tilemap.csv";
+	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
+	spTileMapCom->tileMap.numTilesInTileset = sf::Vector2i{ 4,5 };
+	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
+	spTileMapCom->tileMap.mapSize = sf::Vector2i{10,10};
+	spTileMapCom->tileMap.seed = (unsigned int)gel::Randf(1000000.f, 9999999.f);
+	spTileMapCom->tileMap.randomlySelectTiles = true;
 	//Iitialize all tiles
-	//spTileMapCom->tileMap.Initialize();
+	spTileMapCom->tileMap.Initialize();
 
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAtRoot("Camera").lock();

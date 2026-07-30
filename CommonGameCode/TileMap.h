@@ -8,7 +8,6 @@ class TileMap
 private:
 	//TileMap properties
 	sf::VertexArray tiles;
-	sf::Vector2i mapSize;
 	sf::RenderStates renderStates;
 	//This field is important, I add it to sides of the tilemap, so 
 	//size of the tile is not tileSize but tileSize+2*shiftBy, however distance
@@ -24,6 +23,10 @@ public:
 	sf::Vector2i marginSize;
 	sf::Vector2i numTilesInTileset;
 	std::string tileSetPath;
+	std::string tilesTexturePath;
+	sf::Vector2i mapSize;
+	bool randomlySelectTiles{ false };
+	unsigned int seed{0};
 
 	void Initialize();
 
