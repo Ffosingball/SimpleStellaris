@@ -23,6 +23,7 @@ void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position);
 //Initializing functions
 void InitializeTileMapAndCamera(const sf::Vector2u& windowSize);
 void InitializeUICamera(const sf::Vector2u& windowSize);
+void CreateSpaceObjects();
 
 
 //Reset functions

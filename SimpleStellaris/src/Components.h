@@ -20,7 +20,8 @@ enum class ComponentType
 	TileMap,
 	Nebula,
 	Movement,
-	RectangleShape
+	RectangleShape,
+	SpaceObject
 };
 
 
@@ -31,8 +32,10 @@ class ObjectSystemComponent : public Component
 public:
 	SpaceSystemType systemType;
 	//vector of pointers to the central object in the system
-	std::vector<std::weak_ptr<Component>> centralObjects;
 	std::string systemName;
+	float distTo2ndStar{ 0.f };
+	float distTo3rdStar{ 0.f };
+	int starAfar{ 0 };//which star is afar in ternary system
 
 	ComponentType GetComponentType() const override;
 };
@@ -62,10 +65,7 @@ class StarComponent : public Component
 {
 public:
 	StarType starType;
-	sf::Color starColor;
-	float starSize{ 0.f };
 	std::string starName;
-	sf::RectangleShape starPicture;
 
 	ComponentType GetComponentType() const override;
 };
@@ -76,7 +76,6 @@ class NebulaComponent : public Component
 public:
 	float nebulaSize{ 0.f };
 	std::string nebulaName;
-	sf::RectangleShape nebulaPicture;
 
 	ComponentType GetComponentType() const override;
 };
@@ -87,7 +86,6 @@ class PlanetComponent : public Component
 public:
 	StarType planetType;
 	float planetSize{ 0.f };
-	sf::RectangleShape planetPicture;
 	std::string planetName;
 	float distanceFromStar{ 0.f };
 	float rotationSpeed{ 0.f };

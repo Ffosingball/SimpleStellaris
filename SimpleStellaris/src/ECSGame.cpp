@@ -45,14 +45,15 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
 	ECSGame::Instance().GetSceneRoot().AddChild(SceneNode(wpUI));
 
-	//Create initial entities of ui
-
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)
 		system->Initialize();
 
 	//Initialize object removal system
 	deleteSystem.Initialize();
+
+	//Create initial entities
+	CreateSpaceObjects();
 
 	//Set gameState
 	gameState = GameState::Game;

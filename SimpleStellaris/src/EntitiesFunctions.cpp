@@ -15,6 +15,7 @@
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
 #include "WorldGenerator.h"
+#include "SceneNodeVisitors.h"
 
 //Put here functions for creation and managing entities!
 
@@ -163,6 +164,70 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
+}
+
+
+//Creates space objects
+void CreateSpaceObjects() 
+{
+	SpaceMapConfigurations mapConfig;
+	//Get spaceMap node
+	std::shared_ptr<SceneNode> spNode = std::make_shared<SceneNode>(ECSGame::Instance().GetSceneRoot().FindChild(*ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap").lock()));
+	//Firstly generate systems and stars in it
+	WorldGenerator::GenerateSpaceMap(spNode,mapConfig);
+
+	//Check systems generated
+	SceneNodeSpaceObjectsCounter visitor;
+	spNode->AcceptVisitor(visitor);
+	std::cout << '\n';
+	int total{ 0 };
+	std::cout << "Overall stars:\n";
+	total += visitor.redSupGiantAmount;
+	std::cout << "Total Red Supergiants: " << visitor.redSupGiantAmount << '\n';
+	total += visitor.redGiantAmount;
+	std::cout << "Total Red Giants: " << visitor.redGiantAmount << '\n';
+	total += visitor.OclassAmount;
+	std::cout << "Total Blue Supergiants (O): " << visitor.OclassAmount << '\n';
+	total += visitor.BclassAmount;
+	std::cout << "Total Blue Giants (B): " << visitor.BclassAmount << '\n';
+	total += visitor.AclassAmount;
+	std::cout << "Total Blueish Stars (A): " << visitor.AclassAmount << '\n';
+	total += visitor.FclassAmount;
+	std::cout << "Total White Stars (F): " << visitor.FclassAmount << '\n';
+	total += visitor.GclassAmount;
+	std::cout << "Total Yellow Stars (G): " << visitor.GclassAmount << '\n';
+	total += visitor.KclassAmount;
+	std::cout << "Total Orange Dwarfs (K): " << visitor.KclassAmount << '\n';
+	total += visitor.MclassAmount;
+	std::cout << "Total Red Dwarfs (M): " << visitor.MclassAmount << '\n';
+	total += visitor.brownDwarfAmount;
+	std::cout << "Total Brown Dwarfs: " << visitor.brownDwarfAmount << '\n';
+	total += visitor.whiteDwarfAmount;
+	std::cout << "Total White Dwarfs: " << visitor.whiteDwarfAmount << '\n';
+	total += visitor.neutronAmount;
+	std::cout << "Total Neutron Stars: " << visitor.neutronAmount << '\n';
+	total += visitor.blackHoleAmount;
+	std::cout << "Total Black Holes: " << visitor.blackHoleAmount << '\n';
+	std::cout << '\n';
+	std::cout << "Total stars: "<< total<<'\n';
+
+	std::cout << '\n';
+	int total{ 0 };
+	std::cout << "Overall systems:\n";
+	total += visitor.singleSysAmount;
+	std::cout << "Total Single Systems: " << visitor.singleSysAmount << '\n';
+	total += visitor.binaryCloseSysAmount;
+	std::cout << "Total Binary Close Systems: " << visitor.binaryCloseSysAmount << '\n';
+	total += visitor.binaryAfarSysAmount;
+	std::cout << "Total Binary Afar Systems: " << visitor.binaryAfarSysAmount << '\n';
+	total += visitor.ternaryCloseSysAmount;
+	std::cout << "Total Ternary Close Systems: " << visitor.ternaryCloseSysAmount << '\n';
+	total += visitor.ternaryAfarSysAmount;
+	std::cout << "Total Ternary Afar Systems: " << visitor.ternaryAfarSysAmount << '\n';
+	total += visitor.ternaryTwoCloseOneAfarSysAmount;
+	std::cout << "Total Ternary Two Close One Afar Systems: " << visitor.ternaryTwoCloseOneAfarSysAmount << '\n';
+	std::cout << '\n';
+	std::cout << "Total systems: " << total << '\n';
 }
 
 

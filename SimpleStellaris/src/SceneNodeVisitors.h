@@ -19,6 +19,7 @@ private:
     MovementSystem& movementSystem;
 };
 
+
 //To render entities with rectangleShape, tileMap and particles components
 class SceneNodeVisitorRender : public SceneNodeVisitor
 {
@@ -31,6 +32,7 @@ private:
     sf::RenderWindow& renderWindow;
 };
 
+
 //To process entities with UI components
 class SceneNodeVisitorUI : public SceneNodeVisitor
 {
@@ -42,6 +44,7 @@ private:
     UISystem& uiSystem;
 };
 
+
 //To render entities with UI component
 class SceneNodeVisitorRenderUI : public SceneNodeVisitor
 {
@@ -52,4 +55,35 @@ public:
 
 private:
     sf::RenderWindow& renderWindow;
+};
+
+
+//To count and print all space objects
+class SceneNodeSpaceObjectsCounter : public SceneNodeVisitor
+{
+public:
+    SceneNodeSpaceObjectsCounter() {}
+
+    void ProcessNode(SceneNode& node) override;
+
+    int redSupGiantAmount{0};
+    int redGiantAmount{ 0 };
+    int OclassAmount{ 0 };
+    int BclassAmount{ 0 };
+    int AclassAmount{ 0 };
+    int FclassAmount{ 0 };
+    int GclassAmount{ 0 };
+    int KclassAmount{ 0 };
+    int MclassAmount{ 0 };
+    int brownDwarfAmount{ 0 };
+    int whiteDwarfAmount{ 0 };
+    int neutronAmount{ 0 };
+    int blackHoleAmount{ 0 };
+
+    int singleSysAmount{ 0 };
+    int binaryCloseSysAmount{ 0 };
+    int binaryAfarSysAmount{ 0 };
+    int ternaryCloseSysAmount{ 0 };
+    int ternaryTwoCloseOneAfarSysAmount{ 0 };
+    int ternaryAfarSysAmount{ 0 };
 };

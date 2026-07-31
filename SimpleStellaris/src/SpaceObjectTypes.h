@@ -4,9 +4,17 @@ enum class StarType
 {
 	WhiteDwarf,
 	NeutronStar,
-	MainSequenceStar,
-	Giant,
-	SuperGiant
+	MredDwarf,
+	KorangeDwarf,
+	GsunLike,
+	Ftype,
+	Atype,
+	Btype,
+	Otype,
+	RedGiant,
+	RedSupergiant,
+	BrownDwarf,
+	BlackHole
 };
 
 enum class SpaceObjectType
@@ -14,7 +22,9 @@ enum class SpaceObjectType
 	Star,
 	BlackHole,
 	Planet,
-	Asteroid
+	Asteroid,
+	Nebula,
+	System
 };
 
 enum class PlanetType
@@ -33,7 +43,9 @@ enum class PlanetType
 enum class SpaceSystemType
 {
 	Single,
-	Binary,
-	Ternary,
-	Planetary
+	BinaryClose,
+	BinaryAfar,
+	TernaryClose,
+	TernaryTwoCloseThirdAfar,
+	TernaryAfar
 };
