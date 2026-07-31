@@ -55,19 +55,17 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::s
 }
 
 //Overloading of the function but instead of name you provide the node itself
-std::weak_ptr<Entity> CreateNewEntityAt(std::weak_ptr<SceneNode> parentNodeWP, const std::string newEntityName)
+std::weak_ptr<Entity> CreateNewEntityAt(SceneNode* parentNodePtr, const std::string newEntityName)
 {
 	std::weak_ptr<Entity> wpEntity;
 
-	std::shared_ptr<SceneNode> nodePtr = parentNodeWP.lock();
 	//Check if node with that entity exists
-	if (nodePtr != nullptr)
+	if (parentNodePtr != nullptr)
 	{
-		std::weak_ptr<Entity> wpEntity;
 		// Create the entity in the entity manager
 		wpEntity = ECSGame::Instance().GetEntityManager().NewEntity(newEntityName);
 		// Add it to the scene
-		nodePtr->AddChild(SceneNode(wpEntity));
+		parentNodePtr->AddChild(SceneNode(wpEntity));
 	}
 
 	return wpEntity;
@@ -172,7 +170,7 @@ void CreateSpaceObjects()
 {
 	SpaceMapConfigurations mapConfig;
 	//Get spaceMap node
-	std::shared_ptr<SceneNode> spNode = std::make_shared<SceneNode>(ECSGame::Instance().GetSceneRoot().FindChild(*ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap").lock()));
+	SceneNode* spNode = ECSGame::Instance().GetSceneRoot().FindChild(*ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap").lock());
 	//Firstly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode,mapConfig);
 
@@ -212,7 +210,7 @@ void CreateSpaceObjects()
 	std::cout << "Total stars: "<< total<<'\n';
 
 	std::cout << '\n';
-	int total{ 0 };
+	total = 0;
 	std::cout << "Overall systems:\n";
 	total += visitor.singleSysAmount;
 	std::cout << "Total Single Systems: " << visitor.singleSysAmount << '\n';

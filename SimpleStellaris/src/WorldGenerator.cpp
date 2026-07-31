@@ -30,7 +30,7 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::binarySysDistri
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::ternarySysDistribution = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::closeStarsDistances = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::afarStarsDistances = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::oneThird = std::make_shared<std::uniform_int_distribution<int>>((0,2));
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::oneThird = std::make_shared<std::uniform_int_distribution<int>>(0,2);
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -83,34 +83,47 @@ std::vector<int> WorldGenerator::GenerateGridOfRandomNumbers(sf::Vector2i gridSi
 void WorldGenerator::StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom) 
 {
 	std::shared_ptr<StarComponent> spStarCom = wpStarCom.lock();
-	switch ((*starDistribution)(randomizer))
+	switch ((*starDistribution)(*randomizer))
 	{
 	case 0:
 		spStarCom->starType = StarType::RedGiant;
+		break;
 	case 1:
 		spStarCom->starType = StarType::RedGiant;
+		break;
 	case 2:
 		spStarCom->starType = StarType::Otype;
+		break;
 	case 3:
 		spStarCom->starType = StarType::Btype;
+		break;
 	case 4:
 		spStarCom->starType = StarType::Atype;
+		break;
 	case 5:
 		spStarCom->starType = StarType::Ftype;
+		break;
 	case 6:
 		spStarCom->starType = StarType::GsunLike;
+		break;
 	case 7:
 		spStarCom->starType = StarType::KorangeDwarf;
+		break;
 	case 8:
 		spStarCom->starType = StarType::MredDwarf;
+		break;
 	case 9:
 		spStarCom->starType = StarType::BrownDwarf;
+		break;
 	case 10:
 		spStarCom->starType = StarType::WhiteDwarf;
+		break;
 	case 11:
 		spStarCom->starType = StarType::NeutronStar;
+		break;
 	case 12:
 		spStarCom->starType = StarType::WhiteDwarf;
+		break;
 	}
 }
 
@@ -126,9 +139,9 @@ void WorldGenerator::StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom)
 }*/
 
 
-void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::weak_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entity)
+void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, SceneNode* ptrSystemNode, std::shared_ptr<Entity> spStar1Entity)
 {
-	switch ((*systemTypeDist)(randomizer)) 
+	switch ((*systemTypeDist)(*randomizer)) 
 	{
 	case 0:
 	{
@@ -138,55 +151,55 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 	case 1:
 	{
 		//Create star in that system
-		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(wpSystemNode, "Star2").lock();
+		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
 		spStar2->AddComponent(ComponentType::Star);
 		StarTypeGenerator(GetStarComponent(*spStar2));
 
 		//Determine binary system type
-		if ((*binarySysDistribution)(randomizer) == 0)
+		if ((*binarySysDistribution)(*randomizer) == 0)
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryClose;
-			spSystemCom->distTo2ndStar = (*closeStarsDistances)(randomizer);
+			spSystemCom->distTo2ndStar = (*closeStarsDistances)(*randomizer);
 		}
 		else
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryAfar;
-			spSystemCom->distTo3rdStar = (*afarStarsDistances)(randomizer);
+			spSystemCom->distTo3rdStar = (*afarStarsDistances)(*randomizer);
 		}
 		return;
 	}
 	case 2:
 	{
 		//Create 2 stars in that system
-		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(wpSystemNode, "Star2").lock();
+		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
 		spStar2->AddComponent(ComponentType::Star);
 		StarTypeGenerator(GetStarComponent(*spStar2));
 
-		std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(wpSystemNode, "Star3").lock();
+		std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(ptrSystemNode, "Star3").lock();
 		spStar3->AddComponent(ComponentType::Star);
 		StarTypeGenerator(GetStarComponent(*spStar3));
 
 		//Determine ternary system type
-		int val = (*binarySysDistribution)(randomizer);
+		int val = (*ternarySysDistribution)(*randomizer);
 		if (val==0)
 		{
 			spSystemCom->systemType = SpaceSystemType::TernaryClose;
-			spSystemCom->distTo2ndStar = (*closeStarsDistances)(randomizer);
-			spSystemCom->distTo3rdStar = (*closeStarsDistances)(randomizer);
+			spSystemCom->distTo2ndStar = (*closeStarsDistances)(*randomizer);
+			spSystemCom->distTo3rdStar = (*closeStarsDistances)(*randomizer);
 		}
 		else if (val == 1) 
 		{
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
-			spSystemCom->distTo2ndStar = (*closeStarsDistances)(randomizer);
-			spSystemCom->distTo3rdStar = (*afarStarsDistances)(randomizer);
+			spSystemCom->distTo2ndStar = (*closeStarsDistances)(*randomizer);
+			spSystemCom->distTo3rdStar = (*afarStarsDistances)(*randomizer);
 
-			spSystemCom->starAfar = (*oneThird)(randomizer);
+			spSystemCom->starAfar = (*oneThird)(*randomizer);
 		}
 		else 
 		{
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
-			spSystemCom->distTo2ndStar = (*afarStarsDistances)(randomizer);
-			spSystemCom->distTo3rdStar = (*afarStarsDistances)(randomizer);
+			spSystemCom->distTo2ndStar = (*afarStarsDistances)(*randomizer);
+			spSystemCom->distTo3rdStar = (*afarStarsDistances)(*randomizer);
 		}
 
 		return;
@@ -195,7 +208,26 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 }
 
 
-void WorldGenerator::GenerateSpaceMap(std::weak_ptr<SceneNode> wpSpaceMapNode, SpaceMapConfigurations& mapConfig)
+void WorldGenerator::checkRandomDistribution()
+{
+	std::vector<int> numsDist(13);
+	for (int i = 0; i < 1500; i++)
+	{
+		int num = (*starDistribution)(*randomizer);
+		//std::cout << num << "  ";
+		numsDist[num]++;
+	}
+	std::cout <<'\n';
+	std::cout << " --- Results ---\n";
+
+	for (int i = 0; i < numsDist.size(); i++) 
+	{
+		std::cout << i << ") " << numsDist[i] << '\n';
+	}
+}
+
+
+void WorldGenerator::GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfigurations& mapConfig)
 {
 	//Create all weights
 	// Floating point weights for stars
@@ -229,80 +261,94 @@ void WorldGenerator::GenerateSpaceMap(std::weak_ptr<SceneNode> wpSpaceMapNode, S
 	dwarfsSystemWeights[1] = mapConfig.dwarfBinaryChance;
 	dwarfsSystemWeights[2] = mapConfig.dwarfTernaryChance;
 
-	std::vector<float> binarySystemWeights(3);
+	std::vector<float> binarySystemWeights(2);
 	binarySystemWeights[0] = mapConfig.closeBinaryChance;
 	binarySystemWeights[1] = mapConfig.afarBinaryChance;
 
 	std::vector<float> ternarySystemWeights(3);
 	ternarySystemWeights[0] = mapConfig.closeTernaryChance;
 	ternarySystemWeights[1] = mapConfig.afarCloseBinaryThirdAfarChance;
-	ternarySystemWeights[1] = mapConfig.afarTernaryChance;
+	ternarySystemWeights[2] = mapConfig.afarTernaryChance;
 
 	//Create all distributions
-	starDistribution = std::make_shared<std::discrete_distribution<int>>((starWeights.begin(), starWeights.end()));
-	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>((giantSystemWeights.begin(), giantSystemWeights.end()));
-	mediumSysDistribution = std::make_shared<std::discrete_distribution<int>>((mediumSystemWeights.begin(), mediumSystemWeights.end()));
-	dwarfSysDistribution = std::make_shared<std::discrete_distribution<int>>((dwarfsSystemWeights.begin(), dwarfsSystemWeights.end()));
-	binarySysDistribution = std::make_shared<std::discrete_distribution<int>>((binarySystemWeights.begin(), binarySystemWeights.end()));
-	ternarySysDistribution = std::make_shared<std::discrete_distribution<int>>((ternarySystemWeights.begin(), ternarySystemWeights.end()));
-	closeStarsDistances = std::make_shared<std::uniform_real_distribution<float>>((mapConfig.closeStarsBoundaries.x, mapConfig.closeStarsBoundaries.y));
-	afarStarsDistances = std::make_shared<std::uniform_real_distribution<float>>((mapConfig.afarStarsBoundaries.x, mapConfig.afarStarsBoundaries.y));
+	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
+	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>(giantSystemWeights.begin(), giantSystemWeights.end());
+	mediumSysDistribution = std::make_shared<std::discrete_distribution<int>>(mediumSystemWeights.begin(), mediumSystemWeights.end());
+	dwarfSysDistribution = std::make_shared<std::discrete_distribution<int>>(dwarfsSystemWeights.begin(), dwarfsSystemWeights.end());
+	binarySysDistribution = std::make_shared<std::discrete_distribution<int>>(binarySystemWeights.begin(), binarySystemWeights.end());
+	ternarySysDistribution = std::make_shared<std::discrete_distribution<int>>(ternarySystemWeights.begin(), ternarySystemWeights.end());
+	closeStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.closeStarsBoundaries.x, mapConfig.closeStarsBoundaries.y);
+	afarStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.afarStarsBoundaries.x, mapConfig.afarStarsBoundaries.y);
 
-	std::shared_ptr<SceneNode> spSpaceMapNode = wpSpaceMapNode.lock();
+	checkRandomDistribution();
+
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
 		//Create new system
-		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(wpSpaceMapNode, "System"+i).lock();
+		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(ptrSpaceMapNode, "System"+ std::to_string(i)).lock();
 		spNewSystem->AddComponent(ComponentType::ObjectSystem);
 		std::shared_ptr<ObjectSystemComponent> spSystemCom = GetObjectSystemComponent(*spNewSystem);
-		std::shared_ptr<SceneNode> spNewSysNode = std::make_shared<SceneNode>(spSpaceMapNode->FindChild(*spNewSystem));
+		SceneNode* ptrNewSysNode = ptrSpaceMapNode->FindChild(*spNewSystem);
 
 		//Create star in that system
-		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(spNewSysNode, "Star1").lock();
+		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(ptrNewSysNode, "Star1").lock();
 		spStar1->AddComponent(ComponentType::Star);
 		std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*spStar1);
 
-		switch ((*starDistribution)(randomizer)) 
+		switch ((*starDistribution)(*randomizer)) 
 		{
 		case 0:
 			spStar1Com->starType = StarType::RedSupergiant;
 			spSystemCom->systemType = SpaceSystemType::Single;
+			break;
 		case 1:
 			spStar1Com->starType = StarType::RedGiant;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 2:
 			spStar1Com->starType = StarType::Otype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 3:
 			spStar1Com->starType = StarType::Btype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 4:
 			spStar1Com->starType = StarType::Atype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 5:
 			spStar1Com->starType = StarType::Ftype;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 6:
 			spStar1Com->starType = StarType::GsunLike;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 7:
 			spStar1Com->starType = StarType::KorangeDwarf;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 8:
 			spStar1Com->starType = StarType::MredDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 9:
 			spStar1Com->starType = StarType::BrownDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 10:
 			spStar1Com->starType = StarType::WhiteDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewSysNode, spStar1);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			break;
 		case 11:
 			spStar1Com->starType = StarType::NeutronStar;
 			spSystemCom->systemType = SpaceSystemType::Single;
+			break;
 		case 12:
 			spStar1Com->starType = StarType::BlackHole;
 			spSystemCom->systemType = SpaceSystemType::Single;
+			break;
 		}
 	}
 }

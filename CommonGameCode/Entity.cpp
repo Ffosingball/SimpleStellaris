@@ -80,6 +80,9 @@ void Entity::RemoveComponent(ComponentType ct)
 
 int Entity::FindComponentIndex(ComponentType ct) const 
 {
+	//std::cout << "Entity address: " << this << "\n";
+	//std::cout << "Component count: " << components.size() << "\n";
+
 	for (int i = 0; i < components.size(); i++) 
 	{
 		//If component is found, then return its index

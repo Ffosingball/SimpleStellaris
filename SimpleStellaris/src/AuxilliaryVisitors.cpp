@@ -116,7 +116,7 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
                 std::cout << "   Red Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::BrownDwarf:
-                BclassAmount++;
+                brownDwarfAmount++;
                 std::cout << "   Brawn Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::WhiteDwarf:
