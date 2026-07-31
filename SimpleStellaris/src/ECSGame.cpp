@@ -12,7 +12,8 @@
 #include <iostream>
 #include "EntitiesFunctions.h"
 #include "SpaceObjectTypes.h"
-//#include "GameState.h"
+#include "WorldGenerator.h"
+#include "CommonGameCode.h"
 
 
 //Initialize game
@@ -32,6 +33,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	systems.emplace_back(std::make_shared<MusicSystem>());
 	systems.emplace_back(std::make_shared<GameSystem>());
 
+	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
 	//Initialize map first, so it will be always drawn first
 	InitializeTileMapAndCamera(windowSize);
 	//Initialize UI camera, to draw ui entities

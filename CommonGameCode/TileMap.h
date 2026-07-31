@@ -23,12 +23,13 @@ public:
 	sf::Vector2i marginSize;
 	sf::Vector2i numTilesInTileset;
 	std::string tileSetPath;
+	std::string tileSetRotationsPath;
 	std::string tilesTexturePath;
 	sf::Vector2i mapSize;
-	bool randomlySelectTiles{ false };
-	unsigned int seed{0};
+	bool rotateTiles{ false };
+	bool loadTilesFromFile{ true };
 
-	void Initialize();
+	void Initialize(std::vector<int> tilemap, std::vector<int> rotationMap);
 
 	void Update(const float deltaTime) {}
 

@@ -14,6 +14,7 @@
 #include "GameState.h"
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
+#include "WorldGenerator.h"
 
 //Put here functions for creation and managing entities!
 
@@ -118,6 +119,7 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	sf::Vector2i backgroundSize{ 10,10 };
 	float cameraZoomSpeed = -3.f;
 	sf::Vector2f zoomBorders = {0.6f, 1.8f};
+	sf::Vector2i tilesInTileset{ 4,5 };
 
 	//Create tileMap
 	std::shared_ptr<Entity> spTileMap = CreateNewEntityAtRoot("TileMap").lock();
@@ -129,13 +131,14 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	spTileMapCom->tileMap.tileSize = sf::Vector2i{64,64};
 	spTileMapCom->tileMap.marginSize = sf::Vector2i{ 0,0 };
 	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
-	spTileMapCom->tileMap.numTilesInTileset = sf::Vector2i{ 4,5 };
+	spTileMapCom->tileMap.numTilesInTileset = tilesInTileset;
 	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
 	spTileMapCom->tileMap.mapSize = backgroundSize;
-	spTileMapCom->tileMap.seed = (unsigned int)gel::Randf(1000000.f, 9999999.f);
-	spTileMapCom->tileMap.randomlySelectTiles = true;
+	spTileMapCom->tileMap.loadTilesFromFile = false;
+	spTileMapCom->tileMap.rotateTiles = true;
 	//Iitialize all tiles
-	spTileMapCom->tileMap.Initialize();
+	//std::cout << "Before init tileMap\n";
+	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y)-1 }), WorldGenerator::GenerateGridOfRandomNumbers(backgroundSize, sf::Vector2i{ 0, 3}));
 
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAtRoot("Camera").lock();

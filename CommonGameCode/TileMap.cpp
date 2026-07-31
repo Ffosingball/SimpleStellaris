@@ -36,8 +36,9 @@ sf::Vector2i TileMap::getMapSize() const
 }
 
 //Create a tilemap
-void TileMap::Initialize()
+void TileMap::Initialize(std::vector<int> tilemap = {}, std::vector<int> rotationMap = {})
 {
+	//std::cout << "Init tileMap\n";
 	//Set Triangle type
 	tiles.setPrimitiveType(sf::PrimitiveType::Triangles);
 	renderStates.coordinateType = sf::CoordinateType::Pixels;
@@ -47,20 +48,18 @@ void TileMap::Initialize()
 	renderStates.texture = sTexture.get();
 
 	sf::Vector2i tilemapSize(0, 0);
-	std::vector<int> tilemap;
+	//std::vector<int> tilemap;
 
-	if (!randomlySelectTiles)
+	if (loadTilesFromFile)
 	{
 		// Read the tilemap
-		//std::cout << "Reading from the file?!";
 		tilemap = ReadTileMapFromCSV(tileSetPath, tilemapSize);
+		if (rotateTiles) 
+			rotationMap = ReadTileMapFromCSV(tileSetRotationsPath, tilemapSize);
 	}
 	else
 		tilemapSize = mapSize;
 
-	std::mt19937 randomizer{ seed };
-	std::uniform_int_distribution nextTile{ 0, (numTilesInTileset.x * numTilesInTileset.y)-1 };
-	std::uniform_int_distribution nextRotation{ 0, 3 };
 	// [ margin ][ tile0 ][ padding ][ tile 1 ][ padding ][ tile 2 ]
 	//[padding] ...[tile N - 1][margin]
 	//int numPixelsX = marginSize.x * 2 + (numTilesInTileset.x - 1) * paddingSize.x + numTilesInTileset.x * tileSize.x;
@@ -98,20 +97,15 @@ void TileMap::Initialize()
 		//Calculate texture coordinates
 		int height{ 0 };
 		int width{ 0 };
-		int tileNum{ -1 };
-		if (randomlySelectTiles) 
-			tileNum = nextTile(randomizer);
-		else 
-			tileNum = tilemap[i];
 
-		//std::cout <<"tileNum: " << tileNum<<'\n';
-		height = tileNum / numTilesInTileset.x;
-		width = tileNum - (height * numTilesInTileset.x);
+		//std::cout <<"tileNum: " << tilemap[i] <<'\n';
+		height = tilemap[i] / numTilesInTileset.x;
+		width = tilemap[i] - (height * numTilesInTileset.x);
 		int rectWidth = (tileSize.x * width) + (paddingSize.x * width) + marginSize.x;
 		int rectHeight = (tileSize.y * height) + (paddingSize.y * height) + marginSize.y;
 
 		//Set their coordinates in the texture
-		if (!randomlySelectTiles) 
+		if (!rotateTiles) 
 		{
 			//Do not rotate tiles
 			v1.texCoords = sf::Vector2f{ static_cast<float>(rectWidth), static_cast<float>(rectHeight) };
@@ -124,7 +118,7 @@ void TileMap::Initialize()
 		else 
 		{
 			//rotate randomly tiles
-			switch (nextRotation(randomizer)) 
+			switch (rotationMap[i])
 			{
 				//Left-Top: static_cast<float>(rectWidth), static_cast<float>(rectHeight)
 				//Left-Bottom: static_cast<float>(rectWidth), static_cast<float>(rectHeight + tileSize.y)

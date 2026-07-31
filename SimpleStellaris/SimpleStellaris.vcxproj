@@ -27,6 +27,7 @@
     <ClCompile Include="src\SceneNodeVisitors.cpp" />
     <ClCompile Include="src\SimpleStellaris.cpp" />
     <ClCompile Include="src\Systems.cpp" />
+    <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Components.h" />
@@ -35,6 +36,7 @@
     <ClInclude Include="src\SceneNodeVisitors.h" />
     <ClInclude Include="src\SpaceObjectTypes.h" />
     <ClInclude Include="src\Systems.h" />
+    <ClInclude Include="src\WorldGenerator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
