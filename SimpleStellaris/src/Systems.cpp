@@ -16,6 +16,7 @@ void InputSystem::Initialize()
 	//Subscribe functions to these signals
 	signals::onKeyPressed.connect(&InputSystem::OnKeyPressed, this);
 	signals::onKeyReleased.connect(&InputSystem::OnKeyReleased, this);
+	signals::onMouseWheelScrolled.connect(&InputSystem::OnMouseWheelScrolled, this);
 }
 
 //Process keys they are pressed
@@ -39,13 +40,22 @@ void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 }
 
 
+void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
+{
+	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromCameraEntity();
+	//Zoom camera
+	spCameraCom->currentZoom = gel::clamp((spCameraCom->zoomingSpeed * ECSGame::Instance().GetDeltaTime() * mw.delta) + spCameraCom->currentZoom, spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
+	spCameraCom->view.setSize(spCameraCom->cameraSize * spCameraCom->currentZoom);
+}
+
+
 //I process movement and fire keys in every frame, because game reacts to the key press
 //on the same frame as it was pressed, and it will react every fram until the key
 //is released. If I would use events, they are not called every frame, which is bad
 void InputSystem::Update(SceneNode& scene, float deltaTime)
 {
-	//Set direction to 0.1,0
-	sf::Vector2f direction{ 0.1f,0 };
+	//Set direction to 0,0
+	sf::Vector2f direction{ 0,0 };
 
 	if (ECSGame::Instance().GetGameState() == GameState::Game)
 	{
@@ -82,6 +92,7 @@ void MovementSystem::Initialize()
 {
 	//Subscribe to this signal, to get player direction every frame
 	signals::onMoveCamera.connect(&MovementSystem::OnMoveCamera, this);
+	//signals::onZoomCamera.connect(&MovementSystem::OnZoomCamera, this);
 }
 
 

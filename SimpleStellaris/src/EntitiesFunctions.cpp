@@ -113,6 +113,12 @@ void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position)
 //Creates a tilemap and camera
 void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 {
+	int cameraHeight = 200;
+	float cameraVelocity = 14.f;//14.f
+	sf::Vector2i backgroundSize{ 10,10 };
+	float cameraZoomSpeed = -3.f;
+	sf::Vector2f zoomBorders = {0.6f, 1.8f};
+
 	//Create tileMap
 	std::shared_ptr<Entity> spTileMap = CreateNewEntityAtRoot("TileMap").lock();
 	// Add components
@@ -125,7 +131,7 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
 	spTileMapCom->tileMap.numTilesInTileset = sf::Vector2i{ 4,5 };
 	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
-	spTileMapCom->tileMap.mapSize = sf::Vector2i{10,10};
+	spTileMapCom->tileMap.mapSize = backgroundSize;
 	spTileMapCom->tileMap.seed = (unsigned int)gel::Randf(1000000.f, 9999999.f);
 	spTileMapCom->tileMap.randomlySelectTiles = true;
 	//Iitialize all tiles
@@ -142,11 +148,18 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	sf::Vector2f mapSize = static_cast<sf::Vector2f>(spTileMapCom->tileMap.getMapSize());
 	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
 	//Set camera sizes
-	spCameraCom->view.setSize(sf::Vector2f{mapSize.y*windowSizeRatio,mapSize.y});
-	spCameraCom->view.setCenter(sf::Vector2f{ mapSize.y * (windowSizeRatio/2.f)*1.f,mapSize.y/2.f });
+	spCameraCom->view.setSize(sf::Vector2f{(float)cameraHeight*windowSizeRatio,(float)cameraHeight});
+	spCameraCom->view.setCenter(sf::Vector2f{ mapSize.x/2.f,mapSize.y/2.f });
+	//Set zoom properties
+	spCameraCom->cameraSize = spCameraCom->view.getSize();
+	spCameraCom->zoomingBorders = zoomBorders;
+	spCameraCom->zoomingSpeed = cameraZoomSpeed;
 	//Set boundaries
-	spCameraCom->rightBorder = mapSize.x - ((mapSize.y * windowSizeRatio)/2.f);
-	spCameraCom->leftBorder = spCameraCom->view.getCenter().x;
+	spCameraCom->horizontalBorders = { 0.f, mapSize.x};
+	spCameraCom->verticalBorders = { 0.f, mapSize.y };
+	//Get movement com
+	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
+	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
 }
 
 

@@ -114,8 +114,18 @@ public:
 
 	sf::View view;
 	bool moveCamera{ false };
-	float rightBorder{0.f};
-	float leftBorder{ 0.f };
+	//Left-Right
+	sf::Vector2f horizontalBorders{ 0.f, 0.f };
+	//Top-Bottom
+	sf::Vector2f verticalBorders{ 0.f, 0.f };
+	//Zoom speed
+	float zoomingSpeed{0.1f};
+	//Current camera zoom
+	float currentZoom{ 1.f };
+	//Max and min zooming
+	sf::Vector2f zoomingBorders{ 0.5f, 2.f };
+	//Camera size at zoom 1,1
+	sf::Vector2f cameraSize{ 0.f, 0.f };
 
 	ComponentType GetComponentType() const override;
 };

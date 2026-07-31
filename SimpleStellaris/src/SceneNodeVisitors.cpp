@@ -54,23 +54,23 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
     //Check if pointer not null
     if (spEntity != nullptr)
     {
+        //std::cout << dt << ") " << spEntity->GetName();
         //Check if entity has a movement component
         if (spEntity->HasComponent(ComponentType::Movement))
         {
+            //std::cout << " has " << " movement com" << '\n';
             //If yes, then check which other component it has
             if (spEntity->HasComponent(ComponentType::Camera)) 
             {
                 //If it has camera component then move camera, not entity
                 std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spEntity);
                 //Check if we can move camera or not
-                if (spCameraCom->moveCamera)
-                {
-                    //Get movement component
-                    std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+                //Get movement component
+                std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
 
-                    //Move camera
-                    spCameraCom->view.move({ spMovementCom->velocity.x * dt,0 });
-                }
+
+                //Move camera
+                spCameraCom->view.setCenter({ gel::clamp((spMovementCom->velocity.x * movementSystem.direction.x * dt) + spCameraCom->view.getCenter().x, spCameraCom->horizontalBorders.x,spCameraCom->horizontalBorders.y), gel::clamp((spMovementCom->velocity.y * movementSystem.direction.y * dt) + spCameraCom->view.getCenter().y, spCameraCom->verticalBorders.x,spCameraCom->verticalBorders.y) });
             }
             else if (spEntity->HasComponent(ComponentType::UIPart)) 
             {

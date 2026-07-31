@@ -12,6 +12,7 @@
 #include <iostream>
 #include "EntitiesFunctions.h"
 #include "SpaceObjectTypes.h"
+//#include "GameState.h"
 
 
 //Initialize game
@@ -50,6 +51,9 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Initialize object removal system
 	deleteSystem.Initialize();
+
+	//Set gameState
+	gameState = GameState::Game;
 }
 
 
@@ -59,6 +63,7 @@ void ECSGame::Update(const float deltaTime)
 	this->deltaTime = deltaTime;
 	timeSinceStart += deltaTime;
 
+	//std::cout << "Update\n";
 	//Update all systems
 	for (std::shared_ptr<System> system : systems)
 		system->Update(sceneRoot, deltaTime);
@@ -80,6 +85,12 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 	if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 	{
 		signals::onKeyReleased(*keyReleased);
+	}
+
+	//Check if mouse wheel scrolled
+	if (const auto* mouseWheelScrolled = event->getIf<sf::Event::MouseWheelScrolled>())
+	{
+		signals::onMouseWheelScrolled(*mouseWheelScrolled);
 	}
 }
 

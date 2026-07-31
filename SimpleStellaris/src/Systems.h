@@ -20,6 +20,7 @@ private:
 	//Signals functions
 	void OnKeyPressed(sf::Event::KeyPressed key);
 	void OnKeyReleased(sf::Event::KeyReleased key);
+	void OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw);
 };
 
 //Processes all movement
@@ -105,6 +106,8 @@ namespace signals
 {
 	inline sigslot::signal<sf::Event::KeyPressed> onKeyPressed;
 	inline sigslot::signal<sf::Event::KeyReleased> onKeyReleased;
+	inline sigslot::signal<sf::Event::MouseWheelScrolled> onMouseWheelScrolled;
 	//inline sigslot::signal<> onGameRestart;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
+	//inline sigslot::signal<float> onZoomCamera;
 }
