@@ -33,6 +33,7 @@ public:
 	SpaceSystemType systemType;
 	//vector of pointers to the central object in the system
 	std::string systemName;
+	//Distances in astronomical units
 	float distTo2ndStar{ 0.f };
 	float distTo3rdStar{ 0.f };
 	int starAfar{ 0 };//which star is afar in ternary system
@@ -85,11 +86,13 @@ class PlanetComponent : public Component
 {
 public:
 	StarType planetType;
+	//In kilometres
 	float planetSize{ 0.f };
 	std::string planetName;
+	//In astronomical units
 	float distanceFromStar{ 0.f };
 	float rotationSpeed{ 0.f };
-	float axleSpeed{0.f};
+	//float axleSpeed{0.f};
 
 	ComponentType GetComponentType() const override;
 };
