@@ -18,10 +18,12 @@ std::weak_ptr<Entity> CreateNewEntityAt(SceneNode* parentNodePtr, const std::str
 std::shared_ptr<CameraComponent> GetCameraFromCameraEntity();
 std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity();
 void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position);
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath);
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, sf::IntRect intRect);
 
 
 //Initializing functions
-void InitializeTileMapAndCamera(const sf::Vector2u& windowSize);
+void InitializeCamera(const sf::Vector2u& windowSize);
 void InitializeUICamera(const sf::Vector2u& windowSize);
 void CreateSpaceObjects();
 

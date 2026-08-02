@@ -35,7 +35,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
 	//Initialize map first, so it will be always drawn first
-	InitializeTileMapAndCamera(windowSize);
+	InitializeCamera(windowSize);
 	//Initialize UI camera, to draw ui entities
 	InitializeUICamera(windowSize);
 

@@ -109,7 +109,7 @@ void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e)
 	}
 }
 
-//This function finds and returns scene node which contains at this entity
+//This function finds and returns scene node which contains this entity
 SceneNode* SceneNode::FindChild(const Entity& e) 
 {
 	//Check if this node is a target entity
@@ -121,6 +121,27 @@ SceneNode* SceneNode::FindChild(const Entity& e)
 		for (auto& c : children)
 		{
 			auto ret = c.FindChild(e);
+			//If it was found in the child, then return it
+			if (ret != nullptr)
+				return ret;
+		}
+	}
+	//Else return null
+	return nullptr;
+}
+
+//This function finds and returns scene node which contains entity with provided name
+SceneNode* SceneNode::FindChild(const std::string& s)
+{
+	//Check if this node is a target entity
+	if (s == entity.lock()->GetName())
+		return this;
+	else
+	{
+		//Else, try to check all children
+		for (auto& c : children)
+		{
+			auto ret = c.FindChild(s);
 			//If it was found in the child, then return it
 			if (ret != nullptr)
 				return ret;

@@ -5,6 +5,7 @@
 #include <memory>
 #include "System.h"
 #include <iostream>
+#include "CommonGameCode.h"
 
 
 //Find component by its type
@@ -102,4 +103,32 @@ Entity::~Entity()
 		//std::cout <<components.size()<<": "<< PrintComponentName(components[0]->GetComponentType())<<'\n';
 		components.erase(components.begin());
 	}
+}
+
+//Move entity
+void Entity::Move(sf::Vector2f distance) 
+{
+	sf::Vector2f position = transformable.getPosition();
+	position += distance;
+	transformable.setPosition(position);
+}
+
+//Move entity within given borders
+void Entity::MoveWithin(sf::Vector2f distance, sf::Vector2f horizontalBoundaries, sf::Vector2f verticalBoundaries) 
+{
+	sf::Vector2f position = transformable.getPosition();
+	position = { gel::clamp(distance.x + position.x, horizontalBoundaries.x, horizontalBoundaries.y), gel::clamp(distance.y + position.y, verticalBoundaries.x, verticalBoundaries.y) };
+	transformable.setPosition(position);
+}
+
+//Set new entity position
+void Entity::SetPosition(sf::Vector2f position) 
+{
+	transformable.setPosition(position);
+}
+
+//Get new entity position
+sf::Vector2f Entity::GetPosition() 
+{
+	return transformable.getPosition();
 }

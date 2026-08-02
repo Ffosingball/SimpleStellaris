@@ -26,15 +26,21 @@ public:
 
 	//Find component by type
 	std::weak_ptr<Component> FindComponent(ComponentType ct) const;
-
 	//Check if entity has this type of component
 	bool HasComponent(ComponentType ct) const;
-
 	//Add new component
 	std::weak_ptr<Component> AddComponent(ComponentType ct);
-
 	//Remove component
 	void RemoveComponent(ComponentType ct);
+
+	//Move entity
+	void Move(sf::Vector2f distance);
+	//Move entity within given borders
+	void MoveWithin(sf::Vector2f distance, sf::Vector2f horizontalBoundaries, sf::Vector2f verticalBoundaries);
+	//Set new entity position
+	void SetPosition(sf::Vector2f position);
+	//Get new entity position
+	sf::Vector2f GetPosition();
 
 private:
 	std::string name;//name of the entity

@@ -20,6 +20,7 @@ public:
 	std::string GetAllChildrenNames() const;
 	std::weak_ptr<Entity> GetEntity() const { return entity; }
 	const SceneNode* GetParent() const { return parent; }
+	std::vector<SceneNode> GetAllChildren() const { return children; };
 
 	//Add child to this node
 	void AddChild(const SceneNode& child);
@@ -31,6 +32,7 @@ public:
 
 	//Find and return child
 	SceneNode* FindChild(const Entity& e);
+	SceneNode* FindChild(const std::string& s);
 
 private:
 

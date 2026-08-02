@@ -62,9 +62,30 @@ public:
 };
 
 
+//To set rectangleShapes and textures for all objects 
+class TextureSetter : public SceneNodeVisitor
+{
+public:
+	TextureSetter() {}
+
+	void ProcessNode(SceneNode& node) override;
+
+	SpaceMapConfigurations mapConfig;
+	SceneNode* ptrSpaceMapNode;
+private:
+	std::string SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
+};
+
+
 struct SpaceMapConfigurations 
 {
+	//Background configs
+	sf::Vector2i backgroundSize{ 10,10 };
+	
+	//System configs
 	int systemAmount{ 1000 };
+	sf::Vector2f systemEntitySize{ 1.f, 1.f };
+	//Distance in light years
 	sf::Vector2f verticalPosBoundaries{0.f, 500.f};
 	sf::Vector2f horizontalPosBoundaries{ 0.f, 500.f };
 	
@@ -85,19 +106,19 @@ struct SpaceMapConfigurations
 	float blackHoleSize = 0.001f;
 
 	//Star chances to appear
-	float redSupGiantChance = 0.001f;
+	float redSupGiantChance = 0.1f;//Before 0.001
 	float redGiantChance = 1.8f;
-	float classOChance = 0.001f;
-	float classBChance = 0.1f;
+	float classOChance = 0.1f;//Before 0.001
+	float classBChance = 0.2f;//Before 0.1
 	float classAChance = 0.4f;
 	float classFChance = 3.f;
 	float classGChance = 6.f;
 	float classKChance = 8.f;
-	float classMChance = 63.646f;
+	float classMChance = 63.f;//Before 63.6
 	float brownDwarfChance = 13.f;
 	float whiteDwarfChance = 4.f;
-	float neutronChance = 0.05f;
-	float blackHoleChance = 0.001f;
+	float neutronChance = 0.1f;//Before 0.001
+	float blackHoleChance = 0.01f;//Before 0.001
 
 	//Singular, binary and ternary system chances
 	float giantSingleChance = 10.f;

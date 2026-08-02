@@ -279,6 +279,8 @@ void WorldGenerator::GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfig
 	ternarySysDistribution = std::make_shared<std::discrete_distribution<int>>(ternarySystemWeights.begin(), ternarySystemWeights.end());
 	closeStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.closeStarsBoundaries.x, mapConfig.closeStarsBoundaries.y);
 	afarStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.afarStarsBoundaries.x, mapConfig.afarStarsBoundaries.y);
+	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x,mapConfig.horizontalPosBoundaries.y);
+	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
 
 	checkRandomDistribution();
 
@@ -289,6 +291,7 @@ void WorldGenerator::GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfig
 		spNewSystem->AddComponent(ComponentType::ObjectSystem);
 		std::shared_ptr<ObjectSystemComponent> spSystemCom = GetObjectSystemComponent(*spNewSystem);
 		SceneNode* ptrNewSysNode = ptrSpaceMapNode->FindChild(*spNewSystem);
+		spNewSystem->SetPosition(sf::Vector2f{XpositionDist(randomizer),YpositionDist(randomizer)});
 
 		//Create star in that system
 		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(ptrNewSysNode, "Star1").lock();
@@ -349,6 +352,110 @@ void WorldGenerator::GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfig
 			spStar1Com->starType = StarType::BlackHole;
 			spSystemCom->systemType = SpaceSystemType::Single;
 			break;
+		}
+	}
+}
+
+
+
+std::string TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
+{
+	sf::Vector2i pictureSize{17,17};
+	//sf::Vector2i textureGrid{ 3,4 };
+	std::string texturePath{ "media/textures/starsPicture.png" };
+
+	sf::IntRect intRect;
+	intRect.size = pictureSize;
+	switch (starType) 
+	{
+	case StarType::BlackHole:
+		intRect.position = sf::Vector2i{34,0};
+		break;
+	case StarType::NeutronStar:
+		intRect.position = sf::Vector2i{ 0,0 };
+		break;
+	case StarType::WhiteDwarf:
+		intRect.position = sf::Vector2i{ 17,0 };
+		break;
+	case StarType::BrownDwarf:
+		intRect.position = sf::Vector2i{ 34,0 };
+		break;
+	case StarType::MredDwarf:
+		intRect.position = sf::Vector2i{ 0,17 };
+		break;
+	case StarType::KorangeDwarf:
+		intRect.position = sf::Vector2i{ 17,17 };
+		break;
+	case StarType::GsunLike:
+		intRect.position = sf::Vector2i{ 34,17 };
+		break;
+	case StarType::Ftype:
+		intRect.position = sf::Vector2i{ 0,34 };
+		break;
+	case StarType::Atype:
+		intRect.position = sf::Vector2i{ 17,34 };
+		break;
+	case StarType::Btype:
+		intRect.position = sf::Vector2i{ 34,34 };
+		break;
+	case StarType::Otype:
+		intRect.position = sf::Vector2i{ 0,53 };
+		break;
+	case StarType::RedGiant:
+		intRect.position = sf::Vector2i{ 17,53 };
+		break;
+	case StarType::RedSupergiant:
+		intRect.position = sf::Vector2i{ 34,53 };
+		break;
+	}
+
+	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, texturePath, intRect);
+	//"media/textures/starsPicture.png"
+}
+
+
+
+void TextureSetter::ProcessNode(SceneNode& node) 
+{
+	std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+	//Check if pointer is valid
+	if (spEntity != nullptr)
+	{
+		//Check if entity has system component
+		if (spEntity->HasComponent(ComponentType::ObjectSystem))
+		{
+			std::shared_ptr<ObjectSystemComponent> spComSys = GetObjectSystemComponent(*spEntity);
+
+			spEntity->AddComponent(ComponentType::RectangleShape);
+			std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
+			
+			SceneNode* ptrSysNode = ptrSpaceMapNode->FindChild(*spEntity);
+			if (spComSys->systemType == SpaceSystemType::Single) 
+			{
+				SceneNode* ptrStar1Node = ptrSysNode->FindChild("Star1");
+				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
+				SetSystemTexture(spRectShape, spStar1Com->starType);
+			}
+			else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar) 
+			{
+				SceneNode* ptrStar1Node = ptrSysNode->FindChild("Star1");
+				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
+				SceneNode* ptrStar2Node = ptrSysNode->FindChild("Star2");
+				std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
+
+				SetSystemTexture(spRectShape, std::max(spStar1Com->starType, spStar2Com->starType));
+			}
+			else 
+			{
+				SceneNode* ptrStar1Node = ptrSysNode->FindChild("Star1");
+				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
+				SceneNode* ptrStar2Node = ptrSysNode->FindChild("Star2");
+				std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
+				SceneNode* ptrStar3Node = ptrSysNode->FindChild("Star3");
+				std::shared_ptr<StarComponent> spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
+
+				SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
+			}
 		}
 	}
 }

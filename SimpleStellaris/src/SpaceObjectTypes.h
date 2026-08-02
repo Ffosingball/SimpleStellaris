@@ -2,8 +2,10 @@
 
 enum class StarType
 {
-	WhiteDwarf,
+	BlackHole,
 	NeutronStar,
+	WhiteDwarf,
+	BrownDwarf,
 	MredDwarf,
 	KorangeDwarf,
 	GsunLike,
@@ -12,9 +14,7 @@ enum class StarType
 	Btype,
 	Otype,
 	RedGiant,
-	RedSupergiant,
-	BrownDwarf,
-	BlackHole
+	RedSupergiant
 };
 
 enum class SpaceObjectType

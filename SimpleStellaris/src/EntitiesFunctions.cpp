@@ -71,6 +71,28 @@ std::weak_ptr<Entity> CreateNewEntityAt(SceneNode* parentNodePtr, const std::str
 	return wpEntity;
 }
 
+
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath)
+{
+	recShape->shape = sf::RectangleShape(size);
+	recShape->shape.setOrigin(size / 2.f);
+	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(texturePath);
+	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
+	recShape->shape.setTexture(sTexture.get());
+}
+
+//IntRect means which part of the texture to draw
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, sf::IntRect intRect)
+{
+	recShape->shape = sf::RectangleShape(size);
+	recShape->shape.setOrigin(size / 2.f);
+	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(texturePath);
+	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
+	recShape->shape.setTexture(sTexture.get());
+	recShape->shape.setTextureRect(intRect);
+}
+
+
 //Returns camera component from the camera entity
 std::shared_ptr<CameraComponent> GetCameraFromCameraEntity() 
 {
@@ -111,33 +133,12 @@ void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position)
 
 
 //Creates a tilemap and camera
-void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
+void InitializeCamera(const sf::Vector2u& windowSize)
 {
 	int cameraHeight = 200;
 	float cameraVelocity = 14.f;//14.f
-	sf::Vector2i backgroundSize{ 10,10 };
 	float cameraZoomSpeed = -3.f;
 	sf::Vector2f zoomBorders = {0.6f, 1.8f};
-	sf::Vector2i tilesInTileset{ 4,5 };
-
-	//Create tileMap
-	std::shared_ptr<Entity> spTileMap = CreateNewEntityAtRoot("TileMap").lock();
-	// Add components
-	spTileMap->AddComponent(ComponentType::TileMap);
-	//Get component
-	std::shared_ptr<TileMapComponent> spTileMapCom = GetTileMapComponent(*spTileMap);
-	//set tilemap properties
-	spTileMapCom->tileMap.tileSize = sf::Vector2i{64,64};
-	spTileMapCom->tileMap.marginSize = sf::Vector2i{ 0,0 };
-	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
-	spTileMapCom->tileMap.numTilesInTileset = tilesInTileset;
-	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
-	spTileMapCom->tileMap.mapSize = backgroundSize;
-	spTileMapCom->tileMap.loadTilesFromFile = false;
-	spTileMapCom->tileMap.rotateTiles = true;
-	//Iitialize all tiles
-	//std::cout << "Before init tileMap\n";
-	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y)-1 }), WorldGenerator::GenerateGridOfRandomNumbers(backgroundSize, sf::Vector2i{ 0, 3}));
 
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAtRoot("Camera").lock();
@@ -147,21 +148,44 @@ void InitializeTileMapAndCamera(const sf::Vector2u& windowSize)
 	//Get component
 	std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spCamera);
 	//set camera properties
-	sf::Vector2f mapSize = static_cast<sf::Vector2f>(spTileMapCom->tileMap.getMapSize());
 	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
 	//Set camera sizes
 	spCameraCom->view.setSize(sf::Vector2f{(float)cameraHeight*windowSizeRatio,(float)cameraHeight});
-	spCameraCom->view.setCenter(sf::Vector2f{ mapSize.x/2.f,mapSize.y/2.f });
+	spCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
 	//Set zoom properties
 	spCameraCom->cameraSize = spCameraCom->view.getSize();
 	spCameraCom->zoomingBorders = zoomBorders;
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
-	//Set boundaries
-	spCameraCom->horizontalBorders = { 0.f, mapSize.x};
-	spCameraCom->verticalBorders = { 0.f, mapSize.y };
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
+}
+
+
+std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations& mapConfig)
+{
+	sf::Vector2i tilesInTileset{ 4,5 };
+
+	//Create tileMap
+	std::shared_ptr<Entity> spTileMap = CreateNewEntityAtRoot("Background").lock();
+	// Add components
+	spTileMap->AddComponent(ComponentType::TileMap);
+	//Get component
+	std::shared_ptr<TileMapComponent> spTileMapCom = GetTileMapComponent(*spTileMap);
+	//set tilemap properties
+	spTileMapCom->tileMap.tileSize = sf::Vector2i{ 64,64 };
+	spTileMapCom->tileMap.marginSize = sf::Vector2i{ 0,0 };
+	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
+	spTileMapCom->tileMap.numTilesInTileset = tilesInTileset;
+	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
+	spTileMapCom->tileMap.mapSize = mapConfig.backgroundSize;
+	spTileMapCom->tileMap.loadTilesFromFile = false;
+	spTileMapCom->tileMap.rotateTiles = true;
+	//Iitialize all tiles
+	//std::cout << "Before init tileMap\n";
+	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::GenerateGridOfRandomNumbers(mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
+
+	return spTileMapCom;
 }
 
 
@@ -171,11 +195,23 @@ void CreateSpaceObjects()
 	SpaceMapConfigurations mapConfig;
 	//Get spaceMap node
 	SceneNode* spNode = ECSGame::Instance().GetSceneRoot().FindChild(*ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap").lock());
-	//Firstly generate systems and stars in it
+	//Firstly generate background
+	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(mapConfig);
+	//Secondly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode,mapConfig);
+	//Thirdly put rectangleShape components for all objects
+	TextureSetter txSetter;
+	txSetter.mapConfig = mapConfig;
+	txSetter.ptrSpaceMapNode = spNode;
+	spNode->AcceptVisitor(txSetter);
+	//Lastly set camera boundaries
+	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromCameraEntity();
+	sf::Vector2f mapSize = static_cast<sf::Vector2f>(spTileMapCom->tileMap.getMapSize());
+	spCameraCom->horizontalBorders = { 0.f, mapSize.x };
+	spCameraCom->verticalBorders = { 0.f, mapSize.y };
 
 	//Check systems generated
-	SceneNodeSpaceObjectsCounter visitor;
+	/*SceneNodeSpaceObjectsCounter visitor;
 	spNode->AcceptVisitor(visitor);
 	std::cout << '\n';
 	int total{ 0 };
@@ -225,7 +261,7 @@ void CreateSpaceObjects()
 	total += visitor.ternaryTwoCloseOneAfarSysAmount;
 	std::cout << "Total Ternary Two Close One Afar Systems: " << visitor.ternaryTwoCloseOneAfarSysAmount << '\n';
 	std::cout << '\n';
-	std::cout << "Total systems: " << total << '\n';
+	std::cout << "Total systems: " << total << '\n';*/
 }
 
 
