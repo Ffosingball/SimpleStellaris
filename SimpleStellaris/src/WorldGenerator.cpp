@@ -282,16 +282,99 @@ void WorldGenerator::GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfig
 	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x,mapConfig.horizontalPosBoundaries.y);
 	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
 
-	checkRandomDistribution();
+	//Create star positions grid
+	//False empty, true not empty
+	std::vector<bool> starPosGrid(((mapConfig.verticalPosBoundaries.y- mapConfig.verticalPosBoundaries.x)/mapConfig.minDistanceBetweenSystems) * ((mapConfig.horizontalPosBoundaries.y- mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems) + 1);
+	int gridWidth = (mapConfig.horizontalPosBoundaries.y - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems;
+	//std::cout << "Grid size: " << starPosGrid.size()<<'\n';
+	//std::cout << "Grid width: " << gridWidth << '\n';
+
+	//checkRandomDistribution();
 
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
+		//std::cout << i <<") " << '\n';
 		//Create new system
 		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(ptrSpaceMapNode, "System"+ std::to_string(i)).lock();
 		spNewSystem->AddComponent(ComponentType::ObjectSystem);
 		std::shared_ptr<ObjectSystemComponent> spSystemCom = GetObjectSystemComponent(*spNewSystem);
 		SceneNode* ptrNewSysNode = ptrSpaceMapNode->FindChild(*spNewSystem);
-		spNewSystem->SetPosition(sf::Vector2f{XpositionDist(randomizer),YpositionDist(randomizer)});
+		
+		//Generate position
+		bool regeneratePos = true;
+		int regenCounter{0};
+		while (regeneratePos && regenCounter<mapConfig.maxAmountOfSystemPosRegen)
+		{
+			sf::Vector2f newPos = sf::Vector2f{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
+			
+			int yPos = (int)((newPos.y-mapConfig.verticalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
+			int xPos = (int)((newPos.x- mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
+			//std::cout << "Ypos: " << yPos <<"; Xpos: " <<xPos<< '\n';
+
+			regeneratePos = false;
+			if (starPosGrid[(yPos * gridWidth) + xPos])
+				regeneratePos = true;
+			
+			if (!regeneratePos && yPos < (int)(mapConfig.verticalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
+			{
+				if (!regeneratePos &&  xPos < (int)(mapConfig.horizontalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
+				{
+					if (starPosGrid[((yPos + 1) * gridWidth) + xPos + 1])
+						regeneratePos = true;
+				}
+				
+				if (!regeneratePos &&  starPosGrid[((yPos + 1) * gridWidth) + xPos])
+					regeneratePos = true;
+				
+				if (!regeneratePos &&  xPos > 0)
+				{
+					if (starPosGrid[((yPos + 1) * gridWidth) + xPos - 1])
+						regeneratePos = true;
+				}
+			}
+			
+			if (!regeneratePos &&  xPos < (int)(mapConfig.horizontalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
+			{
+				if (starPosGrid[(yPos * gridWidth) + xPos + 1])
+					regeneratePos = true;
+			}
+			
+			if (!regeneratePos &&  xPos > 0)
+			{
+				if (starPosGrid[(yPos * gridWidth) + xPos - 1])
+					regeneratePos = true;
+			}
+			
+			if (!regeneratePos &&  yPos > 0)
+			{
+				if (!regeneratePos &&  xPos < (int)(mapConfig.horizontalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
+				{
+					if (starPosGrid[((yPos - 1) * gridWidth) + xPos + 1])
+						regeneratePos = true;
+				}
+				
+				if (!regeneratePos &&  starPosGrid[((yPos - 1) * gridWidth) + xPos])
+					regeneratePos = true;
+
+				if (!regeneratePos &&  xPos > 0)
+				{
+					if (starPosGrid[((yPos - 1) * gridWidth) + xPos - 1])
+						regeneratePos = true;
+				}
+			}
+
+			if(!regeneratePos)
+			{
+				//std::cout << "Set pos\n";
+				starPosGrid[(yPos * gridWidth) + xPos] = true;
+				spNewSystem->SetPosition(newPos);
+			}
+
+			regenCounter++;
+		}
+
+		if (regenCounter >= mapConfig.maxAmountOfSystemPosRegen)
+			std::cout << i <<") Regenerated system position "<< regenCounter<< " times!\n";
 
 		//Create star in that system
 		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(ptrNewSysNode, "Star1").lock();
@@ -358,7 +441,7 @@ void WorldGenerator::GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfig
 
 
 
-std::string TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
+void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
 {
 	sf::Vector2i pictureSize{17,17};
 	//sf::Vector2i textureGrid{ 3,4 };
@@ -399,13 +482,13 @@ std::string TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeCompon
 		intRect.position = sf::Vector2i{ 34,34 };
 		break;
 	case StarType::Otype:
-		intRect.position = sf::Vector2i{ 0,53 };
+		intRect.position = sf::Vector2i{ 0,51 };
 		break;
 	case StarType::RedGiant:
-		intRect.position = sf::Vector2i{ 17,53 };
+		intRect.position = sf::Vector2i{ 17,51 };
 		break;
 	case StarType::RedSupergiant:
-		intRect.position = sf::Vector2i{ 34,53 };
+		intRect.position = sf::Vector2i{ 34,51 };
 		break;
 	}
 
