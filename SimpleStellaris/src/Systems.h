@@ -26,6 +26,8 @@ private:
 
 	std::shared_ptr<SceneNode> uiNodePtr{nullptr};
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
+	std::shared_ptr<TextComponent> worldPosText{ nullptr };
+	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
 };
 
 //Processes all movement

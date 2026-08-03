@@ -65,6 +65,11 @@ ComponentType RectangleShapeComponent::GetComponentType() const
 	return ComponentType::RectangleShape;
 }
 
+ComponentType SystemPropertiesComponent::GetComponentType() const
+{
+	return ComponentType::SystemProperties;
+}
+
 
 //This function creates any component and return shared pointer to it
 std::shared_ptr<Component> ComponentFactory(ComponentType ct) 
@@ -91,6 +96,8 @@ std::shared_ptr<Component> ComponentFactory(ComponentType ct)
 		return std::make_shared<MovementComponent>();
 	case ComponentType::RectangleShape:
 		return std::make_shared<RectangleShapeComponent>();
+	case ComponentType::SystemProperties:
+		return std::make_shared<SystemPropertiesComponent>();
 	}
 
 	return {};
@@ -121,6 +128,8 @@ std::string PrintComponentName(ComponentType ct)
 		return "Movement";
 	case ComponentType::RectangleShape:
 		return "RectangleShape";
+	case ComponentType::SystemProperties:
+		return "SystemProperties";
 	}
 
 	return "---";
@@ -196,4 +205,11 @@ std::shared_ptr<UIPartComponent> GetUIPartComponent(const Entity& entity)
 	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::UIPart);
 	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
 	return std::static_pointer_cast<UIPartComponent>(spComponentBase);
+}
+
+std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity)
+{
+	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::SystemProperties);
+	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
+	return std::static_pointer_cast<SystemPropertiesComponent>(spComponentBase);
 }

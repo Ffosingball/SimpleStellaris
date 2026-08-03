@@ -34,6 +34,7 @@
     <ClInclude Include="src\EntitiesFunctions.h" />
     <ClInclude Include="src\GameState.h" />
     <ClInclude Include="src\SceneNodeVisitors.h" />
+    <ClInclude Include="src\SpaceMapConfiguration.h" />
     <ClInclude Include="src\SpaceObjectTypes.h" />
     <ClInclude Include="src\Systems.h" />
     <ClInclude Include="src\WorldGenerator.h" />

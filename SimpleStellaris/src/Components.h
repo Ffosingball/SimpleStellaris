@@ -7,6 +7,9 @@
 #include "TileMap.h"
 //#include "ParticleSystem.h"
 #include "SpaceObjectTypes.h"
+#include <unordered_map>
+#include "SpaceMapConfiguration.h"
+#include "SceneNode.h"
 
 //List of all components
 enum class ComponentType
@@ -21,7 +24,8 @@ enum class ComponentType
 	Nebula,
 	Movement,
 	RectangleShape,
-	SpaceObject
+	SpaceObject,
+	SystemProperties
 };
 
 
@@ -47,6 +51,17 @@ class RectangleShapeComponent : public Component
 public:
 
 	sf::RectangleShape shape;
+
+	ComponentType GetComponentType() const override;
+};
+
+//Component which stores data about all systems
+class SystemPropertiesComponent : public Component
+{
+public:
+
+	SpaceMapConfigurations mapConfig;
+	std::unordered_map<int, std::shared_ptr<SceneNode>> systemsPositions;
 
 	ComponentType GetComponentType() const override;
 };
@@ -174,3 +189,4 @@ std::shared_ptr<ObjectSystemComponent> GetObjectSystemComponent(const Entity& en
 std::shared_ptr<NebulaComponent> GetNebulaComponent(const Entity& entity);
 std::shared_ptr<MovementComponent> GetMovementComponent(const Entity& entity);
 std::shared_ptr<RectangleShapeComponent> GetRectangleShapeComponent(const Entity& entity);
+std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity);

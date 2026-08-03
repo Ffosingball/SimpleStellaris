@@ -131,4 +131,6 @@ void CreateDebugText()
 	float fontSize = 20;
 
 	InitializeText("MouseCoordsText", " ", fontSize, sf::Vector2f{0.f, 0.f});
+	InitializeText("WorldCoordsText", " ", fontSize, sf::Vector2f{ 0.f, 25.f });
+	InitializeText("SystemsNearByText", " ", fontSize, sf::Vector2f{ 0.f, 50.f });
 }

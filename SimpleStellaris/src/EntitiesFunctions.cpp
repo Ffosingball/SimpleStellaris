@@ -110,6 +110,15 @@ std::shared_ptr<CameraComponent> GetCameraFromCameraEntity()
 }
 
 
+//Returns camera component from the camera entity
+std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
+{
+	std::weak_ptr<Entity> wSmap = ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap");
+	std::shared_ptr<Entity> sSmap = wSmap.lock();
+	return GetSystemPropertiesComponent(*sSmap);
+}
+
+
 //Returns camera component from the UIcamera entity
 std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity()
 {
@@ -127,6 +136,69 @@ void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position)
 	//Set position
 	sTransform.setPosition(position);
 	sEntity->SetTransformable(sTransform);
+}
+
+
+sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i position) 
+{
+	sf::Vector2u windowSize = ECSGame::Instance().GetWindowSize();
+	windowSize.x--;
+	windowSize.y--;
+
+	float relativeXPos = ((float)position.x) / ((float)windowSize.x);
+	float relativeYPos = ((float)position.y) / ((float)windowSize.y);
+
+	sf::Vector2f horizontalCameraBorders{cameraView.getCenter().x - (cameraView.getSize().x/2.f), cameraView.getCenter().x+ (cameraView.getSize().x / 2.f) };
+	sf::Vector2f verticalCameraBorders{ cameraView.getCenter().y - (cameraView.getSize().y / 2.f), cameraView.getCenter().y + (cameraView.getSize().y / 2.f) };
+
+	return {gel::linearInterpolation(horizontalCameraBorders.x, horizontalCameraBorders.y, relativeXPos), gel::linearInterpolation(verticalCameraBorders.x, verticalCameraBorders.y, relativeYPos) };
+}
+
+
+int GetKeyForSystemsPosition(sf::Vector2i gridPosition) 
+{
+	if (gridPosition.x < 0 || gridPosition.y < 0)
+		return -1;
+
+	return (gridPosition.x * 10000) + gridPosition.y;
+}
+
+
+std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position) 
+{
+	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesFromSpaceMap();
+	int yPos = (int)((position.y - spSysPropCom->mapConfig.verticalPosBoundaries.x) / spSysPropCom->mapConfig.minDistanceBetweenSystems);
+	int xPos = (int)((position.x - spSysPropCom->mapConfig.horizontalPosBoundaries.x) / spSysPropCom->mapConfig.minDistanceBetweenSystems);
+
+	std::vector<std::shared_ptr<SceneNode>> systemsNearby;
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos + 1, yPos + 1 })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos+1 })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos + 1 })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos+1 })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos - 1, yPos + 1 })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos+1 })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos + 1, yPos })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos - 1, yPos })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos + 1, yPos - 1 })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos-1 })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos - 1 })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos-1 })]);
+	
+	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos - 1, yPos - 1 })) != spSysPropCom->systemsPositions.end())
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos-1 })]);
+
+	return systemsNearby;
 }
 
 
@@ -217,12 +289,12 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations
 //Creates space objects
 void CreateSpaceObjects() 
 {
-	SpaceMapConfigurations mapConfig;
-	//Firstly generate background
-	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(mapConfig);
 	//Get spaceMap node
 	std::weak_ptr<SceneNode> wpNode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
 	std::shared_ptr<SceneNode> spNode = wpNode.lock();
+	SpaceMapConfigurations mapConfig = GetSystemPropertiesComponent(*spNode->GetEntity().lock())->mapConfig;
+	//Firstly generate background
+	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(mapConfig);
 	//Secondly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode,mapConfig);
 	//Thirdly put rectangleShape components for all objects

@@ -15,6 +15,7 @@
 #include "GameState.h"
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
+#include <unordered_map>
 
 unsigned int WorldGenerator::seed = 0;
 std::shared_ptr<std::mt19937> WorldGenerator::randomizer = nullptr;
@@ -285,9 +286,10 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x,mapConfig.horizontalPosBoundaries.y);
 	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
 
-	//Create star positions grid
-	//False empty, true not empty
-	std::vector<bool> starPosGrid(((mapConfig.verticalPosBoundaries.y- mapConfig.verticalPosBoundaries.x)/mapConfig.minDistanceBetweenSystems) * ((mapConfig.horizontalPosBoundaries.y- mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems) + 1);
+	//Create star positions map
+	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesComponent(*ptrSpaceMapNode->GetEntity().lock());
+	//std::unordered_map<int, std::shared_ptr<SceneNode>> systemsPositions;
+	//std::vector<bool> starPosGrid(((mapConfig.verticalPosBoundaries.y- mapConfig.verticalPosBoundaries.x)/mapConfig.minDistanceBetweenSystems) * ((mapConfig.horizontalPosBoundaries.y- mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems) + 1);
 	int gridWidth = (mapConfig.horizontalPosBoundaries.y - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems;
 	//std::cout << "Grid size: " << starPosGrid.size()<<'\n';
 	//std::cout << "Grid width: " << gridWidth << '\n';
@@ -315,61 +317,12 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 			//std::cout << "Ypos: " << yPos <<"; Xpos: " <<xPos<< '\n';
 
 			regeneratePos = false;
-			if (starPosGrid[(yPos * gridWidth) + xPos])
+			if (GetAllSystemsNearPosition(newPos).size()>0)
 				regeneratePos = true;
-			
-			if (!regeneratePos && yPos < (int)(mapConfig.verticalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
-			{
-				if (!regeneratePos &&  xPos < (int)(mapConfig.horizontalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
-				{
-					if (starPosGrid[((yPos + 1) * gridWidth) + xPos + 1])
-						regeneratePos = true;
-				}
-				
-				if (!regeneratePos &&  starPosGrid[((yPos + 1) * gridWidth) + xPos])
-					regeneratePos = true;
-				
-				if (!regeneratePos &&  xPos > 0)
-				{
-					if (starPosGrid[((yPos + 1) * gridWidth) + xPos - 1])
-						regeneratePos = true;
-				}
-			}
-			
-			if (!regeneratePos &&  xPos < (int)(mapConfig.horizontalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
-			{
-				if (starPosGrid[(yPos * gridWidth) + xPos + 1])
-					regeneratePos = true;
-			}
-			
-			if (!regeneratePos &&  xPos > 0)
-			{
-				if (starPosGrid[(yPos * gridWidth) + xPos - 1])
-					regeneratePos = true;
-			}
-			
-			if (!regeneratePos &&  yPos > 0)
-			{
-				if (!regeneratePos &&  xPos < (int)(mapConfig.horizontalPosBoundaries.y / mapConfig.minDistanceBetweenSystems) - 1)
-				{
-					if (starPosGrid[((yPos - 1) * gridWidth) + xPos + 1])
-						regeneratePos = true;
-				}
-				
-				if (!regeneratePos &&  starPosGrid[((yPos - 1) * gridWidth) + xPos])
-					regeneratePos = true;
-
-				if (!regeneratePos &&  xPos > 0)
-				{
-					if (starPosGrid[((yPos - 1) * gridWidth) + xPos - 1])
-						regeneratePos = true;
-				}
-			}
-
-			if(!regeneratePos)
+			else 
 			{
 				//std::cout << "Set pos\n";
-				starPosGrid[(yPos * gridWidth) + xPos] = true;
+				spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })] = ptrNewSysNode;
 				spNewSystem->SetPosition(newPos);
 			}
 

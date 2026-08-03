@@ -44,6 +44,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpPlay = ECSGame::Instance().GetEntityManager().NewEntity("SpaceMap");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpPlay));
+	wpPlay.lock()->AddComponent(ComponentType::SystemProperties);
 	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpUI));
 

@@ -22,6 +22,12 @@ void InputSystem::Initialize()
 	uiNodePtr = ECSGame::Instance().GetSceneRoot()->FindChild("UI").lock();
 	std::shared_ptr<SceneNode> mctPtr = uiNodePtr->FindChild("MouseCoordsText").lock();
 	mousePosText = GetTextComponent(*mctPtr->GetEntity().lock());
+
+	std::shared_ptr<SceneNode> wctPtr = uiNodePtr->FindChild("WorldCoordsText").lock();
+	worldPosText = GetTextComponent(*wctPtr->GetEntity().lock());
+
+	std::shared_ptr<SceneNode> wsnPtr = uiNodePtr->FindChild("SystemsNearByText").lock();
+	systemsNearByText = GetTextComponent(*wsnPtr->GetEntity().lock());
 }
 
 //Process keys they are pressed
@@ -57,6 +63,16 @@ void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw)
 void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement) 
 {
 	mousePosText->text->setString("Window pos: "+std::to_string(mouseMovement.position.x)+"; " + std::to_string(mouseMovement.position.y));
+	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(GetCameraFromCameraEntity()->view, mouseMovement.position);
+	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
+
+	std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
+	std::string message{"Systems nearby: "};
+	for (std::shared_ptr<SceneNode> spNode : systemsNearBy) 
+	{
+		message += spNode->GetEntity().lock()->GetName() + "; ";
+	}
+	systemsNearByText->text->setString(message);
 }
 
 

@@ -20,6 +20,10 @@ std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity();
 //void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position);
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath);
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, sf::IntRect intRect);
+sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i position);
+int GetKeyForSystemsPosition(sf::Vector2i gridPosition);
+std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position);
+std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap();
 
 
 //Initializing functions
