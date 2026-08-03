@@ -28,6 +28,10 @@ void InputSystem::Initialize()
 
 	std::shared_ptr<SceneNode> wsnPtr = uiNodePtr->FindChild("SystemsNearByText").lock();
 	systemsNearByText = GetTextComponent(*wsnPtr->GetEntity().lock());
+
+	std::shared_ptr<SceneNode> wsiPtr = uiNodePtr->FindChild("SelectedSystemIcon").lock();
+	selectedSystemIcon = GetUIFollowerComponent(*wsiPtr->GetEntity().lock());
+	selectedSystemIconRect = GetRectangleShapeComponent(*wsiPtr->GetEntity().lock());
 }
 
 //Process keys they are pressed
@@ -64,14 +68,32 @@ void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement)
 {
 	mousePosText->text->setString("Window pos: "+std::to_string(mouseMovement.position.x)+"; " + std::to_string(mouseMovement.position.y));
 	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(GetCameraFromCameraEntity()->view, mouseMovement.position);
+	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
 	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
 
 	std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
+	
 	std::string message{"Systems nearby: "};
+	float closestDistance = 999999.f;
+	int closestSystemIndex = -1;
+	int counter{ 0 };
 	for (std::shared_ptr<SceneNode> spNode : systemsNearBy) 
 	{
 		message += spNode->GetEntity().lock()->GetName() + "; ";
+		if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance) 
+		{
+			closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
+			closestSystemIndex = counter;
+			selectedSystemIconRect->hidden = false;
+		}
+		counter++;
 	}
+
+	if(closestSystemIndex==-1)
+		selectedSystemIconRect->hidden = true;
+	else
+		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
+	
 	systemsNearByText->text->setString(message);
 }
 

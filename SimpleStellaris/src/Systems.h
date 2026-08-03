@@ -28,6 +28,8 @@ private:
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
+	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
+	std::shared_ptr<RectangleShapeComponent> selectedSystemIconRect{ nullptr };
 };
 
 //Processes all movement

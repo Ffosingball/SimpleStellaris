@@ -20,18 +20,40 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
     if (spEntity != nullptr)
     {
         //Check if entity has UI component
-        if (spEntity->HasComponent(ComponentType::UIPart) && spEntity->HasComponent(ComponentType::Text))
+        if (spEntity->HasComponent(ComponentType::UIPart))
         {
+            //And now draw entities differently, depending on which other components they have
+            if (spEntity->HasComponent(ComponentType::RectangleShape))
+            {
+                //Get component
+                std::shared_ptr<RectangleShapeComponent> spEntityRecShape = GetRectangleShapeComponent(*spEntity);
+
+                if (!spEntityRecShape->hidden)
+                {
+                    //std::cout << spEntity->GetName() << " not hidden \n";
+                    //Get absolute position of the entity in the world
+                    sf::RenderStates states;
+                    states.transform = node.GetCombinedTransform();
+                    //Draw entity
+                    renderWindow.draw(spEntityRecShape->shape, states);
+                }
+                //else
+                    //std::cout << spEntity->GetName()<<" is hidden \n";
+            }
+
             if (spEntity->HasComponent(ComponentType::Text))
             {
                 //Get component
                 std::shared_ptr<TextComponent> spEntityUI = GetTextComponent(*spEntity);
 
-                //Get absolute position of the entity in the world
-                sf::RenderStates states;
-                states.transform = node.GetCombinedTransform();
-                //Draw entity
-                renderWindow.draw(*(spEntityUI->text), states);
+                if (!spEntityUI->hidden)
+                {
+                    //Get absolute position of the entity in the world
+                    sf::RenderStates states;
+                    states.transform = node.GetCombinedTransform();
+                    //Draw entity
+                    renderWindow.draw(*(spEntityUI->text), states);
+                }
             }
         }
     }

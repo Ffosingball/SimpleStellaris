@@ -134,3 +134,24 @@ void CreateDebugText()
 	InitializeText("WorldCoordsText", " ", fontSize, sf::Vector2f{ 0.f, 25.f });
 	InitializeText("SystemsNearByText", " ", fontSize, sf::Vector2f{ 0.f, 50.f });
 }
+
+
+//Creates UI of the game
+void CreateUI() 
+{
+	sf::Vector2f iconSize{100.f, 100.f};
+
+	//Create icon
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt("UI", "SelectedSystemIcon").lock();
+
+	//Add component
+	spSSIcon->AddComponent(ComponentType::UIPart);
+	spSSIcon->AddComponent(ComponentType::UIFollower);
+	spSSIcon->AddComponent(ComponentType::RectangleShape);
+
+	//Get component
+	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
+	sf::IntRect intRect({0,0}, {32,32});
+	SetupRectangleShape(spRectShape, iconSize, "media/textures/selectionIcon.png", intRect);
+	spRectShape->hidden = true;
+}

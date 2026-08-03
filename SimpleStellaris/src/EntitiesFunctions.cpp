@@ -155,6 +155,22 @@ sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i posi
 }
 
 
+sf::Vector2i ConvertWorldPositionToWindow(sf::View cameraView, sf::Vector2f position) 
+{
+	sf::Vector2u windowSize = ECSGame::Instance().GetWindowSize();
+	windowSize.x--;
+	windowSize.y--;
+
+	float leftXBorder = cameraView.getCenter().x - (cameraView.getSize().x / 2.f);
+	float topYBorder = cameraView.getCenter().y - (cameraView.getSize().y / 2.f);
+
+	float relativeXPos = (position.x - leftXBorder) / cameraView.getSize().x;
+	float relativeYPos = (position.y - topYBorder) / cameraView.getSize().y;
+
+	return { (int)(windowSize.x*relativeXPos), (int)(windowSize.y * relativeYPos) };
+}
+
+
 int GetKeyForSystemsPosition(sf::Vector2i gridPosition) 
 {
 	if (gridPosition.x < 0 || gridPosition.y < 0)

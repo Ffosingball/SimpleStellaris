@@ -50,6 +50,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Create debug text
 	CreateDebugText();
+	CreateUI();
 
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)

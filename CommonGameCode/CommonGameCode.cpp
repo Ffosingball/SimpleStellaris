@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <random>
 #include <iostream>
+#include <cmath>
 
 namespace gel
 {
@@ -64,5 +65,10 @@ namespace gel
 			return false;
 
 		return true;
+	}
+
+	float distanceBetween2Points(sf::Vector2f pos1, sf::Vector2f pos2) 
+	{
+		return std::sqrt(std::pow(std::abs(pos1.x-pos2.x), 2)+ std::pow(std::abs(pos1.y - pos2.y), 2));
 	}
 }

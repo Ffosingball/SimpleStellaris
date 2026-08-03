@@ -11,6 +11,7 @@ namespace gel
 	float Randf01();
 
 	float linearInterpolation(float min, float max, float pos);
+	float distanceBetween2Points(sf::Vector2f pos1, sf::Vector2f pos2);
 
 	float clamp(float value, float minValue, float maxValue);
 

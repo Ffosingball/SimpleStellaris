@@ -190,6 +190,19 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     spEntityTextCom->text->setOutlineColor(outlineColor);
                 }
             }
+
+            //Check if entity has UIFollower component
+            if (spEntity->HasComponent(ComponentType::UIFollower))
+            {
+                std::shared_ptr<UIFollowerComponent> spEntityFollower = GetUIFollowerComponent(*spEntity);
+                
+                if (spEntityFollower->entityToFollow.lock() != nullptr)
+                {
+                    sf::Vector2f positionToFollow = spEntityFollower->entityToFollow.lock()->GetPosition();
+                    sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionToFollow);
+                    spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
+                }
+            }
         }
     }
 }
@@ -214,8 +227,9 @@ void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
                 std::shared_ptr<Component> spEntityTileMapBase = spEntity->FindComponent(ComponentType::TileMap).lock();
                 std::shared_ptr<TileMapComponent> spEntityTileMap = std::static_pointer_cast<TileMapComponent>(spEntityTileMapBase);
 
-                //Draw entity
-                spEntityTileMap->tileMap.Render(renderWindow, node.GetCombinedTransform());
+                //Draw entity if not hidden
+                if(!spEntityTileMap->hidden)
+                    spEntityTileMap->tileMap.Render(renderWindow, node.GetCombinedTransform());
             }
 
             if (spEntity->HasComponent(ComponentType::RectangleShape))
@@ -224,11 +238,14 @@ void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
                 std::shared_ptr<Component> spEntityRecShapeBase = spEntity->FindComponent(ComponentType::RectangleShape).lock();
                 std::shared_ptr<RectangleShapeComponent> spEntityRecShape = std::static_pointer_cast<RectangleShapeComponent>(spEntityRecShapeBase);
 
-                //Get absolute position of the entity in the world
-                sf::RenderStates states;
-                states.transform = node.GetCombinedTransform();
-                //Draw entity
-                renderWindow.draw(spEntityRecShape->shape, states);
+                if (!spEntityRecShape->hidden)
+                {
+                    //Get absolute position of the entity in the world
+                    sf::RenderStates states;
+                    states.transform = node.GetCombinedTransform();
+                    //Draw entity if not hidden
+                    renderWindow.draw(spEntityRecShape->shape, states);
+                }
             }
         }
     }

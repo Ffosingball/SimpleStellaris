@@ -25,7 +25,8 @@ enum class ComponentType
 	Movement,
 	RectangleShape,
 	SpaceObject,
-	SystemProperties
+	SystemProperties,
+	UIFollower
 };
 
 
@@ -51,6 +52,7 @@ class RectangleShapeComponent : public Component
 public:
 
 	sf::RectangleShape shape;
+	bool hidden{ false };
 
 	ComponentType GetComponentType() const override;
 };
@@ -62,6 +64,16 @@ public:
 
 	SpaceMapConfigurations mapConfig;
 	std::unordered_map<int, std::shared_ptr<SceneNode>> systemsPositions;
+
+	ComponentType GetComponentType() const override;
+};
+
+//Component which tells ui entity to follow entity in the world
+class UIFollowerComponent : public Component
+{
+public:
+
+	std::weak_ptr<Entity> entityToFollow;
 
 	ComponentType GetComponentType() const override;
 };
@@ -118,6 +130,7 @@ class TileMapComponent : public Component
 public:
 
 	TileMap tileMap;
+	bool hidden{ false };
 
 	ComponentType GetComponentType() const override;
 };
@@ -153,6 +166,7 @@ class TextComponent : public Component
 public:
 	//Stores text
 	std::shared_ptr<sf::Text> text;
+	bool hidden{ false };
 
 	ComponentType GetComponentType() const override;
 };
@@ -190,3 +204,4 @@ std::shared_ptr<NebulaComponent> GetNebulaComponent(const Entity& entity);
 std::shared_ptr<MovementComponent> GetMovementComponent(const Entity& entity);
 std::shared_ptr<RectangleShapeComponent> GetRectangleShapeComponent(const Entity& entity);
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity);
+std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity);
