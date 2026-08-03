@@ -7,6 +7,7 @@
 #include <sigslot/signal.hpp>
 #include "GameState.h"
 #include <SFML/Audio.hpp>
+#include "Components.h"
 
 
 //Input system processes inputs
@@ -16,11 +17,15 @@ public:
 	virtual ~InputSystem() = default;
 private:
 	void Initialize() override;
-	void Update(SceneNode& scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Signals functions
 	void OnKeyPressed(sf::Event::KeyPressed key);
 	void OnKeyReleased(sf::Event::KeyReleased key);
 	void OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw);
+	void OnMouseMoved(sf::Event::MouseMoved mouseMovement);
+
+	std::shared_ptr<SceneNode> uiNodePtr{nullptr};
+	std::shared_ptr<TextComponent> mousePosText{nullptr};
 };
 
 //Processes all movement
@@ -33,7 +38,7 @@ public:
 	virtual ~MovementSystem() = default;
 private:
 	void Initialize() override;
-	void Update(SceneNode& scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Set direction to the new one
 	void OnMoveCamera(sf::Vector2f direction) { this->direction = direction; }
 };
@@ -46,7 +51,7 @@ public:
 	virtual ~UISystem() = default;
 private:
 	void Initialize() override;
-	void Update(SceneNode& scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 };
 
 
@@ -71,7 +76,7 @@ public:
 	virtual ~MusicSystem() = default;
 private:
 	void Initialize() override;
-	void Update(SceneNode& scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Signals functions
 	//void OnGameRestart();
 	//void OnPlayExplosionSound();
@@ -97,7 +102,7 @@ public:
 	virtual ~GameSystem() = default;
 private:
 	void Initialize() override;
-	void Update(SceneNode& scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 };
 
 
@@ -107,6 +112,7 @@ namespace signals
 	inline sigslot::signal<sf::Event::KeyPressed> onKeyPressed;
 	inline sigslot::signal<sf::Event::KeyReleased> onKeyReleased;
 	inline sigslot::signal<sf::Event::MouseWheelScrolled> onMouseWheelScrolled;
+	inline sigslot::signal<sf::Event::MouseMoved> onMouseMoved;
 	//inline sigslot::signal<> onGameRestart;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
 	//inline sigslot::signal<float> onZoomCamera;

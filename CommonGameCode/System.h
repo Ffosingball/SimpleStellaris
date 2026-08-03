@@ -17,7 +17,7 @@ public:
 	//To end the system
 	virtual void Destroy() {}
 	//To update entities every frame
-	virtual void Update(SceneNode& scene, float deltaTime) {}
+	virtual void Update(std::shared_ptr<SceneNode> scene, float deltaTime) {}
 };
 
 //Deletes all entities at the end of the frame
@@ -29,7 +29,7 @@ public:
 
 	virtual ~DeleteSystem() = default;
 	void Initialize() override;
-	void Update(SceneNode& scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 private:
 	//This functions will be called when appropriate signal will be signaled
 	//they will ad name or entity to the vector, and then delete them at the end

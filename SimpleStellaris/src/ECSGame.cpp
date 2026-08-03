@@ -19,6 +19,8 @@
 //Initialize game
 void ECSGame::Init(sf::RenderWindow& renderWindow) 
 {
+	//Create scene root
+	sceneRoot = std::make_shared<SceneNode>();
 	//I noticed, that random function generates same random numbers every time when I start
 	//my game again, so to solve this issue I seed it with current time at the start of the
 	//game
@@ -41,9 +43,12 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpPlay = ECSGame::Instance().GetEntityManager().NewEntity("SpaceMap");
-	ECSGame::Instance().GetSceneRoot().AddChild(SceneNode(wpPlay));
+	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpPlay));
 	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
-	ECSGame::Instance().GetSceneRoot().AddChild(SceneNode(wpUI));
+	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpUI));
+
+	//Create debug text
+	CreateDebugText();
 
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)
@@ -76,7 +81,7 @@ void ECSGame::Update(const float deltaTime)
 }
 
 
-void ECSGame::HandleEvent(const std::optional<sf::Event>& event) 
+void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 {
 	//Check if any key is pressed
 	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) 
@@ -95,6 +100,12 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 	{
 		signals::onMouseWheelScrolled(*mouseWheelScrolled);
 	}
+
+	//Check if mouse wheel scrolled
+	if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+	{
+		signals::onMouseMoved(*mouseMoved);
+	}
 }
 
 //Render all entities
@@ -110,7 +121,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//Render all scene entities
 	SceneNodeVisitorRender visitor(renderWindow);
-	sceneRoot.AcceptVisitor(visitor);
+	sceneRoot->AcceptVisitor(visitor);
 
 	//Set renderWindow to render UI
 	std::shared_ptr<CameraComponent> sUICameraCom = GetCameraFromUICameraEntity();
@@ -118,5 +129,5 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//Render all UI entities
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
-	sceneRoot.AcceptVisitor(visitor2);
+	sceneRoot->AcceptVisitor(visitor2);
 }

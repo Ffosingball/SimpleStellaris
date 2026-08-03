@@ -5,6 +5,7 @@
 #include <vector>
 #include <sigslot/signal.hpp>
 #include "Entity.h"
+#include <iostream>
 
 //Create new entity
 std::weak_ptr<Entity> EntityManager::NewEntity(const std::string& name) 
@@ -57,4 +58,16 @@ std::weak_ptr<Entity> EntityManager::FindEntity(const std::string& name) const
 
 	//If not found then return nullptr
 	return target;
+}
+
+
+void EntityManager::OutputAllEntitiesNames() 
+{
+	for (std::shared_ptr<Entity> e : entities) 
+	{
+		if (e == nullptr)
+			std::cout << "Entity is nullptr\n";
+		else
+			std::cout << e <<"; name: "<<e->GetName()<<'\n';
+	}
 }

@@ -7,7 +7,7 @@
 #include "SceneNodeVisitor.h"
 
 //Scene node which will be used to create a scene graph
-class SceneNode 
+class SceneNode : public std::enable_shared_from_this<SceneNode>
 {
 public:
 	//Scene node can be constructed with or without entity
@@ -19,11 +19,16 @@ public:
 	std::string GetCombinedParentsNames() const;
 	std::string GetAllChildrenNames() const;
 	std::weak_ptr<Entity> GetEntity() const { return entity; }
-	const SceneNode* GetParent() const { return parent; }
-	std::vector<SceneNode> GetAllChildren() const { return children; };
+	const std::weak_ptr<SceneNode> GetParent() const { return parent; }
+	std::vector<std::shared_ptr<SceneNode>> GetAllChildren() const { return children; };
 
 	//Add child to this node
-	void AddChild(const SceneNode& child);
+	void AddChild(const std::shared_ptr<SceneNode> child);
+
+	//Change child position, child should already exist here
+	void ChangeChildOrder(const std::shared_ptr<SceneNode> child, int position);
+	//Change child position by entity, child should already exist here
+	void ChangeChildOrder(const std::shared_ptr<Entity> entity, int position);
 
 	void AcceptVisitor(SceneNodeVisitor& visitor);
 
@@ -31,18 +36,18 @@ public:
 	void RemoveByEntity(std::weak_ptr<Entity> e);
 
 	//Find and return child
-	SceneNode* FindChild(const Entity& e);
-	SceneNode* FindChild(const std::string& s);
+	std::weak_ptr<SceneNode> FindChild(const Entity& e);
+	std::weak_ptr<SceneNode> FindChild(const std::string& s);
 
 private:
 
 	//Upadate parent pointer, of all children
-	void UpdateParentRecursive();
+	//void UpdateParentRecursive();
 
 	//Pointer to the entity
 	std::weak_ptr<Entity> entity;
 	//Pointer to the parent
-	const SceneNode* parent = nullptr;
+	std::weak_ptr<SceneNode> parent;
 	//List of children
-	std::vector<SceneNode> children;
+	std::vector<std::shared_ptr<SceneNode>> children;
 };

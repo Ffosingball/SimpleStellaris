@@ -47,7 +47,6 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 	std::shared_ptr<Entity> spUI = CreateNewEntityAt("UI", textName).lock();
 	//Add component
 	spUI->AddComponent(ComponentType::Text);
-	spUI->AddComponent(ComponentType::Movement);
 	spUI->AddComponent(ComponentType::UIPart);
 	//Get component
 	std::shared_ptr<TextComponent> spUICom = GetTextComponent(*spUI);
@@ -56,21 +55,25 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 	//Set text properties
 	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
 	spUICom->text->setFillColor(sf::Color::White);
-	spUICom->text->setOutlineColor(sf::Color(100,100,100));
-	spUICom->text->setOutlineThickness(1.2f);
+	//spUICom->text->setOutlineColor(sf::Color(100,100,100));
+	//spUICom->text->setOutlineThickness(1.2f);
 	spUICom->text->setCharacterSize(fontSize);
 
 	return spUI;
 }
 
+
 //Creates text without moving animation
-void InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking=false, const bool isMoving = false, const float* targetX=nullptr, const float* targetY=nullptr, const sf::Vector2f velocity = {0.f,0.f}, const bool skipOriginReset=false)
+void InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
 {
 	//Check if text exist then use existing one, otherwise create new one
 	std::shared_ptr<Entity> spUI = ECSGame::Instance().GetEntityManager().FindEntity(name).lock();
 	//Check if this text exist
 	if (spUI == nullptr)
-		spUI = CreateGenericText(name,fontSize);
+	{
+		spUI = CreateGenericText(name, fontSize);
+		spUI->AddComponent(ComponentType::Movement);
+	}
 	//Get component
 	std::shared_ptr<UIPartComponent> spUICom = GetUIPartComponent(*spUI);
 	std::shared_ptr<TextComponent> spTextCom = GetTextComponent(*spUI);
@@ -78,7 +81,29 @@ void InitializeText(const std::string name, const std::string text, const int fo
 	//set text
 	spTextCom->text->setString(text);
 	//Set text position
-	SetNewPosition(spUI, position);
+	spUI->SetPosition(position);
+}
+
+
+//Creates text with moving animation
+void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking=false, const bool isMoving = false, const float* targetX=nullptr, const float* targetY=nullptr, const sf::Vector2f velocity = {0.f,0.f}, const bool skipOriginReset=false)
+{
+	//Check if text exist then use existing one, otherwise create new one
+	std::shared_ptr<Entity> spUI = ECSGame::Instance().GetEntityManager().FindEntity(name).lock();
+	//Check if this text exist
+	if (spUI == nullptr)
+	{
+		spUI = CreateGenericText(name, fontSize);
+		spUI->AddComponent(ComponentType::Movement);
+	}
+	//Get component
+	std::shared_ptr<UIPartComponent> spUICom = GetUIPartComponent(*spUI);
+	std::shared_ptr<TextComponent> spTextCom = GetTextComponent(*spUI);
+	std::shared_ptr<MovementComponent> spMovCom = GetMovementComponent(*spUI);
+	//set text
+	spTextCom->text->setString(text);
+	//Set text position
+	spUI->SetPosition(position);
 	//Check if text should blink
 	if (isBlinking)
 	{
@@ -97,4 +122,13 @@ void InitializeText(const std::string name, const std::string text, const int fo
 	//Reset text origin to center of the text if needed
 	if(!skipOriginReset)
 		gel::SetTextOrigin(*(spTextCom->text), position);
+}
+
+
+//Create debugging text at the top right corner
+void CreateDebugText() 
+{
+	float fontSize = 20;
+
+	InitializeText("MouseCoordsText", " ", fontSize, sf::Vector2f{0.f, 0.f});
 }

@@ -23,6 +23,9 @@ public:
 	//Find entity by name
 	std::weak_ptr<Entity> FindEntity(const std::string& name) const;
 
+	//Output list of all entities
+	void OutputAllEntitiesNames();
+
 private:
 	//List of all entities
 	std::vector<std::shared_ptr<Entity>> entities;

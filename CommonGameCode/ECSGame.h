@@ -29,7 +29,7 @@ public:
 	//Getters
 	float GetDeltaTime() const { return deltaTime; }
 	EntityManager& GetEntityManager() { return entityManager; }
-	SceneNode& GetSceneRoot() { return sceneRoot; }
+	std::shared_ptr<SceneNode> GetSceneRoot() { return sceneRoot; }
 	GameState GetGameState() const { return gameState; }
 	sf::Vector2u GetWindowSize() const { return windowSize; }
 
@@ -49,7 +49,7 @@ private:
 	ECSGame() = default;
 
 	EntityManager entityManager;
-	SceneNode sceneRoot;
+	std::shared_ptr<SceneNode> sceneRoot;
 	//List of all systems is here
 	std::vector<std::shared_ptr<System>> systems;
 

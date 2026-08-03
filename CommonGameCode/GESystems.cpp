@@ -14,7 +14,7 @@ void DeleteAllEntitiesWithName(std::string name)
 	{
 		std::weak_ptr wPtr = ECSGame::Instance().GetEntityManager().FindEntity(name);
 		//Remove from scene
-		ECSGame::Instance().GetSceneRoot().RemoveByEntity(wPtr);
+		ECSGame::Instance().GetSceneRoot()->RemoveByEntity(wPtr);
 		//Remove from entity manager
 		ECSGame::Instance().GetEntityManager().DestroyEntity(wPtr);
 	}
@@ -28,13 +28,13 @@ void DeleteSystem::Initialize()
 	signals::onDeleteEntitiesByName.connect(&DeleteSystem::OnDeleteEntitiesByName, this);
 }
 
-void DeleteSystem::Update(SceneNode& scene, float deltaTime)
+void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	//Check if vector is empty
 	while (entitiesToDelete.size()>0)
 	{
 		//Remove from scene
-		ECSGame::Instance().GetSceneRoot().RemoveByEntity(entitiesToDelete[0]);
+		ECSGame::Instance().GetSceneRoot()->RemoveByEntity(entitiesToDelete[0]);
 		//Remove from entity manager
 		ECSGame::Instance().GetEntityManager().DestroyEntity(entitiesToDelete[0]);
 		//Remove from this vestor as well

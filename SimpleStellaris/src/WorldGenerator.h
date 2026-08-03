@@ -112,7 +112,7 @@ private:
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
 	WorldGenerator& operator=(const WorldGenerator&) = delete;
 
-	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, SceneNode* wpSystemNode, std::shared_ptr<Entity> spStar1Entuty);
+	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty);
 	static void StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom);
 	static void checkRandomDistribution();
 
@@ -123,7 +123,7 @@ public:
 	//Min and max value are used so vector 0,3 all values 0,1,2,3 will be generated
 	static std::vector<int> GenerateGridOfRandomNumbers(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
 	static std::vector<int> GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
-	static void GenerateSpaceMap(SceneNode* ptrSpaceMapNode, SpaceMapConfigurations& mapConfig);
+	static void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode, SpaceMapConfigurations& mapConfig);
 };
 
 
@@ -136,7 +136,7 @@ public:
 	void ProcessNode(SceneNode& node) override;
 
 	SpaceMapConfigurations mapConfig;
-	SceneNode* ptrSpaceMapNode;
+	std::shared_ptr<SceneNode> ptrSpaceMapNode;
 private:
 	void SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
 };

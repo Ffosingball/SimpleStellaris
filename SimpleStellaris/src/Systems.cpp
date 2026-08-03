@@ -17,6 +17,11 @@ void InputSystem::Initialize()
 	signals::onKeyPressed.connect(&InputSystem::OnKeyPressed, this);
 	signals::onKeyReleased.connect(&InputSystem::OnKeyReleased, this);
 	signals::onMouseWheelScrolled.connect(&InputSystem::OnMouseWheelScrolled, this);
+	signals::onMouseMoved.connect(&InputSystem::OnMouseMoved, this);
+
+	uiNodePtr = ECSGame::Instance().GetSceneRoot()->FindChild("UI").lock();
+	std::shared_ptr<SceneNode> mctPtr = uiNodePtr->FindChild("MouseCoordsText").lock();
+	mousePosText = GetTextComponent(*mctPtr->GetEntity().lock());
 }
 
 //Process keys they are pressed
@@ -49,10 +54,16 @@ void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw)
 }
 
 
+void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement) 
+{
+	mousePosText->text->setString("Window pos: "+std::to_string(mouseMovement.position.x)+"; " + std::to_string(mouseMovement.position.y));
+}
+
+
 //I process movement and fire keys in every frame, because game reacts to the key press
 //on the same frame as it was pressed, and it will react every fram until the key
 //is released. If I would use events, they are not called every frame, which is bad
-void InputSystem::Update(SceneNode& scene, float deltaTime)
+void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	//Set direction to 0,0
 	sf::Vector2f direction{ 0,0 };
@@ -96,13 +107,13 @@ void MovementSystem::Initialize()
 }
 
 
-void MovementSystem::Update(SceneNode& scene, float deltaTime) 
+void MovementSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	//If game paused, then do nothing
 	if (ECSGame::Instance().GetGameState() != GameState::Pause)
 	{
 		SceneNodeVisitorMovement visitor(*this);
-		scene.AcceptVisitor(visitor);
+		scene->AcceptVisitor(visitor);
 	}
 }
 
@@ -113,10 +124,10 @@ void UISystem::Initialize()
 	//Subscribe to some signals
 }
 
-void UISystem::Update(SceneNode& scene, float deltaTime) 
+void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	SceneNodeVisitorUI visitor(*this);
-	scene.AcceptVisitor(visitor);
+	scene->AcceptVisitor(visitor);
 }
 
 
@@ -149,7 +160,7 @@ void MusicSystem::Initialize()
 	*/
 }
 
-void MusicSystem::Update(SceneNode& scene, float deltaTime)
+void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	/*
 	//Check if we played all explosion sound
@@ -188,7 +199,7 @@ void GameSystem::Initialize()
 }
 
 //Update player`s invulnerability and shield
-void GameSystem::Update(SceneNode& scene, float deltaTime)
+void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 
 }
