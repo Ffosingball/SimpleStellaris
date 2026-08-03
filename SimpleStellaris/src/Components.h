@@ -155,6 +155,8 @@ public:
 	sf::Vector2f zoomingBorders{ 0.5f, 2.f };
 	//Camera size at zoom 1,1
 	sf::Vector2f cameraSize{ 0.f, 0.f };
+	//Speed change depending on camera zoom
+	float speedChange{ 5.f };
 
 	ComponentType GetComponentType() const override;
 };

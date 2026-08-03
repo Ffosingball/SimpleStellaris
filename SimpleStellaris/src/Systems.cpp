@@ -58,9 +58,25 @@ void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
 {
 	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromCameraEntity();
+	//sf::Vector2f previousSize = spCameraCom->view.getSize();
 	//Zoom camera
 	spCameraCom->currentZoom = gel::clamp((spCameraCom->zoomingSpeed * ECSGame::Instance().GetDeltaTime() * mw.delta) + spCameraCom->currentZoom, spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
 	spCameraCom->view.setSize(spCameraCom->cameraSize * spCameraCom->currentZoom);
+	//Check that camera do not go out of bounds
+	sf::Vector2f camCenter = spCameraCom->view.getCenter();
+	float moveX{-1.f};
+	float moveY{ -1.f };
+	if (camCenter.x + (spCameraCom->view.getSize().x / 2.f) >= spCameraCom->horizontalBorders.y)
+		moveX *= camCenter.x + (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.y;
+	else if (camCenter.x - (spCameraCom->view.getSize().x / 2.f) <= spCameraCom->horizontalBorders.x)
+		moveX *= camCenter.x + moveX - (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.x;
+
+	if (camCenter.y + (spCameraCom->view.getSize().y / 2.f) >= spCameraCom->verticalBorders.y)
+		moveY *= camCenter.y + moveY + (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.y;
+	else if (camCenter.y - (spCameraCom->view.getSize().y / 2.f) <= spCameraCom->verticalBorders.x)
+		moveY *= camCenter.y + moveY - (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.x;
+
+	spCameraCom->view.move({moveX, moveY});
 }
 
 

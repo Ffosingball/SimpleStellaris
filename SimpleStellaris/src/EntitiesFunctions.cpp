@@ -232,8 +232,9 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 void InitializeCamera(const sf::Vector2u& windowSize)
 {
 	int cameraHeight = 300;
-	float cameraVelocity = 40.f;//14.f
-	float cameraZoomSpeed = -5.f;
+	float cameraVelocity = 20.f;//14.f
+	float cameraZoomSpeed = -8.f;
+	float velocityChange = 8.f;
 	sf::Vector2f zoomBorders = {0.4f, 1.7f};
 
 	//Create camera
@@ -252,6 +253,7 @@ void InitializeCamera(const sf::Vector2u& windowSize)
 	spCameraCom->cameraSize = spCameraCom->view.getSize();
 	spCameraCom->zoomingBorders = zoomBorders;
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
+	spCameraCom->speedChange = velocityChange;
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
@@ -305,6 +307,8 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations
 //Creates space objects
 void CreateSpaceObjects() 
 {
+	float additionalSpaceForCameraBoundaries = 20.f;
+
 	//Get spaceMap node
 	std::weak_ptr<SceneNode> wpNode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
 	std::shared_ptr<SceneNode> spNode = wpNode.lock();
@@ -321,8 +325,8 @@ void CreateSpaceObjects()
 	//Lastly set camera boundaries
 	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromCameraEntity();
 	sf::Vector2f mapSize = static_cast<sf::Vector2f>(spTileMapCom->tileMap.getMapSize());
-	spCameraCom->horizontalBorders = mapConfig.horizontalPosBoundaries;
-	spCameraCom->verticalBorders = mapConfig.verticalPosBoundaries;
+	spCameraCom->horizontalBorders = { mapConfig.horizontalPosBoundaries.x - additionalSpaceForCameraBoundaries, mapConfig.horizontalPosBoundaries.y + additionalSpaceForCameraBoundaries };
+	spCameraCom->verticalBorders = { mapConfig.verticalPosBoundaries.x - additionalSpaceForCameraBoundaries, mapConfig.verticalPosBoundaries.y + additionalSpaceForCameraBoundaries };
 	spCameraCom->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 	//Check systems generated

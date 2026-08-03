@@ -60,7 +60,7 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
         {
             //std::cout << " has " << " movement com" << '\n';
             //If yes, then check which other component it has
-            if (spEntity->HasComponent(ComponentType::Camera)) 
+            if (spEntity->HasComponent(ComponentType::Camera))
             {
                 //If it has camera component then move camera, not entity
                 std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spEntity);
@@ -68,9 +68,26 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                 //Get movement component
                 std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
 
-
+                float speedMultiplier = spCameraCom->currentZoom * spCameraCom->speedChange;
                 //Move camera
-                spCameraCom->view.setCenter({ gel::clamp((spMovementCom->velocity.x * movementSystem.direction.x * dt) + spCameraCom->view.getCenter().x, spCameraCom->horizontalBorders.x,spCameraCom->horizontalBorders.y), gel::clamp((spMovementCom->velocity.y * movementSystem.direction.y * dt) + spCameraCom->view.getCenter().y, spCameraCom->verticalBorders.x,spCameraCom->verticalBorders.y) });
+                sf::Vector2f previousPos = spCameraCom->view.getCenter();
+                sf::Vector2f newPos = previousPos;
+                float moveX = spMovementCom->velocity.x * speedMultiplier * movementSystem.direction.x * dt;
+                float moveY = spMovementCom->velocity.y * speedMultiplier * movementSystem.direction.y * dt;
+                //sf::Vector2f rightBottomCorner{ previousPos.x + (spCameraCom->view.getSize().x / 2.f) , previousPos.y + (spCameraCom->view.getSize().y / 2.f) };
+                if (previousPos.x + moveX + (spCameraCom->view.getSize().x / 2.f) <= spCameraCom->horizontalBorders.y && moveX>0)
+                    newPos.x += moveX;
+                else if (previousPos.x + moveX - (spCameraCom->view.getSize().x / 2.f) >= spCameraCom->horizontalBorders.x && moveX < 0)
+                    newPos.x += moveX;
+
+                if (previousPos.y + moveY + (spCameraCom->view.getSize().y / 2.f) <= spCameraCom->verticalBorders.y && moveY > 0)
+                    newPos.y += moveY;
+                else if (previousPos.y + moveY - (spCameraCom->view.getSize().y / 2.f) >= spCameraCom->verticalBorders.x && moveY < 0)
+                    newPos.y += moveY;
+                
+                spCameraCom->view.setCenter(newPos);
+
+                //spCameraCom->view.setCenter({ gel::clamp((spMovementCom->velocity.x * speedMultiplier * movementSystem.direction.x * dt) + spCameraCom->view.getCenter().x, spCameraCom->horizontalBorders.x,spCameraCom->horizontalBorders.y), gel::clamp((spMovementCom->velocity.y * speedMultiplier * movementSystem.direction.y * dt) + spCameraCom->view.getCenter().y, spCameraCom->verticalBorders.x,spCameraCom->verticalBorders.y) });
             }
             else if (spEntity->HasComponent(ComponentType::UIPart)) 
             {
