@@ -44,7 +44,7 @@ void SetupMoveTextProperties(const std::string textName, const float* xPos, cons
 std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize) 
 {
 	//create entity
-	std::shared_ptr<Entity> spUI = CreateNewEntityAt("UI", textName).lock();
+	std::shared_ptr<Entity> spUI = CreateNewEntityAtUIRoot(textName).lock();
 	//Add component
 	spUI->AddComponent(ComponentType::Text);
 	spUI->AddComponent(ComponentType::UIPart);
@@ -166,6 +166,7 @@ void CreateDebugText()
 	InitializeText("MouseCoordsText", " ", fontSize, sf::Vector2f{0.f, 0.f}, OverviewType::Always);
 	InitializeText("WorldCoordsText", " ", fontSize, sf::Vector2f{ 0.f, 25.f }, OverviewType::Always);
 	InitializeText("SystemsNearByText", " ", fontSize, sf::Vector2f{ 0.f, 50.f }, OverviewType::Space);
+	InitializeText("FPSText", " ", fontSize, sf::Vector2f{ 0.f, 75.f }, OverviewType::Always);
 }
 
 
@@ -175,7 +176,7 @@ void CreateUI()
 	sf::Vector2f iconSize{100.f, 100.f};
 
 	//Create icon
-	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt("UI", "SelectedSystemIcon").lock();
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("SelectedSystemIcon").lock();
 
 	//Add component
 	spSSIcon->AddComponent(ComponentType::UIPart);
@@ -227,7 +228,7 @@ void InitializeMouseIcon()
 	sf::Vector2f mouseSize{ 60.f, 60.f };
 
 	std::weak_ptr<Entity> wpMouseIcon = ECSGame::Instance().GetEntityManager().NewEntity("MouseIcon");
-	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
+	ECSGame::Instance().GetUIRoot()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
 	wpMouseIcon.lock()->AddComponent(ComponentType::UIPart);
 	wpMouseIcon.lock()->AddComponent(ComponentType::RectangleShape);
 

@@ -21,6 +21,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 {
 	//Create scene root
 	sceneRoot = std::make_shared<SceneNode>();
+	uiRoot = std::make_shared<SceneNode>();
 	//I noticed, that random function generates same random numbers every time when I start
 	//my game again, so to solve this issue I seed it with current time at the start of the
 	//game
@@ -41,12 +42,10 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	std::weak_ptr<Entity> wpPlay = ECSGame::Instance().GetEntityManager().NewEntity("SpaceMap");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpPlay));
 	wpPlay.lock()->AddComponent(ComponentType::SystemProperties);
-	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
-	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpUI));
 	std::weak_ptr<Entity> wpCameras = ECSGame::Instance().GetEntityManager().NewEntity("Cameras");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpCameras));
 	std::weak_ptr<Entity> wpSysN = ECSGame::Instance().GetEntityManager().NewEntity("SystemNames");
-	ECSGame::Instance().GetSceneRoot()->FindChild("UI").lock()->AddChild(std::make_shared<SceneNode>(wpSysN));
+	uiRoot->AddChild(std::make_shared<SceneNode>(wpSysN));
 	
 	//Initialize all cameras
 	InitializeAllCameras(windowSize);
@@ -81,6 +80,14 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	this->deltaTime = deltaTime;
 	timeSinceStart += deltaTime;
 
+	if (timeSinceStart > 1.f)
+	{
+		timeSinceStart -= 1.f;
+		previousFPS = fps;
+		fps = 0.f;
+	}
+	fps++;
+
 	//Get mousePosition
 	mousePosition = sf::Mouse::getPosition(renderWindow);
 
@@ -92,11 +99,13 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	for (std::shared_ptr<System> system : systems)
 	{
 		system->Update(sceneRoot, deltaTime);
+		system->Update(uiRoot, deltaTime);
 		std::cout << "  --"<<system->GetSystemName()<<": " << timer.restart().asSeconds() << '\n';
 	}
 
 	//Process entities removal
 	deleteSystem.Update(sceneRoot, deltaTime);
+	deleteSystem.Update(uiRoot, deltaTime);
 	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 }
 
@@ -131,9 +140,14 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 //Render all entities
 void ECSGame::Render(sf::RenderWindow& renderWindow)
 {
+	//for debbuging purposes
+	sf::Clock timer;
+
 	//Check if we need to close a game
 	if (closeGame)
 		renderWindow.close();
+
+	std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
 
 	//Set renderWindow to render in the camera
 	std::shared_ptr<CameraComponent> sCameraCom = GetCurrentlyActiveCamera();
@@ -143,11 +157,15 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRender visitor(renderWindow);
 	sceneRoot->AcceptVisitor(visitor);
 
+	std::cout << "  --Scene Rendering: " << timer.restart().asSeconds() << '\n';
+
 	//Set renderWindow to render UI
 	std::shared_ptr<CameraComponent> sUICameraCom = GetCameraFromUICameraEntity();
 	renderWindow.setView(sUICameraCom->view);
 
 	//Render all UI entities
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
-	sceneRoot->AcceptVisitor(visitor2);
+	uiRoot->AcceptVisitor(visitor2);
+
+	std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
 }

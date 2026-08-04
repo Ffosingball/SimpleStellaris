@@ -34,17 +34,29 @@ std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name)
 
 
 
+//Worst case: O(1)
+std::weak_ptr<Entity> CreateNewEntityAtUIRoot(const std::string name)
+{
+	// Create the entity in the entity manager
+	std::weak_ptr<Entity> wpEntity = ECSGame::Instance().GetEntityManager().NewEntity(name);
+	// Add it to the scene
+	ECSGame::Instance().GetUIRoot()->AddChild(std::make_shared<SceneNode>(wpEntity));
+	return wpEntity;
+}
+
+
+
 //This function creates an entity at node with an entity with provided name
 //and return smart pointer to it
 //String is not reference, because rvalues cannot be referenced, I use them a lot
 //Worst case: O(2*N) where N is number of entities in game
-std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName)
+std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, std::shared_ptr<SceneNode> rootNode)
 {
 	std::weak_ptr<Entity> wpEntity;
 	//Get node with entity of that name
 	std::weak_ptr<Entity> wSpEntity = ECSGame::Instance().GetEntityManager().FindEntity(nodeName);
 	std::shared_ptr<Entity> sSpEntity = wSpEntity.lock();
-	std::weak_ptr<SceneNode> nodePtr = ECSGame::Instance().GetSceneRoot()->FindChild(*sSpEntity);
+	std::weak_ptr<SceneNode> nodePtr = rootNode->FindChild(*sSpEntity);
 	//Check if node with that entity exists
 	if (nodePtr.lock() != nullptr)
 	{

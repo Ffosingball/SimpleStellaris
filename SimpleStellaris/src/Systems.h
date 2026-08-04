@@ -24,13 +24,13 @@ private:
 	void OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw);
 	void OnMouseMoved(sf::Event::MouseMoved mouseMovement);
 
-	std::shared_ptr<SceneNode> uiNodePtr{nullptr};
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
 	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
 	std::shared_ptr<RectangleShapeComponent> selectedSystemIconRect{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
+	std::shared_ptr<TextComponent> fpsText{ nullptr };
 };
 
 //Processes all movement

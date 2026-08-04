@@ -19,21 +19,23 @@ void InputSystem::Initialize()
 	signals::onMouseWheelScrolled.connect(&InputSystem::OnMouseWheelScrolled, this);
 	signals::onMouseMoved.connect(&InputSystem::OnMouseMoved, this);
 
-	uiNodePtr = ECSGame::Instance().GetSceneRoot()->FindChild("UI").lock();
-	std::shared_ptr<SceneNode> mctPtr = uiNodePtr->FindChild("MouseCoordsText").lock();
+	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("MouseCoordsText").lock();
 	mousePosText = GetTextComponent(*mctPtr->GetEntity().lock());
 
-	std::shared_ptr<SceneNode> wctPtr = uiNodePtr->FindChild("WorldCoordsText").lock();
+	std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUIRoot()->FindChild("WorldCoordsText").lock();
 	worldPosText = GetTextComponent(*wctPtr->GetEntity().lock());
 
-	std::shared_ptr<SceneNode> wsnPtr = uiNodePtr->FindChild("SystemsNearByText").lock();
+	std::shared_ptr<SceneNode> wsnPtr = ECSGame::Instance().GetUIRoot()->FindChild("SystemsNearByText").lock();
 	systemsNearByText = GetTextComponent(*wsnPtr->GetEntity().lock());
 
-	std::shared_ptr<SceneNode> wsiPtr = uiNodePtr->FindChild("SelectedSystemIcon").lock();
+	std::shared_ptr<SceneNode> wfpsPtr = ECSGame::Instance().GetUIRoot()->FindChild("FPSText").lock();
+	fpsText = GetTextComponent(*wfpsPtr->GetEntity().lock());
+
+	std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUIRoot()->FindChild("SelectedSystemIcon").lock();
 	selectedSystemIcon = GetUIFollowerComponent(*wsiPtr->GetEntity().lock());
 	selectedSystemIconRect = GetRectangleShapeComponent(*wsiPtr->GetEntity().lock());
 
-	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetSceneRoot()->FindChild("MouseIcon").lock();
+	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUIRoot()->FindChild("MouseIcon").lock();
 	mouseIconEntity = mouseNodeSP->GetEntity().lock();
 
 	systemName = "InputSystem";
@@ -171,6 +173,8 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
 
 	systemsNearByText->text->setString(message);
+
+	fpsText->text->setString(std::to_string(ECSGame::Instance().GetFPS())+" fps");
 
 	//Signal the direction to the movement system
 	signals::onMoveCamera(direction);

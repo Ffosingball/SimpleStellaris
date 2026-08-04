@@ -13,7 +13,8 @@
 
 //Helper functions
 std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name);
-std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName);
+std::weak_ptr<Entity> CreateNewEntityAtUIRoot(const std::string name);
+std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, std::shared_ptr<SceneNode> rootNode);
 std::weak_ptr<Entity> CreateNewEntityAt(std::shared_ptr<SceneNode> parentNodePtr, const std::string newEntityName);
 std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera();
 std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity();

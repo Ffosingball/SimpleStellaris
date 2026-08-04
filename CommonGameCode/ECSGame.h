@@ -36,6 +36,8 @@ public:
 	//Worst case: O(1)
 	std::shared_ptr<SceneNode> GetSceneRoot() { return sceneRoot; }
 	//Worst case: O(1)
+	std::shared_ptr<SceneNode> GetUIRoot() { return uiRoot; }
+	//Worst case: O(1)
 	GameState GetGameState() const { return gameState; }
 	//Worst case: O(1)
 	OverviewType GetOverviewType() const { return overviewType; }
@@ -43,6 +45,8 @@ public:
 	sf::Vector2u GetWindowSize() const { return windowSize; }
 	//Worst case: O(1)
 	sf::Vector2i GetMousePosition() const { return mousePosition; }
+	//Worst case: O(1)
+	int GetFPS() const { return previousFPS; }
 
 	//Setter
 	//Worst case: O(1)
@@ -65,6 +69,7 @@ private:
 
 	EntityManager entityManager;
 	std::shared_ptr<SceneNode> sceneRoot;
+	std::shared_ptr<SceneNode> uiRoot;
 	//List of all systems is here
 	std::vector<std::shared_ptr<System>> systems;
 
@@ -72,6 +77,8 @@ private:
 	float timeSinceStart{ 0.f };
 	sf::Vector2u windowSize{ 0,0 };
 	sf::Vector2i mousePosition{ 0,0 };
+	int previousFPS{ 0 };
+	int fps{ 0 };
 	//Stores current gameState
 	GameState gameState;
 	OverviewType overviewType;
