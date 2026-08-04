@@ -71,13 +71,15 @@ public:
 	SpaceMapConfigurations mapConfig;
 	std::shared_ptr<SceneNode> ptrSpaceMapNode;
 
-	std::vector<std::string> listOfBrightStarNames;
-	std::vector<std::string> listOfMediumStarNames;
-	std::vector<std::string> listOfDimStarNames;
-	std::shared_ptr<std::mt19937> randomizer;
 private:
 	void SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
 	void SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpaceSys, StarType starType);
 
 	unsigned int seed{0};
+	std::vector<std::string> listOfBrightStarNames;
+	std::vector<std::string> listOfMediumStarNames;
+	std::vector<std::string> listOfDimStarNames;
+	std::shared_ptr<std::mt19937> randomizer;
+
+	std::shared_ptr<SceneNode> ptrSystemNamesNode;
 };

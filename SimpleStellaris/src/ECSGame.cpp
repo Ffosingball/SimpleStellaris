@@ -47,6 +47,8 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	wpPlay.lock()->AddComponent(ComponentType::SystemProperties);
 	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpUI));
+	std::weak_ptr<Entity> wpSysN = ECSGame::Instance().GetEntityManager().NewEntity("SystemNames");
+	ECSGame::Instance().GetSceneRoot()->FindChild("UI").lock()->AddChild(std::make_shared<SceneNode>(wpSysN));
 	//Setup mouseIcon
 	InitializeMouseIcon();
 

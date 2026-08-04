@@ -609,6 +609,7 @@ TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
 	listOfMediumStarNames = ReadStarNamesFromCSV("media/other/star_names_5000.csv");
 	listOfDimStarNames = ReadStarNamesFromCSV("media/other/small_stars_names_1000.csv");
 
+	ptrSystemNamesNode = ECSGame::Instance().GetSceneRoot()->FindChild("SystemNames").lock();
 	//std::cout << "Num of bright names:" << listOfBrightStarNames.size() << '\n';
 	//std::cout << "Num of medium names:" << listOfMediumStarNames.size() << '\n';
 	//std::cout << "Num of dim names:" << listOfDimStarNames.size() << '\n';
@@ -662,7 +663,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			}
 
 			//Create text name entity for system
-			CreateSystemText(node.GetSharedPtrToItself(), spEntity);
+			CreateSystemText(ptrSystemNamesNode, spEntity);
 		}
 	}
 }

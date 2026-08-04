@@ -100,7 +100,7 @@ std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, cons
 	//Get component
 	std::shared_ptr<TextComponent> spUICom = GetTextComponent(*spUI);
 	//Get font from the resource manager
-	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().LoadFont("media/fonts/PixelOperator8-Bold.ttf").lock();
+	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().LoadFont("media/fonts/PixelOperator8.ttf").lock();
 	
 	//Set text properties
 	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
@@ -190,19 +190,22 @@ void CreateUI()
 
 void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Entity> spEntityToFollow)
 {
-	float fontSize = 20;
+	float fontSize = 22;
 
 	//Create text
-	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, "SystemNameText", GetObjectSystemComponent(*systemNode->GetEntity().lock())->systemName, fontSize, sf::Vector2f{0,0});
+	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, "SystemNameText", GetObjectSystemComponent(*spEntityToFollow)->systemName, fontSize, sf::Vector2f{0,0});
 	
 	//Add component
 	spText->AddComponent(ComponentType::UIFollower);
 	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spText);
-	spUIFollower->entityToFollow = systemNode->GetEntity();
+	spUIFollower->entityToFollow = spEntityToFollow;
 	spUIFollower->hideIfZoomLargeEnough = true;
 
 	std::shared_ptr<TextComponent> spUIText = GetTextComponent(*spText);
-	//gel::CentreText(*spUIText->text, sf::Vector2f{ 0,0 });
+	gel::CentreText(*spUIText->text, sf::Vector2f{ 0,fontSize*2.f });
+	spUIText->text->setFillColor(sf::Color(229,229,229));
+	spUIText->text->setOutlineColor(sf::Color(50,50,50));
+	spUIText->text->setOutlineThickness(1.f);
 }
 
 
