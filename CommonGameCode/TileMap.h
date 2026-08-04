@@ -29,10 +29,12 @@ public:
 	bool rotateTiles{ false };
 	bool loadTilesFromFile{ true };
 
+	//Worst case: O((2*N*M)+K) where N is number of rows and M number of columns in provided file
+	//and K number of tiles to create
 	void Initialize(std::vector<int> tilemap, std::vector<int> rotationMap);
 
 	void Update(const float deltaTime) {}
-
+	//Worst case: O(N) where N is number of tiles
 	void Render(sf::RenderWindow& window, sf::Transform transform);
 
 	sf::Vector2i getMapSize() const;

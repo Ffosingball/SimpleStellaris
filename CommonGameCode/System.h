@@ -33,13 +33,19 @@ public:
 	std::vector<std::string> entitiesByNameToDelete;
 
 	virtual ~DeleteSystem() = default;
+	//Worst case: O(1)
 	void Initialize() override;
+	//Worst case: O((2*N*M)+(N*K*L)) where N is number of entities in game and M number of entities
+	//to delete and K number of entities with the same name and L number of different names
+	//to delete
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 private:
 	//This functions will be called when appropriate signal will be signaled
 	//they will ad name or entity to the vector, and then delete them at the end
 	//of the frame
+	//Worst case: O(1)
 	void OnEntityToDelete(std::weak_ptr<Entity> wEntity);
+	//Worst case: O(1)
 	void OnDeleteEntitiesByName(std::string name);
 };
 

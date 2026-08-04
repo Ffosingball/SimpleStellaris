@@ -22,6 +22,7 @@
 
 //This function creates an entity at the root node and return smart pointer to it
 //String is not reference, because rvalues cannot be referenced, I use them a lot
+//Worst case: O(1)
 std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name) 
 {
 	// Create the entity in the entity manager
@@ -32,9 +33,11 @@ std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name)
 }
 
 
+
 //This function creates an entity at node with an entity with provided name
 //and return smart pointer to it
 //String is not reference, because rvalues cannot be referenced, I use them a lot
+//Worst case: O(2*N) where N is number of entities in game
 std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName)
 {
 	std::weak_ptr<Entity> wpEntity;
@@ -54,22 +57,17 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::s
 	return wpEntity;
 }
 
+
+
 //Overloading of the function but instead of name you provide the node itself
+//Worst case: O(1)
 std::weak_ptr<Entity> CreateNewEntityAt(std::shared_ptr<SceneNode> parentNodePtr, const std::string newEntityName)
 {
 	std::weak_ptr<Entity> wpEntity;
-	//ECSGame::Instance().GetEntityManager().OutputAllEntitiesNames();
 
 	//Check if node with that entity exists
 	if (parentNodePtr != nullptr)
 	{
-		//std::cout <<"Ptr address: " << parentNodePtr << '\n';
-		//std::cout<<"It's parent address: " << parentNodePtr->GetParent() << '\n';
-		//std::weak_ptr<Entity> wpE = parentNodePtr->GetEntity();
-		//if (wpE.lock() == nullptr)
-		//	std::cout << "Entity is nullptr\n";
-		//else
-		//	std::cout << "Create entity at: " << parentNodePtr->GetEntity().lock() << '\n';
 		// Create the entity in the entity manager
 		wpEntity = ECSGame::Instance().GetEntityManager().NewEntity(newEntityName);
 		// Add it to the scene
@@ -80,7 +78,9 @@ std::weak_ptr<Entity> CreateNewEntityAt(std::shared_ptr<SceneNode> parentNodePtr
 }
 
 
+
 //IntRect means which part of the texture to draw
+//Worst case: O(1)
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect intRect)
 {
 	recShape->shape = sf::RectangleShape(size);
@@ -92,6 +92,8 @@ void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, cons
 }
 
 
+
+//Worst case: O(1)
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType)
 {
 	recShape->shape = sf::RectangleShape(size);
@@ -102,7 +104,9 @@ void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, cons
 }
 
 
+
 //Returns camera component from the camera entity
+//Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera() 
 {
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
@@ -117,7 +121,9 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 }
 
 
+
 //Returns camera component from the camera entity
+//Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
 {
 	std::weak_ptr<Entity> wSmap = ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap");
@@ -126,7 +132,9 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
 }
 
 
+
 //Returns camera component from the UIcamera entity
+//Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity()
 {
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
@@ -136,6 +144,8 @@ std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity()
 }
 
 
+
+//Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromBackgroundCameraEntity()
 {
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
@@ -144,6 +154,9 @@ std::shared_ptr<CameraComponent> GetCameraFromBackgroundCameraEntity()
 	return GetCameraComponent(*sCamera);
 }
 
+
+
+//Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity()
 {
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
@@ -152,6 +165,9 @@ std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity()
 	return GetCameraComponent(*sCamera);
 }
 
+
+
+//Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity()
 {
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
@@ -161,17 +177,8 @@ std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity()
 }
 
 
-//This function set new position of this entity
-void SetNewPosition(std::weak_ptr<Entity> entity, const sf::Vector2f position)
-{
-	std::shared_ptr<Entity> sEntity = entity.lock();
-	sf::Transformable sTransform = sEntity->GetTransformable();
-	//Set position
-	sTransform.setPosition(position);
-	sEntity->SetTransformable(sTransform);
-}
 
-
+//Worst case: O(1)
 sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i position) 
 {
 	sf::Vector2u windowSize = ECSGame::Instance().GetWindowSize();
@@ -188,6 +195,8 @@ sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i posi
 }
 
 
+
+//Worst case: O(1)
 sf::Vector2i ConvertWorldPositionToWindow(sf::View cameraView, sf::Vector2f position) 
 {
 	sf::Vector2u windowSize = ECSGame::Instance().GetWindowSize();
@@ -204,6 +213,8 @@ sf::Vector2i ConvertWorldPositionToWindow(sf::View cameraView, sf::Vector2f posi
 }
 
 
+
+//Worst case: O(1)
 int GetKeyForSystemsPosition(sf::Vector2i gridPosition) 
 {
 	if (gridPosition.x < 0 || gridPosition.y < 0)
@@ -213,6 +224,8 @@ int GetKeyForSystemsPosition(sf::Vector2i gridPosition)
 }
 
 
+
+//Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
 std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position) 
 {
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesFromSpaceMap();
@@ -251,17 +264,10 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 }
 
 
-/*void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath)
-{
-	recShape->shape = sf::RectangleShape(size);
-	recShape->shape.setOrigin(size / 2.f);
-	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(texturePath);
-	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
-	recShape->shape.setTexture(sTexture.get());
-}*/
-
 
 //Creates UI camera
+//Worst case: O(N) where N is number of components available in game and M number of components
+//in
 void InitializeUICamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	//Create camera

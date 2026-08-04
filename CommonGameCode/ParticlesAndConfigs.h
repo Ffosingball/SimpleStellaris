@@ -25,8 +25,10 @@ public:
 
 	virtual ~ParticleConfig() = default;
 	//Initialize particle in the init
+	//Worst case: O(1)
 	virtual void Init(Particle& p) const {}
 	//Update particle in specific way
+	//Worst case: O(1)
 	virtual void Update(Particle& p, float dt) const {}
 	//Create a new particle
 	Particle Make() const;

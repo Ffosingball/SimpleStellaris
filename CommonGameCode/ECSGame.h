@@ -21,6 +21,7 @@ public:
 	ECSGame& operator=(const ECSGame&) = delete;
 
 	//Create a single access to the object of this class
+	//Worst case: O(1)
 	static ECSGame& Instance() 
 	{
 		static ECSGame ecsGame;
@@ -28,17 +29,27 @@ public:
 	}
 
 	//Getters
+	//Worst case: O(1)
 	float GetDeltaTime() const { return deltaTime; }
+	//Worst case: O(1)
 	EntityManager& GetEntityManager() { return entityManager; }
+	//Worst case: O(1)
 	std::shared_ptr<SceneNode> GetSceneRoot() { return sceneRoot; }
+	//Worst case: O(1)
 	GameState GetGameState() const { return gameState; }
+	//Worst case: O(1)
 	OverviewType GetOverviewType() const { return overviewType; }
+	//Worst case: O(1)
 	sf::Vector2u GetWindowSize() const { return windowSize; }
+	//Worst case: O(1)
 	sf::Vector2i GetMousePosition() const { return mousePosition; }
 
 	//Setter
+	//Worst case: O(1)
 	void SetGameState(GameState gState) { gameState=gState; }
+	//Worst case: O(1)
 	void SetOverviewType(OverviewType ovType) { overviewType = ovType; }
+	//Worst case: O(1)
 	void CloseGame() { closeGame = true; }
 
 	//Override all methods from the parent

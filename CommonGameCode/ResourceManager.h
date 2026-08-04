@@ -8,12 +8,13 @@
 class ResourceManager 
 {
 public:
+	//Worst case: O(1)
 	const std::weak_ptr<sf::Texture> LoadTexture(const std::string& filename);
-
+	//Worst case: O(1)
 	const std::weak_ptr<sf::Font> LoadFont(const std::string& filename);
-
+	//Worst case: O(1)
 	const std::weak_ptr<sf::SoundBuffer> LoadSoundBuffer(const std::string& filename);
-
+	//Worst case: O(1)
 	const std::weak_ptr<sf::Music> LoadMusic(const std::string& filename);
 
 	//Disallow copying the resourceManager
@@ -21,6 +22,7 @@ public:
 	ResourceManager& operator=(const ResourceManager&) = delete;
 
 	//The only way to access resource manager
+	//Worst case: O(1)
 	static ResourceManager& Instance() 
 	{
 		//static keyword allows to create this object only at the first call of

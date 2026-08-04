@@ -15,31 +15,44 @@ public:
 	SceneNode(const std::weak_ptr<Entity>& entity) :entity{ entity } {}
 
 	//Getters
+	//Worst case: O(N) where N is number of parents to get to the rootNode
 	sf::Transform GetCombinedTransform() const;
+	//Worst case: O(N) where N is number of parents to get to the rootNode
 	std::string GetCombinedParentsNames() const;
+	//Worst case: O(N) where N is number of children
 	std::string GetAllChildrenNames() const;
+	//Worst case: O(1)
 	std::weak_ptr<Entity> GetEntity() const { return entity; }
+	//Worst case: O(1)
 	const std::weak_ptr<SceneNode> GetParent() const { return parent; }
+	//Worst case: O(1)
 	std::vector<std::shared_ptr<SceneNode>> GetAllChildren() const { return children; };
+	//Worst case: O(1)
 	std::shared_ptr<SceneNode> GetSharedPtrToItself() { return shared_from_this(); }
 
 	//Add child to this node
+	//Worst case: O(1)
 	void AddChild(const std::shared_ptr<SceneNode> child);
 
 	//Change child position, child should already exist here
+	//Worst case: O(N) where N is number of children
 	void ChangeChildOrder(const std::shared_ptr<SceneNode> child, int position);
 	//Change child position by entity, child should already exist here
+	//Worst case: O(N) where N is number of children
 	void ChangeChildOrder(const std::shared_ptr<Entity> entity, int position);
 
 	void AcceptVisitor(SceneNodeVisitor& visitor);
 
 	//Remove child
+	//Worst case: O(N) where N is number nodes in the game
 	void RemoveByEntity(std::weak_ptr<Entity> e);
 
 	//Find and return child
+	//Worst case: O(N) where N is number nodes in the game
 	std::weak_ptr<SceneNode> FindChild(const Entity& e);
+	//Worst case: O(N) where N is number nodes in the game
 	std::weak_ptr<SceneNode> FindChild(const std::string& s);
-
+	//Worst case: O(N) where N is number of nodes in game
 	void OutputTree(const std::string& s);
 
 private:

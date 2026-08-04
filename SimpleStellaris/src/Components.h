@@ -44,6 +44,7 @@ public:
 	float distTo3rdStar{ 0.f };
 	int starAfar{ 0 };//which star is afar in ternary system
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -56,6 +57,7 @@ public:
 	bool hidden{ false };
 	OverviewType drawAt;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -67,6 +69,7 @@ public:
 	SpaceMapConfigurations mapConfig;
 	std::unordered_map<int, std::shared_ptr<SceneNode>> systemsPositions;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -78,6 +81,7 @@ public:
 	std::weak_ptr<Entity> entityToFollow;
 	bool hideIfZoomLargeEnough = false;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -88,6 +92,7 @@ public:
 
 	sf::Vector2f velocity{ 0.f,0.f };
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -98,6 +103,7 @@ public:
 	StarType starType;
 	std::string starName;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -108,6 +114,7 @@ public:
 	float nebulaSize{ 0.f };
 	std::string nebulaName;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -124,6 +131,7 @@ public:
 	float rotationSpeed{ 0.f };
 	//float axleSpeed{0.f};
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -136,6 +144,7 @@ public:
 	bool hidden{ false };
 	OverviewType drawAt;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -162,6 +171,7 @@ public:
 	//Speed change depending on camera zoom
 	float speedChange{ 5.f };
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -175,6 +185,7 @@ public:
 	bool hidden{ false };
 	OverviewType drawAt;
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
@@ -194,21 +205,34 @@ public:
 	bool destroyAtTarget{ false };
 	sf::Vector2f targetPosition{ 0.f,0.f };
 
+	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
 
 
 
 //Shortcut functions to get specific component from the entity
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<TextComponent> GetTextComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<CameraComponent> GetCameraComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<UIPartComponent> GetUIPartComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<TileMapComponent> GetTileMapComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<StarComponent> GetStarComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<PlanetComponent> GetPlanetComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<ObjectSystemComponent> GetObjectSystemComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<NebulaComponent> GetNebulaComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<MovementComponent> GetMovementComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<RectangleShapeComponent> GetRectangleShapeComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
 std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity);
