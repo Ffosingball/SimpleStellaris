@@ -32,6 +32,7 @@ public:
 	std::shared_ptr<SceneNode> GetSceneRoot() { return sceneRoot; }
 	GameState GetGameState() const { return gameState; }
 	sf::Vector2u GetWindowSize() const { return windowSize; }
+	sf::Vector2i GetMousePosition() const { return mousePosition; }
 
 	//Setter
 	void SetGameState(GameState gState) { gameState=gState; }
@@ -39,7 +40,7 @@ public:
 
 	//Override all methods from the parent
 	void Init(sf::RenderWindow& renderWindow) override;
-	void Update(const float deltaTime) override;
+	void Update(const float deltaTime, sf::RenderWindow& renderWindow) override;
 	void Render(sf::RenderWindow& renderWindow) override;
 	void HandleEvent(const std::optional<sf::Event>& event) override;
 	virtual ~ECSGame() = default;
@@ -56,6 +57,7 @@ private:
 	float deltaTime{ 0.f };
 	float timeSinceStart{ 0.f };
 	sf::Vector2u windowSize{ 0,0 };
+	sf::Vector2i mousePosition{ 0,0 };
 	//Stores current gameState
 	GameState gameState;
 	//Boolean to check if window should be closed or not

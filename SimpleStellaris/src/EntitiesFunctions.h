@@ -29,6 +29,7 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap();
 
 //Initializing functions
 void InitializeCamera(const sf::Vector2u& windowSize);
+void InitializeMouseIcon();
 void InitializeUICamera(const sf::Vector2u& windowSize);
 void CreateSpaceObjects();
 void CreateDebugText();
@@ -42,7 +43,9 @@ void CreateUI();
 void SetupMoveTextProperties(const std::string textName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget);
 std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize);
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking, const bool isMoving, const float* targetX, const float* targetY, const sf::Vector2f velocity, const bool skipOriginReset);
-void InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
+std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
+void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Entity> spEntityToFollow);
 
 //Animation functions
 

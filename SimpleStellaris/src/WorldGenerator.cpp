@@ -16,6 +16,33 @@
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
 #include <unordered_map>
+#include <rapidcsv.h>
+
+
+//Read data from the file
+std::vector<std::string> ReadStarNamesFromCSV(const std::string fname)
+{
+	std::vector<std::string> data;
+	rapidcsv::LabelParams labelParams(-1, -1); // this says that row and column
+	//data will start from index 0 --no headers expected, either horizontally or
+	//	vertically
+	rapidcsv::Document doc(fname, labelParams);
+	const size_t numRows = doc.GetRowCount();
+	size_t numColumns = 0;
+	for (size_t i = 0; i < numRows; ++i)
+	{
+		std::vector<std::string> rowData = doc.GetRow<std::string>(i);
+		if (i == 0)
+			numColumns = rowData.size();
+		for (size_t j = 0; j < numColumns; ++j)
+			data.push_back(rowData[j]);
+		// Another way, using STL: append the entire rowData at the end of "data"
+		// data.insert(data.end(), rowData.begin(), rowData.end());
+	}
+	return data;
+}
+
+
 
 unsigned int WorldGenerator::seed = 0;
 std::shared_ptr<std::mt19937> WorldGenerator::randomizer = nullptr;
@@ -453,6 +480,141 @@ void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> sp
 }
 
 
+void TextureSetter::SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpaceSys, StarType starType) 
+{
+	//0 - dim, 1 - medium, 2 - bright
+	int starBrightness{ 1 };
+	switch (starType)
+	{
+	case StarType::BlackHole:
+		starBrightness = 0;
+		break;
+	case StarType::NeutronStar:
+		starBrightness = 0;
+		break;
+	case StarType::WhiteDwarf:
+		starBrightness = 0;
+		break;
+	case StarType::BrownDwarf:
+		starBrightness = 0;
+		break;
+	case StarType::MredDwarf:
+		starBrightness = 1;
+		break;
+	case StarType::KorangeDwarf:
+		starBrightness = 2;
+		break;
+	case StarType::GsunLike:
+		starBrightness = 2;
+		break;
+	case StarType::Ftype:
+		starBrightness = 2;
+		break;
+	case StarType::Atype:
+		starBrightness = 2;
+		break;
+	case StarType::Btype:
+		starBrightness = 2;
+		break;
+	case StarType::Otype:
+		starBrightness = 2;
+		break;
+	case StarType::RedGiant:
+		starBrightness = 2;
+		break;
+	case StarType::RedSupergiant:
+		starBrightness = 2;
+		break;
+	}
+
+	std::shared_ptr<std::uniform_int_distribution<int>> nameDist;
+
+	if (starBrightness == 0) 
+	{
+		if (listOfDimStarNames.size() <= 0) 
+		{
+			std::cout << "Run out of names for dim systems!\n";
+			spSpaceSys->systemName = "N_D";
+		}
+		else 
+		{
+			nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfDimStarNames.size()-1);
+			int pos = (*nameDist)(*randomizer);
+			spSpaceSys->systemName = listOfDimStarNames[pos];
+
+			// Move last element into removed position
+			listOfDimStarNames[pos] = listOfDimStarNames.back();
+			listOfDimStarNames.pop_back();
+		}
+	}
+	else if (starBrightness == 1) 
+	{
+		if (listOfMediumStarNames.size() <= 0)
+		{
+			std::cout << "Run out of names for medium systems!\n";
+			spSpaceSys->systemName = "N_M";
+		}
+		else
+		{
+			nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfMediumStarNames.size() - 1);
+			int pos = (*nameDist)(*randomizer);
+			spSpaceSys->systemName = listOfMediumStarNames[pos];
+
+			// Move last element into removed position
+			listOfMediumStarNames[pos] = listOfMediumStarNames.back();
+			listOfMediumStarNames.pop_back();
+		}
+	}
+	else
+	{
+		if (listOfBrightStarNames.size() <= 0)
+		{
+			std::cout << "Run out of names for bright systems!\n";
+			if (listOfMediumStarNames.size() <= 0)
+			{
+				std::cout << "Run out of names for medium systems!\n";
+				spSpaceSys->systemName = "N_M";
+			}
+			else
+			{
+				nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfMediumStarNames.size() - 1);
+				int pos = (*nameDist)(*randomizer);
+				spSpaceSys->systemName = listOfMediumStarNames[pos];
+
+				// Move last element into removed position
+				listOfMediumStarNames[pos] = listOfMediumStarNames.back();
+				listOfMediumStarNames.pop_back();
+			}
+		}
+		else
+		{
+			nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfBrightStarNames.size() - 1);
+			int pos = (*nameDist)(*randomizer);
+			spSpaceSys->systemName = listOfBrightStarNames[pos];
+
+			// Move last element into removed position
+			listOfBrightStarNames[pos] = listOfBrightStarNames.back();
+			listOfBrightStarNames.pop_back();
+		}
+	}
+}
+
+
+TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
+{
+	seed = seedOut;
+	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
+
+	listOfBrightStarNames = ReadStarNamesFromCSV("media/other/big_stars_names_240.csv");
+	listOfMediumStarNames = ReadStarNamesFromCSV("media/other/star_names_5000.csv");
+	listOfDimStarNames = ReadStarNamesFromCSV("media/other/small_stars_names_1000.csv");
+
+	//std::cout << "Num of bright names:" << listOfBrightStarNames.size() << '\n';
+	//std::cout << "Num of medium names:" << listOfMediumStarNames.size() << '\n';
+	//std::cout << "Num of dim names:" << listOfDimStarNames.size() << '\n';
+}
+
+
 
 void TextureSetter::ProcessNode(SceneNode& node) 
 {
@@ -474,6 +636,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
 				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
 				SetSystemTexture(spRectShape, spStar1Com->starType);
+				SetSystemName(spComSys, spStar1Com->starType);
 			}
 			else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar) 
 			{
@@ -483,6 +646,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
 
 				SetSystemTexture(spRectShape, std::max(spStar1Com->starType, spStar2Com->starType));
+				SetSystemName(spComSys, std::max(spStar1Com->starType, spStar2Com->starType));
 			}
 			else 
 			{
@@ -494,7 +658,11 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				std::shared_ptr<StarComponent> spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
 
 				SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
+				SetSystemName(spComSys, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
 			}
+
+			//Create text name entity for system
+			CreateSystemText(node.GetSharedPtrToItself(), spEntity);
 		}
 	}
 }

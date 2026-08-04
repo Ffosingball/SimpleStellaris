@@ -318,7 +318,7 @@ void CreateSpaceObjects()
 	//Secondly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode,mapConfig);
 	//Thirdly put rectangleShape components for all objects
-	TextureSetter txSetter;
+	TextureSetter txSetter(WorldGenerator::getSeed());
 	txSetter.mapConfig = mapConfig;
 	txSetter.ptrSpaceMapNode = spNode;
 	spNode->AcceptVisitor(txSetter);

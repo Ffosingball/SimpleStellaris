@@ -22,7 +22,7 @@ namespace gel
 		//Init to initialize the game
 		virtual void Init(sf::RenderWindow& renderWindow) {}
 		//Update is called every frame, after HandleEvent if it was called
-		virtual void Update(const float deltaTime) {}
+		virtual void Update(const float deltaTime, sf::RenderWindow& renderWindow) {}
 		//Render is called every frame, after update
 		virtual void Render(sf::RenderWindow& renderWindow) {}
 		//It is called when some event is happened

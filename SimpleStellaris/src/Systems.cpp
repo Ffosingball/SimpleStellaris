@@ -32,6 +32,9 @@ void InputSystem::Initialize()
 	std::shared_ptr<SceneNode> wsiPtr = uiNodePtr->FindChild("SelectedSystemIcon").lock();
 	selectedSystemIcon = GetUIFollowerComponent(*wsiPtr->GetEntity().lock());
 	selectedSystemIconRect = GetRectangleShapeComponent(*wsiPtr->GetEntity().lock());
+
+	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetSceneRoot()->FindChild("MouseIcon").lock();
+	mouseIconEntity = mouseNodeSP->GetEntity().lock();
 }
 
 //Process keys they are pressed
@@ -58,23 +61,40 @@ void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
 {
 	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromCameraEntity();
+	sf::Vector2f previousCameraSize = spCameraCom->view.getSize();
 	//sf::Vector2f previousSize = spCameraCom->view.getSize();
 	//Zoom camera
 	spCameraCom->currentZoom = gel::clamp((spCameraCom->zoomingSpeed * ECSGame::Instance().GetDeltaTime() * mw.delta) + spCameraCom->currentZoom, spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
 	spCameraCom->view.setSize(spCameraCom->cameraSize * spCameraCom->currentZoom);
+	
+	//Move camera so, it looks like camera zooms to the place where mouse is pointing
+	sf::Vector2f mousePositionInWorld = ConvertWindowPositionToWorld(spCameraCom->view, ECSGame::Instance().GetMousePosition());
+
+	float previousLeftXBorder = spCameraCom->view.getCenter().x - (previousCameraSize.x / 2.f);
+	float previousTopYBorder = spCameraCom->view.getCenter().y - (previousCameraSize.y / 2.f);
+
+	float relativeXPos = (mousePositionInWorld.x - previousLeftXBorder) / previousCameraSize.x;
+	float relativeYPos = (mousePositionInWorld.y - previousTopYBorder) / previousCameraSize.y;
+
+	float newLeftXBorder = spCameraCom->view.getCenter().x - (spCameraCom->view.getSize().x / 2.f);
+	float newTopYBorder = spCameraCom->view.getCenter().y - (spCameraCom->view.getSize().y / 2.f);
+
+	sf::Vector2f newMousePosInWorld { gel::linearInterpolation(newLeftXBorder, newLeftXBorder + spCameraCom->view.getSize().x ,relativeXPos) , gel::linearInterpolation(newTopYBorder, newTopYBorder + spCameraCom->view.getSize().y ,relativeYPos) };
+	spCameraCom->view.move( mousePositionInWorld - newMousePosInWorld);
+
 	//Check that camera do not go out of bounds
 	sf::Vector2f camCenter = spCameraCom->view.getCenter();
-	float moveX{-1.f};
-	float moveY{ -1.f };
+	float moveX{0.f};
+	float moveY{ 0.f };
 	if (camCenter.x + (spCameraCom->view.getSize().x / 2.f) >= spCameraCom->horizontalBorders.y)
-		moveX *= camCenter.x + (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.y;
+		moveX = -(camCenter.x + (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.y);
 	else if (camCenter.x - (spCameraCom->view.getSize().x / 2.f) <= spCameraCom->horizontalBorders.x)
-		moveX *= camCenter.x + moveX - (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.x;
+		moveX = -(camCenter.x + moveX - (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.x);
 
 	if (camCenter.y + (spCameraCom->view.getSize().y / 2.f) >= spCameraCom->verticalBorders.y)
-		moveY *= camCenter.y + moveY + (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.y;
+		moveY = -(camCenter.y + moveY + (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.y);
 	else if (camCenter.y - (spCameraCom->view.getSize().y / 2.f) <= spCameraCom->verticalBorders.x)
-		moveY *= camCenter.y + moveY - (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.x;
+		moveY = -(camCenter.y + moveY - (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.x);
 
 	spCameraCom->view.move({moveX, moveY});
 }
@@ -82,35 +102,8 @@ void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw)
 
 void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement) 
 {
-	mousePosText->text->setString("Window pos: "+std::to_string(mouseMovement.position.x)+"; " + std::to_string(mouseMovement.position.y));
-	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(GetCameraFromCameraEntity()->view, mouseMovement.position);
-	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
-	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
-
-	std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
-	
-	std::string message{"Systems nearby: "};
-	float closestDistance = 999999.f;
-	int closestSystemIndex = -1;
-	int counter{ 0 };
-	for (std::shared_ptr<SceneNode> spNode : systemsNearBy) 
-	{
-		message += spNode->GetEntity().lock()->GetName() + "; ";
-		if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance) 
-		{
-			closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
-			closestSystemIndex = counter;
-			selectedSystemIconRect->hidden = false;
-		}
-		counter++;
-	}
-
-	if(closestSystemIndex==-1)
-		selectedSystemIconRect->hidden = true;
-	else
-		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
-	
-	systemsNearByText->text->setString(message);
+	//Move mouse
+	mouseIconEntity->SetPosition({ (float)mouseMovement.position.x, (float)mouseMovement.position.y});
 }
 
 
@@ -146,6 +139,39 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 			direction.x += 1.f;
 		}
 	}
+
+	//Deal with mouse movement
+	sf::Vector2i mousePosition = ECSGame::Instance().GetMousePosition();
+
+	mousePosText->text->setString("Window pos: " + std::to_string(mousePosition.x) + "; " + std::to_string(mousePosition.y));
+	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(GetCameraFromCameraEntity()->view, mousePosition);
+	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
+	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
+
+	std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
+
+	std::string message{ "Systems nearby: " };
+	float closestDistance = 999999.f;
+	int closestSystemIndex = -1;
+	int counter{ 0 };
+	for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
+	{
+		message += GetObjectSystemComponent(*spNode->GetEntity().lock())->systemName +" ("+ spNode->GetEntity().lock()->GetName() + "); ";
+		if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
+		{
+			closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
+			closestSystemIndex = counter;
+			selectedSystemIconRect->hidden = false;
+		}
+		counter++;
+	}
+
+	if (closestSystemIndex == -1)
+		selectedSystemIconRect->hidden = true;
+	else
+		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
+
+	systemsNearByText->text->setString(message);
 
 	//Signal the direction to the movement system
 	signals::onMoveCamera(direction);

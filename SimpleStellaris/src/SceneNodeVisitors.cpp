@@ -219,6 +219,36 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionToFollow);
                     spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
                 }
+
+                if (spEntityFollower->hideIfZoomLargeEnough) 
+                {
+                    if (GetCameraFromCameraEntity()->currentZoom > uiSystem.zoomLevelAtWhichHideSystemNames)
+                    {
+                        if (spEntity->HasComponent(ComponentType::Text))
+                        {
+                            std::shared_ptr<TextComponent> spText = GetTextComponent(*spEntity);
+                            spText->hidden = true;
+                        }
+                        else if (spEntity->HasComponent(ComponentType::RectangleShape))
+                        {
+                            std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
+                            spRectShape->hidden = true;
+                        }
+                    }
+                    else 
+                    {
+                        if (spEntity->HasComponent(ComponentType::Text))
+                        {
+                            std::shared_ptr<TextComponent> spText = GetTextComponent(*spEntity);
+                            spText->hidden = false;
+                        }
+                        else if (spEntity->HasComponent(ComponentType::RectangleShape))
+                        {
+                            std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
+                            spRectShape->hidden = false;
+                        }
+                    }
+                }
             }
         }
     }

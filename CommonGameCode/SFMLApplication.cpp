@@ -17,6 +17,8 @@ namespace gel
         auto window = sf::RenderWindow(modes[0], title.c_str(), sf::State::Fullscreen);
         //Stabilize fps
         window.setVerticalSyncEnabled(true);
+        //Hide mouse
+        window.setMouseCursorVisible(false);
 
         // Initialisation logic
 		Init(window);
@@ -41,7 +43,7 @@ namespace gel
             }
 
             // Update logic
-            Update(dt);
+            Update(dt, window);
 
             // Clear window
             window.clear();

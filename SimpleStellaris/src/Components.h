@@ -74,6 +74,7 @@ class UIFollowerComponent : public Component
 public:
 
 	std::weak_ptr<Entity> entityToFollow;
+	bool hideIfZoomLargeEnough = false;
 
 	ComponentType GetComponentType() const override;
 };

@@ -30,6 +30,7 @@ private:
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
 	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
 	std::shared_ptr<RectangleShapeComponent> selectedSystemIconRect{ nullptr };
+	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
 };
 
 //Processes all movement
@@ -52,6 +53,7 @@ class UISystem :public System
 {
 public:
 	DifficultyLevel level{DifficultyLevel::Medium};
+	float zoomLevelAtWhichHideSystemNames{1.1f};
 	virtual ~UISystem() = default;
 private:
 	void Initialize() override;

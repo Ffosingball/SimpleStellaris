@@ -47,6 +47,8 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	wpPlay.lock()->AddComponent(ComponentType::SystemProperties);
 	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpUI));
+	//Setup mouseIcon
+	InitializeMouseIcon();
 
 	//Create debug text
 	CreateDebugText();
@@ -67,11 +69,14 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 }
 
 
-void ECSGame::Update(const float deltaTime)
+void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 {
 	//Change deltatime
 	this->deltaTime = deltaTime;
 	timeSinceStart += deltaTime;
+
+	//Get mousePosition
+	mousePosition = sf::Mouse::getPosition(renderWindow);
 
 	//std::cout << "Update\n";
 	//Update all systems

@@ -64,7 +64,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 
 
 //Creates text without moving animation
-void InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
 {
 	//Check if text exist then use existing one, otherwise create new one
 	std::shared_ptr<Entity> spUI = ECSGame::Instance().GetEntityManager().FindEntity(name).lock();
@@ -77,11 +77,42 @@ void InitializeText(const std::string name, const std::string text, const int fo
 	//Get component
 	std::shared_ptr<UIPartComponent> spUICom = GetUIPartComponent(*spUI);
 	std::shared_ptr<TextComponent> spTextCom = GetTextComponent(*spUI);
-	std::shared_ptr<MovementComponent> spMovCom = GetMovementComponent(*spUI);
 	//set text
 	spTextCom->text->setString(text);
+	//gel::CentreText(*spTextCom->text, sf::Vector2f{ 0,0 });
 	//Set text position
 	spUI->SetPosition(position);
+
+	return spUI;
+}
+
+
+//Creates text without moving animation at provided node
+std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
+{
+	//create entity
+	std::shared_ptr<Entity> spUI = CreateNewEntityAt(spNode, name).lock();
+
+	//Add component
+	spUI->AddComponent(ComponentType::Text);
+	spUI->AddComponent(ComponentType::UIPart);
+
+	//Get component
+	std::shared_ptr<TextComponent> spUICom = GetTextComponent(*spUI);
+	//Get font from the resource manager
+	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().LoadFont("media/fonts/PixelOperator8-Bold.ttf").lock();
+	
+	//Set text properties
+	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
+	spUICom->text->setFillColor(sf::Color::White);
+	spUICom->text->setCharacterSize(fontSize);
+	spUICom->text->setString(text);
+
+	//Set text position
+	//gel::CentreText(*spUICom->text, sf::Vector2f{ 0,0 });
+	spUI->SetPosition(position);
+
+	return spUI;
 }
 
 
@@ -154,4 +185,39 @@ void CreateUI()
 	sf::IntRect intRect({0,0}, {32,32});
 	SetupRectangleShape(spRectShape, iconSize, "media/textures/selectionIcon.png", intRect);
 	spRectShape->hidden = true;
+}
+
+
+void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Entity> spEntityToFollow)
+{
+	float fontSize = 20;
+
+	//Create text
+	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, "SystemNameText", GetObjectSystemComponent(*systemNode->GetEntity().lock())->systemName, fontSize, sf::Vector2f{0,0});
+	
+	//Add component
+	spText->AddComponent(ComponentType::UIFollower);
+	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spText);
+	spUIFollower->entityToFollow = systemNode->GetEntity();
+	spUIFollower->hideIfZoomLargeEnough = true;
+
+	std::shared_ptr<TextComponent> spUIText = GetTextComponent(*spText);
+	//gel::CentreText(*spUIText->text, sf::Vector2f{ 0,0 });
+}
+
+
+void InitializeMouseIcon() 
+{
+	sf::Vector2f mouseSize{ 60.f, 60.f };
+
+	std::weak_ptr<Entity> wpMouseIcon = ECSGame::Instance().GetEntityManager().NewEntity("MouseIcon");
+	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
+	wpMouseIcon.lock()->AddComponent(ComponentType::UIPart);
+	wpMouseIcon.lock()->AddComponent(ComponentType::RectangleShape);
+
+	//Get component
+	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*wpMouseIcon.lock());
+	sf::IntRect intRect({ 0,0 }, { 32,32 });
+	SetupRectangleShape(spRectShape, mouseSize, "media/textures/mouseIcon.png", intRect);
+	spRectShape->shape.setPosition({32,32});
 }

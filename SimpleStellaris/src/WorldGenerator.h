@@ -51,7 +51,7 @@ private:
 
 public:
 
-	static int getSeed() { return seed; }
+	static int const getSeed() { return seed; }
 	static void Initialize(unsigned int seed);
 	//Min and max value are used so vector 0,3 all values 0,1,2,3 will be generated
 	static std::vector<int> GenerateGridOfRandomNumbers(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
@@ -60,16 +60,24 @@ public:
 };
 
 
-//To set rectangleShapes and textures for all objects 
+//To set rectangleShapes and textures for all objects and generate names
 class TextureSetter : public SceneNodeVisitor
 {
 public:
-	TextureSetter() {}
+	TextureSetter(unsigned int seed);
 
 	void ProcessNode(SceneNode& node) override;
 
 	SpaceMapConfigurations mapConfig;
 	std::shared_ptr<SceneNode> ptrSpaceMapNode;
+
+	std::vector<std::string> listOfBrightStarNames;
+	std::vector<std::string> listOfMediumStarNames;
+	std::vector<std::string> listOfDimStarNames;
+	std::shared_ptr<std::mt19937> randomizer;
 private:
 	void SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
+	void SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpaceSys, StarType starType);
+
+	unsigned int seed{0};
 };

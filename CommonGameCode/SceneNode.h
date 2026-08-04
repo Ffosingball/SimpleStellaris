@@ -21,6 +21,7 @@ public:
 	std::weak_ptr<Entity> GetEntity() const { return entity; }
 	const std::weak_ptr<SceneNode> GetParent() const { return parent; }
 	std::vector<std::shared_ptr<SceneNode>> GetAllChildren() const { return children; };
+	std::shared_ptr<SceneNode> GetSharedPtrToItself() { return shared_from_this(); }
 
 	//Add child to this node
 	void AddChild(const std::shared_ptr<SceneNode> child);
