@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include "SpaceMapConfiguration.h"
 #include "SceneNode.h"
+#include "GameState.h"
 
 //List of all components
 enum class ComponentType
@@ -53,6 +54,7 @@ public:
 
 	sf::RectangleShape shape;
 	bool hidden{ false };
+	OverviewType drawAt;
 
 	ComponentType GetComponentType() const override;
 };
@@ -132,6 +134,7 @@ public:
 
 	TileMap tileMap;
 	bool hidden{ false };
+	OverviewType drawAt;
 
 	ComponentType GetComponentType() const override;
 };
@@ -170,6 +173,7 @@ public:
 	//Stores text
 	std::shared_ptr<sf::Text> text;
 	bool hidden{ false };
+	OverviewType drawAt;
 
 	ComponentType GetComponentType() const override;
 };

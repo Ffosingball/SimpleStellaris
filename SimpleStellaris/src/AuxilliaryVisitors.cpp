@@ -28,7 +28,7 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
                 //Get component
                 std::shared_ptr<RectangleShapeComponent> spEntityRecShape = GetRectangleShapeComponent(*spEntity);
 
-                if (!spEntityRecShape->hidden)
+                if (!spEntityRecShape->hidden && (spEntityRecShape->drawAt == ECSGame::Instance().GetOverviewType() || spEntityRecShape->drawAt == OverviewType::Always))
                 {
                     //std::cout << spEntity->GetName() << " not hidden \n";
                     //Get absolute position of the entity in the world
@@ -46,7 +46,7 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
                 //Get component
                 std::shared_ptr<TextComponent> spEntityUI = GetTextComponent(*spEntity);
 
-                if (!spEntityUI->hidden)
+                if (!spEntityUI->hidden && (spEntityUI->drawAt == ECSGame::Instance().GetOverviewType() || spEntityUI->drawAt == OverviewType::Always))
                 {
                     //Get absolute position of the entity in the world
                     sf::RenderStates states;

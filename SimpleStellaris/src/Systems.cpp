@@ -35,6 +35,8 @@ void InputSystem::Initialize()
 
 	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetSceneRoot()->FindChild("MouseIcon").lock();
 	mouseIconEntity = mouseNodeSP->GetEntity().lock();
+
+	systemName = "InputSystem";
 }
 
 //Process keys they are pressed
@@ -60,7 +62,7 @@ void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 
 void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
 {
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromCameraEntity();
+	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
 	sf::Vector2f previousCameraSize = spCameraCom->view.getSize();
 	//sf::Vector2f previousSize = spCameraCom->view.getSize();
 	//Zoom camera
@@ -115,36 +117,33 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	//Set direction to 0,0
 	sf::Vector2f direction{ 0,0 };
 
-	if (ECSGame::Instance().GetGameState() == GameState::Game)
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-		{
-			//Change direction to positive
-			direction.y -= 1.f;
-		}
+		//Change direction to positive
+		direction.y -= 1.f;
+	}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-		{
-			//Change direction to negative
-			direction.y += 1.f;
-		}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+	{
+		//Change direction to negative
+		direction.y += 1.f;
+	}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-		{
-			direction.x -= 1.f;
-		}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+	{
+		direction.x -= 1.f;
+	}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-		{
-			direction.x += 1.f;
-		}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+	{
+		direction.x += 1.f;
 	}
 
 	//Deal with mouse movement
 	sf::Vector2i mousePosition = ECSGame::Instance().GetMousePosition();
 
 	mousePosText->text->setString("Window pos: " + std::to_string(mousePosition.x) + "; " + std::to_string(mousePosition.y));
-	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(GetCameraFromCameraEntity()->view, mousePosition);
+	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(GetCurrentlyActiveCamera()->view, mousePosition);
 	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
 	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
 
@@ -184,17 +183,15 @@ void MovementSystem::Initialize()
 	//Subscribe to this signal, to get player direction every frame
 	signals::onMoveCamera.connect(&MovementSystem::OnMoveCamera, this);
 	//signals::onZoomCamera.connect(&MovementSystem::OnZoomCamera, this);
+	systemName = "MovementSystem";
 }
 
 
 void MovementSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	//If game paused, then do nothing
-	if (ECSGame::Instance().GetGameState() != GameState::Pause)
-	{
-		SceneNodeVisitorMovement visitor(*this);
-		scene->AcceptVisitor(visitor);
-	}
+	SceneNodeVisitorMovement visitor(*this);
+	scene->AcceptVisitor(visitor);
 }
 
 
@@ -202,6 +199,7 @@ void MovementSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 void UISystem::Initialize() 
 {
 	//Subscribe to some signals
+	systemName = "UISystem";
 }
 
 void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
@@ -238,6 +236,7 @@ void MusicSystem::Initialize()
 	spPowerUpSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/power_up.wav").lock());
 	spWonSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/coin.wav").lock());
 	*/
+	systemName = "MusicSystem";
 }
 
 void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
@@ -276,6 +275,7 @@ void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 void GameSystem::Initialize()
 {
 	//Subscribe to some signals
+	systemName = "GameSystem";
 }
 
 //Update player`s invulnerability and shield

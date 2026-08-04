@@ -77,6 +77,7 @@ ComponentType UIFollowerComponent::GetComponentType() const
 
 
 //This function creates any component and return shared pointer to it
+//Worst case: O(N) where N is number of available components in game
 std::shared_ptr<Component> ComponentFactory(ComponentType ct) 
 {
 	switch (ct)

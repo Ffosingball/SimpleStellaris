@@ -18,6 +18,11 @@ public:
 	virtual void Destroy() {}
 	//To update entities every frame
 	virtual void Update(std::shared_ptr<SceneNode> scene, float deltaTime) {}
+
+	std::string& const GetSystemName() { return systemName; }
+
+protected:
+	std::string systemName;
 };
 
 //Deletes all entities at the end of the frame

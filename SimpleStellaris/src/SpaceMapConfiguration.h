@@ -67,4 +67,5 @@ struct SpaceMapConfigurations
 	//Distances in A.U.
 	sf::Vector2f closeStarsBoundaries{ 0.1f, 10.f };
 	sf::Vector2f afarStarsBoundaries{ 15.f, 1000.f };
+	float sunDiameter{0.009346f};
 };

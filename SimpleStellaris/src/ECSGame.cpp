@@ -36,10 +36,6 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	systems.emplace_back(std::make_shared<GameSystem>());
 
 	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
-	//Initialize map first, so it will be always drawn first
-	InitializeCamera(windowSize);
-	//Initialize UI camera, to draw ui entities
-	InitializeUICamera(windowSize);
 
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpPlay = ECSGame::Instance().GetEntityManager().NewEntity("SpaceMap");
@@ -47,11 +43,15 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	wpPlay.lock()->AddComponent(ComponentType::SystemProperties);
 	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
 	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpUI));
+	std::weak_ptr<Entity> wpCameras = ECSGame::Instance().GetEntityManager().NewEntity("Cameras");
+	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpCameras));
 	std::weak_ptr<Entity> wpSysN = ECSGame::Instance().GetEntityManager().NewEntity("SystemNames");
 	ECSGame::Instance().GetSceneRoot()->FindChild("UI").lock()->AddChild(std::make_shared<SceneNode>(wpSysN));
+	
+	//Initialize all cameras
+	InitializeAllCameras(windowSize);
 	//Setup mouseIcon
 	InitializeMouseIcon();
-
 	//Create debug text
 	CreateDebugText();
 	CreateUI();
@@ -67,7 +67,11 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	CreateSpaceObjects();
 
 	//Set gameState
-	gameState = GameState::Game;
+	gameState = GameState::Pause;
+	overviewType = OverviewType::Space;
+
+	//Output full sceneNode tree for debbuging
+	sceneRoot->OutputTree(" ");
 }
 
 
@@ -80,13 +84,20 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	//Get mousePosition
 	mousePosition = sf::Mouse::getPosition(renderWindow);
 
+	//for debbuging purposes
+	sf::Clock timer;
+
 	//std::cout << "Update\n";
 	//Update all systems
 	for (std::shared_ptr<System> system : systems)
+	{
 		system->Update(sceneRoot, deltaTime);
+		std::cout << "  --"<<system->GetSystemName()<<": " << timer.restart().asSeconds() << '\n';
+	}
 
 	//Process entities removal
 	deleteSystem.Update(sceneRoot, deltaTime);
+	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 }
 
 
@@ -125,7 +136,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 		renderWindow.close();
 
 	//Set renderWindow to render in the camera
-	std::shared_ptr<CameraComponent> sCameraCom = GetCameraFromCameraEntity();
+	std::shared_ptr<CameraComponent> sCameraCom = GetCurrentlyActiveCamera();
 	renderWindow.setView(sCameraCom->view);
 
 	//Render all scene entities

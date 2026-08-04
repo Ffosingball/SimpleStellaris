@@ -475,7 +475,66 @@ void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> sp
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, texturePath, intRect);
+	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, texturePath, OverviewType::Space, intRect);
+	//"media/textures/starsPicture.png"
+}
+
+
+void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
+{
+	sf::Vector2i pictureSize{ 300,300 };
+	//sf::Vector2i textureGrid{ 3,4 };
+	std::string texturePath{ "media/textures/starsTextures.png" };
+
+	float starSizeMultiplier = 9.f;
+	sf::IntRect intRect;
+	intRect.size = pictureSize;
+	switch (starType)
+	{
+	case StarType::BlackHole:
+		intRect.position = sf::Vector2i{ 600,900 };
+		break;
+	case StarType::NeutronStar:
+		intRect.position = sf::Vector2i{ 300,900 };
+		break;
+	case StarType::WhiteDwarf:
+		intRect.position = sf::Vector2i{ 0,900 };
+		break;
+	case StarType::BrownDwarf:
+		intRect.position = sf::Vector2i{ 600,600 };
+		break;
+	case StarType::MredDwarf:
+		intRect.position = sf::Vector2i{ 300,600 };
+		break;
+	case StarType::KorangeDwarf:
+		intRect.position = sf::Vector2i{ 0,600 };
+		break;
+	case StarType::GsunLike:
+		intRect.position = sf::Vector2i{ 600,300 };
+		break;
+	case StarType::Ftype:
+		intRect.position = sf::Vector2i{ 300,300 };
+		break;
+	case StarType::Atype:
+		intRect.position = sf::Vector2i{ 0,300 };
+		break;
+	case StarType::Btype:
+		intRect.position = sf::Vector2i{ 600,0 };
+		break;
+	case StarType::Otype:
+		intRect.position = sf::Vector2i{ 300,0 };
+		break;
+	case StarType::RedGiant:
+		starSizeMultiplier *= 20.f;
+		intRect.position = sf::Vector2i{ 0,0 };
+		break;
+	case StarType::RedSupergiant:
+		starSizeMultiplier *= 100.f;
+		intRect.position = sf::Vector2i{ 0,0 };
+		break;
+	}
+
+	SetupRectangleShape(spRectShape, sf::Vector2f{ mapConfig.sunDiameter*starSizeMultiplier,mapConfig.sunDiameter }, texturePath, OverviewType::System, intRect);
 	//"media/textures/starsPicture.png"
 }
 
@@ -638,6 +697,9 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
 				SetSystemTexture(spRectShape, spStar1Com->starType);
 				SetSystemName(spComSys, spStar1Com->starType);
+
+				//Now set star names
+				spStar1Com->starName = spComSys->systemName;
 			}
 			else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar) 
 			{
@@ -648,6 +710,18 @@ void TextureSetter::ProcessNode(SceneNode& node)
 
 				SetSystemTexture(spRectShape, std::max(spStar1Com->starType, spStar2Com->starType));
 				SetSystemName(spComSys, std::max(spStar1Com->starType, spStar2Com->starType));
+			
+				//Now set star names
+				if (spStar1Com->starType > spStar2Com->starType) 
+				{
+					spStar1Com->starName = spComSys->systemName+"-A";
+					spStar2Com->starName = spComSys->systemName + "-B";
+				}
+				else 
+				{
+					spStar2Com->starName = spComSys->systemName + "-A";
+					spStar1Com->starName = spComSys->systemName + "-B";
+				}
 			}
 			else 
 			{
@@ -660,10 +734,69 @@ void TextureSetter::ProcessNode(SceneNode& node)
 
 				SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
 				SetSystemName(spComSys, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
+
+				//Now set star names
+				if (spStar1Com->starType > spStar2Com->starType && spStar1Com->starType > spStar3Com->starType)
+				{
+					spStar1Com->starName = spComSys->systemName + "-A";
+
+					if (spStar2Com->starType > spStar3Com->starType)
+					{
+						spStar2Com->starName = spComSys->systemName + "-B";
+						spStar3Com->starName = spComSys->systemName + "-C";
+					}
+					else
+					{
+						spStar3Com->starName = spComSys->systemName + "-B";
+						spStar2Com->starName = spComSys->systemName + "-C";
+					}
+				}
+				else if(spStar2Com->starType > spStar1Com->starType && spStar2Com->starType > spStar3Com->starType)
+				{
+					spStar2Com->starName = spComSys->systemName + "-A";
+
+					if (spStar1Com->starType > spStar3Com->starType)
+					{
+						spStar1Com->starName = spComSys->systemName + "-B";
+						spStar3Com->starName = spComSys->systemName + "-C";
+					}
+					else
+					{
+						spStar3Com->starName = spComSys->systemName + "-B";
+						spStar1Com->starName = spComSys->systemName + "-C";
+					}
+				}
+				else
+				{
+					spStar3Com->starName = spComSys->systemName + "-A";
+
+					if (spStar1Com->starType > spStar2Com->starType)
+					{
+						spStar1Com->starName = spComSys->systemName + "-B";
+						spStar2Com->starName = spComSys->systemName + "-C";
+					}
+					else
+					{
+						spStar2Com->starName = spComSys->systemName + "-B";
+						spStar1Com->starName = spComSys->systemName + "-C";
+					}
+				}
 			}
 
 			//Create text name entity for system
-			CreateSystemText(ptrSystemNamesNode, spEntity);
+			std::string name{ "SystemNameText" };
+			CreateSystemText(ptrSystemNamesNode, spEntity, OverviewType::Space, name);
+		}
+		else if (spEntity->HasComponent(ComponentType::Star))
+		{
+			std::shared_ptr<StarComponent> spStar = GetStarComponent(*spEntity);
+			spEntity->AddComponent(ComponentType::RectangleShape);
+			std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
+
+			SetStarTexture(spRectShape, spStar->starType);
+			//Create text name entity for star
+			std::string name{ "StarNameText" };
+			CreateSystemText(ptrSystemNamesNode, spEntity, OverviewType::System, name);
 		}
 	}
 }

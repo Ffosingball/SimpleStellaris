@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 
+//Worst case: O(1)
 const std::weak_ptr<sf::Texture> ResourceManager::LoadTexture(const std::string& filename)
 {
 	//find() in unordered list returns an iterator
@@ -37,7 +38,7 @@ const std::weak_ptr<sf::Texture> ResourceManager::LoadTexture(const std::string&
 	return wp;
 }
 
-
+//Worst case: O(1)
 const std::weak_ptr<sf::SoundBuffer> ResourceManager::LoadSoundBuffer(const std::string& filename)
 {
 	//Find soundBuf in the map by name
@@ -64,7 +65,7 @@ const std::weak_ptr<sf::SoundBuffer> ResourceManager::LoadSoundBuffer(const std:
 	return soundBufW;
 }
 
-
+//Worst case: O(1)
 const std::weak_ptr<sf::Font> ResourceManager::LoadFont(const std::string& filename)
 {
 	//Find font in the map by name
@@ -91,7 +92,7 @@ const std::weak_ptr<sf::Font> ResourceManager::LoadFont(const std::string& filen
 	return fontPtr;
 }
 
-
+//Worst case: O(1)
 const std::weak_ptr<sf::Music> ResourceManager::LoadMusic(const std::string& filename)
 {
 	//Find music in the map by name

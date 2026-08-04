@@ -8,6 +8,8 @@
 #include <iostream>
 
 //Create new entity
+//Worst case: O(1), but depends on which functions are subscribed to 
+//onEntityCreated signal
 std::weak_ptr<Entity> EntityManager::NewEntity(const std::string& name) 
 {
 	//Create new entity
@@ -23,6 +25,8 @@ std::weak_ptr<Entity> EntityManager::NewEntity(const std::string& name)
 }
 
 //Destroy entity by reference to it
+//Worst case: O(N) where N is number of entities in game, but depends on 
+//which functions are subscribed to onEntityDestroyed signal
 void EntityManager::DestroyEntity(std::weak_ptr<Entity> entity)
 {
 	signals::onEntityDestroyed(entity);
@@ -41,6 +45,7 @@ void EntityManager::DestroyEntity(std::weak_ptr<Entity> entity)
 	}
 }
 
+//Worst case: O(N) where N is number of entities in game
 std::weak_ptr<Entity> EntityManager::FindEntity(const std::string& name) const 
 {
 	std::weak_ptr<Entity> target;
@@ -60,7 +65,7 @@ std::weak_ptr<Entity> EntityManager::FindEntity(const std::string& name) const
 	return target;
 }
 
-
+//Worst case: O(N) where N is number of entities in game
 void EntityManager::OutputAllEntitiesNames() 
 {
 	for (std::shared_ptr<Entity> e : entities) 

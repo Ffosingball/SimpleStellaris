@@ -74,6 +74,7 @@ public:
 private:
 	void SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
 	void SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpaceSys, StarType starType);
+	void SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
 
 	unsigned int seed{0};
 	std::vector<std::string> listOfBrightStarNames;

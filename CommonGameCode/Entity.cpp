@@ -9,6 +9,7 @@
 
 
 //Find component by its type
+//Worst case: O(N) where N is number of components in entity
 std::weak_ptr<Component> Entity::FindComponent(ComponentType ct) const
 {
 	int index = FindComponentIndex(ct);
@@ -28,6 +29,7 @@ std::weak_ptr<Component> Entity::FindComponent(ComponentType ct) const
 }
 
 //Check if entity has component of this type
+//Worst case: O(N) where N is number of components in entity
 bool Entity::HasComponent(ComponentType ct) const 
 {
 	int index = FindComponentIndex(ct);
@@ -39,6 +41,8 @@ bool Entity::HasComponent(ComponentType ct) const
 }
 
 //Add new component
+//Worst case: O(N+M) where N is number of components in entity and M
+//number of components available in game
 std::weak_ptr<Component> Entity::AddComponent(ComponentType ct) 
 {
 	std::weak_ptr<Component> wp;
@@ -66,6 +70,7 @@ std::weak_ptr<Component> Entity::AddComponent(ComponentType ct)
 	}
 }
 
+//Worst case: O(N) where N is number of components in entity
 void Entity::RemoveComponent(ComponentType ct) 
 {
 	int index = FindComponentIndex(ct);
@@ -79,11 +84,9 @@ void Entity::RemoveComponent(ComponentType ct)
 	}
 }
 
+//Worst case: O(N) where N is number of components in entity
 int Entity::FindComponentIndex(ComponentType ct) const 
 {
-	//std::cout << "Entity address: " << this << "\n";
-	//std::cout << "Component count: " << components.size() << "\n";
-
 	for (int i = 0; i < components.size(); i++) 
 	{
 		//If component is found, then return its index
@@ -95,6 +98,7 @@ int Entity::FindComponentIndex(ComponentType ct) const
 	return -1;
 }
 
+//Worst case: O(N) where N is number of components in entity
 Entity::~Entity() 
 {
 	//On entity destruction remove all components
@@ -106,6 +110,7 @@ Entity::~Entity()
 }
 
 //Move entity
+//Worst case: O(1)
 void Entity::Move(sf::Vector2f distance) 
 {
 	sf::Vector2f position = transformable.getPosition();
@@ -114,6 +119,7 @@ void Entity::Move(sf::Vector2f distance)
 }
 
 //Move entity within given borders
+//Worst case: O(1)
 void Entity::MoveWithin(sf::Vector2f distance, sf::Vector2f horizontalBoundaries, sf::Vector2f verticalBoundaries) 
 {
 	sf::Vector2f position = transformable.getPosition();
@@ -122,12 +128,14 @@ void Entity::MoveWithin(sf::Vector2f distance, sf::Vector2f horizontalBoundaries
 }
 
 //Set new entity position
+//Worst case: O(1)
 void Entity::SetPosition(sf::Vector2f position) 
 {
 	transformable.setPosition(position);
 }
 
 //Get new entity position
+//Worst case: O(1)
 sf::Vector2f Entity::GetPosition() 
 {
 	return transformable.getPosition();

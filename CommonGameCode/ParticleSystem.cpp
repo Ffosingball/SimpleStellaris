@@ -4,6 +4,7 @@
 #include "ParticleSystem.h"
 #include <iostream>
 
+//Worst case: O(1)
 void ParticleSystem::Start()
 {
     //Start emission
@@ -14,6 +15,7 @@ void ParticleSystem::Start()
 }
 
 
+//Worst case: O(1)
 void ParticleSystem::Restart() 
 {
     //Clear list and start emission 
@@ -22,6 +24,7 @@ void ParticleSystem::Restart()
 }
 
 
+//Worst case: O(N) where N is maximum amount of particles emmited
 void ParticleSystem::Update(float dt)
 {
     // Update lifetime
@@ -64,13 +67,13 @@ void ParticleSystem::Update(float dt)
         config->Update(p,dt);
 }
 
-
+//Worst case: O(N) where N is maximum amount of particles emmited
 void ParticleSystem::Draw(sf::RenderWindow& window)
 {
     Draw(window,sf::Transform());
 }
 
-
+//Worst case: O(N) where N is maximum amount of particles emmited
 void ParticleSystem::Draw(sf::RenderWindow& window, sf::Transform zTransform)
 {
     //Get transform of the system, to draw particles in the correct position

@@ -6,6 +6,7 @@
 #include <iostream>
 
 //Get sum of all transformations from the root to this node
+//Worst case: O(N) where N is number of parents to get to the rootNode
 sf::Transform SceneNode::GetCombinedTransform() const 
 {
 	std::shared_ptr<Entity> ePtr = entity.lock();
@@ -23,6 +24,7 @@ sf::Transform SceneNode::GetCombinedTransform() const
 }
 
 //Get full location of the node in the tree
+//Worst case: O(N) where N is number of parents to get to the rootNode
 std::string SceneNode::GetCombinedParentsNames() const
 {
 	std::shared_ptr<Entity> ePtr = entity.lock();
@@ -40,6 +42,7 @@ std::string SceneNode::GetCombinedParentsNames() const
 }
 
 //Get list of all children names
+//Worst case: O(N) where N is number of children
 std::string SceneNode::GetAllChildrenNames() const
 {
 	std::string s{""};
@@ -52,22 +55,14 @@ std::string SceneNode::GetAllChildrenNames() const
 }
 
 //Add child to the list
+//Worst case: O(1)
 void SceneNode::AddChild(const std::shared_ptr<SceneNode> child)
 {
 	children.emplace_back(child);
 	child->parent = weak_from_this();
 }
 
-/*void SceneNode::UpdateParentRecursive()
-{
-	//Update pointer for each child, and call it for each child
-	for (auto& ch : children)
-	{
-		ch.parent = this;
-		ch.UpdateParentRecursive();
-	}
-}*/
-
+//Worst case: O(N+1) where N is number of children
 void SceneNode::AcceptVisitor(SceneNodeVisitor& visitor) 
 {
 	//Allow visitor to process this node
@@ -79,6 +74,7 @@ void SceneNode::AcceptVisitor(SceneNodeVisitor& visitor)
 }
 
 //Remove child
+//Worst case: O(N) where N is number nodes in the game
 void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e) 
 {
 	auto pEntity = e.lock().get();
@@ -102,48 +98,53 @@ void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e)
 	}
 	else
 	{
-		//Else trye to find and remove this entity in the children
+		//Else try to find and remove this entity in the children
 		for (auto& child : children)
 			child->RemoveByEntity(e);
 	}
 }
 
 //This function finds and returns scene node which contains this entity
+//Worst case: O(N) where N is number nodes in the game
 std::weak_ptr<SceneNode> SceneNode::FindChild(const Entity& e)
 {
-	//Check if this node is a target entity
-	if (&e == entity.lock().get())
-		return weak_from_this();
-	else
+	//Check if any of children is that node
+	for (auto& c : children)
 	{
-		//Else, try to check all children
-		for (auto& c : children)
+		if (c->GetEntity().lock() != nullptr)
 		{
-			auto ret = c->FindChild(e);
-			//If it was found in the child, then return it
-			if (ret.lock() != nullptr)
-				return ret;
+			if (&e == c->GetEntity().lock().get())
+				return c;
 		}
+	}
+
+	//Else, try to check all children
+	for (auto& c : children)
+	{
+		auto ret = c->FindChild(e);
+		//If it was found in the child, then return it
+		if (ret.lock() != nullptr)
+			return ret;
 	}
 	//Else return null
 	return {};
 }
 
 //This function finds and returns scene node which contains entity with provided name
+//Worst case: O(N) where N is number nodes in the game
 std::weak_ptr<SceneNode> SceneNode::FindChild(const std::string& s)
 {
-	//Check if this node has a entity
-	if (entity.lock() != nullptr)
+	//Check if any of children is that node
+	for (auto& c : children)
 	{
-		//std::cout << "Find: " << s << "; Parent: " << parent << "; Check: "<<this<<"; " << entity.lock()->GetName() << "\n";
-		//Check if this node is a target entity
-		if (s == entity.lock()->GetName())
-			return weak_from_this();
+		if (c->GetEntity().lock() != nullptr) 
+		{
+			if (s == c->GetEntity().lock()->GetName())
+				return c;
+		}
 	}
-	//else
-	//	std::cout << "Find: " << s << "; Entity does not exist in this node: " << this << '\n';
 
-	//Else, try to check all children
+	//Else, try to check all children of children
 	for (auto& c : children)
 	{
 		auto ret = c->FindChild(s);
@@ -155,7 +156,7 @@ std::weak_ptr<SceneNode> SceneNode::FindChild(const std::string& s)
 	return {};
 }
 
-
+//Worst case: O(N) where N is number of children
 void SceneNode::ChangeChildOrder(const std::shared_ptr<SceneNode> child, int position)
 {
 	if (position >= children.size())
@@ -195,7 +196,7 @@ void SceneNode::ChangeChildOrder(const std::shared_ptr<SceneNode> child, int pos
 	children = newOrder;
 }
 
-
+//Worst case: O(N) where N is number of children
 void SceneNode::ChangeChildOrder(const std::shared_ptr<Entity> entity, int position)
 {
 	if (position >= children.size())
@@ -243,4 +244,18 @@ void SceneNode::ChangeChildOrder(const std::shared_ptr<Entity> entity, int posit
 
 	newOrder[position] = children[childPos];
 	children = newOrder;
+}
+
+//Worst case: O(N) where N is number of nodes in game
+void SceneNode::OutputTree(const std::string& s)
+{
+	if (entity.lock() != nullptr)
+		std::cout << s << "-" << entity.lock()->GetName() << '\n';
+	else
+		std::cout << s << "-" << "UNDEFINED_ENTITY" << '\n';
+
+	for (std::shared_ptr<SceneNode> spChild : children)
+	{
+		spChild->OutputTree(s + " |");
+	}
 }

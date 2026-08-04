@@ -10,6 +10,7 @@
 #include <SFML/Graphics.hpp>
 
 enum class GameState;
+enum class OverviewType;
 
 //This is a base of the main game loop
 class ECSGame : public gel::SFMLApplication
@@ -31,11 +32,13 @@ public:
 	EntityManager& GetEntityManager() { return entityManager; }
 	std::shared_ptr<SceneNode> GetSceneRoot() { return sceneRoot; }
 	GameState GetGameState() const { return gameState; }
+	OverviewType GetOverviewType() const { return overviewType; }
 	sf::Vector2u GetWindowSize() const { return windowSize; }
 	sf::Vector2i GetMousePosition() const { return mousePosition; }
 
 	//Setter
 	void SetGameState(GameState gState) { gameState=gState; }
+	void SetOverviewType(OverviewType ovType) { overviewType = ovType; }
 	void CloseGame() { closeGame = true; }
 
 	//Override all methods from the parent
@@ -60,6 +63,7 @@ private:
 	sf::Vector2i mousePosition{ 0,0 };
 	//Stores current gameState
 	GameState gameState;
+	OverviewType overviewType;
 	//Boolean to check if window should be closed or not
 	bool closeGame{false};
 	//System which deletes all required entities at the end of the frame

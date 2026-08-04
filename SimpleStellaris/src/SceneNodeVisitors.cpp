@@ -216,13 +216,13 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                 if (spEntityFollower->entityToFollow.lock() != nullptr)
                 {
                     sf::Vector2f positionToFollow = spEntityFollower->entityToFollow.lock()->GetPosition();
-                    sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionToFollow);
+                    sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(GetCurrentlyActiveCamera()->view, positionToFollow);
                     spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
                 }
 
                 if (spEntityFollower->hideIfZoomLargeEnough) 
                 {
-                    if (GetCameraFromCameraEntity()->currentZoom > uiSystem.zoomLevelAtWhichHideSystemNames)
+                    if (GetCurrentlyActiveCamera()->currentZoom > uiSystem.zoomLevelAtWhichHideSystemNames)
                     {
                         if (spEntity->HasComponent(ComponentType::Text))
                         {
@@ -285,7 +285,7 @@ void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
                 std::shared_ptr<Component> spEntityRecShapeBase = spEntity->FindComponent(ComponentType::RectangleShape).lock();
                 std::shared_ptr<RectangleShapeComponent> spEntityRecShape = std::static_pointer_cast<RectangleShapeComponent>(spEntityRecShapeBase);
 
-                if (!spEntityRecShape->hidden)
+                if (!spEntityRecShape->hidden && (spEntityRecShape->drawAt == ECSGame::Instance().GetOverviewType() || spEntityRecShape->drawAt == OverviewType::Always))
                 {
                     //Get absolute position of the entity in the world
                     sf::RenderStates states;

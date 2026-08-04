@@ -7,6 +7,7 @@
 #include <random> //For random generation
 
 //Read data from the file
+//Worst case: O(N*M) where N is number of rows and M number of columns in provided file
 std::vector<int> ReadTileMapFromCSV(const std::string fname, sf::Vector2i& tilemapSize)
 {
 	std::vector<int> data;
@@ -30,12 +31,15 @@ std::vector<int> ReadTileMapFromCSV(const std::string fname, sf::Vector2i& tilem
 	return data;
 }
 
+//Worst case: O(1)
 sf::Vector2i TileMap::getMapSize() const
 {
 	return mapSize;
 }
 
 //Create a tilemap
+//Worst case: O((2*N*M)+K) where N is number of rows and M number of columns in provided file
+//and K number of tiles to create
 void TileMap::Initialize(std::vector<int> tilemap = {}, std::vector<int> rotationMap = {})
 {
 	//std::cout << "Init tileMap\n";
@@ -176,6 +180,7 @@ void TileMap::Initialize(std::vector<int> tilemap = {}, std::vector<int> rotatio
 }
 
 //Render tilemap
+//Worst case: O(N) where N is number of tiles
 void TileMap::Render(sf::RenderWindow& window, sf::Transform transform)
 {
 	//std::cout << "Render TileMap\n";

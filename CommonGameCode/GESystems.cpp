@@ -7,6 +7,8 @@
 #include <iostream>
 
 //This function destroys all entities of specific name in this node
+//Worst case: O((4*N)*M) where N is number of entities in game and M number of entities
+//with the same name
 void DeleteAllEntitiesWithName(std::string name)
 {
 	//Check if entity with this name still exists
@@ -21,13 +23,19 @@ void DeleteAllEntitiesWithName(std::string name)
 }
 
 //DELETION SYSTEM
+//Worst case: O(1)
 void DeleteSystem::Initialize()
 {
 	//Subscribe to some signals
 	signals::onDeleteEntity.connect(&DeleteSystem::OnEntityToDelete, this);
 	signals::onDeleteEntitiesByName.connect(&DeleteSystem::OnDeleteEntitiesByName, this);
+
+	systemName = "DeleteSystem";
 }
 
+//Worst case: O((2*N*M)+(N*K*L)) where N is number of entities in game and M number of entities
+//to delete and K number of entities with the same name and L number of different names
+//to delete
 void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	//Check if vector is empty
@@ -52,12 +60,14 @@ void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 }
 
 //Add entity to deletion vector
+//Worst case: O(1)
 void DeleteSystem::OnEntityToDelete(std::weak_ptr<Entity> wEntity)
 {
 	entitiesToDelete.emplace_back(wEntity);
 }
 
 //Add name of entities to deletion
+ //Worst case: O(1)
 void DeleteSystem::OnDeleteEntitiesByName(std::string name)
 {
 	entitiesByNameToDelete.emplace_back(name);

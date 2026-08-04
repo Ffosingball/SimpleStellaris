@@ -40,6 +40,8 @@ public:
 	std::weak_ptr<SceneNode> FindChild(const Entity& e);
 	std::weak_ptr<SceneNode> FindChild(const std::string& s);
 
+	void OutputTree(const std::string& s);
+
 private:
 
 	//Upadate parent pointer, of all children

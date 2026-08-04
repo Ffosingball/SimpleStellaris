@@ -16,3 +16,12 @@ enum class DifficultyLevel
 	Medium,
 	Hard
 };
+
+//View type
+enum class OverviewType
+{
+	Space,
+	System,
+	Planet,
+	Always
+};
