@@ -50,7 +50,7 @@ std::weak_ptr<Entity> CreateNewEntityAtUIRoot(const std::string name)
 //and return smart pointer to it
 //String is not reference, because rvalues cannot be referenced, I use them a lot
 //Worst case: O(2*N) where N is number of entities in game
-std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, std::shared_ptr<SceneNode> rootNode)
+std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, const std::shared_ptr<SceneNode> rootNode)
 {
 	std::weak_ptr<Entity> wpEntity;
 	//Get node with entity of that name
@@ -73,7 +73,7 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::s
 
 //Overloading of the function but instead of name you provide the node itself
 //Worst case: O(1)
-std::weak_ptr<Entity> CreateNewEntityAt(std::shared_ptr<SceneNode> parentNodePtr, const std::string newEntityName)
+std::weak_ptr<Entity> CreateNewEntityAt(const std::shared_ptr<SceneNode> parentNodePtr, const std::string newEntityName)
 {
 	std::weak_ptr<Entity> wpEntity;
 
@@ -93,7 +93,7 @@ std::weak_ptr<Entity> CreateNewEntityAt(std::shared_ptr<SceneNode> parentNodePtr
 
 //IntRect means which part of the texture to draw
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect intRect)
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect& intRect)
 {
 	recShape->shape = sf::RectangleShape(size);
 	recShape->shape.setOrigin(size / 2.f);
@@ -193,7 +193,7 @@ std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity()
 
 
 //Worst case: O(1)
-sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i position) 
+sf::Vector2f ConvertWindowPositionToWorld(sf::View& cameraView, sf::Vector2i position) 
 {
 	sf::Vector2u windowSize = ECSGame::Instance().GetWindowSize();
 	windowSize.x--;
@@ -211,7 +211,7 @@ sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i posi
 
 
 //Worst case: O(1)
-sf::Vector2i ConvertWorldPositionToWindow(sf::View cameraView, sf::Vector2f position) 
+sf::Vector2i ConvertWorldPositionToWindow(sf::View& cameraView, sf::Vector2f position) 
 {
 	sf::Vector2u windowSize = ECSGame::Instance().GetWindowSize();
 	windowSize.x--;

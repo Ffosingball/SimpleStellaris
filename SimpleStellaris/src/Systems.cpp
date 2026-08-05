@@ -162,13 +162,12 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		{
 			closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
 			closestSystemIndex = counter;
-			selectedSystemEntity->hidden = false;
 		}
 		counter++;
 	}
 
 	if (closestSystemIndex == -1)
-		selectedSystemEntity->hidden = true;
+		selectedSystemIcon->entityToFollow = {};
 	else
 		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
 
@@ -208,8 +207,11 @@ void UISystem::Initialize()
 
 void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
-	SceneNodeVisitorUI visitor(*this);
-	scene->AcceptVisitor(visitor);
+	if (scene == ECSGame::Instance().GetUIRoot())
+	{
+		SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera());
+		scene->AcceptVisitor(visitor);
+	}
 }
 
 
@@ -218,59 +220,13 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 //MUSIC SYSTEM
 void MusicSystem::Initialize()
 {
-	/*
-	//Subscribe to some signals
-	signals::onGameRestart.connect(&MusicSystem::OnGameRestart, this);
-	signals::onPlayExplosionSound.connect(&MusicSystem::OnPlayExplosionSound, this);
-	signals::onPlayerHurt.connect(&MusicSystem::OnPlayHurtSound, this);
-	signals::onPlayShotSound.connect(&MusicSystem::OnPlayShotSound, this);
-	signals::onPlayWarningSound.connect(&MusicSystem::OnPlayWarningSound, this);
-	signals::onPlayPowerUpSound.connect(&MusicSystem::OnPlayPowerUpSound, this);
-	signals::onPlayManyExplosionsSounds.connect(&MusicSystem::OnPlayManyExplosionsSounds, this);
-	signals::onPlayWonSound.connect(&MusicSystem::OnPlayWonSound, this);
-	//Initialize music
-	mainMusic = ResourceManager::Instance().LoadMusic("media/music/time_for_adventure.mp3").lock();
-	mainMusic->setLooping(true);
-	mainMusic->play();
-	//Load sound
-	spExplosionSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/explosion.wav").lock());
-	spHurtSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/hurt.wav").lock());
-	spShotSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/tap.wav").lock());
-	spWarningSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/jump.wav").lock());
-	spPowerUpSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/power_up.wav").lock());
-	spWonSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().LoadSoundBuffer("media/sfx/coin.wav").lock());
-	*/
+	
 	systemName = "MusicSystem";
 }
 
 void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
-	/*
-	//Check if we played all explosion sound
-	if (playExplosionSound > 0)
-	{
-		timeLeftToPlaySound -= deltaTime;
-		//Check when we need to play it again
-		if (timeLeftToPlaySound <= 0)
-		{
-			spExplosionSound->play();
-			timeLeftToPlaySound += gel::Randf(0.1f, 0.5f);
-			playExplosionSound--;
-		}
-	}
-
-	//Check if we played all won sound
-	if (playWonSound > 0)
-	{
-		timeLeftToPlayWonSound -= deltaTime;
-		//Check when we need to play it again
-		if (timeLeftToPlayWonSound <= 0)
-		{
-			spWonSound->play();
-			timeLeftToPlayWonSound += 1.f;
-			playWonSound--;
-		}
-	}*/
+	
 }
 
 
@@ -289,7 +245,7 @@ void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	if (scene != ECSGame::Instance().GetUIRoot())
 	{
-		SceneNodeVisitorSystemVisibility visitor;
+		SceneNodeVisitorSystemVisibility visitor(GetCurrentlyActiveCamera());
 		scene->AcceptVisitor(visitor);
 	}
 }

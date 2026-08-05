@@ -17,9 +17,9 @@ std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name);
 //Worst case: O(1)
 std::weak_ptr<Entity> CreateNewEntityAtUIRoot(const std::string name);
 //Worst case: O(2*N) where N is number of entities in game
-std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, std::shared_ptr<SceneNode> rootNode);
+std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, const std::shared_ptr<SceneNode> rootNode);
 //Worst case: O(1)
-std::weak_ptr<Entity> CreateNewEntityAt(std::shared_ptr<SceneNode> parentNodePtr, const std::string newEntityName);
+std::weak_ptr<Entity> CreateNewEntityAt(const std::shared_ptr<SceneNode> parentNodePtr, const std::string newEntityName);
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera();
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
@@ -33,11 +33,11 @@ std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity();
 //Worst case: O(1)
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType);
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect intRect);
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect& intRect);
 //Worst case: O(1)
-sf::Vector2f ConvertWindowPositionToWorld(sf::View cameraView, sf::Vector2i position);
+sf::Vector2f ConvertWindowPositionToWorld(sf::View& cameraView, sf::Vector2i position);
 //Worst case: O(1)
-sf::Vector2i ConvertWorldPositionToWindow(sf::View cameraView, sf::Vector2f position);
+sf::Vector2i ConvertWorldPositionToWindow(sf::View& cameraView, sf::Vector2f position);
 //Worst case: O(1)
 int GetKeyForSystemsPosition(sf::Vector2i gridPosition);
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap

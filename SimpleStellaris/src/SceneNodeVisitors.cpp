@@ -212,8 +212,6 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             if (spEntity->HasComponent(ComponentType::UIFollower))
             {
                 std::shared_ptr<UIFollowerComponent> spEntityFollower = GetUIFollowerComponent(*spEntity);
-                //std::cout<<"Name: "
-                std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
 
                 bool hide = false;
                 if (spEntityFollower->entityToFollow.lock() == nullptr)
@@ -229,9 +227,6 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                         hide = false;
                     }
                 }
-
-                //if (spEntityFollower->entityToFollow.lock() == nullptr)
-                //   std::cout << spEntity->GetName()<<") Why entity to follow in nullptr?\n";
 
                 if (hide)
                     spEntity->hidden = true;
@@ -266,7 +261,7 @@ void SceneNodeVisitorSystemVisibility::ProcessNode(SceneNode& node)
         //Check if entity has object system component
         if (spEntity->HasComponent(ComponentType::ObjectSystem))
         {
-            if (IsWorldPosInsideOfCamera(GetCurrentlyActiveCamera(), spEntity->GetPosition()))
+            if (IsWorldPosInsideOfCamera(spCamCom, spEntity->GetPosition()))
                 spEntity->hidden = false;
             else
                 spEntity->hidden = true;

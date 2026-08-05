@@ -47,11 +47,12 @@ private:
 class SceneNodeVisitorUI : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorUI(UISystem& system) : uiSystem(system) {}
+    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom) : uiSystem(system), spCamCom(activeCameraCom) {}
 
     void ProcessNode(SceneNode& node) override;
 private:
     UISystem& uiSystem;
+    std::shared_ptr<CameraComponent> spCamCom;
 };
 
 
@@ -110,7 +111,10 @@ public:
 class SceneNodeVisitorSystemVisibility : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorSystemVisibility() {}
+    SceneNodeVisitorSystemVisibility(std::shared_ptr<CameraComponent> activeCameraCom) : spCamCom(activeCameraCom) {}
 
     void ProcessNode(SceneNode& node) override;
+
+private:
+    std::shared_ptr<CameraComponent> spCamCom;
 };
