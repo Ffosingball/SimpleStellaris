@@ -28,6 +28,9 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	std::srand(std::time(nullptr));
 	//Get window size
 	windowSize = renderWindow.getSize();
+
+	//Load all resources
+	ResourceManager::Instance().LoadAllResources();
 	
 	//Create and sdd systems to the list
 	systems.emplace_back(std::make_shared<InputSystem>());

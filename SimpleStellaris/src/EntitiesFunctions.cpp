@@ -93,27 +93,15 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::shared_ptr<SceneNode> parentN
 
 //IntRect means which part of the texture to draw
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect& intRect)
-{
-	recShape->shape = sf::RectangleShape(size);
-	recShape->shape.setOrigin(size / 2.f);
-	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(texturePath);
-	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
-	recShape->shape.setTexture(sTexture.get());
-	recShape->shape.setTextureRect(intRect);
-	recShape->drawAt = overviewType;
-}
-
-
-
-//Worst case: O(1)
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType)
 {
 	recShape->shape = sf::RectangleShape(size);
 	recShape->shape.setOrigin(size / 2.f);
-	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(texturePath);
+	sf::IntRect intRect;
+	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().GetTexture(texturePath, intRect);
 	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
 	recShape->shape.setTexture(sTexture.get());
+	recShape->shape.setTextureRect(intRect);
 	recShape->drawAt = overviewType;
 }
 

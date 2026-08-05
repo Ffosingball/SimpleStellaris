@@ -58,7 +58,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 	//Get component
 	std::shared_ptr<TextComponent> spUICom = GetTextComponent(*spUI);
 	//Get font from the resource manager
-	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().LoadFont("media/fonts/PixelOperator8-Bold.ttf").lock();
+	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont("PixelBold").lock();
 	//Set text properties
 	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
 	spUICom->text->setFillColor(sf::Color::White);
@@ -114,7 +114,7 @@ std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, cons
 	//Get component
 	std::shared_ptr<TextComponent> spUICom = GetTextComponent(*spUI);
 	//Get font from the resource manager
-	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().LoadFont("media/fonts/PixelOperator8.ttf").lock();
+	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont("Pixel").lock();
 	
 	//Set text properties
 	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
@@ -208,7 +208,7 @@ void CreateUI()
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
 	sf::IntRect intRect({0,0}, {32,32});
-	SetupRectangleShape(spRectShape, iconSize, "media/textures/selectionIcon.png", OverviewType::Always, intRect);
+	SetupRectangleShape(spRectShape, iconSize, "SelectionIcon", OverviewType::Always);
 	spSSIcon->hidden = true;
 }
 
@@ -260,6 +260,6 @@ void InitializeMouseIcon()
 
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*wpMouseIcon.lock());
-	SetupRectangleShape(spRectShape, mouseSize, "media/textures/mouseIcon.png", OverviewType::Always);
+	SetupRectangleShape(spRectShape, mouseSize, "MouseIcon", OverviewType::Always);
 	spRectShape->shape.setPosition({32,32});
 }

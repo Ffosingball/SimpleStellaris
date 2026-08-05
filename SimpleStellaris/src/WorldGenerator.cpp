@@ -426,56 +426,51 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 
 void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
 {
-	sf::Vector2i pictureSize{17,17};
-	//sf::Vector2i textureGrid{ 3,4 };
-	std::string texturePath{ "media/textures/starsPicture.png" };
-
-	sf::IntRect intRect;
-	intRect.size = pictureSize;
+	std::string textureName{ "Placeholder" };
 	switch (starType) 
 	{
 	case StarType::BlackHole:
-		intRect.position = sf::Vector2i{34,0};
+		textureName = "BrownDwarfSystem";
 		break;
 	case StarType::NeutronStar:
-		intRect.position = sf::Vector2i{ 0,0 };
+		textureName = "NeutronStarSystem";
 		break;
 	case StarType::WhiteDwarf:
-		intRect.position = sf::Vector2i{ 17,0 };
+		textureName = "WhiteDwarfSystem";
 		break;
 	case StarType::BrownDwarf:
-		intRect.position = sf::Vector2i{ 34,0 };
+		textureName = "BrownDwarfSystem";
 		break;
 	case StarType::MredDwarf:
-		intRect.position = sf::Vector2i{ 0,17 };
+		textureName = "MclassSystem";
 		break;
 	case StarType::KorangeDwarf:
-		intRect.position = sf::Vector2i{ 17,17 };
+		textureName = "KclassSystem";
 		break;
 	case StarType::GsunLike:
-		intRect.position = sf::Vector2i{ 34,17 };
+		textureName = "GclassSystem";
 		break;
 	case StarType::Ftype:
-		intRect.position = sf::Vector2i{ 0,34 };
+		textureName = "FclassSystem";
 		break;
 	case StarType::Atype:
-		intRect.position = sf::Vector2i{ 17,34 };
+		textureName = "AclassSystem";
 		break;
 	case StarType::Btype:
-		intRect.position = sf::Vector2i{ 34,34 };
+		textureName = "BclassSystem";
 		break;
 	case StarType::Otype:
-		intRect.position = sf::Vector2i{ 0,51 };
+		textureName = "OclassSystem";
 		break;
 	case StarType::RedGiant:
-		intRect.position = sf::Vector2i{ 17,51 };
+		textureName = "RedGiantSystem";
 		break;
 	case StarType::RedSupergiant:
-		intRect.position = sf::Vector2i{ 34,51 };
+		textureName = "RedSupergiantSystem";
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, texturePath, OverviewType::Space, intRect);
+	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, textureName, OverviewType::Space);
 	//"media/textures/starsPicture.png"
 }
 
@@ -484,57 +479,55 @@ void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRe
 {
 	sf::Vector2i pictureSize{ 300,300 };
 	//sf::Vector2i textureGrid{ 3,4 };
-	std::string texturePath{ "media/textures/starsTextures.png" };
+	std::string textureName{ "Placeholder" };
 
 	float starSizeMultiplier = 9.f;
-	sf::IntRect intRect;
-	intRect.size = pictureSize;
 	switch (starType)
 	{
 	case StarType::BlackHole:
-		intRect.position = sf::Vector2i{ 600,900 };
+		textureName = "BlackHole";
 		break;
 	case StarType::NeutronStar:
-		intRect.position = sf::Vector2i{ 300,900 };
+		textureName = "NeutronStar";
 		break;
 	case StarType::WhiteDwarf:
-		intRect.position = sf::Vector2i{ 0,900 };
+		textureName = "WhiteDwarf";
 		break;
 	case StarType::BrownDwarf:
-		intRect.position = sf::Vector2i{ 600,600 };
+		textureName = "BrownDwarf";
 		break;
 	case StarType::MredDwarf:
-		intRect.position = sf::Vector2i{ 300,600 };
+		textureName = "Mclass";
 		break;
 	case StarType::KorangeDwarf:
-		intRect.position = sf::Vector2i{ 0,600 };
+		textureName = "Kclass";
 		break;
 	case StarType::GsunLike:
-		intRect.position = sf::Vector2i{ 600,300 };
+		textureName = "Gclass";
 		break;
 	case StarType::Ftype:
-		intRect.position = sf::Vector2i{ 300,300 };
+		textureName = "Fclass";
 		break;
 	case StarType::Atype:
-		intRect.position = sf::Vector2i{ 0,300 };
+		textureName = "Aclass";
 		break;
 	case StarType::Btype:
-		intRect.position = sf::Vector2i{ 600,0 };
+		textureName = "Bclass";
 		break;
 	case StarType::Otype:
-		intRect.position = sf::Vector2i{ 300,0 };
+		textureName = "Oclass";
 		break;
 	case StarType::RedGiant:
 		starSizeMultiplier *= 20.f;
-		intRect.position = sf::Vector2i{ 0,0 };
+		textureName = "RedGiant";
 		break;
 	case StarType::RedSupergiant:
 		starSizeMultiplier *= 100.f;
-		intRect.position = sf::Vector2i{ 0,0 };
+		textureName = "RedGiant";
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, sf::Vector2f{ mapConfig.sunDiameter*starSizeMultiplier,mapConfig.sunDiameter }, texturePath, OverviewType::System, intRect);
+	SetupRectangleShape(spRectShape, sf::Vector2f{ mapConfig.sunDiameter*starSizeMultiplier,mapConfig.sunDiameter }, textureName, OverviewType::System);
 	//"media/textures/starsPicture.png"
 }
 

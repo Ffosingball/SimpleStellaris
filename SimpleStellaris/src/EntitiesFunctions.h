@@ -33,8 +33,6 @@ std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity();
 //Worst case: O(1)
 void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType);
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType, sf::IntRect& intRect);
-//Worst case: O(1)
 sf::Vector2f ConvertWindowPositionToWorld(sf::View& cameraView, sf::Vector2i position);
 //Worst case: O(1)
 sf::Vector2i ConvertWorldPositionToWindow(sf::View& cameraView, sf::Vector2f position);
