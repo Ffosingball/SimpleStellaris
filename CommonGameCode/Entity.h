@@ -55,6 +55,9 @@ public:
 	//Worst case: O(1)
 	sf::Vector2f GetPosition();
 
+	//Flag to tell if entity should be drawn or not
+	bool hidden = false;
+
 private:
 	std::string name;//name of the entity
 	sf::Transformable transformable;//Transform of the entity

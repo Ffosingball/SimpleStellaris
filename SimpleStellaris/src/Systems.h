@@ -28,7 +28,7 @@ private:
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
 	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
-	std::shared_ptr<RectangleShapeComponent> selectedSystemIconRect{ nullptr };
+	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
 	std::shared_ptr<TextComponent> fpsText{ nullptr };
 };
@@ -95,15 +95,11 @@ private:
 };
 
 
-//Manages clean up during restart, won-lost animations, game statistics
-//and player shield
+
 class GameSystem :public System
 {
 public:
 	//Statistics variables
-	int bulletsAvoided{0};
-	int enemiesDestroyed{ 0 };
-	int bulletsFired{ 0 };
 
 	virtual ~GameSystem() = default;
 private:

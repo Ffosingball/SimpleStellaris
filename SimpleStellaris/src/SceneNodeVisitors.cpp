@@ -212,41 +212,40 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             if (spEntity->HasComponent(ComponentType::UIFollower))
             {
                 std::shared_ptr<UIFollowerComponent> spEntityFollower = GetUIFollowerComponent(*spEntity);
-                
-                if (spEntityFollower->entityToFollow.lock() != nullptr)
-                {
-                    sf::Vector2f positionToFollow = spEntityFollower->entityToFollow.lock()->GetPosition();
-                    sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(GetCurrentlyActiveCamera()->view, positionToFollow);
-                    spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
-                }
+                //std::cout<<"Name: "
+                std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
 
-                if (spEntityFollower->hideIfZoomLargeEnough) 
+                bool hide = false;
+                if (spEntityFollower->entityToFollow.lock() == nullptr)
+                    hide = true;
+                else if (spEntityFollower->hideIfZoomLargeEnough) 
                 {
-                    if (GetCurrentlyActiveCamera()->currentZoom > uiSystem.zoomLevelAtWhichHideSystemNames)
+                    if (spCamCom->currentZoom > uiSystem.zoomLevelAtWhichHideSystemNames)
                     {
-                        if (spEntity->HasComponent(ComponentType::Text))
-                        {
-                            std::shared_ptr<TextComponent> spText = GetTextComponent(*spEntity);
-                            spText->hidden = true;
-                        }
-                        else if (spEntity->HasComponent(ComponentType::RectangleShape))
-                        {
-                            std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
-                            spRectShape->hidden = true;
-                        }
+                        hide = true;
                     }
                     else 
                     {
-                        if (spEntity->HasComponent(ComponentType::Text))
-                        {
-                            std::shared_ptr<TextComponent> spText = GetTextComponent(*spEntity);
-                            spText->hidden = false;
-                        }
-                        else if (spEntity->HasComponent(ComponentType::RectangleShape))
-                        {
-                            std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
-                            spRectShape->hidden = false;
-                        }
+                        hide = false;
+                    }
+                }
+
+                //if (spEntityFollower->entityToFollow.lock() == nullptr)
+                //   std::cout << spEntity->GetName()<<") Why entity to follow in nullptr?\n";
+
+                if (hide)
+                    spEntity->hidden = true;
+                else if(!IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->entityToFollow.lock()->GetPosition()))
+                    spEntity->hidden = true;
+                else
+                {
+                    spEntity->hidden = false;
+
+                    if (spEntityFollower->entityToFollow.lock() != nullptr)
+                    {
+                        sf::Vector2f positionToFollow = spEntityFollower->entityToFollow.lock()->GetPosition();
+                        sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
+                        spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
                     }
                 }
             }
@@ -254,46 +253,23 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
     }
 }
 
-//Render processing function
-void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
+
+
+//System visibility processing function
+void SceneNodeVisitorSystemVisibility::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
-    //Get deltatime
-    float dt = ECSGame::Instance().GetDeltaTime();
-    //Check if pointer is valid
+
+    //Check that pointer is valid
     if (spEntity != nullptr)
     {
-        //Check that entity does not have UI component
-        if (!spEntity->HasComponent(ComponentType::UIPart))
+        //Check if entity has object system component
+        if (spEntity->HasComponent(ComponentType::ObjectSystem))
         {
-            //Now check which type of components entity has, becuase
-            //different components will be displayed differently
-            if (spEntity->HasComponent(ComponentType::TileMap))
-            {
-                //Get component
-                std::shared_ptr<Component> spEntityTileMapBase = spEntity->FindComponent(ComponentType::TileMap).lock();
-                std::shared_ptr<TileMapComponent> spEntityTileMap = std::static_pointer_cast<TileMapComponent>(spEntityTileMapBase);
-
-                //Draw entity if not hidden
-                if(!spEntityTileMap->hidden)
-                    spEntityTileMap->tileMap.Render(renderWindow, node.GetCombinedTransform());
-            }
-
-            if (spEntity->HasComponent(ComponentType::RectangleShape))
-            {
-                //Get component
-                std::shared_ptr<Component> spEntityRecShapeBase = spEntity->FindComponent(ComponentType::RectangleShape).lock();
-                std::shared_ptr<RectangleShapeComponent> spEntityRecShape = std::static_pointer_cast<RectangleShapeComponent>(spEntityRecShapeBase);
-
-                if (!spEntityRecShape->hidden && (spEntityRecShape->drawAt == ECSGame::Instance().GetOverviewType() || spEntityRecShape->drawAt == OverviewType::Always))
-                {
-                    //Get absolute position of the entity in the world
-                    sf::RenderStates states;
-                    states.transform = node.GetCombinedTransform();
-                    //Draw entity if not hidden
-                    renderWindow.draw(spEntityRecShape->shape, states);
-                }
-            }
+            if (IsWorldPosInsideOfCamera(GetCurrentlyActiveCamera(), spEntity->GetPosition()))
+                spEntity->hidden = false;
+            else
+                spEntity->hidden = true;
         }
     }
 }

@@ -24,6 +24,7 @@
     <ClCompile Include="src\ECSGame.cpp" />
     <ClCompile Include="src\EntitiesFunctions.cpp" />
     <ClCompile Include="src\InitializeUIEntities.cpp" />
+    <ClCompile Include="src\RenderVisitors.cpp" />
     <ClCompile Include="src\SceneNodeVisitors.cpp" />
     <ClCompile Include="src\SimpleStellaris.cpp" />
     <ClCompile Include="src\Systems.cpp" />

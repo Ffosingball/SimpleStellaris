@@ -33,7 +33,7 @@ void InputSystem::Initialize()
 
 	std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUIRoot()->FindChild("SelectedSystemIcon").lock();
 	selectedSystemIcon = GetUIFollowerComponent(*wsiPtr->GetEntity().lock());
-	selectedSystemIconRect = GetRectangleShapeComponent(*wsiPtr->GetEntity().lock());
+	selectedSystemEntity = wsiPtr->GetEntity().lock();
 
 	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUIRoot()->FindChild("MouseIcon").lock();
 	mouseIconEntity = mouseNodeSP->GetEntity().lock();
@@ -162,13 +162,13 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		{
 			closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
 			closestSystemIndex = counter;
-			selectedSystemIconRect->hidden = false;
+			selectedSystemEntity->hidden = false;
 		}
 		counter++;
 	}
 
 	if (closestSystemIndex == -1)
-		selectedSystemIconRect->hidden = true;
+		selectedSystemEntity->hidden = true;
 	else
 		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
 
@@ -282,8 +282,14 @@ void GameSystem::Initialize()
 	systemName = "GameSystem";
 }
 
-//Update player`s invulnerability and shield
+
+
+//Update systems visibility
 void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
-
+	if (scene != ECSGame::Instance().GetUIRoot())
+	{
+		SceneNodeVisitorSystemVisibility visitor;
+		scene->AcceptVisitor(visitor);
+	}
 }

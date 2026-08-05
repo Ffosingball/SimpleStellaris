@@ -101,6 +101,7 @@ void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, cons
 	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
 	recShape->shape.setTexture(sTexture.get());
 	recShape->shape.setTextureRect(intRect);
+	recShape->drawAt = overviewType;
 }
 
 
@@ -113,6 +114,7 @@ void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, cons
 	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().LoadTexture(texturePath);
 	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
 	recShape->shape.setTexture(sTexture.get());
+	recShape->drawAt = overviewType;
 }
 
 
@@ -237,6 +239,17 @@ int GetKeyForSystemsPosition(sf::Vector2i gridPosition)
 
 
 
+//Worst case: O(1)
+bool IsWorldPosInsideOfCamera(std::shared_ptr<CameraComponent> spCamCom, sf::Vector2f worldPos)
+{
+	sf::Vector2f horizontalCameraBorders{ spCamCom->view.getCenter().x - (spCamCom->view.getSize().x / 2.f) - spCamCom->renderOutsideBoundsFor, spCamCom->view.getCenter().x + (spCamCom->view.getSize().x / 2.f) + spCamCom->renderOutsideBoundsFor };
+	sf::Vector2f verticalCameraBorders{ spCamCom->view.getCenter().y - (spCamCom->view.getSize().y / 2.f) - spCamCom->renderOutsideBoundsFor, spCamCom->view.getCenter().y + (spCamCom->view.getSize().y / 2.f) + spCamCom->renderOutsideBoundsFor };
+
+	return worldPos.x > horizontalCameraBorders.x && worldPos.x < horizontalCameraBorders.y && worldPos.y>verticalCameraBorders.x && worldPos.y < verticalCameraBorders.y;
+}
+
+
+
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
 std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position) 
 {
@@ -278,8 +291,8 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 
 
 //Creates UI camera
-//Worst case: O(N) where N is number of components available in game and M number of components
-//in
+//Worst case: O(2N+M) where N is number of components available in game and M number of components
+//available in game
 void InitializeUICamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	//Create camera
@@ -294,7 +307,10 @@ void InitializeUICamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vecto
 }
 
 
+
 //Creates a camera
+//Worst case: O(4N+M) where N is number of components available in game and M number of components
+//available in game
 void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	int cameraHeight = 300;
@@ -302,6 +318,7 @@ void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Ve
 	float cameraZoomSpeed = -8.f;
 	float velocityChange = 8.f;
 	sf::Vector2f zoomBorders = {0.4f, 1.7f};
+	float outsideBordersMaxRenderDistance = 15.f;
 
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "SpaceCamera").lock();
@@ -320,12 +337,17 @@ void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Ve
 	spCameraCom->zoomingBorders = zoomBorders;
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
 	spCameraCom->speedChange = velocityChange;
+	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
 }
 
+
+
 //Creates a system camera
+//Worst case: O(4N+M) where N is number of components available in game and M number of components
+//available in game
 void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	int cameraHeight = 300;
@@ -333,6 +355,7 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	float cameraZoomSpeed = -8.f;
 	float velocityChange = 8.f;
 	sf::Vector2f zoomBorders = { 0.001f, 10.f };
+	float outsideBordersMaxRenderDistance = 15.f;
 
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "SystemCamera").lock();
@@ -351,13 +374,17 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	spCameraCom->zoomingBorders = zoomBorders;
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
 	spCameraCom->speedChange = velocityChange;
+	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };
 }
 
 
+
 //Creates background camera
+//Worst case: O(2N+M) where N is number of components available in game and M number of components
+//available in game
 void InitializeBackgroundCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	//Create camera
@@ -371,7 +398,8 @@ void InitializeBackgroundCamera(std::shared_ptr<SceneNode> spCameraNode, const s
 	spCameraCom->view.setCenter(static_cast<sf::Vector2f>(windowSize) / 2.f);
 }
 
-
+//Worst case: O(12N+4M) where N is number of components available in game and M number of components
+//available in game
 void InitializeAllCameras(const sf::Vector2u& windowSize)
 {
 	std::shared_ptr<SceneNode> spAllCam = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras").lock();
@@ -383,6 +411,8 @@ void InitializeAllCameras(const sf::Vector2u& windowSize)
 }
 
 
+
+//Worst case: O(N) where N is number of entities in provided vector
 void outputChildrens(std::vector<std::shared_ptr<SceneNode>> v) 
 {
 	for (std::shared_ptr<SceneNode> n : v) 
@@ -392,6 +422,8 @@ void outputChildrens(std::vector<std::shared_ptr<SceneNode>> v)
 }
 
 
+
+//Worst case: O(4N) where N is number of tiles to generate
 std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations& mapConfig)
 {
 	sf::Vector2i tilesInTileset{ 4,5 };
@@ -414,21 +446,17 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations
 	spTileMapCom->tileMap.rotateTiles = true;
 	spTileMapCom->drawAt = OverviewType::Always;
 	//Iitialize all tiles
-	//std::cout << "Before init tileMap\n";
 	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::GenerateGridOfRandomNumbers(mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
 	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x*mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * mapConfig.backgroundSize.y / (-2.f)) });
 
-	//std::cout << "Before: " << '\n';
-	//outputChildrens(ECSGame::Instance().GetSceneRoot()->GetAllChildren());
 	ECSGame::Instance().GetSceneRoot()->ChangeChildOrder(spTileMap,0);
-	//std::cout << "After: " << '\n';
-	//outputChildrens(ECSGame::Instance().GetSceneRoot()->GetAllChildren());
 
 	return spTileMapCom;
 }
 
 
 //Creates space objects
+//Worst case: O(2N+4M) where N is number of systems + stars to create and M number of tiles to create
 void CreateSpaceObjects() 
 {
 	float additionalSpaceForCameraBoundaries = 20.f;
@@ -457,57 +485,4 @@ void CreateSpaceObjects()
 	spCameraCom2->horizontalBorders = { -mapConfig.afarStarsBoundaries.y, mapConfig.afarStarsBoundaries.y };
 	spCameraCom2->verticalBorders = { -mapConfig.afarStarsBoundaries.y, mapConfig.afarStarsBoundaries.y };
 	spCameraCom2->view.setCenter(sf::Vector2f{ 0.f, 0.f });
-
-	//Check systems generated
-	/*SceneNodeSpaceObjectsCounter visitor;
-	spNode->AcceptVisitor(visitor);
-	std::cout << '\n';
-	int total{ 0 };
-	std::cout << "Overall stars:\n";
-	total += visitor.redSupGiantAmount;
-	std::cout << "Total Red Supergiants: " << visitor.redSupGiantAmount << '\n';
-	total += visitor.redGiantAmount;
-	std::cout << "Total Red Giants: " << visitor.redGiantAmount << '\n';
-	total += visitor.OclassAmount;
-	std::cout << "Total Blue Supergiants (O): " << visitor.OclassAmount << '\n';
-	total += visitor.BclassAmount;
-	std::cout << "Total Blue Giants (B): " << visitor.BclassAmount << '\n';
-	total += visitor.AclassAmount;
-	std::cout << "Total Blueish Stars (A): " << visitor.AclassAmount << '\n';
-	total += visitor.FclassAmount;
-	std::cout << "Total White Stars (F): " << visitor.FclassAmount << '\n';
-	total += visitor.GclassAmount;
-	std::cout << "Total Yellow Stars (G): " << visitor.GclassAmount << '\n';
-	total += visitor.KclassAmount;
-	std::cout << "Total Orange Dwarfs (K): " << visitor.KclassAmount << '\n';
-	total += visitor.MclassAmount;
-	std::cout << "Total Red Dwarfs (M): " << visitor.MclassAmount << '\n';
-	total += visitor.brownDwarfAmount;
-	std::cout << "Total Brown Dwarfs: " << visitor.brownDwarfAmount << '\n';
-	total += visitor.whiteDwarfAmount;
-	std::cout << "Total White Dwarfs: " << visitor.whiteDwarfAmount << '\n';
-	total += visitor.neutronAmount;
-	std::cout << "Total Neutron Stars: " << visitor.neutronAmount << '\n';
-	total += visitor.blackHoleAmount;
-	std::cout << "Total Black Holes: " << visitor.blackHoleAmount << '\n';
-	std::cout << '\n';
-	std::cout << "Total stars: "<< total<<'\n';
-
-	std::cout << '\n';
-	total = 0;
-	std::cout << "Overall systems:\n";
-	total += visitor.singleSysAmount;
-	std::cout << "Total Single Systems: " << visitor.singleSysAmount << '\n';
-	total += visitor.binaryCloseSysAmount;
-	std::cout << "Total Binary Close Systems: " << visitor.binaryCloseSysAmount << '\n';
-	total += visitor.binaryAfarSysAmount;
-	std::cout << "Total Binary Afar Systems: " << visitor.binaryAfarSysAmount << '\n';
-	total += visitor.ternaryCloseSysAmount;
-	std::cout << "Total Ternary Close Systems: " << visitor.ternaryCloseSysAmount << '\n';
-	total += visitor.ternaryAfarSysAmount;
-	std::cout << "Total Ternary Afar Systems: " << visitor.ternaryAfarSysAmount << '\n';
-	total += visitor.ternaryTwoCloseOneAfarSysAmount;
-	std::cout << "Total Ternary Two Close One Afar Systems: " << visitor.ternaryTwoCloseOneAfarSysAmount << '\n';
-	std::cout << '\n';
-	std::cout << "Total systems: " << total << '\n';*/
 }

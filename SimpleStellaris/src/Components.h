@@ -54,7 +54,6 @@ class RectangleShapeComponent : public Component
 public:
 
 	sf::RectangleShape shape;
-	bool hidden{ false };
 	OverviewType drawAt;
 
 	//Worst case: O(1)
@@ -141,7 +140,6 @@ class TileMapComponent : public Component
 public:
 
 	TileMap tileMap;
-	bool hidden{ false };
 	OverviewType drawAt;
 
 	//Worst case: O(1)
@@ -170,6 +168,8 @@ public:
 	sf::Vector2f cameraSize{ 0.f, 0.f };
 	//Speed change depending on camera zoom
 	float speedChange{ 5.f };
+	//How far outside of camera borders I can consider objects as within camera borders
+	float renderOutsideBoundsFor{ 20.f };
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
@@ -182,7 +182,6 @@ class TextComponent : public Component
 public:
 	//Stores text
 	std::shared_ptr<sf::Text> text;
-	bool hidden{ false };
 	OverviewType drawAt;
 
 	//Worst case: O(1)

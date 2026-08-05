@@ -6,6 +6,8 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
+
+
 //Processes entities with movement components
 class SceneNodeVisitorMovement : public SceneNodeVisitor
 {
@@ -20,7 +22,9 @@ private:
 };
 
 
+
 //To render entities with rectangleShape, tileMap and particles components
+//I assume that entity has only one component for rendering!
 class SceneNodeVisitorRender : public SceneNodeVisitor
 {
 public:
@@ -28,9 +32,15 @@ public:
 
     void ProcessNode(SceneNode& node) override;
 
+    void OutputRenderStatistics();
+
 private:
     sf::RenderWindow& renderWindow;
+
+    int renderedEntities{0};
+    int didNotRenderedEntities{ 0 };
 };
+
 
 
 //To process entities with UI components
@@ -45,6 +55,7 @@ private:
 };
 
 
+
 //To render entities with UI component
 class SceneNodeVisitorRenderUI : public SceneNodeVisitor
 {
@@ -53,9 +64,15 @@ public:
 
     void ProcessNode(SceneNode& node) override;
 
+    void OutputRenderStatistics();
+
 private:
     sf::RenderWindow& renderWindow;
+
+    int renderedEntities{ 0 };
+    int didNotRenderedEntities{ 0 };
 };
+
 
 
 //To count and print all space objects
@@ -86,4 +103,14 @@ public:
     int ternaryCloseSysAmount{ 0 };
     int ternaryTwoCloseOneAfarSysAmount{ 0 };
     int ternaryAfarSysAmount{ 0 };
+};
+
+
+
+class SceneNodeVisitorSystemVisibility : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorSystemVisibility() {}
+
+    void ProcessNode(SceneNode& node) override;
 };

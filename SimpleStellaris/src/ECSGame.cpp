@@ -70,7 +70,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	overviewType = OverviewType::Space;
 
 	//Output full sceneNode tree for debbuging
-	sceneRoot->OutputTree(" ");
+	//sceneRoot->OutputTree(" ");
 }
 
 
@@ -157,6 +157,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRender visitor(renderWindow);
 	sceneRoot->AcceptVisitor(visitor);
 
+	visitor.OutputRenderStatistics();
 	std::cout << "  --Scene Rendering: " << timer.restart().asSeconds() << '\n';
 
 	//Set renderWindow to render UI
@@ -167,5 +168,6 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
 	uiRoot->AcceptVisitor(visitor2);
 
+	visitor2.OutputRenderStatistics();
 	std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
 }

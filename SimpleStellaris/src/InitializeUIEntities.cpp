@@ -15,8 +15,11 @@
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
 
+
+
 //Setup text properties, where it should move. Also either xPos or yPos
 //should be not null!
+//Worst case: O(N+2M) where N is number of entities in game and M number of components in the text
 void SetupMoveTextProperties(const std::string textName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget) 
 {
 	//Get text by name
@@ -40,7 +43,11 @@ void SetupMoveTextProperties(const std::string textName, const float* xPos, cons
 	sGMovCom->velocity = velocity;
 }
 
+
+
 //This function creates a text
+//Worst case: O(3N+2M) where N is number of components in entity and M number of components
+//available in game
 std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize) 
 {
 	//create entity
@@ -63,7 +70,10 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 }
 
 
+
 //Creates text without moving animation
+//Worst case: O(6N+3M) where N is number of components in entity and M number of components
+//available in game
 std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, OverviewType overviewType)
 {
 	//Check if text exist then use existing one, otherwise create new one
@@ -88,7 +98,10 @@ std::shared_ptr<Entity> InitializeText(const std::string name, const std::string
 }
 
 
+
 //Creates text without moving animation at provided node
+//Worst case: O(3N+2M) where N is number of components in entity and M number of components
+//available in game
 std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, OverviewType overviewType)
 {
 	//create entity
@@ -118,7 +131,10 @@ std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, cons
 }
 
 
+
 //Creates text with moving animation
+//Worst case: O(2N+9M+3K) where N is number entities in game and M number of components in text
+// and K in number of components available
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking=false, const bool isMoving = false, const float* targetX=nullptr, const float* targetY=nullptr, const sf::Vector2f velocity = {0.f,0.f}, const bool skipOriginReset=false)
 {
 	//Check if text exist then use existing one, otherwise create new one
@@ -158,7 +174,10 @@ void InitializeMovingText(const std::string name, const std::string text, const 
 }
 
 
+
 //Create debugging text at the top right corner
+//Worst case: O((6N+3M)*K) where N is number of components in entity and M number of components
+//available in game and K number of texts to create
 void CreateDebugText() 
 {
 	float fontSize = 20;
@@ -170,7 +189,10 @@ void CreateDebugText()
 }
 
 
+
 //Creates UI of the game
+//Worst case: O(4N+M) where N is number of components in entity and M number of components
+//available in game
 void CreateUI() 
 {
 	sf::Vector2f iconSize{100.f, 100.f};
@@ -187,10 +209,11 @@ void CreateUI()
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
 	sf::IntRect intRect({0,0}, {32,32});
 	SetupRectangleShape(spRectShape, iconSize, "media/textures/selectionIcon.png", OverviewType::Always, intRect);
-	spRectShape->hidden = true;
+	spSSIcon->hidden = true;
 }
 
-
+//Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
+//number of components available in game and K number of components to add to the text
 void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Entity> spEntityToFollow, OverviewType overviewType, std::string& entityName)
 {
 	static int counter = 0;
@@ -223,6 +246,9 @@ void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Ent
 }
 
 
+
+//Worst case: O(3N+2M) where N is number of components in entity and M number of components
+//available in game
 void InitializeMouseIcon() 
 {
 	sf::Vector2f mouseSize{ 60.f, 60.f };

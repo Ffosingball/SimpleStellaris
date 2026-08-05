@@ -12,54 +12,6 @@
 //They are called by other visitors
 
 
-//Render UI elements
-void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node) 
-{
-    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
-    //Check if pointer is valid
-    if (spEntity != nullptr)
-    {
-        //Check if entity has UI component
-        if (spEntity->HasComponent(ComponentType::UIPart))
-        {
-            //And now draw entities differently, depending on which other components they have
-            if (spEntity->HasComponent(ComponentType::RectangleShape))
-            {
-                //Get component
-                std::shared_ptr<RectangleShapeComponent> spEntityRecShape = GetRectangleShapeComponent(*spEntity);
-
-                if (!spEntityRecShape->hidden && (spEntityRecShape->drawAt == ECSGame::Instance().GetOverviewType() || spEntityRecShape->drawAt == OverviewType::Always))
-                {
-                    //std::cout << spEntity->GetName() << " not hidden \n";
-                    //Get absolute position of the entity in the world
-                    sf::RenderStates states;
-                    states.transform = node.GetCombinedTransform();
-                    //Draw entity
-                    renderWindow.draw(spEntityRecShape->shape, states);
-                }
-                //else
-                    //std::cout << spEntity->GetName()<<" is hidden \n";
-            }
-
-            if (spEntity->HasComponent(ComponentType::Text))
-            {
-                //Get component
-                std::shared_ptr<TextComponent> spEntityUI = GetTextComponent(*spEntity);
-
-                if (!spEntityUI->hidden && (spEntityUI->drawAt == ECSGame::Instance().GetOverviewType() || spEntityUI->drawAt == OverviewType::Always))
-                {
-                    //Get absolute position of the entity in the world
-                    sf::RenderStates states;
-                    states.transform = node.GetCombinedTransform();
-                    //Draw entity
-                    renderWindow.draw(*(spEntityUI->text), states);
-                }
-            }
-        }
-    }
-}
-
-
 void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node) 
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
