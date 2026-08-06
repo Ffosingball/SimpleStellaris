@@ -45,7 +45,6 @@ enum class SpaceSystemType
 	Single,
 	BinaryClose,
 	BinaryAfar,
-	TernaryClose,
 	TernaryTwoCloseThirdAfar,
 	TernaryAfar
 };

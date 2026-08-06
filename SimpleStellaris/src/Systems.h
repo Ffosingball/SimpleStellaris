@@ -23,6 +23,7 @@ private:
 	void OnKeyReleased(sf::Event::KeyReleased key);
 	void OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw);
 	void OnMouseMoved(sf::Event::MouseMoved mouseMovement);
+	void OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed);
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
@@ -31,6 +32,8 @@ private:
 	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
 	std::shared_ptr<TextComponent> fpsText{ nullptr };
+
+	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
 
 //Processes all movement
@@ -108,6 +111,23 @@ private:
 };
 
 
+class SimulationSystem :public System
+{
+public:
+	virtual ~SimulationSystem() = default;
+
+	std::shared_ptr<TextComponent> daysPastText{ nullptr };
+	std::shared_ptr<TextComponent> dateText{ nullptr };
+private:
+	void Initialize() override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+
+	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
+
+	std::shared_ptr<SceneNode> spNodeToSimulate;
+};
+
+
 //List of all possible signals
 namespace signals
 {
@@ -115,7 +135,7 @@ namespace signals
 	inline sigslot::signal<sf::Event::KeyReleased> onKeyReleased;
 	inline sigslot::signal<sf::Event::MouseWheelScrolled> onMouseWheelScrolled;
 	inline sigslot::signal<sf::Event::MouseMoved> onMouseMoved;
-	//inline sigslot::signal<> onGameRestart;
+	inline sigslot::signal<sf::Event::MouseButtonPressed> onMouseButtonPressed;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
-	//inline sigslot::signal<float> onZoomCamera;
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onSystemOverviewSet;
 }

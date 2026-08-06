@@ -18,10 +18,42 @@ sf::Transform SceneNode::GetCombinedTransform() const
 	//Check if this node has a parent, then get transform from them and add to
 	//the transform of this node, else just return transform of this node
 	if (parent.lock() != nullptr)
-		return parent.lock()->GetCombinedTransform() * ePtr->GetTransformable().getTransform();
+	{
+		//Check if this entity should inherit parent position or not
+		if(ePtr->inheritParentPosition)
+			return parent.lock()->GetCombinedTransform() * ePtr->GetTransformable().getTransform();
+		else
+			return ePtr->GetTransformable().getTransform();
+	}
 	else
 		return ePtr->GetTransformable().getTransform();
 }
+
+
+//Get absolute position of this node in the world
+//Worst case: O(N) where N is number of parents to get to the rootNode
+sf::Vector2f SceneNode::GetCombinedPosition() const
+{
+	std::shared_ptr<Entity> ePtr = entity.lock();
+
+	//If node does not have an entity then, return nothing
+	if (ePtr == nullptr)
+		return {};
+
+	//Check if this node has a parent, then get transform from them and add to
+	//the transform of this node, else just return transform of this node
+	if (parent.lock() != nullptr)
+	{
+		//Check if this entity should inherit parent position or not
+		if (ePtr->inheritParentPosition)
+			return parent.lock()->GetCombinedPosition() + ePtr->GetPosition();
+		else
+			return ePtr->GetPosition();
+	}
+	else
+		return ePtr->GetPosition();
+}
+
 
 //Get full location of the node in the tree
 //Worst case: O(N) where N is number of parents to get to the rootNode

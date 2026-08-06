@@ -19,6 +19,9 @@
 #include <rapidcsv.h>
 
 
+constexpr double PI = 3.14159265358979323846;
+
+
 //Read data from the file
 std::vector<std::string> ReadStarNamesFromCSV(const std::string fname)
 {
@@ -59,6 +62,8 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::ternarySysDistr
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::closeStarsDistances = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::afarStarsDistances = nullptr;
 std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::oneThird = std::make_shared<std::uniform_int_distribution<int>>(0,2);
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -156,15 +161,119 @@ void WorldGenerator::StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom)
 }
 
 
-/*void CreateSystemInStar(std::weak_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStarEntity, std::string name)
+
+float GetStarMass(StarType starType) 
 {
-	//Create system for star
-	std::shared_ptr<SceneNode> spStar1Node = std::make_shared<SceneNode>(wpSystemNode.lock()->FindChild(*spStarEntity));
-	std::shared_ptr<Entity> spNewSystem1 = CreateNewEntityAt(spStar1Node, name).lock();
-	spNewSystem1->AddComponent(ComponentType::ObjectSystem);
-	std::shared_ptr<ObjectSystemComponent> spSystem1Com = GetObjectSystemComponent(*spNewSystem1);
-	spSystem1Com->systemType = SpaceSystemType::Single;
-}*/
+	switch (starType) 
+	{
+	case StarType::RedSupergiant:
+		return 20.f;
+	case StarType::RedGiant:
+		return 4.f;
+	case StarType::Otype:
+		return 25.f;
+	case StarType::Btype:
+		return 9.f;
+	case StarType::Atype:
+		return 1.7f;
+	case StarType::Ftype:
+		return 1.2f;
+	case StarType::GsunLike:
+		return 1.f;
+	case StarType::KorangeDwarf:
+		return 0.6f;
+	case StarType::MredDwarf:
+		return 0.3f;
+	case StarType::BrownDwarf:
+		return 0.044f;
+	case StarType::WhiteDwarf:
+		return 0.6f;
+	case StarType::NeutronStar:
+		return 1.6f;
+	case StarType::BlackHole:
+		return 50.f;
+	}
+}
+
+
+
+void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, float distanceBetweenStars, float randomPosition, std::shared_ptr<SceneNode> ptrSystemNode)
+{
+	std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*star1Sp);
+	std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*star2Sp);
+
+	float mass1{0.f};
+	if (star1Sp->HasComponent(ComponentType::ObjectSystem))
+	{
+		std::shared_ptr<SceneNode> insideSysSp = ptrSystemNode->FindChild(*star1Sp).lock();
+		std::vector<std::shared_ptr<SceneNode>> children = insideSysSp->GetAllChildren();
+		for (std::shared_ptr<SceneNode> child : children) 
+		{
+			if (child->GetEntity().lock()->HasComponent(ComponentType::Star))
+				mass1 += GetStarMass(GetStarComponent(*child->GetEntity().lock())->starType);
+		}
+	}
+	else
+		mass1 = GetStarMass(spStar1Com->starType);
+
+
+	float mass2{ 0.f };
+	if (star2Sp->HasComponent(ComponentType::ObjectSystem))
+	{
+		std::shared_ptr<SceneNode> insideSysSp = ptrSystemNode->FindChild(*star2Sp).lock();
+		std::vector<std::shared_ptr<SceneNode>> children = insideSysSp->GetAllChildren();
+		for (std::shared_ptr<SceneNode> child : children)
+		{
+			if (child->GetEntity().lock()->HasComponent(ComponentType::Star))
+				mass2 += GetStarMass(GetStarComponent(*child->GetEntity().lock())->starType);
+		}
+	}
+	else
+		mass2 = GetStarMass(spStar2Com->starType);
+
+	spStar1Com->orbitRadius = distanceBetweenStars * (mass1/(mass1+mass2));
+	spStar2Com->orbitRadius = distanceBetweenStars * (mass2 / (mass1 + mass2));
+
+	float T = std::sqrtf(std::powf(distanceBetweenStars,3)/(mass1+mass2));
+	//velocity in radians per year
+	float omega = (2*PI) / T;
+
+	//Assuming that in my game every year has 365 days
+	spStar1Com->rotationalVelocity = omega / 365;
+	spStar2Com->rotationalVelocity = omega / 365;
+
+	spStar1Com->initialRotationPosition = PI*randomPosition;
+	spStar2Com->initialRotationPosition = PI * (1+randomPosition);
+}
+
+
+void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, std::shared_ptr<Entity> star3Sp, float distanceBetweenStars, float randomPosition)
+{
+	std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*star1Sp);
+	std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*star2Sp);
+	std::shared_ptr<StarComponent> spStar3Com = GetStarComponent(*star3Sp);
+
+	spStar1Com->orbitRadius = distanceBetweenStars / 2.f;
+	spStar2Com->orbitRadius = distanceBetweenStars / 2.f;
+	spStar3Com->orbitRadius = distanceBetweenStars / 2.f;
+
+	float mass1 = GetStarMass(spStar1Com->starType);
+	float mass2 = GetStarMass(spStar2Com->starType);
+	float mass3 = GetStarMass(spStar3Com->starType);
+
+	float T = std::sqrtf(std::powf(distanceBetweenStars, 3) / (mass1 + mass2 + mass3));
+	//velocity in radians per year
+	float omega = (2 * PI) / T;
+
+	spStar1Com->rotationalVelocity = omega / 365;
+	spStar2Com->rotationalVelocity = omega / 365;
+	spStar3Com->rotationalVelocity = omega / 365;
+
+	spStar1Com->initialRotationPosition = PI * randomPosition;
+	spStar2Com->initialRotationPosition = PI * ((2.f/3.f) + randomPosition);
+	spStar3Com->initialRotationPosition = PI * ((4.f / 3.f) + randomPosition);
+}
+
 
 
 void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> ptrSystemNode, std::shared_ptr<Entity> spStar1Entity)
@@ -182,52 +291,71 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
 		spStar2->AddComponent(ComponentType::Star);
 		StarTypeGenerator(GetStarComponent(*spStar2));
+		spStar2->inheritParentPosition = false;
 
 		//Determine binary system type
 		if ((*binarySysDistribution)(*randomizer) == 0)
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryClose;
-			spSystemCom->distTo2ndStar = (*closeStarsDistances)(*randomizer);
+			CalculateBinarySystemProperties(spStar1Entity, spStar2, (*closeStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
+			float distanceBetweenStars = (*closeStarsDistances)(*randomizer);
 		}
 		else
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryAfar;
-			spSystemCom->distTo3rdStar = (*afarStarsDistances)(*randomizer);
+			CalculateBinarySystemProperties(spStar1Entity, spStar2, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
 		}
 		return;
 	}
 	case 2:
 	{
-		//Create 2 stars in that system
-		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-		spStar2->AddComponent(ComponentType::Star);
-		StarTypeGenerator(GetStarComponent(*spStar2));
-
-		std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(ptrSystemNode, "Star3").lock();
-		spStar3->AddComponent(ComponentType::Star);
-		StarTypeGenerator(GetStarComponent(*spStar3));
-
 		//Determine ternary system type
 		int val = (*ternarySysDistribution)(*randomizer);
 		if (val==0)
 		{
-			spSystemCom->systemType = SpaceSystemType::TernaryClose;
-			spSystemCom->distTo2ndStar = (*closeStarsDistances)(*randomizer);
-			spSystemCom->distTo3rdStar = (*closeStarsDistances)(*randomizer);
-		}
-		else if (val == 1) 
-		{
-			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
-			spSystemCom->distTo2ndStar = (*closeStarsDistances)(*randomizer);
-			spSystemCom->distTo3rdStar = (*afarStarsDistances)(*randomizer);
+			//Binary + one afar
 
-			spSystemCom->starAfar = (*oneThird)(*randomizer);
+			//Create system for binary stars
+			std::shared_ptr<Entity> spInsideSys = CreateNewEntityAt(ptrSystemNode, "InsideSystem").lock();
+			spInsideSys->AddComponent(ComponentType::ObjectSystem);
+			spInsideSys->AddComponent(ComponentType::Star);
+			std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spInsideSys);
+			//std::shared_ptr<StarComponent> spInsideSysStarCom = GetStarComponent(*spInsideSys);
+			spSysCom->systemType = SpaceSystemType::BinaryClose;
+			std::shared_ptr<SceneNode> spInsideSysNode = ptrSystemNode->FindChild("InsideSystem").lock();
+
+			//Create 2 stars in the inside system
+			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(spInsideSysNode, "Star2").lock();
+			spStar2->AddComponent(ComponentType::Star);
+			StarTypeGenerator(GetStarComponent(*spStar2));
+			spStar2->inheritParentPosition = false;
+
+			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(spInsideSysNode, "Star3").lock();
+			spStar3->AddComponent(ComponentType::Star);
+			StarTypeGenerator(GetStarComponent(*spStar3));
+			spStar3->inheritParentPosition = false;
+
+			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
+			CalculateBinarySystemProperties(spStar3, spStar2, (*closeStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
+			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
 		}
-		else 
+		else
 		{
+			//All equaly afar
+
+			//Create 2 stars in that system
+			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
+			spStar2->AddComponent(ComponentType::Star);
+			StarTypeGenerator(GetStarComponent(*spStar2));
+			spStar2->inheritParentPosition = false;
+
+			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(ptrSystemNode, "Star3").lock();
+			spStar3->AddComponent(ComponentType::Star);
+			StarTypeGenerator(GetStarComponent(*spStar3));
+			spStar3->inheritParentPosition = false;
+
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
-			spSystemCom->distTo2ndStar = (*afarStarsDistances)(*randomizer);
-			spSystemCom->distTo3rdStar = (*afarStarsDistances)(*randomizer);
+			CalculateTernaryAfarSystemProperties(spStar1Entity, spStar2, spStar3, (*afarStarsDistances)(*randomizer), (*from0to2_3Dist)(*randomizer));
 		}
 
 		return;
@@ -296,10 +424,9 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	binarySystemWeights[0] = mapConfig.closeBinaryChance;
 	binarySystemWeights[1] = mapConfig.afarBinaryChance;
 
-	std::vector<float> ternarySystemWeights(3);
-	ternarySystemWeights[0] = mapConfig.closeTernaryChance;
-	ternarySystemWeights[1] = mapConfig.afarCloseBinaryThirdAfarChance;
-	ternarySystemWeights[2] = mapConfig.afarTernaryChance;
+	std::vector<float> ternarySystemWeights(2);
+	ternarySystemWeights[0] = mapConfig.ternaryCloseBinaryThirdAfarChance;
+	ternarySystemWeights[1] = mapConfig.afarTernaryChance;
 
 	//Create all distributions
 	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
@@ -363,6 +490,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(ptrNewSysNode, "Star1").lock();
 		spStar1->AddComponent(ComponentType::Star);
 		std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*spStar1);
+		spStar1->inheritParentPosition = false;
 
 		switch ((*starDistribution)(*randomizer)) 
 		{
@@ -470,7 +598,7 @@ void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> sp
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, textureName, OverviewType::Space);
+	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, textureName);
 	//"media/textures/starsPicture.png"
 }
 
@@ -527,7 +655,7 @@ void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRe
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, sf::Vector2f{ mapConfig.sunDiameter*starSizeMultiplier,mapConfig.sunDiameter }, textureName, OverviewType::System);
+	SetupRectangleShape(spRectShape, sf::Vector2f{ mapConfig.sunDiameter,mapConfig.sunDiameter } * starSizeMultiplier, textureName);
 	//"media/textures/starsPicture.png"
 }
 
@@ -676,7 +804,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 	if (spEntity != nullptr)
 	{
 		//Check if entity has system component
-		if (spEntity->HasComponent(ComponentType::ObjectSystem))
+		if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName()!= "InsideSystem")
 		{
 			std::shared_ptr<ObjectSystemComponent> spComSys = GetObjectSystemComponent(*spEntity);
 
@@ -718,12 +846,29 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			}
 			else 
 			{
-				std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
-				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
-				std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
-				std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
-				std::shared_ptr<SceneNode> ptrStar3Node = ptrSysNode->FindChild("Star3").lock();
-				std::shared_ptr<StarComponent> spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
+				std::shared_ptr<StarComponent> spStar1Com;
+				std::shared_ptr<StarComponent> spStar2Com;
+				std::shared_ptr<StarComponent> spStar3Com;
+
+				if (spComSys->systemType == SpaceSystemType::TernaryAfar) 
+				{
+					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
+					spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
+					std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
+					spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
+					std::shared_ptr<SceneNode> ptrStar3Node = ptrSysNode->FindChild("Star3").lock();
+					spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
+				}
+				else 
+				{
+					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
+					spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
+					std::shared_ptr<SceneNode> ptrInsideSysNode = ptrSysNode->FindChild("InsideSystem").lock();
+					std::shared_ptr<SceneNode> ptrStar2Node = ptrInsideSysNode->FindChild("Star2").lock();
+					spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
+					std::shared_ptr<SceneNode> ptrStar3Node = ptrInsideSysNode->FindChild("Star3").lock();
+					spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
+				}
 
 				SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
 				SetSystemName(spComSys, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
@@ -778,7 +923,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 
 			//Create text name entity for system
 			std::string name{ "SystemNameText" };
-			CreateSystemText(ptrSystemNamesNode, spEntity, OverviewType::Space, name);
+			CreateSystemText(ptrSystemNamesNode, node.GetSharedPtrToItself(), name, true);
 		}
 		else if (spEntity->HasComponent(ComponentType::Star))
 		{
@@ -789,7 +934,9 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			SetStarTexture(spRectShape, spStar->starType);
 			//Create text name entity for star
 			std::string name{ "StarNameText" };
-			CreateSystemText(ptrSystemNamesNode, spEntity, OverviewType::System, name);
+			spStar->wpStarNameText = CreateSystemText(ptrSystemNamesNode, node.GetSharedPtrToItself(), name, false);
+			spStar->wpStarNameText.lock()->hidden = true;
+			spEntity->hidden = true;
 		}
 	}
 }

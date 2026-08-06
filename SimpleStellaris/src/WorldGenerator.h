@@ -40,6 +40,8 @@ private:
 	static std::shared_ptr<std::uniform_real_distribution<float>> closeStarsDistances;
 	static std::shared_ptr<std::uniform_real_distribution<float>> afarStarsDistances;
 	static std::shared_ptr<std::uniform_int_distribution<int>> oneThird;
+	static std::shared_ptr<std::uniform_real_distribution<float>> from0to1Dist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> from0to2_3Dist;
 
 	WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying

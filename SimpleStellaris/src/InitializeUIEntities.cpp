@@ -74,7 +74,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 //Creates text without moving animation
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, OverviewType overviewType)
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
 {
 	//Check if text exist then use existing one, otherwise create new one
 	std::shared_ptr<Entity> spUI = ECSGame::Instance().GetEntityManager().FindEntity(name).lock();
@@ -89,7 +89,6 @@ std::shared_ptr<Entity> InitializeText(const std::string name, const std::string
 	std::shared_ptr<TextComponent> spTextCom = GetTextComponent(*spUI);
 	//set text
 	spTextCom->text->setString(text);
-	spTextCom->drawAt = overviewType;
 	//gel::CentreText(*spTextCom->text, sf::Vector2f{ 0,0 });
 	//Set text position
 	spUI->SetPosition(position);
@@ -102,7 +101,7 @@ std::shared_ptr<Entity> InitializeText(const std::string name, const std::string
 //Creates text without moving animation at provided node
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, OverviewType overviewType)
+std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
 {
 	//create entity
 	std::shared_ptr<Entity> spUI = CreateNewEntityAt(spNode, name).lock();
@@ -121,7 +120,6 @@ std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, cons
 	spUICom->text->setFillColor(sf::Color::White);
 	spUICom->text->setCharacterSize(fontSize);
 	spUICom->text->setString(text);
-	spUICom->drawAt = overviewType;
 
 	//Set text position
 	//gel::CentreText(*spUICom->text, sf::Vector2f{ 0,0 });
@@ -182,10 +180,12 @@ void CreateDebugText()
 {
 	float fontSize = 20;
 
-	InitializeText("MouseCoordsText", " ", fontSize, sf::Vector2f{0.f, 0.f}, OverviewType::Always);
-	InitializeText("WorldCoordsText", " ", fontSize, sf::Vector2f{ 0.f, 25.f }, OverviewType::Always);
-	InitializeText("SystemsNearByText", " ", fontSize, sf::Vector2f{ 0.f, 50.f }, OverviewType::Space);
-	InitializeText("FPSText", " ", fontSize, sf::Vector2f{ 0.f, 75.f }, OverviewType::Always);
+	InitializeText("MouseCoordsText", " ", fontSize, sf::Vector2f{0.f, 0.f});
+	InitializeText("WorldCoordsText", " ", fontSize, sf::Vector2f{ 0.f, 25.f });
+	InitializeText("SystemsNearByText", " ", fontSize, sf::Vector2f{ 0.f, 50.f });
+	InitializeText("FPSText", " ", fontSize, sf::Vector2f{ 0.f, 75.f });
+	InitializeText("DaysPastText", " ", fontSize, sf::Vector2f{ 0.f, 100.f });
+	InitializeText("DateText", " ", fontSize, sf::Vector2f{ 0.f, 125.f });
 }
 
 
@@ -208,18 +208,21 @@ void CreateUI()
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
 	sf::IntRect intRect({0,0}, {32,32});
-	SetupRectangleShape(spRectShape, iconSize, "SelectionIcon", OverviewType::Always);
+	SetupRectangleShape(spRectShape, iconSize, "SelectionIcon");
 	spSSIcon->hidden = true;
 }
 
+
+
 //Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
 //number of components available in game and K number of components to add to the text
-void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Entity> spEntityToFollow, OverviewType overviewType, std::string& entityName)
+std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge)
 {
 	static int counter = 0;
 	float fontSize = 22;
 
 	std::string name{"UNDEFINED"};
+	std::shared_ptr<Entity> spEntityToFollow = spNodeToFollow->GetEntity().lock();
 	if (spEntityToFollow->HasComponent(ComponentType::ObjectSystem))
 		name = GetObjectSystemComponent(*spEntityToFollow)->systemName;
 	else if(spEntityToFollow->HasComponent(ComponentType::Star))
@@ -227,22 +230,23 @@ void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Ent
 	else if (spEntityToFollow->HasComponent(ComponentType::Planet))
 		name = GetPlanetComponent(*spEntityToFollow)->planetName;
 	//Create text
-	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName+std::to_string(counter), name, fontSize, sf::Vector2f{0,0}, overviewType);
+	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName+std::to_string(counter), name, fontSize, sf::Vector2f{0,0});
 	
 	//Add component
 	spText->AddComponent(ComponentType::UIFollower);
 	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spText);
-	spUIFollower->entityToFollow = spEntityToFollow;
-	spUIFollower->hideIfZoomLargeEnough = true;
+	spUIFollower->nodeToFollow = spNodeToFollow;
+	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
 
 	std::shared_ptr<TextComponent> spUIText = GetTextComponent(*spText);
 	gel::CentreText(*spUIText->text, sf::Vector2f{ 0,fontSize*2.f });
 	spUIText->text->setFillColor(sf::Color(229,229,229));
 	spUIText->text->setOutlineColor(sf::Color(50,50,50));
 	spUIText->text->setOutlineThickness(1.f);
-	spUIText->drawAt = overviewType;
 
 	counter++;
+
+	return spText;
 }
 
 
@@ -260,6 +264,6 @@ void InitializeMouseIcon()
 
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*wpMouseIcon.lock());
-	SetupRectangleShape(spRectShape, mouseSize, "MouseIcon", OverviewType::Always);
+	SetupRectangleShape(spRectShape, mouseSize, "MouseIcon");
 	spRectShape->shape.setPosition({32,32});
 }

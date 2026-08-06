@@ -34,9 +34,6 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
             case SpaceSystemType::BinaryAfar:
                 binaryAfarSysAmount++;
                 break;
-            case SpaceSystemType::TernaryClose:
-                ternaryCloseSysAmount++;
-                break;
             case SpaceSystemType::TernaryTwoCloseThirdAfar:
                 ternaryTwoCloseOneAfarSysAmount++;
                 break;
@@ -106,6 +103,50 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
                 std::cout << "   Black Hole (" << spEntity->GetName() << "): " << '\n';
                 break;
             }
+        }
+    }
+}
+
+
+
+//System visibility processing function
+void SceneNodeVisitorChangeAllSystemVisibility::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has object system component
+        if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName()!="InsideSystem")
+        {
+            spEntity->hidden = hidden;
+        }
+    }
+}
+
+
+
+//System visibility processing function
+void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has object system component
+        if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName() == "InsideSystem")
+        {
+            spEntity->hidden = hidden;
+        }
+        else if (spEntity->HasComponent(ComponentType::Star))
+        {
+            spEntity->hidden = hidden;
+        }
+        else if (spEntity->HasComponent(ComponentType::Planet))
+        {
+            spEntity->hidden = hidden;
         }
     }
 }

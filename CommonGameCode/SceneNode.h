@@ -18,6 +18,8 @@ public:
 	//Worst case: O(N) where N is number of parents to get to the rootNode
 	sf::Transform GetCombinedTransform() const;
 	//Worst case: O(N) where N is number of parents to get to the rootNode
+	sf::Vector2f GetCombinedPosition() const;
+	//Worst case: O(N) where N is number of parents to get to the rootNode
 	std::string GetCombinedParentsNames() const;
 	//Worst case: O(N) where N is number of children
 	std::string GetAllChildrenNames() const;

@@ -118,3 +118,39 @@ public:
 private:
     std::shared_ptr<CameraComponent> spCamCom;
 };
+
+
+
+class SceneNodeVisitorChangeAllSystemVisibility : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorChangeAllSystemVisibility(bool hidden) : hidden(hidden) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    bool hidden;
+};
+
+
+
+class SceneNodeVisitorChangeSingleSystemVisibility: public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden) : hidden(hidden) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    bool hidden;
+};
+
+
+
+class SceneNodeVisitorMoveObjectsInSystem : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorMoveObjectsInSystem() {}
+
+    void ProcessNode(SceneNode& node) override;
+};

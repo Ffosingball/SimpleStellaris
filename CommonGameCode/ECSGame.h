@@ -47,6 +47,12 @@ public:
 	sf::Vector2i GetMousePosition() const { return mousePosition; }
 	//Worst case: O(1)
 	int GetFPS() const { return previousFPS; }
+	//Worst case: O(1)
+	float GetDaysPast() const { return daysPast; }
+	//Worst case: O(1)
+	float GetSimulationSpeed() const { return simulationSpeed; }
+	//Worst case: O(1)
+	float GetSimulationDeltaTime() const;
 
 	//Setter
 	//Worst case: O(1)
@@ -55,6 +61,8 @@ public:
 	void SetOverviewType(OverviewType ovType) { overviewType = ovType; }
 	//Worst case: O(1)
 	void CloseGame() { closeGame = true; }
+	//Worst case: O(1)
+	void SetSimulationSpeed(float simSpeed);
 
 	//Override all methods from the parent
 	void Init(sf::RenderWindow& renderWindow) override;
@@ -86,4 +94,8 @@ private:
 	bool closeGame{false};
 	//System which deletes all required entities at the end of the frame
 	DeleteSystem deleteSystem;
+	//Simulation time in days
+	float daysPast{ 0.f };
+	//Simulation speed
+	float simulationSpeed{ 10.f };
 };

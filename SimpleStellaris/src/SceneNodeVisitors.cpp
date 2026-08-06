@@ -214,7 +214,11 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                 std::shared_ptr<UIFollowerComponent> spEntityFollower = GetUIFollowerComponent(*spEntity);
 
                 bool hide = false;
-                if (spEntityFollower->entityToFollow.lock() == nullptr)
+                if (spEntityFollower->nodeToFollow.lock() == nullptr)
+                    hide = true;
+                else if(spEntityFollower->nodeToFollow.lock()->GetEntity().lock()==nullptr)
+                    hide = true;
+                else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock()->hidden)
                     hide = true;
                 else if (spEntityFollower->hideIfZoomLargeEnough) 
                 {
@@ -230,18 +234,14 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
 
                 if (hide)
                     spEntity->hidden = true;
-                else if(!IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->entityToFollow.lock()->GetPosition()))
+                else if(!IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
                     spEntity->hidden = true;
                 else
                 {
                     spEntity->hidden = false;
-
-                    if (spEntityFollower->entityToFollow.lock() != nullptr)
-                    {
-                        sf::Vector2f positionToFollow = spEntityFollower->entityToFollow.lock()->GetPosition();
-                        sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
-                        spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
-                    }
+                    sf::Vector2f positionToFollow = spEntityFollower->nodeToFollow.lock()->GetCombinedPosition();
+                    sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
+                    spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
                 }
             }
         }
@@ -267,4 +267,11 @@ void SceneNodeVisitorSystemVisibility::ProcessNode(SceneNode& node)
                 spEntity->hidden = true;
         }
     }
+}
+
+
+
+void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
+{
+
 }

@@ -57,6 +57,8 @@ public:
 
 	//Flag to tell if entity should be drawn or not
 	bool hidden = false;
+	//Flag to tell if entity should inherit position of the parent or not
+	bool inheritParentPosition = true;
 
 private:
 	std::string name;//name of the entity

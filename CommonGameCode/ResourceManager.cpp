@@ -258,7 +258,7 @@ const void ResourceManager::LoadAllResources()
 
 			textures.emplace("Oclass", texture);
 			sf::IntRect textureSizes9{ {300,0},{300,300} };
-			texturesIntRects.emplace("OclassSystem", textureSizes9);
+			texturesIntRects.emplace("Oclass", textureSizes9);
 
 			textures.emplace("RedGiant", texture);
 			sf::IntRect textureSizes10{ {0,0},{300,300} };

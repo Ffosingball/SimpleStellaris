@@ -38,6 +38,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	systems.emplace_back(std::make_shared<UISystem>());
 	systems.emplace_back(std::make_shared<MusicSystem>());
 	systems.emplace_back(std::make_shared<GameSystem>());
+	systems.emplace_back(std::make_shared<SimulationSystem>());
 
 	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
 
@@ -96,6 +97,12 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	//Get mousePosition
 	mousePosition = sf::Mouse::getPosition(renderWindow);
 
+	//Update simulation time
+	if (ECSGame::Instance().GetGameState() != GameState::Pause)
+	{
+		daysPast += deltaTime * simulationSpeed;
+	}
+
 	//for debbuging purposes
 	//DEB: sf::Clock timer;
 
@@ -140,6 +147,12 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 	{
 		signals::onMouseMoved(*mouseMoved);
 	}
+
+	//Check if mouse wheel scrolled
+	if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+	{
+		signals::onMouseButtonPressed(*mouseButtonPressed);
+	}
 }
 
 //Render all entities
@@ -153,6 +166,22 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 		renderWindow.close();
 
 	//DEB: std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
+
+	std::shared_ptr<SceneNode> spBackgroundNode;
+	if (overviewType == OverviewType::System) 
+	{
+		spBackgroundNode = sceneRoot->FindChild("Background").lock();
+
+		//Set renderWindow to render in the camera
+		std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
+		renderWindow.setView(sBackCameraCom->view);
+
+		//Render only background
+		SceneNodeVisitorRender visitor(renderWindow);
+		spBackgroundNode->AcceptVisitor(visitor);
+
+		spBackgroundNode->GetEntity().lock()->hidden = true;
+	}
 
 	//Set renderWindow to render in the camera
 	std::shared_ptr<CameraComponent> sCameraCom = GetCurrentlyActiveCamera();
@@ -175,4 +204,23 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//DEB: visitor2.OutputRenderStatistics();
 	//DEB: std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
+
+	if (overviewType == OverviewType::System)
+		spBackgroundNode->GetEntity().lock()->hidden = false;
+}
+
+
+void ECSGame::SetSimulationSpeed(float simSpeed) 
+{
+	if (simSpeed > 0.f)
+		simulationSpeed = simSpeed;
+}
+
+
+float ECSGame::GetSimulationDeltaTime() const 
+{
+	if (gameState == GameState::Game)
+		return deltaTime * simulationSpeed;
+	else
+		return 0.f;
 }

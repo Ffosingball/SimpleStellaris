@@ -93,7 +93,7 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::shared_ptr<SceneNode> parentN
 
 //IntRect means which part of the texture to draw
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType)
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath)
 {
 	recShape->shape = sf::RectangleShape(size);
 	recShape->shape.setOrigin(size / 2.f);
@@ -102,7 +102,6 @@ void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, cons
 	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
 	recShape->shape.setTexture(sTexture.get());
 	recShape->shape.setTextureRect(intRect);
-	recShape->drawAt = overviewType;
 }
 
 
@@ -227,6 +226,102 @@ int GetKeyForSystemsPosition(sf::Vector2i gridPosition)
 
 
 
+//Worst case: O(N) where N is number of months in a year
+std::string GetDateFromDays(int daysPast) 
+{
+	int year = daysPast / 365;
+	daysPast %= 365;
+	daysPast++;
+
+	daysPast -= 31;
+	if (daysPast <= 0) 
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " January " + std::to_string(year);
+	}
+
+	daysPast -= 28;
+	if (daysPast <= 0)
+	{
+		daysPast += 28;
+		return std::to_string(daysPast) + " February " + std::to_string(year);
+	}
+
+	daysPast -= 31;
+	if (daysPast <= 0)
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " March " + std::to_string(year);
+	}
+
+	daysPast -= 30;
+	if (daysPast <= 0)
+	{
+		daysPast += 30;
+		return std::to_string(daysPast) + " April " + std::to_string(year);
+	}
+
+	daysPast -= 31;
+	if (daysPast <= 0)
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " May " + std::to_string(year);
+	}
+
+	daysPast -= 30;
+	if (daysPast <= 0)
+	{
+		daysPast += 30;
+		return std::to_string(daysPast) + " June " + std::to_string(year);
+	}
+
+	daysPast -= 31;
+	if (daysPast <= 0)
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " July " + std::to_string(year);
+	}
+
+	daysPast -= 31;
+	if (daysPast <= 0)
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " August " + std::to_string(year);
+	}
+
+	daysPast -= 30;
+	if (daysPast <= 0)
+	{
+		daysPast += 30;
+		return std::to_string(daysPast) + " September " + std::to_string(year);
+	}
+
+	daysPast -= 31;
+	if (daysPast <= 0)
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " October " + std::to_string(year);
+	}
+
+	daysPast -= 30;
+	if (daysPast <= 0)
+	{
+		daysPast += 30;
+		return std::to_string(daysPast) + " November " + std::to_string(year);
+	}
+
+	daysPast -= 31;
+	if (daysPast <= 0)
+	{
+		daysPast += 31;
+		return std::to_string(daysPast) + " December " + std::to_string(year);
+	}
+
+	return "UKNOWN December " + std::to_string(year);
+}
+
+
+
 //Worst case: O(1)
 bool IsWorldPosInsideOfCamera(std::shared_ptr<CameraComponent> spCamCom, sf::Vector2f worldPos)
 {
@@ -303,7 +398,7 @@ void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Ve
 {
 	int cameraHeight = 300;
 	float cameraVelocity = 20.f;//14.f
-	float cameraZoomSpeed = -8.f;
+	float cameraZoomSpeed = 5.f;
 	float velocityChange = 8.f;
 	sf::Vector2f zoomBorders = {0.4f, 1.7f};
 	float outsideBordersMaxRenderDistance = 15.f;
@@ -340,9 +435,9 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 {
 	int cameraHeight = 300;
 	float cameraVelocity = 20.f;//14.f
-	float cameraZoomSpeed = -8.f;
+	float cameraZoomSpeed = 30.f;
 	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = { 0.001f, 10.f };
+	sf::Vector2f zoomBorders = { 0.0001f, 10.f };
 	float outsideBordersMaxRenderDistance = 15.f;
 
 	//Create camera
@@ -432,7 +527,6 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations
 	spTileMapCom->tileMap.mapSize = mapConfig.backgroundSize;
 	spTileMapCom->tileMap.loadTilesFromFile = false;
 	spTileMapCom->tileMap.rotateTiles = true;
-	spTileMapCom->drawAt = OverviewType::Always;
 	//Iitialize all tiles
 	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::GenerateGridOfRandomNumbers(mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
 	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x*mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * mapConfig.backgroundSize.y / (-2.f)) });

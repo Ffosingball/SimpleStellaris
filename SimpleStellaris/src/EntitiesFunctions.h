@@ -31,7 +31,7 @@ std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity();
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity();
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath, OverviewType overviewType);
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath);
 //Worst case: O(1)
 sf::Vector2f ConvertWindowPositionToWorld(sf::View& cameraView, sf::Vector2i position);
 //Worst case: O(1)
@@ -44,6 +44,8 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap();
 //Worst case: O(1)
 bool IsWorldPosInsideOfCamera(std::shared_ptr<CameraComponent> spCamCom, sf::Vector2f worldPos);
+//Worst case: O(N) where N is number of months in a year
+std::string GetDateFromDays(int daysPast);
 
 
 //Initializing functions
@@ -77,13 +79,13 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking, const bool isMoving, const float* targetX, const float* targetY, const sf::Vector2f velocity, const bool skipOriginReset);
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, OverviewType overviewType);
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, OverviewType overviewType);
+std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
 //Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
 //number of components available in game and K number of components to add to the text
-void CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<Entity> spEntityToFollow, OverviewType overviewType, std::string& entityName);
+std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge);
 
 //Animation functions
 

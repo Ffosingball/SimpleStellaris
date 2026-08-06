@@ -31,6 +31,7 @@ enum class ComponentType
 };
 
 
+
 //Component which tells that the object is a system of other object (for example
 // star system or planetary system)
 class ObjectSystemComponent : public Component 
@@ -39,14 +40,12 @@ public:
 	SpaceSystemType systemType;
 	//vector of pointers to the central object in the system
 	std::string systemName;
-	//Distances in astronomical units
-	float distTo2ndStar{ 0.f };
-	float distTo3rdStar{ 0.f };
-	int starAfar{ 0 };//which star is afar in ternary system
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
+
+
 
 //Component of the rectangular object
 class RectangleShapeComponent : public Component
@@ -54,11 +53,12 @@ class RectangleShapeComponent : public Component
 public:
 
 	sf::RectangleShape shape;
-	OverviewType drawAt;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
+
+
 
 //Component which stores data about all systems
 class SystemPropertiesComponent : public Component
@@ -72,17 +72,21 @@ public:
 	ComponentType GetComponentType() const override;
 };
 
+
+
 //Component which tells ui entity to follow entity in the world
 class UIFollowerComponent : public Component
 {
 public:
 
-	std::weak_ptr<Entity> entityToFollow;
+	std::weak_ptr<SceneNode> nodeToFollow;
 	bool hideIfZoomLargeEnough = false;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
+
+
 
 //Component for free movement
 class MovementComponent : public Component
@@ -95,6 +99,8 @@ public:
 	ComponentType GetComponentType() const override;
 };
 
+
+
 //Component of the star
 class StarComponent : public Component
 {
@@ -102,9 +108,21 @@ public:
 	StarType starType;
 	std::string starName;
 
+	//Distances in astronomical units
+	float orbitRadius{ 0.f };
+	//0 rad - up, 0.5PI rad - right, PI rad - down, 1.5PI rad - left
+	float initialRotationPosition{ 0.f };
+	//In radians per day
+	float rotationalVelocity{ 0.f };
+
+	//Pointers to text i=and icon of the star
+	std::weak_ptr<Entity> wpStarNameText;
+
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
+
+
 
 //Component of the nebula
 class NebulaComponent : public Component
@@ -117,6 +135,8 @@ public:
 	ComponentType GetComponentType() const override;
 };
 
+
+
 //Component of the planet
 class PlanetComponent : public Component
 {
@@ -127,6 +147,7 @@ public:
 	std::string planetName;
 	//In astronomical units
 	float distanceFromStar{ 0.f };
+	//In radians per day
 	float rotationSpeed{ 0.f };
 	//float axleSpeed{0.f};
 
@@ -134,17 +155,19 @@ public:
 	ComponentType GetComponentType() const override;
 };
 
+
+
 //Component of the tilemap
 class TileMapComponent : public Component
 {
 public:
 
 	TileMap tileMap;
-	OverviewType drawAt;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
+
 
 
 //Component of the camera
@@ -176,17 +199,19 @@ public:
 };
 
 
+
 //Text component which has text
 class TextComponent : public Component
 {
 public:
 	//Stores text
 	std::shared_ptr<sf::Text> text;
-	OverviewType drawAt;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
 };
+
+
 
 //UI component which has info to move or blink entity
 class UIPartComponent : public Component

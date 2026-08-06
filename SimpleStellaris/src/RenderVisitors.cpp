@@ -29,18 +29,12 @@ void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
             {
                 //Get component
                 std::shared_ptr<RectangleShapeComponent> spEntityRecShape = GetRectangleShapeComponent(*spEntity);
-
-                if (spEntityRecShape->drawAt == ECSGame::Instance().GetOverviewType() || spEntityRecShape->drawAt == OverviewType::Always)
-                {
-                    //Get absolute position of the entity in the world
-                    sf::RenderStates states;
-                    states.transform = node.GetCombinedTransform();
-                    //Draw entity if not hidden
-                    renderWindow.draw(spEntityRecShape->shape, states);
-                    renderedEntities++;
-                }
-                else
-                    didNotRenderedEntities++;
+                //Get absolute position of the entity in the world
+                sf::RenderStates states;
+                states.transform = node.GetCombinedTransform();
+                //Draw entity if not hidden
+                renderWindow.draw(spEntityRecShape->shape, states);
+                renderedEntities++;
             }
             else if (spEntity->HasComponent(ComponentType::TileMap))
             {
@@ -83,35 +77,23 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
             {
                 //Get component
                 std::shared_ptr<RectangleShapeComponent> spEntityRecShape = GetRectangleShapeComponent(*spEntity);
-
-                if (spEntityRecShape->drawAt == ECSGame::Instance().GetOverviewType() || spEntityRecShape->drawAt == OverviewType::Always)
-                {
-                    //Get absolute position of the entity in the world
-                    sf::RenderStates states;
-                    states.transform = node.GetCombinedTransform();
-                    //Draw entity
-                    renderWindow.draw(spEntityRecShape->shape, states);
-                    renderedEntities++;
-                }
-                else
-                    didNotRenderedEntities++;
+                //Get absolute position of the entity in the world
+                sf::RenderStates states;
+                states.transform = node.GetCombinedTransform();
+                //Draw entity
+                renderWindow.draw(spEntityRecShape->shape, states);
+                renderedEntities++;
             }
             else if (spEntity->HasComponent(ComponentType::Text))
             {
                 //Get component
                 std::shared_ptr<TextComponent> spEntityUI = GetTextComponent(*spEntity);
-
-                if (spEntityUI->drawAt == ECSGame::Instance().GetOverviewType() || spEntityUI->drawAt == OverviewType::Always)
-                {
-                    //Get absolute position of the entity in the world
-                    sf::RenderStates states;
-                    states.transform = node.GetCombinedTransform();
-                    //Draw entity
-                    renderWindow.draw(*(spEntityUI->text), states);
-                    renderedEntities++;
-                }
-                else
-                    didNotRenderedEntities++;
+                //Get absolute position of the entity in the world
+                sf::RenderStates states;
+                states.transform = node.GetCombinedTransform();
+                //Draw entity
+                renderWindow.draw(*(spEntityUI->text), states);
+                renderedEntities++;
             }
             else
                 didNotRenderedEntities++;

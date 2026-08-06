@@ -61,11 +61,10 @@ struct SpaceMapConfigurations
 	//Binary and ternary system star distances chances and boundaries
 	float closeBinaryChance = 35.f;
 	float afarBinaryChance = 65.f;
-	float closeTernaryChance = 5.f;
-	float afarCloseBinaryThirdAfarChance = 30.f;
-	float afarTernaryChance = 65.f;
+	float ternaryCloseBinaryThirdAfarChance = 90.f;
+	float afarTernaryChance = 10.f;
 	//Distances in A.U.
 	sf::Vector2f closeStarsBoundaries{ 0.1f, 10.f };
 	sf::Vector2f afarStarsBoundaries{ 15.f, 1000.f };
-	float sunDiameter{0.009346f};
+	float sunDiameter{0.009346f};//0.009346f
 };

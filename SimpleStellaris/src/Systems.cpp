@@ -18,6 +18,7 @@ void InputSystem::Initialize()
 	signals::onKeyReleased.connect(&InputSystem::OnKeyReleased, this);
 	signals::onMouseWheelScrolled.connect(&InputSystem::OnMouseWheelScrolled, this);
 	signals::onMouseMoved.connect(&InputSystem::OnMouseMoved, this);
+	signals::onMouseButtonPressed.connect(&InputSystem::OnMouseButtonPressed, this);
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("MouseCoordsText").lock();
 	mousePosText = GetTextComponent(*mctPtr->GetEntity().lock());
@@ -44,14 +45,35 @@ void InputSystem::Initialize()
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
 {
-	if (key.code == sf::Keyboard::Key::Q)
+	if (key.code == sf::Keyboard::Key::Space)
 	{
-		;
+		if (ECSGame::Instance().GetGameState() == GameState::Game)
+			ECSGame::Instance().SetGameState(GameState::Pause);
+		else if(ECSGame::Instance().GetGameState() == GameState::Pause)
+			ECSGame::Instance().SetGameState(GameState::Game);
 	}
 	else if (key.code == sf::Keyboard::Key::Escape)
 	{
-		//Close game
-		ECSGame::Instance().CloseGame();
+		if (ECSGame::Instance().GetOverviewType() != OverviewType::Space)
+		{
+			ECSGame::Instance().SetOverviewType(OverviewType::Space);
+
+			SceneNodeVisitorChangeAllSystemVisibility visitor(false);
+			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+
+			SceneNodeVisitorChangeSingleSystemVisibility visitor2(true);
+			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+		}
+		else
+			ECSGame::Instance().CloseGame();
+	}
+	else if (key.code == sf::Keyboard::Key::Up)
+	{
+		ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
+	}
+	else if (key.code == sf::Keyboard::Key::Down)
+	{
+		ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
 	}
 }
 
@@ -67,8 +89,19 @@ void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw)
 	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
 	sf::Vector2f previousCameraSize = spCameraCom->view.getSize();
 	//sf::Vector2f previousSize = spCameraCom->view.getSize();
+	//std::cout << mw.delta << '\n';
+	
 	//Zoom camera
-	spCameraCom->currentZoom = gel::clamp((spCameraCom->zoomingSpeed * ECSGame::Instance().GetDeltaTime() * mw.delta) + spCameraCom->currentZoom, spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
+	if (mw.delta < 0)
+	{
+		spCameraCom->currentZoom = gel::clamp(spCameraCom->currentZoom*(1+(ECSGame::Instance().GetDeltaTime()* spCameraCom->zoomingSpeed)), spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
+		//std::cout << "Current zoom INC: " << spCameraCom->currentZoom << '\n';
+	}
+	else
+	{
+		spCameraCom->currentZoom = gel::clamp(spCameraCom->currentZoom * (1 - (ECSGame::Instance().GetDeltaTime() * spCameraCom->zoomingSpeed)), spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
+		//std::cout << "Current zoom DEC: " << spCameraCom->currentZoom << '\n';
+	}
 	spCameraCom->view.setSize(spCameraCom->cameraSize * spCameraCom->currentZoom);
 	
 	//Move camera so, it looks like camera zooms to the place where mouse is pointing
@@ -111,6 +144,38 @@ void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement)
 }
 
 
+void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed)
+{
+	if (mouseButPressed.button == sf::Mouse::Button::Left) 
+	{
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock()!=nullptr) 
+		{
+			ECSGame::Instance().SetOverviewType(OverviewType::System);
+
+			SceneNodeVisitorChangeAllSystemVisibility visitor(true);
+			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+
+			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false);
+			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+
+			//Setup background camera
+			std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
+			std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
+			sBackCameraCom->view.setCenter(wpSelectedSystemNode.lock()->GetEntity().lock()->GetPosition());
+			sBackCameraCom->view.setSize(sSpaceCameraCom->cameraSize* sSpaceCameraCom->zoomingBorders.x);
+
+			//Setup system camera
+			std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
+			sSystemCameraCom->view.setCenter(sf::Vector2f{0.f,0.f});
+			sSystemCameraCom->view.setSize(sSystemCameraCom->cameraSize);
+			sSystemCameraCom->currentZoom = 1.f;
+
+			signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
+		}
+	}
+}
+
+
 //I process movement and fire keys in every frame, because game reacts to the key press
 //on the same frame as it was pressed, and it will react every fram until the key
 //is released. If I would use events, they are not called every frame, which is bad
@@ -149,29 +214,38 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
 	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
 
-	std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
-
-	std::string message{ "Systems nearby: " };
-	float closestDistance = 999999.f;
-	int closestSystemIndex = -1;
-	int counter{ 0 };
-	for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
 	{
-		message += GetObjectSystemComponent(*spNode->GetEntity().lock())->systemName +" ("+ spNode->GetEntity().lock()->GetName() + "); ";
-		if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
+		std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
+
+		std::string message{ "Systems nearby: " };
+		float closestDistance = 999999.f;
+		int closestSystemIndex = -1;
+		int counter{ 0 };
+		for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
 		{
-			closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
-			closestSystemIndex = counter;
+			message += GetObjectSystemComponent(*spNode->GetEntity().lock())->systemName + " (" + spNode->GetEntity().lock()->GetName() + "); ";
+			if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
+			{
+				closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
+				closestSystemIndex = counter;
+				wpSelectedSystemNode = spNode;
+			}
+			counter++;
 		}
-		counter++;
+
+		if (closestSystemIndex == -1)
+		{
+			selectedSystemIcon->nodeToFollow = {};
+			wpSelectedSystemNode = {};
+		}
+		else
+			selectedSystemIcon->nodeToFollow = systemsNearBy[closestSystemIndex];
+
+		systemsNearByText->text->setString(message);
 	}
-
-	if (closestSystemIndex == -1)
-		selectedSystemIcon->entityToFollow = {};
 	else
-		selectedSystemIcon->entityToFollow = systemsNearBy[closestSystemIndex]->GetEntity();
-
-	systemsNearByText->text->setString(message);
+		systemsNearByText->text->setString(" ");
 
 	fpsText->text->setString(std::to_string(ECSGame::Instance().GetFPS())+" fps");
 
@@ -243,9 +317,41 @@ void GameSystem::Initialize()
 //Update systems visibility
 void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
-	if (scene != ECSGame::Instance().GetUIRoot())
+	if (scene == ECSGame::Instance().GetSceneRoot() && ECSGame::Instance().GetOverviewType()==OverviewType::Space)
 	{
 		SceneNodeVisitorSystemVisibility visitor(GetCurrentlyActiveCamera());
 		scene->AcceptVisitor(visitor);
 	}
+}
+
+
+
+//SIMULATION SYSTEM
+void SimulationSystem::Initialize()
+{
+	systemName = "SimulationSystem";
+	signals::onSystemOverviewSet.connect(&SimulationSystem::OnSystemOverviewSet, this);
+
+	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("DaysPastText").lock();
+	daysPastText = GetTextComponent(*mctPtr->GetEntity().lock());
+
+	std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUIRoot()->FindChild("DateText").lock();
+	dateText = GetTextComponent(*wctPtr->GetEntity().lock());
+}
+
+void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+{
+	daysPastText->text->setString("Simulation speed: "+std::to_string(ECSGame::Instance().GetSimulationSpeed())+"; Days past: "+ std::to_string((int)ECSGame::Instance().GetDaysPast()));
+	dateText->text->setString("Proper Date: "+GetDateFromDays((int)ECSGame::Instance().GetDaysPast()));
+
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::System) 
+	{
+		SceneNodeVisitorMoveObjectsInSystem visitor;
+		spNodeToSimulate->AcceptVisitor(visitor);
+	}
+}
+
+void SimulationSystem::OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate)
+{
+	spNodeToSimulate = nodeToSimulate;
 }
