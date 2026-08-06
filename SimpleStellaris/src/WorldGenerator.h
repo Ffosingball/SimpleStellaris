@@ -71,7 +71,7 @@ public:
 	void ProcessNode(SceneNode& node) override;
 
 	SpaceMapConfigurations mapConfig;
-	std::shared_ptr<SceneNode> ptrSpaceMapNode;
+	std::weak_ptr<SceneNode> wpSpaceMapNode;
 
 private:
 	void SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
@@ -84,5 +84,5 @@ private:
 	std::vector<std::string> listOfDimStarNames;
 	std::shared_ptr<std::mt19937> randomizer;
 
-	std::shared_ptr<SceneNode> ptrSystemNamesNode;
+	std::weak_ptr<SceneNode> wpSystemNamesNode;
 };

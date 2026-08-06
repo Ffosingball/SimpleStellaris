@@ -66,7 +66,7 @@ class SystemPropertiesComponent : public Component
 public:
 
 	SpaceMapConfigurations mapConfig;
-	std::unordered_map<int, std::shared_ptr<SceneNode>> systemsPositions;
+	std::unordered_map<int, std::weak_ptr<SceneNode>> systemsPositions;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;

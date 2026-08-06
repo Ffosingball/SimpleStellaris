@@ -116,15 +116,15 @@ class SimulationSystem :public System
 public:
 	virtual ~SimulationSystem() = default;
 
-	std::shared_ptr<TextComponent> daysPastText{ nullptr };
-	std::shared_ptr<TextComponent> dateText{ nullptr };
+	std::weak_ptr<TextComponent> daysPastText;
+	std::weak_ptr<TextComponent> dateText;
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 
-	std::shared_ptr<SceneNode> spNodeToSimulate;
+	std::weak_ptr<SceneNode> wpNodeToSimulate;
 };
 
 

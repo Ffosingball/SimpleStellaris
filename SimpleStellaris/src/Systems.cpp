@@ -341,17 +341,17 @@ void SimulationSystem::Initialize()
 
 void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
-	daysPastText->text->setString("Simulation speed: "+std::to_string(ECSGame::Instance().GetSimulationSpeed())+"; Days past: "+ std::to_string((int)ECSGame::Instance().GetDaysPast()));
-	dateText->text->setString("Proper Date: "+GetDateFromDays((int)ECSGame::Instance().GetDaysPast()));
+	daysPastText.lock()->text->setString("Simulation speed: " + std::to_string(ECSGame::Instance().GetSimulationSpeed()) + "; Days past: " + std::to_string((int)ECSGame::Instance().GetDaysPast()));
+	dateText.lock()->text->setString("Proper Date: " + GetDateFromDays((int)ECSGame::Instance().GetDaysPast()));
 
 	if (ECSGame::Instance().GetOverviewType() == OverviewType::System) 
 	{
 		SceneNodeVisitorMoveObjectsInSystem visitor;
-		spNodeToSimulate->AcceptVisitor(visitor);
+		wpNodeToSimulate.lock()->AcceptVisitor(visitor);
 	}
 }
 
 void SimulationSystem::OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate)
 {
-	spNodeToSimulate = nodeToSimulate;
+	wpNodeToSimulate = nodeToSimulate;
 }

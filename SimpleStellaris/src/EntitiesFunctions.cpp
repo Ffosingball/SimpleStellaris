@@ -342,31 +342,31 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 
 	std::vector<std::shared_ptr<SceneNode>> systemsNearby;
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos + 1, yPos + 1 })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos+1 })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos+1 })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos + 1 })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos+1 })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos+1 })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos - 1, yPos + 1 })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos+1 })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos+1 })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos + 1, yPos })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos - 1, yPos })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos + 1, yPos - 1 })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos-1 })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos+1, yPos-1 })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos - 1 })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos-1 })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos-1 })].lock());
 	
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos - 1, yPos - 1 })) != spSysPropCom->systemsPositions.end())
-		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos-1 })]);
+		systemsNearby.push_back(spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos-1, yPos-1 })].lock());
 
 	return systemsNearby;
 }
@@ -554,7 +554,7 @@ void CreateSpaceObjects()
 	//Thirdly put rectangleShape components for all objects
 	TextureSetter txSetter(WorldGenerator::getSeed());
 	txSetter.mapConfig = mapConfig;
-	txSetter.ptrSpaceMapNode = spNode;
+	txSetter.wpSpaceMapNode = spNode;
 	spNode->AcceptVisitor(txSetter);
 	//Lastly set camera boundaries
 	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromSpaceCameraEntity();

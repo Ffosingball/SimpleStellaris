@@ -796,7 +796,7 @@ TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
 	listOfMediumStarNames = ReadStarNamesFromCSV("media/other/star_names_5000.csv");
 	listOfDimStarNames = ReadStarNamesFromCSV("media/other/small_stars_names_1000.csv");
 
-	ptrSystemNamesNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock();
+	wpSystemNamesNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock();
 	//std::cout << "Num of bright names:" << listOfBrightStarNames.size() << '\n';
 	//std::cout << "Num of medium names:" << listOfMediumStarNames.size() << '\n';
 	//std::cout << "Num of dim names:" << listOfDimStarNames.size() << '\n';
@@ -818,7 +818,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			spEntity->AddComponent(ComponentType::RectangleShape);
 			std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
 			
-			std::shared_ptr<SceneNode> ptrSysNode = ptrSpaceMapNode->FindChild(*spEntity).lock();
+			std::shared_ptr<SceneNode> ptrSysNode = wpSpaceMapNode.lock()->FindChild(*spEntity).lock();
 			if (spComSys->systemType == SpaceSystemType::Single) 
 			{
 				std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
@@ -954,7 +954,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 
 			//Create text name entity for system
 			std::string name{ "SystemNameText" };
-			CreateSystemText(ptrSystemNamesNode, node.GetSharedPtrToItself(), name, true);
+			CreateSystemText(wpSystemNamesNode.lock(), node.GetSharedPtrToItself(), name, true);
 		}
 		else if (spEntity->HasComponent(ComponentType::Star))
 		{
@@ -965,7 +965,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			SetStarTexture(spRectShape, spStar->starType);
 			//Create text name entity for star
 			std::string name{ "StarNameText" };
-			spStar->wpStarNameText = CreateSystemText(ptrSystemNamesNode, node.GetSharedPtrToItself(), name, false);
+			spStar->wpStarNameText = CreateSystemText(wpSystemNamesNode.lock(), node.GetSharedPtrToItself(), name, false);
 			spStar->wpStarNameText.lock()->hidden = true;
 			spEntity->hidden = true;
 
