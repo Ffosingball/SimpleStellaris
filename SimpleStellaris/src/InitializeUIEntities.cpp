@@ -197,14 +197,12 @@ void CreateUI()
 {
 	sf::Vector2f iconSize{100.f, 100.f};
 
-	//Create icon
+	//Create selection icon
 	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("SelectedSystemIcon").lock();
-
 	//Add component
 	spSSIcon->AddComponent(ComponentType::UIPart);
 	spSSIcon->AddComponent(ComponentType::UIFollower);
 	spSSIcon->AddComponent(ComponentType::RectangleShape);
-
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
 	sf::IntRect intRect({0,0}, {32,32});
@@ -266,4 +264,29 @@ void InitializeMouseIcon()
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*wpMouseIcon.lock());
 	SetupRectangleShape(spRectShape, mouseSize, "MouseIcon");
 	spRectShape->shape.setPosition({32,32});
+}
+
+
+//Creates icons for system overview
+//Worst case: O(4N+M) where N is number of components in entity and M number of components
+//available in game
+void CreateIconForSystemOverview(std::shared_ptr<SceneNode> systemNode, std::string iconTexture)
+{
+	sf::Vector2f iconSize{ 100.f, 100.f };
+
+	//if (iconTexture == "CenterOfMassIcon")
+	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
+
+	//Create selection icon
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("ObjectIcon").lock();
+	//Add component
+	spSSIcon->AddComponent(ComponentType::UIPart);
+	spSSIcon->AddComponent(ComponentType::UIFollower);
+	spSSIcon->AddComponent(ComponentType::RectangleShape);
+	//Get component
+	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
+	SetupRectangleShape(spRectShape, iconSize, iconTexture);
+	spSSIcon->hidden = true;
+	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spSSIcon);
+	spUIFollower->nodeToFollow = systemNode;
 }

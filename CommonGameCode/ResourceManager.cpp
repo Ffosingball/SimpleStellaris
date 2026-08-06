@@ -249,7 +249,7 @@ const void ResourceManager::LoadAllResources()
 			texturesIntRects.emplace("Fclass", textureSizes6);
 
 			textures.emplace("Aclass", texture);
-			sf::IntRect textureSizes7{ {0,900},{300,300} };
+			sf::IntRect textureSizes7{ {0,300},{300,300} };
 			texturesIntRects.emplace("Aclass", textureSizes7);
 
 			textures.emplace("Bclass", texture);
@@ -263,6 +263,18 @@ const void ResourceManager::LoadAllResources()
 			textures.emplace("RedGiant", texture);
 			sf::IntRect textureSizes10{ {0,0},{300,300} };
 			texturesIntRects.emplace("RedGiant", textureSizes10);
+		}
+	}
+	{
+		std::string textureName{ "CenterOfMassIcon" };
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile("media/textures/centerOfMass.png"))
+			std::cout << "No texture found: " + textureName + "\n";
+		else
+		{
+			textures.emplace(textureName, texture);
+			sf::IntRect textureSizes{ {0,0},{64,64} };
+			texturesIntRects.emplace(textureName, textureSizes);
 		}
 	}
 

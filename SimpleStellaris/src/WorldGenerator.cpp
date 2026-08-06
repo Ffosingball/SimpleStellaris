@@ -231,8 +231,8 @@ void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::share
 	else
 		mass2 = GetStarMass(spStar2Com->starType);
 
-	spStar1Com->orbitRadius = distanceBetweenStars * (mass1/(mass1+mass2));
-	spStar2Com->orbitRadius = distanceBetweenStars * (mass2 / (mass1 + mass2));
+	spStar1Com->orbitRadius = distanceBetweenStars * (mass2/(mass1+mass2));
+	spStar2Com->orbitRadius = distanceBetweenStars * (mass1 / (mass1 + mass2));
 
 	float T = std::sqrtf(std::powf(distanceBetweenStars,3)/(mass1+mass2));
 	//velocity in radians per year
@@ -322,18 +322,19 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spInsideSys);
 			//std::shared_ptr<StarComponent> spInsideSysStarCom = GetStarComponent(*spInsideSys);
 			spSysCom->systemType = SpaceSystemType::BinaryClose;
+			spInsideSys->inheritParentPosition = false;
 			std::shared_ptr<SceneNode> spInsideSysNode = ptrSystemNode->FindChild("InsideSystem").lock();
 
 			//Create 2 stars in the inside system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(spInsideSysNode, "Star2").lock();
 			spStar2->AddComponent(ComponentType::Star);
 			StarTypeGenerator(GetStarComponent(*spStar2));
-			spStar2->inheritParentPosition = false;
+			//spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(spInsideSysNode, "Star3").lock();
 			spStar3->AddComponent(ComponentType::Star);
 			StarTypeGenerator(GetStarComponent(*spStar3));
-			spStar3->inheritParentPosition = false;
+			//spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
 			CalculateBinarySystemProperties(spStar3, spStar2, (*closeStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
@@ -552,53 +553,59 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 
 
 
-void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
+std::string GetSystemTextureName(StarType starType) 
 {
-	std::string textureName{ "Placeholder" };
-	switch (starType) 
+	switch (starType)
 	{
 	case StarType::BlackHole:
-		textureName = "BrownDwarfSystem";
+		return "BlackHole";
 		break;
 	case StarType::NeutronStar:
-		textureName = "NeutronStarSystem";
+		return "NeutronStarSystem";
 		break;
 	case StarType::WhiteDwarf:
-		textureName = "WhiteDwarfSystem";
+		return "WhiteDwarfSystem";
 		break;
 	case StarType::BrownDwarf:
-		textureName = "BrownDwarfSystem";
+		return "BrownDwarfSystem";
 		break;
 	case StarType::MredDwarf:
-		textureName = "MclassSystem";
+		return "MclassSystem";
 		break;
 	case StarType::KorangeDwarf:
-		textureName = "KclassSystem";
+		return "KclassSystem";
 		break;
 	case StarType::GsunLike:
-		textureName = "GclassSystem";
+		return "GclassSystem";
 		break;
 	case StarType::Ftype:
-		textureName = "FclassSystem";
+		return "FclassSystem";
 		break;
 	case StarType::Atype:
-		textureName = "AclassSystem";
+		return "AclassSystem";
 		break;
 	case StarType::Btype:
-		textureName = "BclassSystem";
+		return "BclassSystem";
 		break;
 	case StarType::Otype:
-		textureName = "OclassSystem";
+		return "OclassSystem";
 		break;
 	case StarType::RedGiant:
-		textureName = "RedGiantSystem";
+		return "RedGiantSystem";
 		break;
 	case StarType::RedSupergiant:
-		textureName = "RedSupergiantSystem";
+		return "RedSupergiantSystem";
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, textureName);
+	return "Placeholder";
+}
+
+
+
+void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
+{
+	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, GetSystemTextureName(starType));
 	//"media/textures/starsPicture.png"
 }
 
@@ -824,6 +831,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			}
 			else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar) 
 			{
+				//std::cout << "Binary\n";
 				std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
 				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
 				std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
@@ -843,6 +851,13 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					spStar2Com->starName = spComSys->systemName + "-A";
 					spStar1Com->starName = spComSys->systemName + "-B";
 				}
+
+				//Now set center of mass icon
+				std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
+				node.AddChild(std::make_shared<SceneNode>(wpCoM));
+				wpCoM.lock()->inheritParentPosition = false;
+				wpCoM.lock()->hidden = true;
+				CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), "CenterOfMassIcon");
 			}
 			else 
 			{
@@ -852,6 +867,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 
 				if (spComSys->systemType == SpaceSystemType::TernaryAfar) 
 				{
+					//std::cout << "Ternary afar\n";
 					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
 					spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
 					std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
@@ -861,6 +877,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				}
 				else 
 				{
+					//std::cout << "Ternary binary\n";
 					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
 					spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
 					std::shared_ptr<SceneNode> ptrInsideSysNode = ptrSysNode->FindChild("InsideSystem").lock();
@@ -868,6 +885,13 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
 					std::shared_ptr<SceneNode> ptrStar3Node = ptrInsideSysNode->FindChild("Star3").lock();
 					spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
+
+					//Now set center of mass icon
+					std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
+					ptrInsideSysNode->AddChild(std::make_shared<SceneNode>(wpCoM));
+					//wpCoM.lock()->inheritParentPosition = false;
+					wpCoM.lock()->hidden = true;
+					CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), "CenterOfMassIcon");
 				}
 
 				SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
@@ -919,6 +943,13 @@ void TextureSetter::ProcessNode(SceneNode& node)
 						spStar1Com->starName = spComSys->systemName + "-C";
 					}
 				}
+
+				//Now set center of mass icon
+				std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
+				node.AddChild(std::make_shared<SceneNode>(wpCoM));
+				wpCoM.lock()->inheritParentPosition = false;
+				wpCoM.lock()->hidden = true;
+				CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), "CenterOfMassIcon");
 			}
 
 			//Create text name entity for system
@@ -937,6 +968,8 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			spStar->wpStarNameText = CreateSystemText(ptrSystemNamesNode, node.GetSharedPtrToItself(), name, false);
 			spStar->wpStarNameText.lock()->hidden = true;
 			spEntity->hidden = true;
+
+			CreateIconForSystemOverview(node.GetSharedPtrToItself(), GetSystemTextureName(spStar->starType));
 		}
 	}
 }

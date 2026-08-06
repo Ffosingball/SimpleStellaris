@@ -273,5 +273,20 @@ void SceneNodeVisitorSystemVisibility::ProcessNode(SceneNode& node)
 
 void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
 {
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
 
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has object system component
+        if (spEntity->HasComponent(ComponentType::Star))
+        {
+            //Get star component
+            std::shared_ptr<StarComponent> spStarCom = GetStarComponent(*spEntity);
+
+            //Move star
+            float rotation = (spStarCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spStarCom->initialRotationPosition;
+            spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spStarCom->orbitRadius);
+        }
+    }
 }

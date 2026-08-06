@@ -437,7 +437,7 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	float cameraVelocity = 20.f;//14.f
 	float cameraZoomSpeed = 30.f;
 	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = { 0.0001f, 10.f };
+	sf::Vector2f zoomBorders = { 0.0001f, 8.f };
 	float outsideBordersMaxRenderDistance = 15.f;
 
 	//Create camera
@@ -564,7 +564,7 @@ void CreateSpaceObjects()
 	spCameraCom->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 	std::shared_ptr<CameraComponent> spCameraCom2 = GetCameraFromSystemCameraEntity();
-	spCameraCom2->horizontalBorders = { -mapConfig.afarStarsBoundaries.y, mapConfig.afarStarsBoundaries.y };
-	spCameraCom2->verticalBorders = { -mapConfig.afarStarsBoundaries.y, mapConfig.afarStarsBoundaries.y };
+	spCameraCom2->horizontalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
+	spCameraCom2->verticalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
 	spCameraCom2->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 }

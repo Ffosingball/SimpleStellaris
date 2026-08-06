@@ -184,24 +184,24 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	//Set direction to 0,0
 	sf::Vector2f direction{ 0,0 };
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 	{
 		//Change direction to positive
 		direction.y -= 1.f;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
 	{
 		//Change direction to negative
 		direction.y += 1.f;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 	{
 		direction.x -= 1.f;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 	{
 		direction.x += 1.f;
 	}

@@ -135,8 +135,11 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
     //Check that pointer is valid
     if (spEntity != nullptr)
     {
-        //Check if entity has object system component
-        if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName() == "InsideSystem")
+        if (spEntity->GetName() == "CenterOfMass")
+        {
+            spEntity->hidden = hidden;
+        }
+        else if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName() == "InsideSystem")
         {
             spEntity->hidden = hidden;
         }

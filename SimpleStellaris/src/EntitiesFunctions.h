@@ -86,6 +86,9 @@ std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, cons
 //Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
 //number of components available in game and K number of components to add to the text
 std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge);
+//Worst case: O(4N+M) where N is number of components in entity and M number of components
+//available in game
+void CreateIconForSystemOverview(std::shared_ptr<SceneNode> systemNode, std::string iconTexture);
 
 //Animation functions
 
