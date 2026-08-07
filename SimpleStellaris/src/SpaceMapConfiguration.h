@@ -70,9 +70,9 @@ struct SpaceMapConfigurations
 
 	//Planets configuration
 	//Habitable zone size
-	sf::Vector2f habitableZoneRedSupergiant{ 70.9f,71.f };//No hab planets
+	sf::Vector2f habitableZoneRedSupergiant{ 70.999f,71.f };//No hab planets
 	sf::Vector2f habitableZoneRedGiant{20.f,50.f};
-	sf::Vector2f habitableZoneClassO{ 70.9f,71.f };//No hab planets
+	sf::Vector2f habitableZoneClassO{ 70.999f,71.f };//No hab planets
 	sf::Vector2f habitableZoneClassB{ 10.f,50.f };
 	sf::Vector2f habitableZoneClassA{ 3.f,6.f };
 	sf::Vector2f habitableZoneClassF{ 1.5f,3.f };
@@ -80,7 +80,7 @@ struct SpaceMapConfigurations
 	sf::Vector2f habitableZoneClassK{ 0.4f,0.8f };
 	sf::Vector2f habitableZoneClassM{ 0.05f,0.3f };
 	sf::Vector2f habitableZoneBrownDwarf{ 0.003f,0.03f };
-	sf::Vector2f habitableZoneWhiteDwarf{ 0.1f,0.2f };//No hab planets
+	sf::Vector2f habitableZoneWhiteDwarf{ 0.199f,0.2f };//No hab planets
 
 	//Orbits distance boundaries
 	sf::Vector2f orbitBoundariesRedSupergiant{ 8.f,1000.f };
@@ -135,32 +135,35 @@ struct SpaceMapConfigurations
 
 	//Chances of planet type within of habitable zone
 	float mediumOrbitVenusLikeChance = 22.5f;
-	float mediumOrbitOceanicChance = 22.5f;
-	float mediumOrbitEarthLikeChance = 25.f;
+	float mediumOrbitOceanicChance = 15.8f;
+	float mediumOrbitEarthLikeChance = 15.8f;
+	float mediumOrbitDesertChance = 15.8f;
 	float mediumOrbitBarrenChance = 25.f;
 	float mediumOrbitHotJupiterChance = 2.5f;
 	float mediumOrbitHotNeptuneChance = 2.5f;
 
 	//Chances of planet type further of habitable zone
-	float mediumOrbitIcyChance = 35.f;
-	float mediumOrbitBarrenChance = 10.f;
+	float afarOrbitIcyChance = 35.f;
+	float afarOrbitBarrenChance = 10.f;
 	//After decide texture in 50/50 chance
-	float mediumOrbitNeptuneLikeChance = 30.f;
-	float mediumOrbitJupiterLikeChance = 25.f;
+	float afarOrbitNeptuneLikeChance = 30.f;
+	float afarOrbitJupiterLikeChance = 25.f;
 
 	//Rocky planet config; applied for all planets except: gas giants, icy and oceanic worlds
 	sf::Vector2i smallRockyPlanetSizes{0.3f,0.8f};
 	sf::Vector2i mediumRockyPlanetSizes{ 0.8f,1.2f };
 	sf::Vector2i largeRockyPlanetSizes{ 1.2f,2.2f };
-	float smallRockyPlanetChance = 45.f;
-	float mediumRockyPlanetChance = 35.f;
-	float largeRockyPlanetChance = 20.f;
+	//1 - 100%, 0 - 0%
+	float smallRockyPlanetChance = 0.45f;
+	float mediumRockyPlanetChance = 0.35f;
+	float largeRockyPlanetChance = 0.2f;
 
 	//Icy planet config; applied for icy and oceanic worlds
 	sf::Vector2i smallIcyPlanetSizes{ 0.4f,0.8f };
 	sf::Vector2i mediumIcyPlanetSizes{ 0.8f,1.5f };
 	sf::Vector2i largeIcyPlanetSizes{ 1.5f,3.5f };
-	float smallIcyPlanetChance = 45.f;
-	float mediumIcyPlanetChance = 35.f;
-	float largeIcyPlanetChance = 20.f;
+	//1 - 100%, 0 - 0%
+	float smallIcyPlanetChance = 0.2f;
+	float mediumIcyPlanetChance = 0.5f;
+	float largeIcyPlanetChance = 0.3f;
 };

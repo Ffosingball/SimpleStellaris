@@ -141,7 +141,7 @@ public:
 class PlanetComponent : public Component
 {
 public:
-	StarType planetType;
+	PlanetType planetType;
 	//Earth radiuses
 	//For gas giants this is not applied
 	float planetSize{ 0.f };
@@ -152,6 +152,7 @@ public:
 	float initialRotationPosition{ 0.f };
 	//In radians per day
 	float rotationalVelocity{ 0.f };
+	std::string planetTextureName;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;

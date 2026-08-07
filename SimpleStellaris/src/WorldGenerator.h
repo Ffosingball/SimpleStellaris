@@ -42,14 +42,37 @@ private:
 	static std::shared_ptr<std::uniform_int_distribution<int>> oneThird;
 	static std::shared_ptr<std::uniform_real_distribution<float>> from0to1Dist;
 	static std::shared_ptr<std::uniform_real_distribution<float>> from0to2_3Dist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> redSupGiantPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> redGiantPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> OclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> BclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> AclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> FclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> GclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> KclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> MclassPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> brownDwarfPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> whiteDwarfPlanetsDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> neutronStarPlanetsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> closerThanHabitableZoneDist;
+	static std::shared_ptr<std::discrete_distribution<int>> withinHabitableZoneDist;
+	static std::shared_ptr<std::discrete_distribution<int>> furtherThanHabitableZoneDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> smallRockyPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> mediumRockyPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> largeRockyPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> smallIcyPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> mediumIcyPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> largeIcyPlanetDist;
 
 	WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
 	WorldGenerator& operator=(const WorldGenerator&) = delete;
 
-	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty);
+	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty, SpaceMapConfigurations& mapConfig);
 	static void StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom);
 	static void checkRandomDistribution();
+	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars);
+	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass);
 
 public:
 

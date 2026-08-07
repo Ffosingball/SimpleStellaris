@@ -64,6 +64,27 @@ std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::afarStars
 std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::oneThird = std::make_shared<std::uniform_int_distribution<int>>(0,2);
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::redSupGiantPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::redGiantPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::OclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::BclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::AclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::FclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::GclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::KclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::MclassPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::brownDwarfPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::whiteDwarfPlanetsDist = nullptr;
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::neutronStarPlanetsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closerThanHabitableZoneDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::withinHabitableZoneDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::furtherThanHabitableZoneDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallRockyPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::mediumRockyPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeRockyPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallIcyPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::mediumIcyPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeIcyPlanetDist = nullptr;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -276,13 +297,335 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 
 
-void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> ptrSystemNode, std::shared_ptr<Entity> spStar1Entity)
+void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass)
+{
+	std::shared_ptr<Entity> spPlanet = CreateNewEntityAt(spNode, "Planet"+std::to_string(num)).lock();
+	spPlanet->AddComponent(ComponentType::Planet);
+	std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spPlanet);
+
+	std::uniform_int_distribution<int> orbitDist(orbitBoundaries.x, orbitBoundaries.y);
+	spPlanetCom->orbitRadius = orbitDist(*randomizer);
+	bool generateBarrenType = false;
+	bool rockyPlanet = false;
+	bool icyPlanet = false;
+
+	if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x) 
+	{
+		//Closer than habit
+		if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x / 3.f)
+		{
+			spPlanetCom->planetType = PlanetType::Molten;
+			rockyPlanet = true;
+		}
+
+		switch ((*closerThanHabitableZoneDist)(*randomizer)) 
+		{
+		case 0:
+			spPlanetCom->planetType = PlanetType::VenusLike;
+			rockyPlanet = true;
+			break;
+		case 1:
+			generateBarrenType = true;
+			rockyPlanet = true;
+			break;
+		case 2:
+			spPlanetCom->planetType = PlanetType::HotJupiter;
+			break;
+		case 3:
+			spPlanetCom->planetType = PlanetType::HotNeptune;
+			break;
+		}
+	}
+	else if (spPlanetCom->orbitRadius > habitableZoneBoundaries.y)
+	{
+		//Further than habit
+		switch ((*withinHabitableZoneDist)(*randomizer))
+		{
+		case 0:
+			spPlanetCom->planetType = PlanetType::VenusLike;
+			rockyPlanet = true;
+			break;
+		case 1:
+			spPlanetCom->planetType = PlanetType::Oceanic;
+			icyPlanet = true;
+			break;
+		case 2:
+			spPlanetCom->planetType = PlanetType::EarthLike;
+			rockyPlanet = true;
+			break;
+		case 3:
+			spPlanetCom->planetType = PlanetType::Desert;
+			rockyPlanet = true;
+			break;
+		case 4:
+			generateBarrenType = true;
+			rockyPlanet = true;
+			break;
+		case 5:
+			spPlanetCom->planetType = PlanetType::HotJupiter;
+			break;
+		case 6:
+			spPlanetCom->planetType = PlanetType::HotNeptune;
+			break;
+		}
+	}
+	else 
+	{
+		//Within habit
+		switch ((*furtherThanHabitableZoneDist)(*randomizer))
+		{
+		case 0:
+			spPlanetCom->planetType = PlanetType::Icy;
+			icyPlanet = true;
+			break;
+		case 1:
+			generateBarrenType = true;
+			rockyPlanet = true;
+			break;
+		case 2:
+			if((*from0to1Dist)(*randomizer)>0.5f)
+				spPlanetCom->planetType = PlanetType::NeptuneLike;
+			else
+				spPlanetCom->planetType = PlanetType::UranusLike;
+			break;
+		case 3:
+			if ((*from0to1Dist)(*randomizer) > 0.5f)
+				spPlanetCom->planetType = PlanetType::JupiterLike;
+			else
+				spPlanetCom->planetType = PlanetType::SaturnLike;
+			break;
+		}
+	}
+
+	if (generateBarrenType) 
+	{
+		switch ((*oneThird)(*randomizer)) 
+		{
+		case 0:
+			spPlanetCom->planetType = PlanetType::BarrenGrey;
+			break;
+		case 1:
+			spPlanetCom->planetType = PlanetType::BarrenMarsLike;
+			break;
+		case 2:
+			spPlanetCom->planetType = PlanetType::BarrenDark;
+			break;
+		}
+	}
+
+	if (rockyPlanet) 
+	{
+		float num = (*from0to1Dist)(*randomizer);
+		if (num < mapConfig.smallRockyPlanetChance)
+			spPlanetCom->planetSize = (*smallRockyPlanetDist)(*randomizer);
+		else if (num < mapConfig.smallRockyPlanetChance + mapConfig.mediumRockyPlanetChance)
+			spPlanetCom->planetSize = (*mediumRockyPlanetDist)(*randomizer);
+		else
+			spPlanetCom->planetSize = (*largeRockyPlanetDist)(*randomizer);
+	}
+
+	if (icyPlanet)
+	{
+		float num = (*from0to1Dist)(*randomizer);
+		if (num < mapConfig.smallIcyPlanetChance)
+			spPlanetCom->planetSize = (*smallIcyPlanetDist)(*randomizer);
+		else if (num < mapConfig.smallIcyPlanetChance + mapConfig.mediumIcyPlanetChance)
+			spPlanetCom->planetSize = (*mediumIcyPlanetDist)(*randomizer);
+		else
+			spPlanetCom->planetSize = (*largeIcyPlanetDist)(*randomizer);
+	}
+
+	spPlanetCom->rotationalVelocity = std::sqrtf(6.6417f*(std::powf(10,21)*starMass) / spPlanetCom->orbitRadius)/ spPlanetCom->orbitRadius;
+	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
+}
+
+
+
+void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars)
+{
+	std::shared_ptr<StarComponent> spStarCom;
+	std::shared_ptr<Entity> spEntity = spSystemOrStarNode->GetEntity().lock();
+	sf::Vector2f orbitBoundaries{0.f, 0.f};
+	sf::Vector2f habitableBoundaries{ -1.f, -1.f };
+	bool checkMaxOrbitBounds=false;
+	std::shared_ptr<std::uniform_int_distribution<int>> planetsDist;
+	bool decreaseHabitableBoundaries = false;
+	float starMass{0.f};
+
+	if (spEntity->HasComponent(ComponentType::ObjectSystem)) 
+	{
+		std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*spSystemOrStarNode->FindChild("Star1").lock()->GetEntity().lock());
+		std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*spSystemOrStarNode->FindChild("Star2").lock()->GetEntity().lock());
+
+		if (spStar1Com->starType == StarType::BlackHole || spStar2Com->starType == StarType::BlackHole)
+			return;
+
+		std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spEntity);
+		if (spSysCom->systemType != SpaceSystemType::BinaryClose)
+			checkMaxOrbitBounds = true;
+
+		if (spSysCom->systemType == SpaceSystemType::BinaryClose)
+			decreaseHabitableBoundaries = true;
+
+		if(spStar1Com->orbitRadius> spStar1Com->orbitRadius)
+			orbitBoundaries.x = spStar1Com->orbitRadius;
+		else
+			orbitBoundaries.x = spStar2Com->orbitRadius;
+
+		if (spStar1Com->starType>spStar2Com->starType)
+			spStarCom = spStar1Com;
+		else
+			spStarCom = spStar2Com;
+
+		starMass = GetStarMass(spStar1Com->starType) + GetStarMass(spStar2Com->starType);
+	}
+	else
+	{
+		spStarCom = GetStarComponent(*spEntity);
+
+		if (spStarCom->starType == StarType::BlackHole)
+			return;
+
+		starMass = GetStarMass(spStarCom->starType);
+	}
+
+	//Check if this system will have planets or not
+	//And set orbit boundaries and get how many planets to generate
+	//And set habitable zone boundaries
+	//Add boundaries
+	float planetsChance = (*from0to1Dist)(*randomizer);
+	switch (spStarCom->starType)
+	{
+	case StarType::RedSupergiant:
+		if (planetsChance > mapConfig.redSupGiantPlanetChance)
+			return;
+		
+		orbitBoundaries += mapConfig.orbitBoundariesRedSupergiant;
+		planetsDist = redSupGiantPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneRedSupergiant;
+		break;
+	case StarType::RedGiant:
+		if (planetsChance > mapConfig.redGiantPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesRedGiant;
+		planetsDist = redGiantPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneRedGiant;
+		break;
+	case StarType::Otype:
+		if (planetsChance > mapConfig.classOPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassO;
+		planetsDist = OclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassO;
+		break;
+	case StarType::Btype:
+		if (planetsChance > mapConfig.classBPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassB;
+		planetsDist = BclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassB;
+		break;
+	case StarType::Atype:
+		if (planetsChance > mapConfig.classAPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassA;
+		planetsDist = AclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassA;
+		break;
+	case StarType::Ftype:
+		if (planetsChance > mapConfig.classFPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassF;
+		planetsDist = FclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassF;
+		break;
+	case StarType::GsunLike:
+		if (planetsChance > mapConfig.classGPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassG;
+		planetsDist = GclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassG;
+		break;
+	case StarType::KorangeDwarf:
+		if (planetsChance > mapConfig.classKPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassK;
+		planetsDist = KclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassK;
+		break;
+	case StarType::MredDwarf:
+		if (planetsChance > mapConfig.classMPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesClassM;
+		planetsDist = MclassPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneClassM;
+		break;
+	case StarType::BrownDwarf:
+		if (planetsChance > mapConfig.brownDwarfPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesBrownDwarf;
+		planetsDist = brownDwarfPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneBrownDwarf;
+		break;
+	case StarType::WhiteDwarf:
+		if (planetsChance > mapConfig.whiteDwarfPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesWhiteDwarf;
+		planetsDist = whiteDwarfPlanetsDist;
+		habitableBoundaries = mapConfig.habitableZoneWhiteDwarf;
+		break;
+	case StarType::NeutronStar:
+		if (planetsChance > mapConfig.neutronPlanetChance)
+			return;
+
+		orbitBoundaries += mapConfig.orbitBoundariesNeutronStar;
+		planetsDist = neutronStarPlanetsDist;
+		break;
+	}
+
+	//Check boundaries for binary and ternary systems
+	if (checkMaxOrbitBounds) 
+	{
+		if (orbitBoundaries.y > distanceBetweenStars * (1.f / 3.f))
+			orbitBoundaries.y = distanceBetweenStars * (1.f / 3.f);
+
+		if (orbitBoundaries.x > orbitBoundaries.y)
+			return;
+	}
+
+	if (decreaseHabitableBoundaries) 
+	{
+		habitableBoundaries.y = habitableBoundaries.y - ((habitableBoundaries.y - habitableBoundaries.x)/2.f);
+	}
+
+	//Generate how many planets will orbit it
+	int numOfPlanets = (*planetsDist)(*randomizer);
+	for (int i = 0; i < numOfPlanets; i++) 
+	{
+		GenerateSinglePlanet(orbitBoundaries, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass);
+	}
+}
+
+
+
+void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> ptrSystemNode, std::shared_ptr<Entity> spStar1Entity, SpaceMapConfigurations& mapConfig)
 {
 	switch ((*systemTypeDist)(*randomizer)) 
 	{
 	case 0:
 	{
 		spSystemCom->systemType = SpaceSystemType::Single;
+		GeneratePlanets(ptrSystemNode, mapConfig, -1.f);
 		return;
 	}
 	case 1:
@@ -297,13 +640,17 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 		if ((*binarySysDistribution)(*randomizer) == 0)
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryClose;
-			CalculateBinarySystemProperties(spStar1Entity, spStar2, (*closeStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
-			float distanceBetweenStars = (*closeStarsDistances)(*randomizer);
+			float distBetStars = (*closeStarsDistances)(*randomizer);
+			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
+			GeneratePlanets(ptrSystemNode, mapConfig, distBetStars);
 		}
 		else
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryAfar;
-			CalculateBinarySystemProperties(spStar1Entity, spStar2, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
+			float distBetStars = (*afarStarsDistances)(*randomizer);
+			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars);
+			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars);
 		}
 		return;
 	}
@@ -321,7 +668,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			spInsideSys->AddComponent(ComponentType::Star);
 			std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spInsideSys);
 			//std::shared_ptr<StarComponent> spInsideSysStarCom = GetStarComponent(*spInsideSys);
-			spSysCom->systemType = SpaceSystemType::BinaryClose;
+			spSysCom->systemType = SpaceSystemType::BinaryCloseWithin;
 			spInsideSys->inheritParentPosition = false;
 			std::shared_ptr<SceneNode> spInsideSysNode = ptrSystemNode->FindChild("InsideSystem").lock();
 
@@ -337,8 +684,13 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			//spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
-			CalculateBinarySystemProperties(spStar3, spStar2, (*closeStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
+			float closeDistBetStars = (*closeStarsDistances)(*randomizer);
+			float afarDistBetStars = (*afarStarsDistances)(*randomizer);
+			CalculateBinarySystemProperties(spStar3, spStar2, closeDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
+			
+			GeneratePlanets(ptrSystemNode->FindChild("InsideSystem").lock(), mapConfig, closeDistBetStars);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, afarDistBetStars);
 		}
 		else
 		{
@@ -356,7 +708,11 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
-			CalculateTernaryAfarSystemProperties(spStar1Entity, spStar2, spStar3, (*afarStarsDistances)(*randomizer), (*from0to2_3Dist)(*randomizer));
+			float distBetStars = (*afarStarsDistances)(*randomizer);
+			CalculateTernaryAfarSystemProperties(spStar1Entity, spStar2, spStar3, distBetStars, (*from0to2_3Dist)(*randomizer));
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars);
+			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars);
+			GeneratePlanets(ptrSystemNode->FindChild("Star3").lock(), mapConfig, distBetStars);
 		}
 
 		return;
@@ -429,6 +785,27 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	ternarySystemWeights[0] = mapConfig.ternaryCloseBinaryThirdAfarChance;
 	ternarySystemWeights[1] = mapConfig.afarTernaryChance;
 
+	std::vector<float> closeOrbitWeights(4);
+	closeOrbitWeights[0] = mapConfig.closeOrbitVenusLikeChance;
+	closeOrbitWeights[1] = mapConfig.closeOrbitBarrenChance;
+	closeOrbitWeights[2] = mapConfig.closeOrbitHotJupiterChance;
+	closeOrbitWeights[3] = mapConfig.closeOrbitHotNeptuneChance;
+
+	std::vector<float> mediumOrbitWeights(7);
+	mediumOrbitWeights[0] = mapConfig.mediumOrbitVenusLikeChance;
+	mediumOrbitWeights[1] = mapConfig.mediumOrbitOceanicChance;
+	mediumOrbitWeights[2] = mapConfig.mediumOrbitEarthLikeChance;
+	mediumOrbitWeights[3] = mapConfig.mediumOrbitDesertChance;
+	mediumOrbitWeights[4] = mapConfig.mediumOrbitBarrenChance;
+	mediumOrbitWeights[5] = mapConfig.mediumOrbitHotJupiterChance;
+	mediumOrbitWeights[6] = mapConfig.mediumOrbitHotNeptuneChance;
+
+	std::vector<float> afarOrbitWeights(4);
+	afarOrbitWeights[0] = mapConfig.afarOrbitIcyChance;
+	afarOrbitWeights[2] = mapConfig.afarOrbitBarrenChance;
+	afarOrbitWeights[3] = mapConfig.afarOrbitNeptuneLikeChance;
+	afarOrbitWeights[4] = mapConfig.afarOrbitJupiterLikeChance;
+
 	//Create all distributions
 	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
 	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>(giantSystemWeights.begin(), giantSystemWeights.end());
@@ -440,6 +817,27 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	afarStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.afarStarsBoundaries.x, mapConfig.afarStarsBoundaries.y);
 	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x,mapConfig.horizontalPosBoundaries.y);
 	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
+	redSupGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedSupergiant.x, mapConfig.planetsAmountRedSupergiant.y);
+	redGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedGiant.x, mapConfig.planetsAmountRedGiant.y);
+	OclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassO.x, mapConfig.planetsAmountClassO.y);
+	BclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassB.x, mapConfig.planetsAmountClassB.y);
+	AclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassA.x, mapConfig.planetsAmountClassA.y);
+	FclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassF.x, mapConfig.planetsAmountClassF.y);
+	GclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassG.x, mapConfig.planetsAmountClassG.y);
+	KclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassK.x, mapConfig.planetsAmountClassK.y);
+	MclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassM.x, mapConfig.planetsAmountClassM.y);
+	brownDwarfPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountBrownDwarf.x, mapConfig.planetsAmountBrownDwarf.y);
+	whiteDwarfPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountWhiteDwarf.x, mapConfig.planetsAmountWhiteDwarf.y);
+	neutronStarPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountNeutronStar.x, mapConfig.planetsAmountNeutronStar.y);
+	closerThanHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitWeights.begin(), closeOrbitWeights.end());
+	withinHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(mediumOrbitWeights.begin(), mediumOrbitWeights.end());
+	furtherThanHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(afarOrbitWeights.begin(), afarOrbitWeights.end());
+	smallRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallRockyPlanetSizes.x, mapConfig.smallRockyPlanetSizes.y);
+	mediumRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumRockyPlanetSizes.x, mapConfig.mediumRockyPlanetSizes.y);
+	largeRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeRockyPlanetSizes.x, mapConfig.largeRockyPlanetSizes.y);
+	smallIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallIcyPlanetSizes.x, mapConfig.smallIcyPlanetSizes.y);
+	mediumIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumIcyPlanetSizes.x, mapConfig.mediumIcyPlanetSizes.y);
+	largeIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeIcyPlanetSizes.x, mapConfig.largeIcyPlanetSizes.y);
 
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesComponent(*ptrSpaceMapNode->GetEntity().lock());
@@ -498,50 +896,52 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 0:
 			spStar1Com->starType = StarType::RedSupergiant;
 			spSystemCom->systemType = SpaceSystemType::Single;
+			GeneratePlanets(ptrNewSysNode, mapConfig, -1.f);
 			break;
 		case 1:
 			spStar1Com->starType = StarType::RedGiant;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 2:
 			spStar1Com->starType = StarType::Otype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 3:
 			spStar1Com->starType = StarType::Btype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 4:
 			spStar1Com->starType = StarType::Atype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 5:
 			spStar1Com->starType = StarType::Ftype;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 6:
 			spStar1Com->starType = StarType::GsunLike;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 7:
 			spStar1Com->starType = StarType::KorangeDwarf;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 8:
 			spStar1Com->starType = StarType::MredDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 9:
 			spStar1Com->starType = StarType::BrownDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 10:
 			spStar1Com->starType = StarType::WhiteDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
 			break;
 		case 11:
 			spStar1Com->starType = StarType::NeutronStar;
 			spSystemCom->systemType = SpaceSystemType::Single;
+			GeneratePlanets(ptrNewSysNode, mapConfig, -1.f);
 			break;
 		case 12:
 			spStar1Com->starType = StarType::BlackHole;

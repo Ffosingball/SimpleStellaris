@@ -277,6 +277,219 @@ const void ResourceManager::LoadAllResources()
 			texturesIntRects.emplace(textureName, textureSizes);
 		}
 	}
+	{
+		std::string textureName{ "PlanetIcons" };
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile("media/textures/planetsIcons.png"))
+			std::cout << "No texture found: " + textureName + "\n";
+		else
+		{
+			std::string name = "SmallMoltenPlanetIcon";
+			sf::IntRect textureSize{ {0,0},{16,16} };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumMoltenPlanetIcon";
+			textureSize.position = sf::Vector2i{16,0};
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeMoltenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallVenusLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumVenusLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeVenusLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 80,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallGreyBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 0,16 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumGreyBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 16,16 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeGreyBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,16 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallOceanicPlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,16 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumOceanicPlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,16 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeOceanicPlanetIcon";
+			textureSize.position = sf::Vector2i{ 80,16 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 0,32 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 16,32 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,32 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallAfarEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,32 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumAfarEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,32 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeAfarEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 80,32 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallCloseEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 0,48 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumCloseEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 16,48 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeCloseEarthLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,48 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallRedBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,48 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumRedBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,48 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeRedBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 80,48 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallDesertPlanetIcon";
+			textureSize.position = sf::Vector2i{ 0,64 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumDesertPlanetIcon";
+			textureSize.position = sf::Vector2i{ 16,64 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeDesertPlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,64 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallIcyPlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,64 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumIcyPlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,64 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeIcyPlanetIcon";
+			textureSize.position = sf::Vector2i{ 80,64 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SmallDarkBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 0,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "MediumDarkBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 16,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "LargeDarkBarrenPlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "TitanLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "VolcanicPlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "UranusLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 80,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "NeptuneLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 0,96 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "HotNeptunePlanetIcon";
+			textureSize.position = sf::Vector2i{ 16,96 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "JupiterLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 32,96 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SaturnLikePlanetIcon";
+			textureSize.position = sf::Vector2i{ 48,96 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "HotJupiterPlanetIcon";
+			textureSize.position = sf::Vector2i{ 64,96 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+		}
+	}
 
 
 	//LOAD FONTS
