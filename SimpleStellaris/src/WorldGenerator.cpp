@@ -851,13 +851,6 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					spStar2Com->starName = spComSys->systemName + "-A";
 					spStar1Com->starName = spComSys->systemName + "-B";
 				}
-
-				//Now set center of mass icon
-				std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
-				node.AddChild(std::make_shared<SceneNode>(wpCoM));
-				wpCoM.lock()->inheritParentPosition = false;
-				wpCoM.lock()->hidden = true;
-				CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), "CenterOfMassIcon");
 			}
 			else 
 			{
@@ -885,13 +878,6 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
 					std::shared_ptr<SceneNode> ptrStar3Node = ptrInsideSysNode->FindChild("Star3").lock();
 					spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
-
-					//Now set center of mass icon
-					std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
-					ptrInsideSysNode->AddChild(std::make_shared<SceneNode>(wpCoM));
-					//wpCoM.lock()->inheritParentPosition = false;
-					wpCoM.lock()->hidden = true;
-					CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), "CenterOfMassIcon");
 				}
 
 				SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
@@ -943,13 +929,6 @@ void TextureSetter::ProcessNode(SceneNode& node)
 						spStar1Com->starName = spComSys->systemName + "-C";
 					}
 				}
-
-				//Now set center of mass icon
-				std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
-				node.AddChild(std::make_shared<SceneNode>(wpCoM));
-				wpCoM.lock()->inheritParentPosition = false;
-				wpCoM.lock()->hidden = true;
-				CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), "CenterOfMassIcon");
 			}
 
 			//Create text name entity for system
@@ -961,15 +940,9 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			std::shared_ptr<StarComponent> spStar = GetStarComponent(*spEntity);
 			spEntity->AddComponent(ComponentType::RectangleShape);
 			std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
-
-			SetStarTexture(spRectShape, spStar->starType);
-			//Create text name entity for star
-			std::string name{ "StarNameText" };
-			spStar->wpStarNameText = CreateSystemText(wpSystemNamesNode.lock(), node.GetSharedPtrToItself(), name, false);
-			spStar->wpStarNameText.lock()->hidden = true;
 			spEntity->hidden = true;
 
-			CreateIconForSystemOverview(node.GetSharedPtrToItself(), GetSystemTextureName(spStar->starType));
+			SetStarTexture(spRectShape, spStar->starType);
 		}
 	}
 }

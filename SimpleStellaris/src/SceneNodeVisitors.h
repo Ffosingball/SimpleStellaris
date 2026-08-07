@@ -137,12 +137,14 @@ private:
 class SceneNodeVisitorChangeSingleSystemVisibility: public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden) : hidden(hidden) {}
+    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode){}
 
     void ProcessNode(SceneNode& node) override;
 
 private:
     bool hidden;
+    int counter{ 0 };
+    std::shared_ptr<SceneNode> spSystemIconsNode;
 };
 
 

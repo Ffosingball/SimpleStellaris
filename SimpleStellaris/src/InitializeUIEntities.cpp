@@ -207,7 +207,7 @@ void CreateUI()
 //number of components available in game and K number of components to add to the text
 std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge)
 {
-	static int counter = 0;
+	//static int counter = 0;
 	float fontSize = 22;
 
 	std::string name{"UNDEFINED"};
@@ -219,7 +219,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	else if (spEntityToFollow->HasComponent(ComponentType::Planet))
 		name = GetPlanetComponent(*spEntityToFollow)->planetName;
 	//Create text
-	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName+std::to_string(counter), name, fontSize, sf::Vector2f{0,0});
+	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName, name, fontSize, sf::Vector2f{0,0});
 	
 	//Add component
 	spText->AddComponent(ComponentType::UIFollower);
@@ -233,7 +233,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	spUIText->text->setOutlineColor(sf::Color(50,50,50));
 	spUIText->text->setOutlineThickness(1.f);
 
-	counter++;
+	//counter++;
 
 	return spText;
 }
@@ -261,7 +261,7 @@ void InitializeMouseIcon()
 //Creates icons for system overview
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateIconForSystemOverview(std::shared_ptr<SceneNode> systemNode, std::string iconTexture)
+void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name)
 {
 	sf::Vector2f iconSize{ 100.f, 100.f };
 
@@ -269,7 +269,7 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> systemNode, std::str
 	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
 
 	//Create selection icon
-	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("ObjectIcon").lock();
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt(createIconIn, name).lock();
 	//Add component
 	spSSIcon->AddComponent(ComponentType::UIPart);
 	spSSIcon->AddComponent(ComponentType::UIFollower);
@@ -277,7 +277,7 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> systemNode, std::str
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
 	SetupRectangleShape(spRectShape, iconSize, iconTexture);
-	spSSIcon->hidden = true;
+	//spSSIcon->hidden = true;
 	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spSSIcon);
-	spUIFollower->nodeToFollow = systemNode;
+	spUIFollower->nodeToFollow = nodeToFollow;
 }

@@ -61,7 +61,9 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 			SceneNodeVisitorChangeAllSystemVisibility visitor(false);
 			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 
-			SceneNodeVisitorChangeSingleSystemVisibility visitor2(true);
+			//ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock()->OutputTree(" ");
+
+			SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock());
 			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
 		}
 		else
@@ -155,7 +157,7 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			SceneNodeVisitorChangeAllSystemVisibility visitor(true);
 			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 
-			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false);
+			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock());
 			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
 
 			//Setup background camera

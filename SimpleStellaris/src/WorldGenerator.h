@@ -86,3 +86,6 @@ private:
 
 	std::weak_ptr<SceneNode> wpSystemNamesNode;
 };
+
+
+std::string GetSystemTextureName(StarType starType);

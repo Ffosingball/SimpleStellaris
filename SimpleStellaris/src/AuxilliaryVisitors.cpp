@@ -7,6 +7,7 @@
 #include <iostream>
 #include <SFML/Audio.hpp>
 #include "SpaceObjectTypes.h"
+#include "WorldGenerator.h"
 
 //Auxiliary visitors, are visitors which are not called by any system
 //They are called by other visitors
@@ -128,24 +129,80 @@ void SceneNodeVisitorChangeAllSystemVisibility::ProcessNode(SceneNode& node)
 
 
 //System visibility processing function
+//I assume that the position of nodes in the system will not be changed!
 void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    counter++;
 
     //Check that pointer is valid
     if (spEntity != nullptr)
     {
-        if (spEntity->GetName() == "CenterOfMass")
+        if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName() == "InsideSystem")
         {
             spEntity->hidden = hidden;
+            if (!hidden)
+            {
+                //Now set center of mass icon
+                std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
+                node.AddChild(std::make_shared<SceneNode>(wpCoM));
+                wpCoM.lock()->hidden = false;
+                CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter));
+            }
+            else
+            {
+                std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("ObjectIcon" + std::to_string(counter)).lock()->GetEntity();
+                signals::onDeleteEntity(wpE, spSystemIconsNode);
+                std::weak_ptr<Entity> wpE2 = node.FindChild("CenterOfMass").lock()->GetEntity();
+                signals::onDeleteEntity(wpE2, node.GetSharedPtrToItself());
+            }
         }
-        else if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName() == "InsideSystem")
+        else if (spEntity->HasComponent(ComponentType::ObjectSystem))
         {
-            spEntity->hidden = hidden;
+            if (!hidden)
+            {
+                if (GetObjectSystemComponent(*spEntity)->systemType != SpaceSystemType::Single)
+                {
+                    //Now set center of mass icon
+                    std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
+                    node.AddChild(std::make_shared<SceneNode>(wpCoM));
+                    wpCoM.lock()->inheritParentPosition = false;
+                    wpCoM.lock()->hidden = false;
+                    CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter));
+                }
+            }
+            else 
+            {
+                if (GetObjectSystemComponent(*spEntity)->systemType != SpaceSystemType::Single)
+                {
+                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("ObjectIcon" + std::to_string(counter)).lock()->GetEntity();
+                    signals::onDeleteEntity(wpE, spSystemIconsNode);
+                    std::weak_ptr<Entity> wpE2 = node.FindChild("CenterOfMass").lock()->GetEntity();
+                    signals::onDeleteEntity(wpE2, node.GetSharedPtrToItself());
+                }
+            }
         }
         else if (spEntity->HasComponent(ComponentType::Star))
         {
             spEntity->hidden = hidden;
+            if (!hidden) 
+            {
+                std::shared_ptr<StarComponent> spStar = GetStarComponent(*spEntity);
+                //Create text name entity for star
+                std::string name{ "StarNameText" + std::to_string(counter) };
+                spStar->wpStarNameText = CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, false);
+                spStar->wpStarNameText.lock()->hidden = true;
+                spEntity->hidden = false;
+                //Create icon
+                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + std::to_string(counter));
+            }
+            else 
+            {
+                std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("StarNameText" + std::to_string(counter)).lock()->GetEntity();
+                signals::onDeleteEntity(wpE, spSystemIconsNode);
+                std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("ObjectIcon" + std::to_string(counter)).lock()->GetEntity();
+                signals::onDeleteEntity(wpE2, spSystemIconsNode);
+            }
         }
         else if (spEntity->HasComponent(ComponentType::Planet))
         {
