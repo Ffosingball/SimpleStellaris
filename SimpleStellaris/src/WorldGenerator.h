@@ -71,7 +71,7 @@ private:
 	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty, SpaceMapConfigurations& mapConfig);
 	static void StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom);
 	static void checkRandomDistribution();
-	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars);
+	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars, bool singleStarSystem);
 	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass);
 
 public:
@@ -112,3 +112,19 @@ private:
 
 
 std::string GetSystemTextureName(StarType starType);
+
+
+class SortedPlanetComponentsList 
+{
+public:
+	SortedPlanetComponentsList() {};
+
+	void AddPlanetComponent(std::shared_ptr<PlanetComponent> spPlanCom);
+
+	std::weak_ptr<PlanetComponent> DequeuePlanetComponent();
+
+	int Size();
+
+private:
+	std::vector<std::shared_ptr<PlanetComponent>> sortedListOfPlanetCom;
+};

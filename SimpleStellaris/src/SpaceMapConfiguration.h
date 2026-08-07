@@ -150,18 +150,18 @@ struct SpaceMapConfigurations
 	float afarOrbitJupiterLikeChance = 25.f;
 
 	//Rocky planet config; applied for all planets except: gas giants, icy and oceanic worlds
-	sf::Vector2i smallRockyPlanetSizes{0.3f,0.8f};
-	sf::Vector2i mediumRockyPlanetSizes{ 0.8f,1.2f };
-	sf::Vector2i largeRockyPlanetSizes{ 1.2f,2.2f };
+	sf::Vector2f smallRockyPlanetSizes{0.3f,0.8f};
+	sf::Vector2f mediumRockyPlanetSizes{ 0.8f,1.2f };
+	sf::Vector2f largeRockyPlanetSizes{ 1.2f,2.2f };
 	//1 - 100%, 0 - 0%
 	float smallRockyPlanetChance = 0.45f;
 	float mediumRockyPlanetChance = 0.35f;
 	float largeRockyPlanetChance = 0.2f;
 
 	//Icy planet config; applied for icy and oceanic worlds
-	sf::Vector2i smallIcyPlanetSizes{ 0.4f,0.8f };
-	sf::Vector2i mediumIcyPlanetSizes{ 0.8f,1.5f };
-	sf::Vector2i largeIcyPlanetSizes{ 1.5f,3.5f };
+	sf::Vector2f smallIcyPlanetSizes{ 0.4f,0.8f };
+	sf::Vector2f mediumIcyPlanetSizes{ 0.8f,1.5f };
+	sf::Vector2f largeIcyPlanetSizes{ 1.5f,3.5f };
 	//1 - 100%, 0 - 0%
 	float smallIcyPlanetChance = 0.2f;
 	float mediumIcyPlanetChance = 0.5f;

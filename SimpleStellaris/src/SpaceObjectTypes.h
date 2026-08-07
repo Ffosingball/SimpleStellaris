@@ -35,8 +35,6 @@ enum class PlanetType
 	VenusLike,
 	Oceanic,
 	EarthLike,
-	EarthLikeClose,
-	EarthLikeFar,
 	TitanLike,
 	Molten,
 	Icy,
@@ -59,4 +57,12 @@ enum class SpaceSystemType
 	BinaryCloseWithin,
 	TernaryTwoCloseThirdAfar,
 	TernaryAfar
+};
+
+
+enum class DistanceToStar 
+{
+	Close,
+	Medium,
+	Far
 };

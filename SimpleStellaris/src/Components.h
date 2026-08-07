@@ -27,7 +27,8 @@ enum class ComponentType
 	RectangleShape,
 	SpaceObject,
 	SystemProperties,
-	UIFollower
+	UIFollower,
+	HabitablePlanet
 };
 
 
@@ -152,7 +153,18 @@ public:
 	float initialRotationPosition{ 0.f };
 	//In radians per day
 	float rotationalVelocity{ 0.f };
-	std::string planetTextureName;
+	std::string planetIconTextureName;
+
+	//Worst case: O(1)
+	ComponentType GetComponentType() const override;
+};
+
+
+
+class HabitablePlanetComponent : public Component
+{
+public:
+	DistanceToStar distanceToStar;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
@@ -263,3 +275,5 @@ std::shared_ptr<RectangleShapeComponent> GetRectangleShapeComponent(const Entity
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity);
 //Worst case: O(N) where N is number of components in entity
 std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
+std::shared_ptr<HabitablePlanetComponent> GetHabitablePlanetComponent(const Entity& entity);
