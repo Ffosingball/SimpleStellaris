@@ -29,14 +29,25 @@ enum class SpaceObjectType
 
 enum class PlanetType
 {
-	Barren,
+	BarrenDark,
+	BarrenGrey,
+	BarrenMarsLike,
 	VenusLike,
-	OceanPlanet,
+	Oceanic,
 	EarthLike,
-	MethanPlanet,
-	MoltenPlanet,
-	Giant,
-	HotGiant
+	EarthLikeClose,
+	EarthLikeFar,
+	TitanLike,
+	Molten,
+	Icy,
+	Voulcanic,
+	Desert,
+	HotJupiter,
+	HotNeptune,
+	JupiterLike,
+	SaturnLike,
+	NeptuneLike,
+	UranusLike
 };
 
 

@@ -67,4 +67,100 @@ struct SpaceMapConfigurations
 	sf::Vector2f closeStarsBoundaries{ 0.1f, 10.f };
 	sf::Vector2f afarStarsBoundaries{ 15.f, 1000.f };
 	float sunDiameter{0.009346f};//0.009346f
+
+	//Planets configuration
+	//Habitable zone size
+	sf::Vector2f habitableZoneRedSupergiant{ 70.9f,71.f };//No hab planets
+	sf::Vector2f habitableZoneRedGiant{20.f,50.f};
+	sf::Vector2f habitableZoneClassO{ 70.9f,71.f };//No hab planets
+	sf::Vector2f habitableZoneClassB{ 10.f,50.f };
+	sf::Vector2f habitableZoneClassA{ 3.f,6.f };
+	sf::Vector2f habitableZoneClassF{ 1.5f,3.f };
+	sf::Vector2f habitableZoneClassG{ 0.8f,1.5f };
+	sf::Vector2f habitableZoneClassK{ 0.4f,0.8f };
+	sf::Vector2f habitableZoneClassM{ 0.05f,0.3f };
+	sf::Vector2f habitableZoneBrownDwarf{ 0.003f,0.03f };
+	sf::Vector2f habitableZoneWhiteDwarf{ 0.1f,0.2f };//No hab planets
+
+	//Orbits distance boundaries
+	sf::Vector2f orbitBoundariesRedSupergiant{ 8.f,1000.f };
+	sf::Vector2f orbitBoundariesRedGiant{ 2.f,200.f };
+	sf::Vector2f orbitBoundariesClassO{ 1.f,3000.f };
+	sf::Vector2f orbitBoundariesClassB{ 0.7f,1000.f };
+	sf::Vector2f orbitBoundariesClassA{ 0.2f,156.f };
+	sf::Vector2f orbitBoundariesClassF{ 0.1f,78.f };
+	sf::Vector2f orbitBoundariesClassG{ 0.07f,40.f };
+	sf::Vector2f orbitBoundariesClassK{ 0.04f,21.f };
+	sf::Vector2f orbitBoundariesClassM{ 0.01f,8.f };
+	sf::Vector2f orbitBoundariesBrownDwarf{ 0.001f,0.78f };
+	sf::Vector2f orbitBoundariesWhiteDwarf{ 1.f,20.f };
+	sf::Vector2f orbitBoundariesNeutronStar{ 5.f,50.f };
+
+	//Chances of planet to orbit star
+	//1 - 100%, 0 - 0%
+	float redSupGiantPlanetChance = 1.f;
+	float redGiantPlanetChance = 1.f;
+	float classOPlanetChance = 0.7f;
+	float classBPlanetChance = 0.1f;
+	float classAPlanetChance = 1.f;
+	float classFPlanetChance = 1.f;
+	float classGPlanetChance = 1.f;
+	float classKPlanetChance = 1.f;
+	float classMPlanetChance = 1.f;
+	float brownDwarfPlanetChance = 0.6f;
+	float whiteDwarfPlanetChance = 0.3f;
+	float neutronPlanetChance = 0.4f;
+	float blackHolePlanetChance = 0.f;
+
+	//Number of planets
+	sf::Vector2i planetsAmountRedSupergiant{ 2,10 };
+	sf::Vector2i planetsAmountRedGiant{ 1,7 };
+	sf::Vector2i planetsAmountClassO{ 1,3 };
+	sf::Vector2i planetsAmountClassB{ 1,6 };
+	sf::Vector2i planetsAmountClassA{ 3,12 };
+	sf::Vector2i planetsAmountClassF{ 5,15 };
+	sf::Vector2i planetsAmountClassG{ 4,12 };
+	sf::Vector2i planetsAmountClassK{ 2,8 };
+	sf::Vector2i planetsAmountClassM{ 1,6 };
+	sf::Vector2i planetsAmountBrownDwarf{ 1,2 };
+	sf::Vector2i planetsAmountWhiteDwarf{ 1,4 };
+	sf::Vector2i planetsAmountNeutronStar{ 1,2 };
+
+	//Chances of planet type in front of habitable zone
+	//Lava planet is 100% if it is 3 times closer than min habitable zone boundary
+	float closeOrbitVenusLikeChance = 40.f;
+	float closeOrbitBarrenChance = 55.f;
+	float closeOrbitHotJupiterChance = 2.5f;
+	float closeOrbitHotNeptuneChance = 2.5f;
+
+	//Chances of planet type within of habitable zone
+	float mediumOrbitVenusLikeChance = 22.5f;
+	float mediumOrbitOceanicChance = 22.5f;
+	float mediumOrbitEarthLikeChance = 25.f;
+	float mediumOrbitBarrenChance = 25.f;
+	float mediumOrbitHotJupiterChance = 2.5f;
+	float mediumOrbitHotNeptuneChance = 2.5f;
+
+	//Chances of planet type further of habitable zone
+	float mediumOrbitIcyChance = 35.f;
+	float mediumOrbitBarrenChance = 10.f;
+	//After decide texture in 50/50 chance
+	float mediumOrbitNeptuneLikeChance = 30.f;
+	float mediumOrbitJupiterLikeChance = 25.f;
+
+	//Rocky planet config; applied for all planets except: gas giants, icy and oceanic worlds
+	sf::Vector2i smallRockyPlanetSizes{0.3f,0.8f};
+	sf::Vector2i mediumRockyPlanetSizes{ 0.8f,1.2f };
+	sf::Vector2i largeRockyPlanetSizes{ 1.2f,2.2f };
+	float smallRockyPlanetChance = 45.f;
+	float mediumRockyPlanetChance = 35.f;
+	float largeRockyPlanetChance = 20.f;
+
+	//Icy planet config; applied for icy and oceanic worlds
+	sf::Vector2i smallIcyPlanetSizes{ 0.4f,0.8f };
+	sf::Vector2i mediumIcyPlanetSizes{ 0.8f,1.5f };
+	sf::Vector2i largeIcyPlanetSizes{ 1.5f,3.5f };
+	float smallIcyPlanetChance = 45.f;
+	float mediumIcyPlanetChance = 35.f;
+	float largeIcyPlanetChance = 20.f;
 };

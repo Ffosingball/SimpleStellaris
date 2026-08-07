@@ -142,14 +142,16 @@ class PlanetComponent : public Component
 {
 public:
 	StarType planetType;
-	//In kilometres
+	//Earth radiuses
+	//For gas giants this is not applied
 	float planetSize{ 0.f };
 	std::string planetName;
-	//In astronomical units
-	float distanceFromStar{ 0.f };
+	//Distances in astronomical units
+	float orbitRadius{ 0.f };
+	//0 rad - up, 0.5PI rad - right, PI rad - down, 1.5PI rad - left
+	float initialRotationPosition{ 0.f };
 	//In radians per day
-	float rotationSpeed{ 0.f };
-	//float axleSpeed{0.f};
+	float rotationalVelocity{ 0.f };
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;

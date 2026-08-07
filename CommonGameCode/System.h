@@ -37,9 +37,7 @@ public:
 	virtual ~DeleteSystem() = default;
 	//Worst case: O(1)
 	void Initialize() override;
-	//Worst case: O((2*N*M)+(N*K*L)) where N is number of entities in game and M number of entities
-	//to delete and K number of entities with the same name and L number of different names
-	//to delete
+	//Worst case: O(N*M) where N is number of nodes in game and M number of entities to delete
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 private:
 	//This functions will be called when appropriate signal will be signaled
