@@ -170,6 +170,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//DEB: std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
 
+	int numOfNodes{ 0 }, renderedNodes{ 0 };
 	std::shared_ptr<SceneNode> spBackgroundNode;
 	if (overviewType == OverviewType::System) 
 	{
@@ -184,6 +185,9 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 		spBackgroundNode->AcceptVisitor(visitor);
 
 		spBackgroundNode->GetEntity().lock()->hidden = true;
+
+		numOfNodes++;
+		renderedNodes++;
 	}
 
 	//Set renderWindow to render in the camera
@@ -194,6 +198,8 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRender visitor(renderWindow);
 	sceneRoot->AcceptVisitor(visitor);
 
+	numOfNodes += visitor.didNotRenderedEntities + visitor.renderedEntities;
+	renderedNodes += visitor.renderedEntities;
 	//DEB: visitor.OutputRenderStatistics();
 	//DEB: std::cout << "  --Scene Rendering: " << timer.restart().asSeconds() << '\n';
 
@@ -205,9 +211,12 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
 	uiRoot->AcceptVisitor(visitor2);
 
+	numOfNodes += visitor2.didNotRenderedEntities + visitor2.renderedEntities;
+	renderedNodes += visitor2.renderedEntities;
 	//DEB: visitor2.OutputRenderStatistics();
 	//DEB: std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
 
+	signals::onRenderingComplete(numOfNodes, renderedNodes);
 	if (overviewType == OverviewType::System)
 		spBackgroundNode->GetEntity().lock()->hidden = false;
 }

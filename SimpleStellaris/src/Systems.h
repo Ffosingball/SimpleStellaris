@@ -57,10 +57,17 @@ class UISystem :public System
 public:
 	DifficultyLevel level{DifficultyLevel::Medium};
 	float zoomLevelAtWhichHideSystemNames{1.1f};
+
 	virtual ~UISystem() = default;
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+
+	std::weak_ptr<TextComponent> nodesText;
+	int numOfNodes{ 0 };
+	int nodesRendered{ 0 };
+
+	void OnRenderingComplete(int numOfNodes, int nodesRendered);
 };
 
 
@@ -116,13 +123,14 @@ class SimulationSystem :public System
 public:
 	virtual ~SimulationSystem() = default;
 
-	std::weak_ptr<TextComponent> daysPastText;
-	std::weak_ptr<TextComponent> dateText;
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
+
+	std::weak_ptr<TextComponent> daysPastText;
+	std::weak_ptr<TextComponent> dateText;
 
 	std::weak_ptr<SceneNode> wpNodeToSimulate;
 };
@@ -138,4 +146,5 @@ namespace signals
 	inline sigslot::signal<sf::Event::MouseButtonPressed> onMouseButtonPressed;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onSystemOverviewSet;
+	inline sigslot::signal<int, int> onRenderingComplete;
 }

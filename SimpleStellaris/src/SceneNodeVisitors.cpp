@@ -111,7 +111,7 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                         //or just stop moving this entity
                         if (spTextCom->destroyAtTarget)
                         {
-                            signals::onDeleteEntity(spEntity);
+                            //signals::onDeleteEntity(spEntity, );
                         }
                         else
                         {

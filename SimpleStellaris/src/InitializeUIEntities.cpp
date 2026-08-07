@@ -20,11 +20,11 @@
 //Setup text properties, where it should move. Also either xPos or yPos
 //should be not null!
 //Worst case: O(N+2M) where N is number of entities in game and M number of components in the text
-void SetupMoveTextProperties(const std::string textName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget) 
+void SetupMoveTextProperties(const std::string textName, std::shared_ptr<SceneNode> nodeWithName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget) 
 {
 	//Get text by name
-	std::weak_ptr<Entity> wGText = ECSGame::Instance().GetEntityManager().FindEntity(textName);
-	std::shared_ptr<Entity> sGText = wGText.lock();
+	std::weak_ptr<SceneNode> wGNode = nodeWithName->FindChild(textName);
+	std::shared_ptr<Entity> sGText = wGNode.lock()->GetEntity().lock();
 	//Get components
 	std::shared_ptr<UIPartComponent> sGTextCom = GetUIPartComponent(*sGText);
 	std::shared_ptr<MovementComponent> sGMovCom = GetMovementComponent(*sGText);
@@ -77,13 +77,8 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
 {
 	//Check if text exist then use existing one, otherwise create new one
-	std::shared_ptr<Entity> spUI = ECSGame::Instance().GetEntityManager().FindEntity(name).lock();
-	//Check if this text exist
-	if (spUI == nullptr)
-	{
-		spUI = CreateGenericText(name, fontSize);
-		spUI->AddComponent(ComponentType::Movement);
-	}
+	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize);
+	spUI->AddComponent(ComponentType::Movement);
 	//Get component
 	std::shared_ptr<UIPartComponent> spUICom = GetUIPartComponent(*spUI);
 	std::shared_ptr<TextComponent> spTextCom = GetTextComponent(*spUI);
@@ -135,14 +130,9 @@ std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, cons
 // and K in number of components available
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking=false, const bool isMoving = false, const float* targetX=nullptr, const float* targetY=nullptr, const sf::Vector2f velocity = {0.f,0.f}, const bool skipOriginReset=false)
 {
-	//Check if text exist then use existing one, otherwise create new one
-	std::shared_ptr<Entity> spUI = ECSGame::Instance().GetEntityManager().FindEntity(name).lock();
-	//Check if this text exist
-	if (spUI == nullptr)
-	{
-		spUI = CreateGenericText(name, fontSize);
-		spUI->AddComponent(ComponentType::Movement);
-	}
+	//Create new text
+	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize);
+	spUI->AddComponent(ComponentType::Movement);
 	//Get component
 	std::shared_ptr<UIPartComponent> spUICom = GetUIPartComponent(*spUI);
 	std::shared_ptr<TextComponent> spTextCom = GetTextComponent(*spUI);
@@ -164,7 +154,7 @@ void InitializeMovingText(const std::string name, const std::string text, const 
 	if (isMoving)
 	{
 		//Set moving animation properties
-		SetupMoveTextProperties(name, targetX, targetY, velocity, false);
+		SetupMoveTextProperties(name, ECSGame::Instance().GetUIRoot(), targetX, targetY, velocity, false);
 	}
 	//Reset text origin to center of the text if needed
 	if(!skipOriginReset)
@@ -186,6 +176,7 @@ void CreateDebugText()
 	InitializeText("FPSText", " ", fontSize, sf::Vector2f{ 0.f, 75.f });
 	InitializeText("DaysPastText", " ", fontSize, sf::Vector2f{ 0.f, 100.f });
 	InitializeText("DateText", " ", fontSize, sf::Vector2f{ 0.f, 125.f });
+	InitializeText("RenderText", " ", fontSize, sf::Vector2f{ 0.f, 150.f });
 }
 
 

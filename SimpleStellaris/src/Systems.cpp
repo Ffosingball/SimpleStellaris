@@ -276,16 +276,29 @@ void MovementSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 void UISystem::Initialize() 
 {
 	//Subscribe to some signals
+	signals::onRenderingComplete.connect(&UISystem::OnRenderingComplete, this);
+
+	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("RenderText").lock();
+	nodesText = GetTextComponent(*mctPtr->GetEntity().lock());
+
 	systemName = "UISystem";
 }
 
 void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
+	nodesText.lock()->text->setString("Total nodes: "+std::to_string(numOfNodes)+"; rendered: "+std::to_string(nodesRendered));
+
 	if (scene == ECSGame::Instance().GetUIRoot())
 	{
 		SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera());
 		scene->AcceptVisitor(visitor);
 	}
+}
+
+void UISystem::OnRenderingComplete(int numOfNodes, int nodesRendered)
+{
+	this->numOfNodes = numOfNodes;
+	this->nodesRendered = nodesRendered;
 }
 
 

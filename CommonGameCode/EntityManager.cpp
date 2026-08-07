@@ -6,6 +6,7 @@
 #include <sigslot/signal.hpp>
 #include "Entity.h"
 #include <iostream>
+#include "SceneNode.h"
 
 //Create new entity
 //Worst case: O(1), but depends on which functions are subscribed to 
@@ -15,8 +16,8 @@ std::weak_ptr<Entity> EntityManager::NewEntity(const std::string& name)
 	//Create new entity
 	std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(name);
 
-	//Add it to the list
-	entities.emplace_back(newEntity);
+	//Add it to the map
+	entities[newEntity] = newEntity;
 	signals::onEntityCreated(newEntity);
 
 	//return it
@@ -25,8 +26,7 @@ std::weak_ptr<Entity> EntityManager::NewEntity(const std::string& name)
 }
 
 //Destroy entity by reference to it
-//Worst case: O(N) where N is number of entities in game, but depends on 
-//which functions are subscribed to onEntityDestroyed signal
+//Worst case: O(1), but depends on which functions are subscribed to onEntityDestroyed signal
 void EntityManager::DestroyEntity(std::weak_ptr<Entity> entity)
 {
 	signals::onEntityDestroyed(entity);
@@ -34,45 +34,18 @@ void EntityManager::DestroyEntity(std::weak_ptr<Entity> entity)
 	std::shared_ptr<Entity> target = entity.lock();
 
 	//Check if entity exist in the list
-	for (int i = 0; i < entities.size(); i++) 
-	{
-		if (entities[i].get() == target.get())
-		{
-			//If so, then remove it
-			entities.erase(entities.begin()+i);
-			return;
-		}
-	}
-}
-
-//Worst case: O(N) where N is number of entities in game
-std::weak_ptr<Entity> EntityManager::FindEntity(const std::string& name) const 
-{
-	std::weak_ptr<Entity> target;
-
-	//Traverese the list
-	for (int i = 0; i < entities.size(); i++)
-	{
-		if (entities[i]->GetName() == name)
-		{
-			//If names are equal then return this entity
-			target = entities[i];
-			return target;
-		}
-	}
-
-	//If not found then return nullptr
-	return target;
+	if (entities.contains(target))
+		entities.erase(target);
 }
 
 //Worst case: O(N) where N is number of entities in game
 void EntityManager::OutputAllEntitiesNames() 
 {
-	for (std::shared_ptr<Entity> e : entities) 
+	for (auto& [key, value] : entities)
 	{
-		if (e == nullptr)
+		if (value == nullptr)
 			std::cout << "Entity is nullptr\n";
 		else
-			std::cout << e <<"; name: "<<e->GetName()<<'\n';
+			std::cout << value <<"; name: "<<value->GetName()<<'\n';
 	}
 }

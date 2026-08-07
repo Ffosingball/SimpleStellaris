@@ -70,7 +70,7 @@ void InitializeAllCameras(const sf::Vector2u& windowSize);
 
 //UI functions
 //Worst case: O(N+2M) where N is number of entities in game and M number of components in the text
-void SetupMoveTextProperties(const std::string textName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget);
+void SetupMoveTextProperties(const std::string textName, std::shared_ptr<SceneNode> nodeWithName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget);
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
 std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize);

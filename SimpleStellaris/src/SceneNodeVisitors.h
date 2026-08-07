@@ -34,11 +34,11 @@ public:
 
     void OutputRenderStatistics();
 
+    int renderedEntities{ 0 };
+    int didNotRenderedEntities{ 0 };
+
 private:
     sf::RenderWindow& renderWindow;
-
-    int renderedEntities{0};
-    int didNotRenderedEntities{ 0 };
 };
 
 
@@ -67,11 +67,11 @@ public:
 
     void OutputRenderStatistics();
 
-private:
-    sf::RenderWindow& renderWindow;
-
     int renderedEntities{ 0 };
     int didNotRenderedEntities{ 0 };
+
+private:
+    sf::RenderWindow& renderWindow;
 };
 
 

@@ -54,9 +54,7 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::s
 {
 	std::weak_ptr<Entity> wpEntity;
 	//Get node with entity of that name
-	std::weak_ptr<Entity> wSpEntity = ECSGame::Instance().GetEntityManager().FindEntity(nodeName);
-	std::shared_ptr<Entity> sSpEntity = wSpEntity.lock();
-	std::weak_ptr<SceneNode> nodePtr = rootNode->FindChild(*sSpEntity);
+	std::weak_ptr<SceneNode> nodePtr = rootNode->FindChild(nodeName);
 	//Check if node with that entity exists
 	if (nodePtr.lock() != nullptr)
 	{
@@ -127,8 +125,8 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
 {
-	std::weak_ptr<Entity> wSmap = ECSGame::Instance().GetEntityManager().FindEntity("SpaceMap");
-	std::shared_ptr<Entity> sSmap = wSmap.lock();
+	std::weak_ptr<SceneNode> wSnode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
+	std::shared_ptr<Entity> sSmap = wSnode.lock()->GetEntity().lock();
 	return GetSystemPropertiesComponent(*sSmap);
 }
 
