@@ -506,7 +506,8 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 		if (spSysCom->systemType == SpaceSystemType::BinaryClose)
 			decreaseHabitableBoundaries = true;
 
-		if(spStar1Com->orbitRadius> spStar1Com->orbitRadius)
+		//std::cout << "Star 1 rad: "<< spStar1Com->orbitRadius<<"; Star2 rad"<<;
+		if(spStar1Com->orbitRadius> spStar2Com->orbitRadius)
 			orbitBoundaries.x = spStar1Com->orbitRadius;
 		else
 			orbitBoundaries.x = spStar2Com->orbitRadius;
@@ -640,12 +641,6 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 	{
 		if (orbitBoundaries.y > distanceBetweenStars * (1.f / 3.f))
 			orbitBoundaries.y = distanceBetweenStars * (1.f / 3.f);
-
-		if (orbitBoundaries.x > orbitBoundaries.y)
-		{
-			//std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y<<'\n';
-			return;
-		}
 	}
 
 	//std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y << '\n';
@@ -1009,6 +1004,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 12:
 			spStar1Com->starType = StarType::BlackHole;
 			spSystemCom->systemType = SpaceSystemType::Single;
+			std::cout << "Black Hole\n";
 			break;
 		}
 	}

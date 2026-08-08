@@ -146,8 +146,10 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //Now set center of mass icon
                 std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
                 node.AddChild(std::make_shared<SceneNode>(wpCoM));
+                std::shared_ptr<StarComponent> spStar = GetStarComponent(*spEntity);
                 wpCoM.lock()->hidden = false;
                 CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter), false, centerOfMassIconSize);
+                CreateOrbitFor(spObjectOrbitsNode, "Orbit" + std::to_string(counter), spEntity->inheritParentPosition, spStar->orbitRadius, node.GetParent().lock()->FindChild("CenterOfMass"), 5.f, sf::Color(100, 100, 100, 255), false);
             }
             else
             {
@@ -155,6 +157,8 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 signals::onDeleteEntity(wpE, spSystemIconsNode);
                 std::weak_ptr<Entity> wpE2 = node.FindChild("CenterOfMass").lock()->GetEntity();
                 signals::onDeleteEntity(wpE2, node.GetSharedPtrToItself());
+                std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + std::to_string(counter)).lock()->GetEntity();
+                signals::onDeleteEntity(wpE3, spSystemIconsNode);
             }
         }
         else if (spEntity->HasComponent(ComponentType::ObjectSystem))
@@ -195,6 +199,9 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //spEntity->hidden = false;
                 //Create icon
                 CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + std::to_string(counter), false, starIconSize);
+                //Create orbit
+                if(GetObjectSystemComponent(*node.GetParent().lock()->GetEntity().lock())->systemType!=SpaceSystemType::Single)
+                    CreateOrbitFor(spObjectOrbitsNode, "Orbit" + std::to_string(counter), spEntity->inheritParentPosition, spStar->orbitRadius, node.GetParent().lock()->FindChild("CenterOfMass"), 5.f, sf::Color(100, 100, 100, 255), false);
             }
             else 
             {
@@ -202,6 +209,12 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 signals::onDeleteEntity(wpE, spSystemIconsNode);
                 std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("ObjectIcon" + std::to_string(counter)).lock()->GetEntity();
                 signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                if (GetObjectSystemComponent(*node.GetParent().lock()->GetEntity().lock())->systemType != SpaceSystemType::Single)
+                {
+                    std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + std::to_string(counter)).lock()->GetEntity();
+                    signals::onDeleteEntity(wpE3, spSystemIconsNode);
+                }
+
             }
         }
         else if (spEntity->HasComponent(ComponentType::Planet))
@@ -218,6 +231,19 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //spEntity->hidden = false;
                 //Create icon
                 CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), true, planetIconSize);
+                //Get parent for orbits
+                std::weak_ptr<SceneNode> wpFollowNode;
+                if (node.GetParent().lock()->GetEntity().lock()->HasComponent(ComponentType::ObjectSystem))
+                {
+                    if (GetObjectSystemComponent(*node.GetParent().lock()->GetEntity().lock())->systemType == SpaceSystemType::BinaryClose)
+                        wpFollowNode = node.GetParent().lock()->FindChild("CenterOfMass");
+                    else
+                        wpFollowNode = node.GetParent();
+                }
+                else
+                    wpFollowNode = node.GetParent();
+                //Create orbit
+                CreateOrbitFor(spObjectOrbitsNode, "Orbit" + std::to_string(counter), spEntity->inheritParentPosition, spPlanet->orbitRadius, wpFollowNode, 2.f, sf::Color(200,200,200,255), true);
             }
             else
             {
@@ -225,6 +251,8 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 signals::onDeleteEntity(wpE, spSystemIconsNode);
                 std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + std::to_string(counter)).lock()->GetEntity();
                 signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + std::to_string(counter)).lock()->GetEntity();
+                signals::onDeleteEntity(wpE3, spSystemIconsNode);
             }
         }
     }

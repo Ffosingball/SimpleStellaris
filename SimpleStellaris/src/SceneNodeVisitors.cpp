@@ -234,7 +234,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
 
                 if (hide)
                     spEntity->hidden = true;
-                else if(!IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
+                else if(spEntityFollower->hideIfOutsideOfCamera && !IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
                     spEntity->hidden = true;
                 else
                 {
@@ -243,6 +243,15 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
                     spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
                 }
+            }
+
+            //Check if entity has OrbitVisualizer component
+            if (spEntity->HasComponent(ComponentType::OrbitVisualizer))
+            {
+                std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = GetOrbitVisualizerComponent(*spEntity);
+                spOrbitVisualizer->orbitShape.setRadius(spOrbitVisualizer->orbitSize*(spUICamCom->view.getSize().y /spCamCom->view.getSize().y));
+                //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
+                spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
             }
         }
     }

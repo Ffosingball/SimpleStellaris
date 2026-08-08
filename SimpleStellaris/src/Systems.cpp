@@ -63,7 +63,7 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 
 			//ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock()->OutputTree(" ");
 
-			SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock());
+			SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
 		}
 		else
@@ -71,11 +71,29 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	}
 	else if (key.code == sf::Keyboard::Key::Up)
 	{
-		ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
+		if(shiftHold)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 100);
+		else if (ctrlHold)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
+		else
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
 	}
 	else if (key.code == sf::Keyboard::Key::Down)
 	{
-		ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
+		if (shiftHold)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 100);
+		else if (ctrlHold)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
+		else
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
+	}
+	else if (key.code == sf::Keyboard::Key::LControl) 
+	{
+		ctrlHold = true;
+	}
+	else if (key.code == sf::Keyboard::Key::LShift)
+	{
+		shiftHold = true;
 	}
 }
 
@@ -83,6 +101,14 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 {
 	//If key released then reset bool values
+	if (key.code == sf::Keyboard::Key::LControl)
+	{
+		ctrlHold = false;
+	}
+	else if (key.code == sf::Keyboard::Key::LShift)
+	{
+		shiftHold = false;
+	}
 }
 
 
@@ -157,9 +183,9 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			SceneNodeVisitorChangeAllSystemVisibility visitor(true);
 			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 
-			std::cout << "-- Entering system view: "<<'\n';
-			wpSelectedSystemNode.lock()->OutputTree("  ");
-			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock());
+			//std::cout << "-- Entering system view: "<<'\n';
+			//wpSelectedSystemNode.lock()->OutputTree("  ");
+			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
 
 			//Setup background camera
@@ -295,7 +321,7 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 
 	if (scene == ECSGame::Instance().GetUIRoot())
 	{
-		SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera());
+		SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera(), GetCameraFromUICameraEntity());
 		scene->AcceptVisitor(visitor);
 	}
 }

@@ -33,6 +33,9 @@ private:
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
 	std::shared_ptr<TextComponent> fpsText{ nullptr };
 
+	bool ctrlHold{ false };
+	bool shiftHold{ false };
+
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
 

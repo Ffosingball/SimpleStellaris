@@ -93,6 +93,12 @@ ComponentType HabitablePlanetComponent::GetComponentType() const
 	return ComponentType::HabitablePlanet;
 }
 
+//Worst case: O(1)
+ComponentType OrbitVisualizerComponent::GetComponentType() const
+{
+	return ComponentType::OrbitVisualizer;
+}
+
 
 //This function creates any component and return shared pointer to it
 //Worst case: O(N) where N is number of available components in game
@@ -126,6 +132,8 @@ std::shared_ptr<Component> ComponentFactory(ComponentType ct)
 		return std::make_shared<UIFollowerComponent>();
 	case ComponentType::HabitablePlanet:
 		return std::make_shared<HabitablePlanetComponent>();
+	case ComponentType::OrbitVisualizer:
+		return std::make_shared<OrbitVisualizerComponent>();
 	}
 
 	return {};
@@ -163,6 +171,8 @@ std::string PrintComponentName(ComponentType ct)
 		return "UIFollower";
 	case ComponentType::HabitablePlanet:
 		return "HabitablePlanet";
+	case ComponentType::OrbitVisualizer:
+		return "OrbitVisualizer";
 	}
 
 	return "---";
@@ -272,4 +282,12 @@ std::shared_ptr<HabitablePlanetComponent> GetHabitablePlanetComponent(const Enti
 	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::HabitablePlanet);
 	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
 	return std::static_pointer_cast<HabitablePlanetComponent>(spComponentBase);
+}
+
+//Worst case: O(N) where N is number of components in entity
+std::shared_ptr<OrbitVisualizerComponent> GetOrbitVisualizerComponent(const Entity& entity)
+{
+	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::OrbitVisualizer);
+	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
+	return std::static_pointer_cast<OrbitVisualizerComponent>(spComponentBase);
 }

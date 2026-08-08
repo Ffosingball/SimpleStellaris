@@ -53,6 +53,9 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	std::weak_ptr<Entity> wpSysN = entityManager.NewEntity("SystemNames");
 	uiRoot->AddChild(std::make_shared<SceneNode>(wpSysN));
 
+	std::weak_ptr<Entity> wpObjOrb = entityManager.NewEntity("ObjectOrbits");
+	uiRoot->AddChild(std::make_shared<SceneNode>(wpObjOrb));
+
 	std::weak_ptr<Entity> wpSysIc = entityManager.NewEntity("SystemIcons");
 	uiRoot->AddChild(std::make_shared<SceneNode>(wpSysIc));
 	

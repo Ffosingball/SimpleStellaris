@@ -280,3 +280,28 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::s
 	spUIFollower->nodeToFollow = nodeToFollow;
 	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
 }
+
+
+
+void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, bool inheritParentPosition, float orbitRadius, std::weak_ptr<SceneNode> wpNodeToFollow, float outlineThikness, sf::Color outlineColor, bool hideIfZoomLarge)
+{
+	//Create orbit
+	std::shared_ptr<Entity> spOrbitE = CreateNewEntityAt(spParentNode, name).lock();
+	//Add component
+	spOrbitE->AddComponent(ComponentType::UIPart);
+	spOrbitE->AddComponent(ComponentType::UIFollower);
+	spOrbitE->AddComponent(ComponentType::OrbitVisualizer);
+	spOrbitE->inheritParentPosition = inheritParentPosition;
+	//Get component
+	std::shared_ptr<OrbitVisualizerComponent> spOrbitVis = GetOrbitVisualizerComponent(*spOrbitE);
+	spOrbitVis->orbitShape.setPointCount(100);
+	spOrbitVis->orbitShape.setOutlineColor(outlineColor);
+	spOrbitVis->orbitShape.setOutlineThickness(outlineThikness);
+	spOrbitVis->orbitShape.setFillColor(sf::Color(0, 0, 0, 0));
+	spOrbitVis->orbitSize = orbitRadius;
+
+	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spOrbitE);
+	spUIFollower->nodeToFollow = wpNodeToFollow;
+	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
+	spUIFollower->hideIfOutsideOfCamera = false;
+}

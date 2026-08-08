@@ -28,7 +28,8 @@ enum class ComponentType
 	SpaceObject,
 	SystemProperties,
 	UIFollower,
-	HabitablePlanet
+	HabitablePlanet,
+	OrbitVisualizer
 };
 
 
@@ -83,6 +84,22 @@ public:
 	std::weak_ptr<SceneNode> nodeToFollow;
 	bool hideIfZoomLargeEnough = false;
 	float zoomLevelAtWhichHideEntity{1.1f};
+	bool hideIfOutsideOfCamera = true;
+
+	//Worst case: O(1)
+	ComponentType GetComponentType() const override;
+};
+
+
+
+//Component which visualize orbit of the object
+class OrbitVisualizerComponent : public Component
+{
+public:
+
+	sf::CircleShape orbitShape;
+	//In A.U.
+	float orbitSize{1.f};
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
@@ -278,3 +295,5 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const En
 std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity);
 //Worst case: O(N) where N is number of components in entity
 std::shared_ptr<HabitablePlanetComponent> GetHabitablePlanetComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
+std::shared_ptr<OrbitVisualizerComponent> GetOrbitVisualizerComponent(const Entity& entity);

@@ -47,12 +47,13 @@ private:
 class SceneNodeVisitorUI : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom) : uiSystem(system), spCamCom(activeCameraCom) {}
+    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom, std::shared_ptr<CameraComponent> uiCameraCom) : uiSystem(system), spCamCom(activeCameraCom), spUICamCom(uiCameraCom) {}
 
     void ProcessNode(SceneNode& node) override;
 private:
     UISystem& uiSystem;
     std::shared_ptr<CameraComponent> spCamCom;
+    std::shared_ptr<CameraComponent> spUICamCom;
 };
 
 
@@ -137,7 +138,7 @@ private:
 class SceneNodeVisitorChangeSingleSystemVisibility: public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode){}
+    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode) {}
 
     void ProcessNode(SceneNode& node) override;
 
@@ -145,10 +146,11 @@ private:
     bool hidden;
     int counter{ 0 };
     std::shared_ptr<SceneNode> spSystemIconsNode;
+    std::shared_ptr<SceneNode> spObjectOrbitsNode;
 
-    sf::Vector2f planetIconSize{60.f, 60.f};
-    sf::Vector2f starIconSize{ 120.f, 120.f };
-    sf::Vector2f centerOfMassIconSize{ 100.f, 100.f };
+    sf::Vector2f planetIconSize{50.f, 50.f};
+    sf::Vector2f starIconSize{ 140.f, 140.f };
+    sf::Vector2f centerOfMassIconSize{ 90.f, 90.f };
 };
 
 

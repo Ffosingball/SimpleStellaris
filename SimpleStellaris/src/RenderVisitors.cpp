@@ -95,6 +95,17 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
                 renderWindow.draw(*(spEntityUI->text), states);
                 renderedEntities++;
             }
+            else if (spEntity->HasComponent(ComponentType::OrbitVisualizer))
+            {
+                //Get component
+                std::shared_ptr<OrbitVisualizerComponent> spEntityUI = GetOrbitVisualizerComponent(*spEntity);
+                //Get absolute position of the entity in the world
+                sf::RenderStates states;
+                states.transform = node.GetCombinedTransform();
+                //Draw entity
+                renderWindow.draw(spEntityUI->orbitShape, states);
+                renderedEntities++;
+            }
             else
                 didNotRenderedEntities++;
         }
