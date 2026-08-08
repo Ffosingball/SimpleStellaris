@@ -33,19 +33,19 @@ struct SpaceMapConfigurations
 	float blackHoleSize = 0.001f;
 
 	//Star chances to appear
-	float redSupGiantChance = 0.1f;//Before 0.001
-	float redGiantChance = 1.8f;
-	float classOChance = 0.1f;//Before 0.001
-	float classBChance = 0.2f;//Before 0.1
-	float classAChance = 0.4f;
-	float classFChance = 3.f;
-	float classGChance = 6.f;
-	float classKChance = 8.f;
-	float classMChance = 63.f;//Before 63.6
-	float brownDwarfChance = 13.f;
-	float whiteDwarfChance = 4.f;
-	float neutronChance = 0.1f;//Before 0.001
-	float blackHoleChance = 0.01f;//Before 0.001
+	float redSupGiantChance = 0.25f;//Before 0.001
+	float redGiantChance = 2.f;//Before 1.8
+	float classOChance = 0.25f;//Before 0.001
+	float classBChance = 0.4f;//Before 0.2
+	float classAChance = 0.7f;//Before 0.4
+	float classFChance = 4.f;//Before 3
+	float classGChance = 7.f;// Before 6
+	float classKChance = 10.f;//before 8
+	float classMChance = 60.f;//Before 63.6
+	float brownDwarfChance = 10.f;//Before 13
+	float whiteDwarfChance = 5.f;//Before 4
+	float neutronChance = 0.2f;//Before 0.001
+	float blackHoleChance = 0.2f;//Before 0.001
 
 	//Singular, binary and ternary system chances
 	float giantSingleChance = 10.f;

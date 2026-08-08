@@ -5,6 +5,7 @@
 #include "Components.h"
 #include <string>
 #include <SFML/Graphics.hpp>
+#include "SpaceMapConfiguration.h"
 
 
 
@@ -81,10 +82,13 @@ private:
 class SceneNodeSpaceObjectsCounter : public SceneNodeVisitor
 {
 public:
-    SceneNodeSpaceObjectsCounter() {}
+    SceneNodeSpaceObjectsCounter(SpaceMapConfigurations& mapConfig);
 
     void ProcessNode(SceneNode& node) override;
 
+    void OutputAllData();
+
+private:
     int redSupGiantAmount{0};
     int redGiantAmount{ 0 };
     int OclassAmount{ 0 };
@@ -105,6 +109,12 @@ public:
     int ternaryCloseSysAmount{ 0 };
     int ternaryTwoCloseOneAfarSysAmount{ 0 };
     int ternaryAfarSysAmount{ 0 };
+
+    std::vector<int> planetTypesAmount;
+
+    SpaceMapConfigurations& mapConfig;
+
+    sf::Vector2f blackHolePos;
 };
 
 

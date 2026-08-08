@@ -565,4 +565,8 @@ void CreateSpaceObjects()
 	spCameraCom2->horizontalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
 	spCameraCom2->verticalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
 	spCameraCom2->view.setCenter(sf::Vector2f{ 0.f, 0.f });
+
+	SceneNodeSpaceObjectsCounter visitor(mapConfig);
+	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+	visitor.OutputAllData();
 }

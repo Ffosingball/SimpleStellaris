@@ -13,6 +13,15 @@
 //They are called by other visitors
 
 
+SceneNodeSpaceObjectsCounter::SceneNodeSpaceObjectsCounter(SpaceMapConfigurations& mapConfig) : mapConfig(mapConfig)
+{
+    for (int i = 0; i < 41; i++) 
+    {
+        planetTypesAmount.push_back(0);
+    }
+}
+
+
 void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node) 
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -42,8 +51,6 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
                 ternaryAfarSysAmount++;
                 break;
             }
-
-            std::cout << "-- System (" << spEntity->GetName() << "): " << '\n';
         }
         else if (spEntity->HasComponent(ComponentType::Star))
         {
@@ -53,59 +60,307 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
             {
             case StarType::RedGiant:
                 redGiantAmount++;
-                std::cout << "   Red Giant Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Red Giant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::RedSupergiant:
                 redSupGiantAmount++;
-                std::cout << "   Red Supergiant Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Red Supergiant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Otype:
                 OclassAmount++;
-                std::cout << "   Blue Supergiant Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Blue Supergiant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Btype:
                 BclassAmount++;
-                std::cout << "   Blue Giant Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Blue Giant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Atype:
                 AclassAmount++;
-                std::cout << "   Bluish-White Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Bluish-White Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Ftype:
                 FclassAmount++;
-                std::cout << "   White Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   White Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::GsunLike:
                 GclassAmount++;
-                std::cout << "   Yellow Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Yellow Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::KorangeDwarf:
                 KclassAmount++;
-                std::cout << "   Orange Dwarf Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Orange Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::MredDwarf:
                 MclassAmount++;
-                std::cout << "   Red Dwarf Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Red Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::BrownDwarf:
                 brownDwarfAmount++;
-                std::cout << "   Brawn Dwarf Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Brawn Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::WhiteDwarf:
                 whiteDwarfAmount++;
-                std::cout << "   White Dwarf Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   White Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::NeutronStar:
                 neutronAmount++;
-                std::cout << "   Neutron Star (" << spEntity->GetName() << "): " << '\n';
+                //std::cout << "   Neutron Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::BlackHole:
                 blackHoleAmount++;
-                std::cout << "   Black Hole (" << spEntity->GetName() << "): " << '\n';
+                blackHolePos = node.GetParent().lock()->GetEntity().lock()->GetPosition();
+                break;
+            }
+        }
+        else if (spEntity->HasComponent(ComponentType::Planet))
+        {
+            std::shared_ptr<PlanetComponent> spComPlanet = GetPlanetComponent(*spEntity);
+            std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet;
+
+            switch (spComPlanet->planetType)
+            {
+            case PlanetType::BarrenDark:
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    planetTypesAmount[0]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    planetTypesAmount[1]++;
+                else
+                    planetTypesAmount[2]++;
+                break;
+            case PlanetType::BarrenGrey:
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    planetTypesAmount[3]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    planetTypesAmount[4]++;
+                else
+                    planetTypesAmount[5]++;
+                break;
+            case PlanetType::BarrenMarsLike:
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    planetTypesAmount[6]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    planetTypesAmount[7]++;
+                else
+                    planetTypesAmount[8]++;
+                break;
+            case PlanetType::VenusLike:
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    planetTypesAmount[9]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    planetTypesAmount[10]++;
+                else
+                    planetTypesAmount[11]++;
+                break;
+            case PlanetType::Oceanic:
+                if (spComPlanet->planetSize < mapConfig.smallIcyPlanetSizes.y)
+                    planetTypesAmount[12]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumIcyPlanetSizes.y)
+                    planetTypesAmount[13]++;
+                else
+                    planetTypesAmount[14]++;
+                break;
+            case PlanetType::EarthLike:
+                wpHabitablePlanet = GetHabitablePlanetComponent(*spEntity);
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                {
+                    if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+                        planetTypesAmount[15]++;
+                    else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+                        planetTypesAmount[16]++;
+                    else
+                        planetTypesAmount[17]++;
+                }
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                {
+                    if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+                        planetTypesAmount[18]++;
+                    else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+                        planetTypesAmount[19]++;
+                    else
+                        planetTypesAmount[20]++;
+                }
+                else
+                {
+                    if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+                        planetTypesAmount[21]++;
+                    else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+                        planetTypesAmount[22]++;
+                    else
+                        planetTypesAmount[23]++;
+                }
+                break;
+            case PlanetType::TitanLike:
+                planetTypesAmount[24]++;
+                break;
+            case PlanetType::Molten:
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    planetTypesAmount[25]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    planetTypesAmount[26]++;
+                else
+                    planetTypesAmount[27]++;
+                break;
+            case PlanetType::Icy:
+                if (spComPlanet->planetSize < mapConfig.smallIcyPlanetSizes.y)
+                    planetTypesAmount[28]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumIcyPlanetSizes.y)
+                    planetTypesAmount[29]++;
+                else
+                    planetTypesAmount[30]++;
+                break;
+            case PlanetType::Voulcanic:
+                planetTypesAmount[31]++;
+                break;
+            case PlanetType::Desert:
+                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    planetTypesAmount[32]++;
+                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    planetTypesAmount[33]++;
+                else
+                    planetTypesAmount[34]++;
+                break;
+            case PlanetType::HotJupiter:
+                planetTypesAmount[35]++;
+                break;
+            case PlanetType::HotNeptune:
+                planetTypesAmount[36]++;
+                break;
+            case PlanetType::JupiterLike:
+                planetTypesAmount[37]++;
+                break;
+            case PlanetType::SaturnLike:
+                planetTypesAmount[38]++;
+                break;
+            case PlanetType::NeptuneLike:
+                planetTypesAmount[39]++;
+                break;
+            case PlanetType::UranusLike:
+                planetTypesAmount[40]++;
                 break;
             }
         }
     }
+}
+
+
+
+void SceneNodeSpaceObjectsCounter::OutputAllData()
+{
+    std::cout << " -- Space Map Statistics -- \n";
+    
+    int total = 0;
+    std::cout << "\n";
+    std::cout << " - Systems statistics - \n";
+    total += singleSysAmount;
+    std::cout << "Single systems: " << singleSysAmount << '\n';
+    total += binaryCloseSysAmount;
+    std::cout << "Binary close systems: " << binaryCloseSysAmount << '\n';
+    total += binaryAfarSysAmount;
+    std::cout << "Binary afar systems: " << binaryAfarSysAmount << '\n';
+    total += ternaryTwoCloseOneAfarSysAmount;
+    std::cout << "Ternary (binary + single) systems: " << ternaryTwoCloseOneAfarSysAmount << '\n';
+    total += ternaryAfarSysAmount;
+    std::cout << "Ternary all afar systems: " << ternaryAfarSysAmount << '\n';
+    std::cout << " - Total systems: " << total<<'\n';
+
+    total = 0;
+    std::cout << "\n";
+    std::cout << " - Star statistics - \n";
+    total += redSupGiantAmount;
+    std::cout << "Red Supergiants: " << redSupGiantAmount << '\n';
+    total += redGiantAmount;
+    std::cout << "Red Giants: " << redGiantAmount << '\n';
+    total += OclassAmount;
+    std::cout << "O class: " << OclassAmount << '\n';
+    total += BclassAmount;
+    std::cout << "B class: " << BclassAmount << '\n';
+    total += AclassAmount;
+    std::cout << "A class: " << AclassAmount << '\n';
+    total += FclassAmount;
+    std::cout << "F class: " << FclassAmount << '\n';
+    total += GclassAmount;
+    std::cout << "G class: " << GclassAmount << '\n';
+    total += KclassAmount;
+    std::cout << "K class: " << KclassAmount << '\n';
+    total += MclassAmount;
+    std::cout << "M class: " << MclassAmount << '\n';
+    total += brownDwarfAmount;
+    std::cout << "Brown Dwarfs: " << brownDwarfAmount << '\n';
+    total += whiteDwarfAmount;
+    std::cout << "White Dwarfs: " << whiteDwarfAmount << '\n';
+    total += neutronAmount;
+    std::cout << "Neutron Stars: " << neutronAmount << '\n';
+    total += blackHoleAmount;
+    std::cout << "Black Holes: " << blackHoleAmount << '\n';
+    std::cout << "Black Hole Position: " << blackHolePos.x<<"; "<< blackHolePos.y << '\n';
+    std::cout << " - Total stars: " << total << '\n';
+
+    total = 0;
+    int totalHabitable = 0;
+    std::cout << "\n";
+    std::cout << " - Planet statistics - \n";
+    std::cout << "Small Barren Dark: " << planetTypesAmount[0] << '\n';
+    std::cout << "Medium Barren Dark: " << planetTypesAmount[1] << '\n';
+    std::cout << "Large Barren Dark: " << planetTypesAmount[2] << '\n';
+    std::cout << "Small Barren Grey: " << planetTypesAmount[3] << '\n';
+    std::cout << "Medium Barren Grey: " << planetTypesAmount[4] << '\n';
+    std::cout << "Large Barren Grey: " << planetTypesAmount[5] << '\n';
+    std::cout << "Small Barren Red: " << planetTypesAmount[6] << '\n';
+    std::cout << "Medium Barren Red: " << planetTypesAmount[7] << '\n';
+    std::cout << "Large Barren Red: " << planetTypesAmount[8] << '\n';
+    std::cout << "Small Venus Like: " << planetTypesAmount[9] << '\n';
+    std::cout << "Medium Venus Like: " << planetTypesAmount[10] << '\n';
+    std::cout << "Large Venus Like: " << planetTypesAmount[11] << '\n';
+    totalHabitable += planetTypesAmount[12];
+    totalHabitable += planetTypesAmount[13];
+    totalHabitable += planetTypesAmount[14];
+    std::cout << "Small Oceanic: " << planetTypesAmount[12] << '\n';
+    std::cout << "Medium Oceanic: " << planetTypesAmount[13] << '\n';
+    std::cout << "Large Oceanic: " << planetTypesAmount[14] << '\n';
+    totalHabitable += planetTypesAmount[15];
+    totalHabitable += planetTypesAmount[16];
+    totalHabitable += planetTypesAmount[17];
+    totalHabitable += planetTypesAmount[18];
+    totalHabitable += planetTypesAmount[19];
+    totalHabitable += planetTypesAmount[20];
+    totalHabitable += planetTypesAmount[21];
+    totalHabitable += planetTypesAmount[22];
+    totalHabitable += planetTypesAmount[23];
+    std::cout << "Small Earth Like Close: " << planetTypesAmount[15] << '\n';
+    std::cout << "Small Earth Like Medium: " << planetTypesAmount[16] << '\n';
+    std::cout << "Small Earth Like Afar: " << planetTypesAmount[17] << '\n';
+    std::cout << "Medium Earth Like Close: " << planetTypesAmount[18] << '\n';
+    std::cout << "Medium Earth Like Medium: " << planetTypesAmount[19] << '\n';
+    std::cout << "Medium Earth Like Afar: " << planetTypesAmount[20] << '\n';
+    std::cout << "Large Earth Like Close: " << planetTypesAmount[21] << '\n';
+    std::cout << "Large Earth Like Medium: " << planetTypesAmount[22] << '\n';
+    std::cout << "Large Earth Like Afar: " << planetTypesAmount[23] << '\n';
+    std::cout << "Titan Like: " << planetTypesAmount[24] << '\n';
+    std::cout << "Small Molten: " << planetTypesAmount[25] << '\n';
+    std::cout << "Medium Molten: " << planetTypesAmount[26] << '\n';
+    std::cout << "Large Molten: " << planetTypesAmount[27] << '\n';
+    std::cout << "Small Icy: " << planetTypesAmount[28] << '\n';
+    std::cout << "Medium Icy: " << planetTypesAmount[29] << '\n';
+    std::cout << "Large Icy: " << planetTypesAmount[30] << '\n';
+    std::cout << "Voulcanic: " << planetTypesAmount[31] << '\n';
+    totalHabitable += planetTypesAmount[32];
+    totalHabitable += planetTypesAmount[33];
+    totalHabitable += planetTypesAmount[34];
+    std::cout << "Small Desert: " << planetTypesAmount[32] << '\n';
+    std::cout << "Medium Desert: " << planetTypesAmount[33] << '\n';
+    std::cout << "Large Desert: " << planetTypesAmount[34] << '\n';
+    std::cout << "Hot Jupiter: " << planetTypesAmount[35] << '\n';
+    std::cout << "Hot Neptune: " << planetTypesAmount[36] << '\n';
+    std::cout << "Jupiter Like: " << planetTypesAmount[37] << '\n';
+    std::cout << "Saturn Like: " << planetTypesAmount[38] << '\n';
+    std::cout << "Neptune Like: " << planetTypesAmount[39] << '\n';
+    std::cout << "Uranus Like: " << planetTypesAmount[40] << '\n';
+    for (int i : planetTypesAmount) 
+    {
+        total += i;
+    }
+    std::cout << " - Total planets: " << total << '\n';
+    std::cout << " - Total habitable planets: " << totalHabitable << '\n';
 }
 
 

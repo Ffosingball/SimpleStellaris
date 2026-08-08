@@ -322,23 +322,26 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			spPlanetCom->planetType = PlanetType::Molten;
 			rockyPlanet = true;
 		}
-
-		switch ((*closerThanHabitableZoneDist)(*randomizer)) 
+		else
 		{
-		case 0:
-			spPlanetCom->planetType = PlanetType::VenusLike;
-			rockyPlanet = true;
-			break;
-		case 1:
-			generateBarrenType = true;
-			rockyPlanet = true;
-			break;
-		case 2:
-			spPlanetCom->planetType = PlanetType::HotJupiter;
-			break;
-		case 3:
-			spPlanetCom->planetType = PlanetType::HotNeptune;
-			break;
+
+			switch ((*closerThanHabitableZoneDist)(*randomizer))
+			{
+			case 0:
+				spPlanetCom->planetType = PlanetType::VenusLike;
+				rockyPlanet = true;
+				break;
+			case 1:
+				generateBarrenType = true;
+				rockyPlanet = true;
+				break;
+			case 2:
+				spPlanetCom->planetType = PlanetType::HotJupiter;
+				break;
+			case 3:
+				spPlanetCom->planetType = PlanetType::HotNeptune;
+				break;
+			}
 		}
 	}
 	else if (spPlanetCom->orbitRadius > habitableZoneBoundaries.y)
@@ -418,7 +421,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 		else
 			spHabPlCom->distanceToStar = DistanceToStar::Far;
 
-		std::cout << " Habitable planet; ";
+		//std::cout << " Habitable planet; ";
 	}
 
 	if (generateBarrenType) 
@@ -908,8 +911,8 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
-		std::cout <<" \n";
-		std::cout << i <<") ";
+		//std::cout <<" \n";
+		//std::cout << i <<") ";
 		//Create new system
 		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(ptrSpaceMapNode, "System"+ std::to_string(i)).lock();
 		spNewSystem->AddComponent(ComponentType::ObjectSystem);
