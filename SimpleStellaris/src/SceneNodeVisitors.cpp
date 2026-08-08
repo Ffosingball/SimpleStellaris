@@ -222,7 +222,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     hide = true;
                 else if (spEntityFollower->hideIfZoomLargeEnough) 
                 {
-                    if (spCamCom->currentZoom > uiSystem.zoomLevelAtWhichHideSystemNames)
+                    if (spCamCom->currentZoom > spEntityFollower->zoomLevelAtWhichHideEntity)
                     {
                         hide = true;
                     }
@@ -278,7 +278,7 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
     //Check that pointer is valid
     if (spEntity != nullptr)
     {
-        //Check if entity has object system component
+        //Check if entity has star component
         if (spEntity->HasComponent(ComponentType::Star))
         {
             //Get star component
@@ -287,6 +287,15 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             //Move star
             float rotation = (spStarCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spStarCom->initialRotationPosition;
             spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spStarCom->orbitRadius);
+        }//Check if entity has planet component
+        else if (spEntity->HasComponent(ComponentType::Planet))
+        {
+            //Get planet component
+            std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spEntity);
+
+            //Move planet
+            float rotation = (spPlanetCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spPlanetCom->initialRotationPosition;
+            spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spPlanetCom->orbitRadius);
         }
     }
 }

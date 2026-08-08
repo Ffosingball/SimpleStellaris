@@ -147,7 +147,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
                 node.AddChild(std::make_shared<SceneNode>(wpCoM));
                 wpCoM.lock()->hidden = false;
-                CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter), false);
+                CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter), false, centerOfMassIconSize);
             }
             else
             {
@@ -168,7 +168,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                     node.AddChild(std::make_shared<SceneNode>(wpCoM));
                     wpCoM.lock()->inheritParentPosition = false;
                     wpCoM.lock()->hidden = false;
-                    CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter), false);
+                    CreateIconForSystemOverview(node.FindChild(*wpCoM.lock()).lock(), spSystemIconsNode, "CenterOfMassIcon", "ObjectIcon" + std::to_string(counter), false, centerOfMassIconSize);
                 }
             }
             else 
@@ -194,7 +194,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //spStar->wpStarNameText.lock()->hidden = true;
                 //spEntity->hidden = false;
                 //Create icon
-                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + std::to_string(counter), false);
+                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + std::to_string(counter), false, starIconSize);
             }
             else 
             {
@@ -210,13 +210,14 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             if (!hidden)
             {
                 std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spEntity);
+                //std::cout << spPlanet->planetName << ": " << spEntity->inheritParentPosition << '\n';
                 //Create text name entity for star
                 std::string name{ "PlanetNameText" + std::to_string(counter) };
                 CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, true);
                 //spStar->wpStarNameText.lock()->hidden = true;
                 //spEntity->hidden = false;
                 //Create icon
-                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), true);
+                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), true, planetIconSize);
             }
             else
             {

@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 enum class StarType
 {
@@ -16,6 +17,8 @@ enum class StarType
 	RedGiant,
 	RedSupergiant
 };
+
+std::string GetStarTypeName(StarType starType);
 
 enum class SpaceObjectType
 {
@@ -48,6 +51,7 @@ enum class PlanetType
 	UranusLike
 };
 
+std::string GetPlanetTypeName(PlanetType planetType);
 
 enum class SpaceSystemType
 {
@@ -59,6 +63,7 @@ enum class SpaceSystemType
 	TernaryAfar
 };
 
+std::string GetSpaceSystemTypeName(SpaceSystemType systemType);
 
 enum class DistanceToStar 
 {

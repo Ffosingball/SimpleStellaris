@@ -157,6 +157,8 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			SceneNodeVisitorChangeAllSystemVisibility visitor(true);
 			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 
+			std::cout << "-- Entering system view: "<<'\n';
+			wpSelectedSystemNode.lock()->OutputTree("  ");
 			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock());
 			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
 
@@ -226,7 +228,8 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		int counter{ 0 };
 		for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
 		{
-			message += GetObjectSystemComponent(*spNode->GetEntity().lock())->systemName + " (" + spNode->GetEntity().lock()->GetName() + "); ";
+			std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spNode->GetEntity().lock());
+			message += spSysCom->systemName + " (" + spNode->GetEntity().lock()->GetName() + ") "+GetSpaceSystemTypeName(spSysCom->systemType);
 			if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
 			{
 				closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());

@@ -145,6 +145,10 @@ private:
     bool hidden;
     int counter{ 0 };
     std::shared_ptr<SceneNode> spSystemIconsNode;
+
+    sf::Vector2f planetIconSize{60.f, 60.f};
+    sf::Vector2f starIconSize{ 120.f, 120.f };
+    sf::Vector2f centerOfMassIconSize{ 100.f, 100.f };
 };
 
 

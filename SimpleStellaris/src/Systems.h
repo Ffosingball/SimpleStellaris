@@ -56,7 +56,7 @@ class UISystem :public System
 {
 public:
 	DifficultyLevel level{DifficultyLevel::Medium};
-	float zoomLevelAtWhichHideSystemNames{1.1f};
+	//float zoomLevelAtWhichHideSystemNames{1.1f};
 
 	virtual ~UISystem() = default;
 private:

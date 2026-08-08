@@ -297,11 +297,14 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 
 
-void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass)
+void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition)
 {
+	//std::cout << "Orbit bounds: X: " << orbitBoundaries.x << "; Y: " << orbitBoundaries.y << '\n';
+	//std::cout << "Habitable zone bounds: X: " << habitableZoneBoundaries.x << "; Y: " << habitableZoneBoundaries.y << '\n';
 	std::shared_ptr<Entity> spPlanet = CreateNewEntityAt(spNode, "Planet"+std::to_string(num)).lock();
 	spPlanet->AddComponent(ComponentType::Planet);
 	std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spPlanet);
+	spPlanet->inheritParentPosition = inheritPosition;
 
 	std::uniform_real_distribution<float> orbitDist(orbitBoundaries.x, orbitBoundaries.y);
 	spPlanetCom->orbitRadius = orbitDist(*randomizer);
@@ -309,8 +312,10 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	bool rockyPlanet = false;
 	bool icyPlanet = false;
 
+	//std::cout << "Planet orbit: " << spPlanetCom->orbitRadius<<'\n';
 	if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x) 
 	{
+		//std::cout << "Generate close planet \n";
 		//Closer than habit
 		if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x / 3.f)
 		{
@@ -338,7 +343,36 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	}
 	else if (spPlanetCom->orbitRadius > habitableZoneBoundaries.y)
 	{
+		//std::cout << "Generate far planet \n";
 		//Further than habit
+		switch ((*furtherThanHabitableZoneDist)(*randomizer))
+		{
+		case 0:
+			spPlanetCom->planetType = PlanetType::Icy;
+			icyPlanet = true;
+			break;
+		case 1:
+			generateBarrenType = true;
+			rockyPlanet = true;
+			break;
+		case 2:
+			if ((*from0to1Dist)(*randomizer) > 0.5f)
+				spPlanetCom->planetType = PlanetType::NeptuneLike;
+			else
+				spPlanetCom->planetType = PlanetType::UranusLike;
+			break;
+		case 3:
+			if ((*from0to1Dist)(*randomizer) > 0.5f)
+				spPlanetCom->planetType = PlanetType::JupiterLike;
+			else
+				spPlanetCom->planetType = PlanetType::SaturnLike;
+			break;
+		}
+	}
+	else 
+	{
+		//std::cout << "Generate within planet \n";
+		//Within habit
 		switch ((*withinHabitableZoneDist)(*randomizer))
 		{
 		case 0:
@@ -372,33 +406,6 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			break;
 		}
 	}
-	else 
-	{
-		//Within habit
-		switch ((*furtherThanHabitableZoneDist)(*randomizer))
-		{
-		case 0:
-			spPlanetCom->planetType = PlanetType::Icy;
-			icyPlanet = true;
-			break;
-		case 1:
-			generateBarrenType = true;
-			rockyPlanet = true;
-			break;
-		case 2:
-			if((*from0to1Dist)(*randomizer)>0.5f)
-				spPlanetCom->planetType = PlanetType::NeptuneLike;
-			else
-				spPlanetCom->planetType = PlanetType::UranusLike;
-			break;
-		case 3:
-			if ((*from0to1Dist)(*randomizer) > 0.5f)
-				spPlanetCom->planetType = PlanetType::JupiterLike;
-			else
-				spPlanetCom->planetType = PlanetType::SaturnLike;
-			break;
-		}
-	}
 
 	if (spPlanet->HasComponent(ComponentType::HabitablePlanet)) 
 	{
@@ -410,6 +417,8 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			spHabPlCom->distanceToStar = DistanceToStar::Medium;
 		else
 			spHabPlCom->distanceToStar = DistanceToStar::Far;
+
+		std::cout << " Habitable planet; ";
 	}
 
 	if (generateBarrenType) 
@@ -427,6 +436,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			break;
 		}
 	}
+	//std::cout << "Planet type: " << GetPlanetTypeName(spPlanetCom->planetType)<<'\n';
 
 	if (rockyPlanet) 
 	{
@@ -450,15 +460,16 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			spPlanetCom->planetSize = (*largeIcyPlanetDist)(*randomizer);
 	}
 
-	spPlanetCom->rotationalVelocity = std::sqrtf(6.6417f*(std::powf(10,21)*starMass) / spPlanetCom->orbitRadius)/ spPlanetCom->orbitRadius;
+	spPlanetCom->rotationalVelocity = (std::sqrtf(6.6743f*(std::powf(10,-11)*starMass*2* std::powf(10, 30)) / (spPlanetCom->orbitRadius*1.5 * std::powf(10, 11))) * 86.4)/ (spPlanetCom->orbitRadius*1.5*std::powf(10,8));
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
+	//std::cout << "Planet rotational velocity(rad per year): " << spPlanetCom->rotationalVelocity*365<<'\n';
 }
 
 
 
-void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars, bool singleStarSystem)
+void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars, bool singleStarSystem, bool inheritPosition)
 {
-	std::cout << spSystemOrStarNode->GetCombinedParentsNames()<<'\n';
+	//std::cout << spSystemOrStarNode->GetCombinedParentsNames()<<'\n';
 
 	std::shared_ptr<StarComponent> spStarCom;
 	std::shared_ptr<Entity> spEntity = spSystemOrStarNode->GetEntity().lock();
@@ -469,7 +480,7 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 	bool decreaseHabitableBoundaries = false;
 	float starMass{0.f};
 
-	if (spEntity->HasComponent(ComponentType::ObjectSystem) && !singleStarSystem) 
+	if (spEntity->HasComponent(ComponentType::ObjectSystem)) 
 	{
 		std::shared_ptr<StarComponent> spStar1Com;
 		std::shared_ptr<StarComponent> spStar2Com;
@@ -513,6 +524,9 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 
 		if (spStarCom->starType == StarType::BlackHole)
 			return;
+
+		if (!singleStarSystem)
+			checkMaxOrbitBounds = true;
 
 		starMass = GetStarMass(spStarCom->starType);
 	}
@@ -629,12 +643,12 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 
 		if (orbitBoundaries.x > orbitBoundaries.y)
 		{
-			std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y<<'\n';
+			//std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y<<'\n';
 			return;
 		}
 	}
 
-	std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y << '\n';
+	//std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y << '\n';
 	if (orbitBoundaries.x > orbitBoundaries.y)
 		return;
 
@@ -645,10 +659,23 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 
 	//Generate how many planets will orbit it
 	int numOfPlanets = (*planetsDist)(*randomizer);
+	//std::cout << "  \n";
+	//std::cout << "Star type:" << GetStarTypeName(spStarCom->starType) << '\n';
 	for (int i = 0; i < numOfPlanets; i++) 
 	{
-		GenerateSinglePlanet(orbitBoundaries, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass);
+		//I generate half of the planets close to the star and other half further away
+		//std::cout <<"--Planet " << i << '\n';
+		if (orbitBoundaries.x < habitableBoundaries.y)
+		{
+			if((*from0to1Dist)(*randomizer) < mapConfig.chanceOfTheClosePlanet)
+				GenerateSinglePlanet(sf::Vector2f{ orbitBoundaries.x, habitableBoundaries.y }, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass, inheritPosition);
+			else if (habitableBoundaries.y < orbitBoundaries.y)
+				GenerateSinglePlanet(sf::Vector2f{ habitableBoundaries.y, orbitBoundaries.y }, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass, inheritPosition);
+		}
+		else
+			GenerateSinglePlanet(orbitBoundaries, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass, inheritPosition);
 	}
+	//std::cout << "  \n";
 }
 
 
@@ -660,7 +687,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 	case 0:
 	{
 		spSystemCom->systemType = SpaceSystemType::Single;
-		GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, -1.f, true);
+		GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
 		return;
 	}
 	case 1:
@@ -677,15 +704,15 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			spSystemCom->systemType = SpaceSystemType::BinaryClose;
 			float distBetStars = (*closeStarsDistances)(*randomizer);
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
-			GeneratePlanets(ptrSystemNode, mapConfig, distBetStars, false);
+			GeneratePlanets(ptrSystemNode, mapConfig, distBetStars, false, false);
 		}
 		else
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryAfar;
 			float distBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
-			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, false, true);
 		}
 		return;
 	}
@@ -724,8 +751,8 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			CalculateBinarySystemProperties(spStar3, spStar2, closeDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
 			
-			GeneratePlanets(ptrSystemNode->FindChild("InsideSystem").lock(), mapConfig, closeDistBetStars, false);
-			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, afarDistBetStars, true);
+			GeneratePlanets(ptrSystemNode->FindChild("InsideSystem").lock(), mapConfig, afarDistBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, afarDistBetStars, false, true);
 		}
 		else
 		{
@@ -745,9 +772,9 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
 			float distBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateTernaryAfarSystemProperties(spStar1Entity, spStar2, spStar3, distBetStars, (*from0to2_3Dist)(*randomizer));
-			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star3").lock(), mapConfig, distBetStars, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star3").lock(), mapConfig, distBetStars, false, true);
 		}
 
 		return;
@@ -886,7 +913,8 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
-		//std::cout << i <<") " << '\n';
+		std::cout <<" \n";
+		std::cout << i <<") ";
 		//Create new system
 		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(ptrSpaceMapNode, "System"+ std::to_string(i)).lock();
 		spNewSystem->AddComponent(ComponentType::ObjectSystem);
@@ -931,7 +959,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 0:
 			spStar1Com->starType = StarType::RedSupergiant;
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(ptrNewSysNode->FindChild("Star1").lock(), mapConfig, -1.f, true);
+			GeneratePlanets(ptrNewSysNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
 			break;
 		case 1:
 			spStar1Com->starType = StarType::RedGiant;
@@ -976,7 +1004,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 11:
 			spStar1Com->starType = StarType::NeutronStar;
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(ptrNewSysNode->FindChild("Star1").lock(), mapConfig, -1.f, true);
+			GeneratePlanets(ptrNewSysNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
 			break;
 		case 12:
 			spStar1Com->starType = StarType::BlackHole;
@@ -1136,9 +1164,9 @@ std::string GetPlanetIconTextureName(PlanetType planetType, float planetSize, Sp
 	case PlanetType::JupiterLike:
 		return "JupiterLikePlanetIcon";
 	case PlanetType::SaturnLike:
-		return "saturnLikePlanetIcon";
+		return "SaturnLikePlanetIcon";
 	case PlanetType::NeptuneLike:
-		return "NeptunrLikePlanetIcon";
+		return "NeptuneLikePlanetIcon";
 	case PlanetType::UranusLike:
 		return "UranusLikePlanetIcon";
 	}
@@ -1349,6 +1377,30 @@ TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
 
 
 
+void SetPlanetName(std::shared_ptr<SceneNode> spNodeWithPlanets, std::string name, int firstASCIIchar) 
+{
+	//std::cout << "Provided name: " << name << '\n';
+	std::vector<std::shared_ptr<SceneNode>> children = spNodeWithPlanets->GetAllChildren();
+	if (!children.empty())
+	{
+		SortedPlanetComponentsList sortedPlanets;
+		for (std::shared_ptr<SceneNode> child : children)
+		{
+			if(child->GetEntity().lock()->HasComponent(ComponentType::Planet))
+				sortedPlanets.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
+		}
+
+		int counter = firstASCIIchar;
+		while (sortedPlanets.Size() > 0)
+		{
+			sortedPlanets.DequeuePlanetComponent().lock()->planetName = name + '-' + static_cast<char>(counter);
+			counter++;
+		}
+	}
+}
+
+
+
 void TextureSetter::ProcessNode(SceneNode& node) 
 {
 	std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -1375,22 +1427,8 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				spStar1Com->starName = spComSys->systemName;
 
 				//Now set planet names
-				std::vector<std::shared_ptr<SceneNode>> children = ptrSysNode->GetAllChildren();
-				if (!children.empty())
-				{
-					SortedPlanetComponentsList sortedPlanets;
-					for (std::shared_ptr<SceneNode> child : children)
-					{
-						sortedPlanets.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-					}
-
-					int counter = 97;
-					while (sortedPlanets.Size() > 0)
-					{
-						sortedPlanets.DequeuePlanetComponent().lock()->planetName = spStar1Com->starName + '-' + static_cast<char>(counter);
-						counter++;
-					}
-				}
+				//std::cout << "Single system name: " << spStar1Com->starName<<'\n';
+				SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
 			}
 			else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar) 
 			{
@@ -1418,61 +1456,13 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				if (spComSys->systemType == SpaceSystemType::BinaryClose)
 				{
 					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children = ptrSysNode->GetAllChildren();
-					if (!children.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets;
-						for (std::shared_ptr<SceneNode> child : children)
-						{
-							std::cout << "name: " << child->GetEntity().lock()->GetName() << '\n';
-							sortedPlanets.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter = 99;
-						while (sortedPlanets.Size() > 0)
-						{
-							sortedPlanets.DequeuePlanetComponent().lock()->planetName = spComSys->systemName + '-' + static_cast<char>(counter);
-							counter++;
-						}
-					}
+					SetPlanetName(ptrSysNode, spComSys->systemName, 99);
 				}
 				else 
 				{
 					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children = ptrStar1Node->GetAllChildren();
-					if (!children.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets1;
-						for (std::shared_ptr<SceneNode> child : children)
-						{
-							sortedPlanets1.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter = 97;
-						while (sortedPlanets1.Size() > 0)
-						{
-							sortedPlanets1.DequeuePlanetComponent().lock()->planetName = spStar1Com->starName + '-' + static_cast<char>(counter);
-							counter++;
-						}
-					}
-
-					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children2 = ptrStar2Node->GetAllChildren();
-					if (!children2.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets2;
-						for (std::shared_ptr<SceneNode> child : children2)
-						{
-							sortedPlanets2.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter2 = 97;
-						while (sortedPlanets2.Size() > 0)
-						{
-							sortedPlanets2.DequeuePlanetComponent().lock()->planetName = spStar2Com->starName + '-' + static_cast<char>(counter2);
-							counter2++;
-						}
-					}
+					SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
+					SetPlanetName(ptrStar2Node, spStar2Com->starName, 97);
 				}
 			}
 			else 
@@ -1561,58 +1551,9 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					std::shared_ptr<SceneNode> ptrStar3Node = ptrSysNode->FindChild("Star3").lock();
 					
 					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children = ptrStar1Node->GetAllChildren();
-					if (!children.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets1;
-						for (std::shared_ptr<SceneNode> child : children)
-						{
-							sortedPlanets1.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter = 97;
-						while (sortedPlanets1.Size() > 0)
-						{
-							sortedPlanets1.DequeuePlanetComponent().lock()->planetName = spStar1Com->starName + '-' + static_cast<char>(counter);
-							counter++;
-						}
-					}
-
-					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children2 = ptrStar2Node->GetAllChildren();
-					if (!children2.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets2;
-						for (std::shared_ptr<SceneNode> child : children2)
-						{
-							sortedPlanets2.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter2 = 97;
-						while (sortedPlanets2.Size() > 0)
-						{
-							sortedPlanets2.DequeuePlanetComponent().lock()->planetName = spStar2Com->starName + '-' + static_cast<char>(counter2);
-							counter2++;
-						}
-					}
-
-					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children3 = ptrStar3Node->GetAllChildren();
-					if (!children3.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets3;
-						for (std::shared_ptr<SceneNode> child : children3)
-						{
-							sortedPlanets3.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter3 = 97;
-						while (sortedPlanets3.Size() > 0)
-						{
-							sortedPlanets3.DequeuePlanetComponent().lock()->planetName = spStar3Com->starName + '-' + static_cast<char>(counter3);
-							counter3++;
-						}
-					}
+					SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
+					SetPlanetName(ptrStar2Node, spStar2Com->starName, 97);
+					SetPlanetName(ptrStar3Node, spStar3Com->starName, 97);
 				}
 				else 
 				{
@@ -1620,40 +1561,8 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					std::shared_ptr<SceneNode> ptrInsideSysNode = ptrSysNode->FindChild("InsideSystem").lock();
 				
 					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children = ptrStar1Node->GetAllChildren();
-					if (!children.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets1;
-						for (std::shared_ptr<SceneNode> child : children)
-						{
-							sortedPlanets1.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter = 97;
-						while (sortedPlanets1.Size() > 0)
-						{
-							sortedPlanets1.DequeuePlanetComponent().lock()->planetName = spStar1Com->starName + '-' + static_cast<char>(counter);
-							counter++;
-						}
-					}
-
-					//Now set planet names
-					std::vector<std::shared_ptr<SceneNode>> children2 = ptrInsideSysNode->GetAllChildren();
-					if (!children2.empty())
-					{
-						SortedPlanetComponentsList sortedPlanets2;
-						for (std::shared_ptr<SceneNode> child : children2)
-						{
-							sortedPlanets2.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
-						}
-
-						int counter2 = 100;
-						while (sortedPlanets2.Size() > 0)
-						{
-							sortedPlanets2.DequeuePlanetComponent().lock()->planetName = spComSys->systemName + '-' + static_cast<char>(counter2);
-							counter2++;
-						}
-					}
+					SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
+					SetPlanetName(ptrInsideSysNode, spComSys->systemName, 100);
 				}
 			}
 
@@ -1674,6 +1583,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 		{
 			std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spEntity);
 			spPlanet->planetIconTextureName = GetPlanetIconTextureName(spPlanet->planetType, spPlanet->planetSize, mapConfig, GetHabitablePlanetComponent(*spEntity));
+			spEntity->hidden = true;
 		}
 	}
 }
@@ -1683,7 +1593,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 //Sorted by distance to the star from smallest to largest
 void SortedPlanetComponentsList::AddPlanetComponent(std::shared_ptr<PlanetComponent> spPlanCom) 
 {
-	std::cout <<"Inserting: " << spPlanCom.get() << '\n';
+	//std::cout <<"Inserting: " << spPlanCom.get() << '\n';
 
 	if (sortedListOfPlanetCom.size() == 0)
 	{
@@ -1713,7 +1623,7 @@ std::weak_ptr<PlanetComponent> SortedPlanetComponentsList::DequeuePlanetComponen
 	{
 		std::weak_ptr wpFirst = sortedListOfPlanetCom[0];
 		sortedListOfPlanetCom.erase(sortedListOfPlanetCom.begin());
-		std::cout << "Removing: " << wpFirst.lock().get() << '\n';
+		//std::cout << "Removing: " << wpFirst.lock().get() << '\n';
 		return wpFirst;
 	}
 	else

@@ -66,12 +66,12 @@ struct SpaceMapConfigurations
 	//Distances in A.U.
 	sf::Vector2f closeStarsBoundaries{ 0.1f, 10.f };
 	sf::Vector2f afarStarsBoundaries{ 15.f, 1000.f };
-	float sunDiameter{0.009346f};//0.009346f
+	float sunDiameter{ 0.009346f };//0.009346f
 
 	//Planets configuration
 	//Habitable zone size
 	sf::Vector2f habitableZoneRedSupergiant{ 70.999f,71.f };//No hab planets
-	sf::Vector2f habitableZoneRedGiant{20.f,50.f};
+	sf::Vector2f habitableZoneRedGiant{ 20.f,50.f };
 	sf::Vector2f habitableZoneClassO{ 70.999f,71.f };//No hab planets
 	sf::Vector2f habitableZoneClassB{ 10.f,50.f };
 	sf::Vector2f habitableZoneClassA{ 3.f,6.f };
@@ -134,11 +134,11 @@ struct SpaceMapConfigurations
 	float closeOrbitHotNeptuneChance = 2.5f;
 
 	//Chances of planet type within of habitable zone
-	float mediumOrbitVenusLikeChance = 22.5f;
-	float mediumOrbitOceanicChance = 15.8f;
-	float mediumOrbitEarthLikeChance = 15.8f;
-	float mediumOrbitDesertChance = 15.8f;
-	float mediumOrbitBarrenChance = 25.f;
+	float mediumOrbitVenusLikeChance = 32.f;
+	float mediumOrbitOceanicChance = 10.f;
+	float mediumOrbitEarthLikeChance = 5.f;
+	float mediumOrbitDesertChance = 5.f;
+	float mediumOrbitBarrenChance = 43.f;
 	float mediumOrbitHotJupiterChance = 2.5f;
 	float mediumOrbitHotNeptuneChance = 2.5f;
 
@@ -150,7 +150,7 @@ struct SpaceMapConfigurations
 	float afarOrbitJupiterLikeChance = 25.f;
 
 	//Rocky planet config; applied for all planets except: gas giants, icy and oceanic worlds
-	sf::Vector2f smallRockyPlanetSizes{0.3f,0.8f};
+	sf::Vector2f smallRockyPlanetSizes{ 0.3f,0.8f };
 	sf::Vector2f mediumRockyPlanetSizes{ 0.8f,1.2f };
 	sf::Vector2f largeRockyPlanetSizes{ 1.2f,2.2f };
 	//1 - 100%, 0 - 0%
@@ -166,4 +166,6 @@ struct SpaceMapConfigurations
 	float smallIcyPlanetChance = 0.2f;
 	float mediumIcyPlanetChance = 0.5f;
 	float largeIcyPlanetChance = 0.3f;
+
+	float chanceOfTheClosePlanet{ 0.4f };
 };

@@ -261,10 +261,8 @@ void InitializeMouseIcon()
 //Creates icons for system overview
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge)
+void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize)
 {
-	sf::Vector2f iconSize{ 100.f, 100.f };
-
 	//if (iconTexture == "CenterOfMassIcon")
 	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
 
