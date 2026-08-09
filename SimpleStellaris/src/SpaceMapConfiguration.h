@@ -167,5 +167,13 @@ struct SpaceMapConfigurations
 	float mediumIcyPlanetChance = 0.5f;
 	float largeIcyPlanetChance = 0.3f;
 
+	//Planet orbits config
 	float chanceOfTheClosePlanet{ 0.4f };
+	float minDistanceBetweenPlanetOrbitsInPercentage{ 0.1f };
+
+	//Nebulas generation config
+	sf::Vector2i numOfNebulasInWorld{ 2,4 };
+	sf::Vector2f nebulaSizeRange{ 150.f,450.f };
+	std::vector<std::string> nebulaNames{ "Nebula Aurelia", "Nebula Caelestis", "Nebula Ignis", "Nebula Aeterna", "Nebula Umbra", "Nebula Stellaris", "Nebula Serpens", "Nebula Lucida", "Nebula Ardens", "Nebula Vespera", "Nebula Aurora", "Nebula Imperia", "Nebula Solaris", "Nebula Caerulea", "Nebula Fulgoris", "Nebula Noctis", "Nebula Draconis", "Nebula Magnifica", "Nebula Venatoria", "Nebula Eternum"};
+	int numOfNebulaTextures = 4;
 };

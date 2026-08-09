@@ -91,12 +91,12 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::shared_ptr<SceneNode> parentN
 
 //IntRect means which part of the texture to draw
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath)
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string textureName)
 {
 	recShape->shape = sf::RectangleShape(size);
 	recShape->shape.setOrigin(size / 2.f);
 	sf::IntRect intRect;
-	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().GetTexture(texturePath, intRect);
+	std::weak_ptr<sf::Texture> wTexture = ResourceManager::Instance().GetTexture(textureName, intRect);
 	std::shared_ptr<sf::Texture> sTexture = wTexture.lock();
 	recShape->shape.setTexture(sTexture.get());
 	recShape->shape.setTextureRect(intRect);
@@ -530,6 +530,8 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations
 	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x*mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * mapConfig.backgroundSize.y / (-2.f)) });
 
 	ECSGame::Instance().GetSceneRoot()->ChangeChildOrder(spTileMap,0);
+	std::weak_ptr<Entity> wpNebul = ECSGame::Instance().GetEntityManager().NewEntity("Nebulas");
+	ECSGame::Instance().GetSceneRoot()->FindChild("Background").lock()->AddChild(std::make_shared<SceneNode>(wpNebul));
 
 	return spTileMapCom;
 }
@@ -547,9 +549,11 @@ void CreateSpaceObjects()
 	SpaceMapConfigurations mapConfig = GetSystemPropertiesComponent(*spNode->GetEntity().lock())->mapConfig;
 	//Firstly generate background
 	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(mapConfig);
-	//Secondly generate systems and stars in it
+	//Secondly generate nebulas
+	WorldGenerator::GenerateNebulas(ECSGame::Instance().GetSceneRoot()->FindChild("Background").lock()->FindChild("Nebulas").lock(),mapConfig, ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock());
+	//Thirdly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode,mapConfig);
-	//Thirdly put rectangleShape components for all objects
+	//After put rectangleShape components for all objects
 	TextureSetter txSetter(WorldGenerator::getSeed());
 	txSetter.mapConfig = mapConfig;
 	txSetter.wpSpaceMapNode = spNode;

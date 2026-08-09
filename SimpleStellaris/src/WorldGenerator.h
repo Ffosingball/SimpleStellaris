@@ -29,6 +29,7 @@ private:
 	static std::shared_ptr<std::mt19937> randomizer;
 	static float nebulaRareness;
 	static int numberOfNebulas;
+	static std::vector<float> orbitsGenerated;
 
 	//Distributions
 	static std::shared_ptr<std::discrete_distribution<int>> starDistribution;
@@ -82,6 +83,7 @@ public:
 	static std::vector<int> GenerateGridOfRandomNumbers(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
 	static std::vector<int> GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
 	static void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode, SpaceMapConfigurations& mapConfig);
+	static void GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, SpaceMapConfigurations& mapConfig, std::shared_ptr<SceneNode> spSystemNamesNode);
 };
 
 

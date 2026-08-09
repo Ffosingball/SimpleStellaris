@@ -42,6 +42,8 @@ public:
 	SpaceSystemType systemType;
 	//vector of pointers to the central object in the system
 	std::string systemName;
+	//0 - outside of nebula, 1 - at the center of it
+	float distToTheNebula{0.f};
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
@@ -85,6 +87,7 @@ public:
 	bool hideIfZoomLargeEnough = false;
 	float zoomLevelAtWhichHideEntity{1.1f};
 	bool hideIfOutsideOfCamera = true;
+	bool hideAnyway = false;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
@@ -147,8 +150,10 @@ public:
 class NebulaComponent : public Component
 {
 public:
+	//In light years
 	float nebulaSize{ 0.f };
 	std::string nebulaName;
+	std::weak_ptr<UIFollowerComponent> wpTextFollower;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;

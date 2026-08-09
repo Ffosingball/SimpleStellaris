@@ -31,7 +31,7 @@ std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity();
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity();
 //Worst case: O(1)
-void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string texturePath);
+void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, const sf::Vector2f size, const std::string textureName);
 //Worst case: O(1)
 sf::Vector2f ConvertWindowPositionToWorld(sf::View& cameraView, sf::Vector2i position);
 //Worst case: O(1)

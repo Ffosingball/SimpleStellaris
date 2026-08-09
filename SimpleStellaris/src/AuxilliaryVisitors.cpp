@@ -378,6 +378,26 @@ void SceneNodeVisitorChangeAllSystemVisibility::ProcessNode(SceneNode& node)
         {
             spEntity->hidden = hidden;
         }
+        else if (spEntity->HasComponent(ComponentType::Nebula))
+        {
+            std::shared_ptr<NebulaComponent> spNebula = GetNebulaComponent(*spEntity);
+            spNebula->wpTextFollower.lock()->hideAnyway = hidden;
+        }
+    }
+}
+
+
+void SceneNodeVisitorChangeNebulasVisibility::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        if (spEntity->HasComponent(ComponentType::Nebula))
+        {
+            spEntity->hidden = hidden;
+        }
     }
 }
 

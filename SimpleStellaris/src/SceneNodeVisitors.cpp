@@ -216,9 +216,11 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                 bool hide = false;
                 if (spEntityFollower->nodeToFollow.lock() == nullptr)
                     hide = true;
-                else if(spEntityFollower->nodeToFollow.lock()->GetEntity().lock()==nullptr)
+                else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock() == nullptr)
                     hide = true;
                 else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock()->hidden)
+                    hide = true;
+                else if (spEntityFollower->hideAnyway)
                     hide = true;
                 else if (spEntityFollower->hideIfZoomLargeEnough) 
                 {

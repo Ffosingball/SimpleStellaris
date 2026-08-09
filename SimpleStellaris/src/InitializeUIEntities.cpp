@@ -209,6 +209,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 {
 	//static int counter = 0;
 	float fontSize = 22;
+	float nebulaFontSize = 40;
 
 	std::string name{"UNDEFINED"};
 	std::shared_ptr<Entity> spEntityToFollow = spNodeToFollow->GetEntity().lock();
@@ -218,6 +219,11 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 		name = GetStarComponent(*spEntityToFollow)->starName;
 	else if (spEntityToFollow->HasComponent(ComponentType::Planet))
 		name = GetPlanetComponent(*spEntityToFollow)->planetName;
+	else if (spEntityToFollow->HasComponent(ComponentType::Nebula))
+	{
+		name = GetNebulaComponent(*spEntityToFollow)->nebulaName;
+		fontSize = nebulaFontSize;
+	}
 	//Create text
 	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName, name, fontSize, sf::Vector2f{0,0});
 	
@@ -294,7 +300,7 @@ void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, b
 	spOrbitE->inheritParentPosition = inheritParentPosition;
 	//Get component
 	std::shared_ptr<OrbitVisualizerComponent> spOrbitVis = GetOrbitVisualizerComponent(*spOrbitE);
-	spOrbitVis->orbitShape.setPointCount(100);
+	spOrbitVis->orbitShape.setPointCount(150);
 	spOrbitVis->orbitShape.setOutlineColor(outlineColor);
 	spOrbitVis->orbitShape.setOutlineThickness(outlineThikness);
 	spOrbitVis->orbitShape.setFillColor(sf::Color(0, 0, 0, 0));

@@ -188,9 +188,10 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 		spBackgroundNode->AcceptVisitor(visitor);
 
 		spBackgroundNode->GetEntity().lock()->hidden = true;
+		SceneNodeVisitorChangeNebulasVisibility visitor2(true);
+		spBackgroundNode->AcceptVisitor(visitor2);
 
-		numOfNodes++;
-		renderedNodes++;
+		renderedNodes += visitor.renderedEntities;
 	}
 
 	//Set renderWindow to render in the camera
@@ -221,7 +222,11 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	signals::onRenderingComplete(numOfNodes, renderedNodes);
 	if (overviewType == OverviewType::System)
+	{
 		spBackgroundNode->GetEntity().lock()->hidden = false;
+		SceneNodeVisitorChangeNebulasVisibility visitor(false);
+		spBackgroundNode->AcceptVisitor(visitor);
+	}
 }
 
 

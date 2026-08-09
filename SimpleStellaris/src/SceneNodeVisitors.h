@@ -172,3 +172,15 @@ public:
 
     void ProcessNode(SceneNode& node) override;
 };
+
+
+
+class SceneNodeVisitorChangeNebulasVisibility : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorChangeNebulasVisibility(bool hidden) : hidden(hidden) {}
+
+    void ProcessNode(SceneNode& node) override;
+private:
+    bool hidden;
+};

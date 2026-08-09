@@ -52,6 +52,7 @@ std::shared_ptr<std::mt19937> WorldGenerator::randomizer = nullptr;
 //How much rarer tiles with nebula will be generated to usual tiles
 float WorldGenerator::nebulaRareness = 2.f;
 int WorldGenerator::numberOfNebulas = 6;
+std::vector<float> WorldGenerator::orbitsGenerated;
 
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::starDistribution = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::giantSysDistribution = nullptr;
@@ -299,15 +300,38 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition)
 {
+	std::uniform_real_distribution<float> orbitDist(orbitBoundaries.x, orbitBoundaries.y);
+	float orbit = orbitDist(*randomizer);
+	int regeneratedCounter = 0;
+	int i = 0;
+	while (i<orbitsGenerated.size() && regeneratedCounter<mapConfig.maxAmountOfSystemPosRegen) 
+	{
+		if (orbit / orbitsGenerated[i] < 1 + mapConfig.minDistanceBetweenPlanetOrbitsInPercentage && orbit / orbitsGenerated[i] > 1 - mapConfig.minDistanceBetweenPlanetOrbitsInPercentage)
+		{
+			orbit = orbitDist(*randomizer);
+			i = 0;
+			regeneratedCounter++;
+		}
+
+		i++;
+	}
+
+	if (regeneratedCounter >= mapConfig.maxAmountOfSystemPosRegen)
+	{
+		std::cout << "Regenerated planet orbit "<< regeneratedCounter <<" times!\n";
+		return;
+	}
+
+	orbitsGenerated.push_back(orbit);
+
 	//std::cout << "Orbit bounds: X: " << orbitBoundaries.x << "; Y: " << orbitBoundaries.y << '\n';
 	//std::cout << "Habitable zone bounds: X: " << habitableZoneBoundaries.x << "; Y: " << habitableZoneBoundaries.y << '\n';
 	std::shared_ptr<Entity> spPlanet = CreateNewEntityAt(spNode, "Planet"+std::to_string(num)).lock();
 	spPlanet->AddComponent(ComponentType::Planet);
 	std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spPlanet);
 	spPlanet->inheritParentPosition = inheritPosition;
+	spPlanetCom->orbitRadius = orbit;
 
-	std::uniform_real_distribution<float> orbitDist(orbitBoundaries.x, orbitBoundaries.y);
-	spPlanetCom->orbitRadius = orbitDist(*randomizer);
 	bool generateBarrenType = false;
 	bool rockyPlanet = false;
 	bool icyPlanet = false;
@@ -511,9 +535,9 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 
 		//std::cout << "Star 1 rad: "<< spStar1Com->orbitRadius<<"; Star2 rad"<<;
 		if(spStar1Com->orbitRadius> spStar2Com->orbitRadius)
-			orbitBoundaries.x = spStar1Com->orbitRadius;
+			orbitBoundaries.x = spStar1Com->orbitRadius * 1.4f;
 		else
-			orbitBoundaries.x = spStar2Com->orbitRadius;
+			orbitBoundaries.x = spStar2Com->orbitRadius * 1.4f;
 
 		if (spStar1Com->starType>spStar2Com->starType)
 			spStarCom = spStar1Com;
@@ -659,6 +683,7 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 	int numOfPlanets = (*planetsDist)(*randomizer);
 	//std::cout << "  \n";
 	//std::cout << "Star type:" << GetStarTypeName(spStarCom->starType) << '\n';
+	orbitsGenerated.clear();
 	for (int i = 0; i < numOfPlanets; i++) 
 	{
 		//I generate half of the planets close to the star and other half further away
@@ -701,6 +726,10 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryClose;
 			float distBetStars = (*closeStarsDistances)(*randomizer);
+
+			if (GetStarComponent(*spStar2)->starType == StarType::RedGiant && distBetStars < 1.5)
+				distBetStars = 1.5f;
+
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			GeneratePlanets(ptrSystemNode, mapConfig, distBetStars, false, false);
 		}
@@ -745,6 +774,10 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
 			float closeDistBetStars = (*closeStarsDistances)(*randomizer);
+
+			if ((GetStarComponent(*spStar2)->starType == StarType::RedGiant || GetStarComponent(*spStar3)->starType == StarType::RedGiant) && closeDistBetStars < 1.5f)
+				closeDistBetStars = 1.5f;
+
 			float afarDistBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateBinarySystemProperties(spStar3, spStar2, closeDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
@@ -907,44 +940,44 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	//std::cout << "Grid size: " << starPosGrid.size()<<'\n';
 	//std::cout << "Grid width: " << gridWidth << '\n';
 
-	//checkRandomDistribution();
-
+	
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
 		//std::cout <<" \n";
 		//std::cout << i <<") ";
-		//Create new system
-		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(ptrSpaceMapNode, "System"+ std::to_string(i)).lock();
-		spNewSystem->AddComponent(ComponentType::ObjectSystem);
-		std::shared_ptr<ObjectSystemComponent> spSystemCom = GetObjectSystemComponent(*spNewSystem);
-		std::shared_ptr<SceneNode> ptrNewSysNode = ptrSpaceMapNode->FindChild(*spNewSystem).lock();
 		
 		//Generate position
 		bool regeneratePos = true;
 		int regenCounter{0};
+		sf::Vector2f newPos;
 		while (regeneratePos && regenCounter<mapConfig.maxAmountOfSystemPosRegen)
 		{
-			sf::Vector2f newPos = sf::Vector2f{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
-			
-			int yPos = (int)((newPos.y-mapConfig.verticalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
-			int xPos = (int)((newPos.x- mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
+			newPos = sf::Vector2f{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
 			//std::cout << "Ypos: " << yPos <<"; Xpos: " <<xPos<< '\n';
 
 			regeneratePos = false;
 			if (GetAllSystemsNearPosition(newPos).size()>0)
 				regeneratePos = true;
-			else 
-			{
-				//std::cout << "Set pos\n";
-				spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })] = ptrNewSysNode;
-				spNewSystem->SetPosition(newPos);
-			}
 
 			regenCounter++;
 		}
 
 		if (regenCounter >= mapConfig.maxAmountOfSystemPosRegen)
-			std::cout << i <<") Regenerated system position "<< regenCounter<< " times!\n";
+		{
+			std::cout << i << ") Regenerated system position " << regenCounter << " times!\n";
+			continue;
+		}
+
+		//Create new system
+		std::shared_ptr<Entity> spNewSystem = CreateNewEntityAt(ptrSpaceMapNode, "System" + std::to_string(i)).lock();
+		spNewSystem->AddComponent(ComponentType::ObjectSystem);
+		std::shared_ptr<ObjectSystemComponent> spSystemCom = GetObjectSystemComponent(*spNewSystem);
+		std::shared_ptr<SceneNode> ptrNewSysNode = ptrSpaceMapNode->FindChild(*spNewSystem).lock();
+		//Set position
+		int yPos = (int)((newPos.y - mapConfig.verticalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
+		int xPos = (int)((newPos.x - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
+		spSysPropCom->systemsPositions[GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })] = ptrNewSysNode;
+		spNewSystem->SetPosition(newPos);
 
 		//Create star in that system
 		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(ptrNewSysNode, "Star1").lock();
@@ -1010,6 +1043,63 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 			std::cout << "Black Hole\n";
 			break;
 		}
+
+		//Calculate how far nebula is
+		//ADD THIS IN THE FUTURE IF NECESSARY!
+	}
+}
+
+
+
+void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, SpaceMapConfigurations& mapConfig, std::shared_ptr<SceneNode> spSystemNamesNode)
+{
+	std::uniform_int_distribution<int> numOfNebulasDist(mapConfig.numOfNebulasInWorld.x, mapConfig.numOfNebulasInWorld.y);
+	std::uniform_real_distribution<float> sizeOfNebulasDist(mapConfig.nebulaSizeRange.x, mapConfig.nebulaSizeRange.y);
+	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x, mapConfig.horizontalPosBoundaries.y);
+	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
+	std::vector<std::string> nebulaNames = mapConfig.nebulaNames;
+	std::vector<int> textureNums;
+	for (int i = 0; i < mapConfig.numOfNebulaTextures; i++) 
+	{
+		textureNums.push_back(i);
+	}
+
+	int numOfNebulas = numOfNebulasDist(*randomizer);
+	for (int i = 0; i < numOfNebulas; i++) 
+	{
+		sf::Vector2f newPos{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
+		//std::cout << "Nebula pos: "<<newPos.x<<"; "<<newPos.y<<'\n';
+
+		//Create new nebula
+		std::shared_ptr<Entity> spNewNeb = CreateNewEntityAt(ptrNebulasNode, "Nebula" + std::to_string(i)).lock();
+		spNewNeb->AddComponent(ComponentType::Nebula);
+		spNewNeb->AddComponent(ComponentType::RectangleShape);
+		spNewNeb->SetPosition(newPos);
+		spNewNeb->inheritParentPosition = false;
+
+		//Setup nebula properties
+		std::shared_ptr<NebulaComponent> spNebulaCom = GetNebulaComponent(*spNewNeb);
+		spNebulaCom->nebulaSize = sizeOfNebulasDist(*randomizer);
+		//std::cout << "Nebula size: " << spNebulaCom->nebulaSize << '\n';
+		std::uniform_int_distribution<int> nameDist(0, nebulaNames.size() - 1);
+		int pos = nameDist(*randomizer);
+		spNebulaCom->nebulaName = nebulaNames[pos];
+		nebulaNames[pos] = nebulaNames.back();
+		nebulaNames.pop_back();
+
+		//Setup nebula texture
+		std::shared_ptr<RectangleShapeComponent> spRectShapeCom = GetRectangleShapeComponent(*spNewNeb);
+		std::uniform_int_distribution<int> textureNumDist(0, textureNums.size() - 1);
+		int num = textureNumDist(*randomizer);
+		SetupRectangleShape(spRectShapeCom, sf::Vector2f{ spNebulaCom->nebulaSize,spNebulaCom->nebulaSize }, "Nebula" + std::to_string(textureNums[num]));
+		textureNums[num] = textureNums.back();
+		textureNums.pop_back();
+		spRectShapeCom->shape.setFillColor(sf::Color(150,150,150));
+
+		//Setup nebula name text
+		std::string name{ "NebulaNameText" };
+		std::shared_ptr<UIFollowerComponent> spUiFollower = GetUIFollowerComponent(*CreateSystemText(spSystemNamesNode, ptrNebulasNode->FindChild("Nebula" + std::to_string(i)).lock(), name, false));
+		spNebulaCom->wpTextFollower = spUiFollower;
 	}
 }
 
@@ -1364,7 +1454,7 @@ TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
 	seed = seedOut;
 	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
 
-	listOfBrightStarNames = ReadStarNamesFromCSV("media/other/big_stars_names_240.csv");
+	listOfBrightStarNames = ReadStarNamesFromCSV("media/other/big_stars_names_1240.csv");
 	listOfMediumStarNames = ReadStarNamesFromCSV("media/other/star_names_5000.csv");
 	listOfDimStarNames = ReadStarNamesFromCSV("media/other/small_stars_names_1000.csv");
 
