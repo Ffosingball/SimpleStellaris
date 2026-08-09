@@ -14,14 +14,14 @@ namespace gel
         //Get all videomodes
         std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
         //first one is usually the best option
-        auto window = sf::RenderWindow(modes[0], title.c_str(), sf::State::Fullscreen);
+        auto renderWindow = sf::RenderWindow(modes[0], title.c_str(), sf::State::Fullscreen);
         //Stabilize fps
-        window.setVerticalSyncEnabled(true);
+        renderWindow.setVerticalSyncEnabled(true);
         //Hide mouse
-        window.setMouseCursorVisible(false);
+        renderWindow.setMouseCursorVisible(false);
 
         // Initialisation logic
-		Init(window);
+		Init(renderWindow);
 
         //Create a clock to get deltaTime
         sf::Clock clock;
@@ -30,7 +30,7 @@ namespace gel
         //DEB: sf::Clock timer;
 
         //Main game loop
-        while (window.isOpen())
+        while (renderWindow.isOpen())
         {
             //get deltaTime
             float dt = clock.restart().asSeconds();
@@ -39,11 +39,11 @@ namespace gel
             //DEB: std::cout << "Next frame: " << '\n';
 
             // Process events
-            while (const std::optional event = window.pollEvent())
+            while (const std::optional event = renderWindow.pollEvent())
             {
                 //If window is closed, then close the game
                 if (event->is<sf::Event::Closed>())
-                    window.close();
+                    renderWindow.close();
 
                 // Event handling code here
                 HandleEvent(event);
@@ -51,19 +51,19 @@ namespace gel
             //DEB: std::cout << " -Handle events: " << timer.restart().asSeconds() << '\n';
 
             // Update logic
-            Update(dt, window);
+            Update(dt, renderWindow);
             //DEB: std::cout << " -Update: " << timer.restart().asSeconds() << '\n';
 
             // Clear window
-            window.clear();
+            renderWindow.clear();
             //DEB: std::cout << " -Clear: " << timer.restart().asSeconds() << '\n';
 
             //Draw to the window
-            Render(window);
+            Render(renderWindow);
             //DEB: std::cout << " -Render: " << timer.restart().asSeconds() << '\n';
 
             //Display image from the double buffer
-            window.display();
+            renderWindow.display();
         }
 	}
 

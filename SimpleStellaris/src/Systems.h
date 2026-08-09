@@ -24,6 +24,13 @@ private:
 	void OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw);
 	void OnMouseMoved(sf::Event::MouseMoved mouseMovement);
 	void OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed);
+	void OnJoystickMoved(sf::Event::JoystickMoved joystickMoved);
+	void OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button);
+	void OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button);
+
+	void ZoomCamera(int direction);
+	void EnterSystemOverview();
+	void ExitSystemOverview();
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
@@ -35,6 +42,14 @@ private:
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };
+
+	bool joystickConnected = false;
+	bool lastInputByJoystick = false;
+	float minValForJoystick = 5.f;
+	float mouseSpeedFromJoystick = 20.f;
+	//How many times zoom on joystick slower than on mouse
+	float zoomSpeedJoystickSlowing= 0.1f;
+	//sf::Vector2i lastMouseSpeed{ 0,0 };
 
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
@@ -150,4 +165,7 @@ namespace signals
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onSystemOverviewSet;
 	inline sigslot::signal<int, int> onRenderingComplete;
+	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
+	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;
+	inline sigslot::signal<sf::Event::JoystickButtonReleased> onJoystickButtonReleased;
 }

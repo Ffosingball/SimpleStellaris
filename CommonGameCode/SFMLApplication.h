@@ -27,5 +27,7 @@ namespace gel
 		virtual void Render(sf::RenderWindow& renderWindow) {}
 		//It is called when some event is happened
 		virtual void HandleEvent(const std::optional<sf::Event>& event) {}
+
+		//sf::RenderWindow& renderWindow;
 	};
 }

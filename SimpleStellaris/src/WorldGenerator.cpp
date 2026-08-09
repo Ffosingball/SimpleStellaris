@@ -1055,8 +1055,10 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 {
 	std::uniform_int_distribution<int> numOfNebulasDist(mapConfig.numOfNebulasInWorld.x, mapConfig.numOfNebulasInWorld.y);
 	std::uniform_real_distribution<float> sizeOfNebulasDist(mapConfig.nebulaSizeRange.x, mapConfig.nebulaSizeRange.y);
-	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x, mapConfig.horizontalPosBoundaries.y);
-	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
+	float minDist = (mapConfig.horizontalPosBoundaries.y - mapConfig.horizontalPosBoundaries.x) * mapConfig.minimalDistanceFromTheMapBorder;
+	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x+minDist, mapConfig.horizontalPosBoundaries.y- minDist);
+	minDist = (mapConfig.verticalPosBoundaries.y - mapConfig.verticalPosBoundaries.x) * mapConfig.minimalDistanceFromTheMapBorder;
+	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x+minDist, mapConfig.verticalPosBoundaries.y-minDist);
 	std::vector<std::string> nebulaNames = mapConfig.nebulaNames;
 	std::vector<int> textureNums;
 	for (int i = 0; i < mapConfig.numOfNebulaTextures; i++) 

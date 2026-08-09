@@ -19,6 +19,9 @@ void InputSystem::Initialize()
 	signals::onMouseWheelScrolled.connect(&InputSystem::OnMouseWheelScrolled, this);
 	signals::onMouseMoved.connect(&InputSystem::OnMouseMoved, this);
 	signals::onMouseButtonPressed.connect(&InputSystem::OnMouseButtonPressed, this);
+	signals::onJoystickMoved.connect(&InputSystem::OnJoystickMoved, this);
+	signals::onJoystickButtonPressed.connect(&InputSystem::OnJoystickButtonPressed, this);
+	signals::onJoystickButtonReleased.connect(&InputSystem::OnJoystickButtonReleased, this);
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("MouseCoordsText").lock();
 	mousePosText = GetTextComponent(*mctPtr->GetEntity().lock());
@@ -42,6 +45,49 @@ void InputSystem::Initialize()
 	systemName = "InputSystem";
 }
 
+
+void InputSystem::EnterSystemOverview() 
+{
+	ECSGame::Instance().SetOverviewType(OverviewType::System);
+
+	SceneNodeVisitorChangeAllSystemVisibility visitor(true);
+	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+
+	//std::cout << "-- Entering system view: "<<'\n';
+	//wpSelectedSystemNode.lock()->OutputTree("  ");
+	SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
+	wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+
+	//Setup background camera
+	std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
+	std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
+	sBackCameraCom->view.setCenter(wpSelectedSystemNode.lock()->GetEntity().lock()->GetPosition());
+	sBackCameraCom->view.setSize(sSpaceCameraCom->cameraSize * sSpaceCameraCom->zoomingBorders.x);
+
+	//Setup system camera
+	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
+	sSystemCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
+	sSystemCameraCom->view.setSize(sSystemCameraCom->cameraSize);
+	sSystemCameraCom->currentZoom = 1.f;
+
+	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
+}
+
+
+void InputSystem::ExitSystemOverview() 
+{
+	ECSGame::Instance().SetOverviewType(OverviewType::Space);
+
+	SceneNodeVisitorChangeAllSystemVisibility visitor(false);
+	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+
+	//ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock()->OutputTree(" ");
+
+	SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
+	wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+}
+
+
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
 {
@@ -54,17 +100,9 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	}
 	else if (key.code == sf::Keyboard::Key::Escape)
 	{
-		if (ECSGame::Instance().GetOverviewType() != OverviewType::Space)
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 		{
-			ECSGame::Instance().SetOverviewType(OverviewType::Space);
-
-			SceneNodeVisitorChangeAllSystemVisibility visitor(false);
-			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
-
-			//ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock()->OutputTree(" ");
-
-			SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
-			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+			ExitSystemOverview();
 		}
 		else
 			ECSGame::Instance().CloseGame();
@@ -95,6 +133,8 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	{
 		shiftHold = true;
 	}
+
+	lastInputByJoystick = false;
 }
 
 
@@ -109,47 +149,113 @@ void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 	{
 		shiftHold = false;
 	}
+
+	lastInputByJoystick = false;
 }
 
 
-void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
+void InputSystem::OnJoystickMoved(sf::Event::JoystickMoved joystickMoved)
+{
+	if (joystickMoved.axis == sf::Joystick::Axis::PovX) 
+	{
+		//std::cout << "PovX: " << joystickMoved.position << '\n';
+		if(joystickMoved.position > minValForJoystick)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
+		else if (joystickMoved.position < -minValForJoystick)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
+		
+		lastInputByJoystick = true;
+	}
+
+	if (joystickMoved.axis == sf::Joystick::Axis::PovY)
+	{
+		//std::cout << "PovY: " << joystickMoved.position << '\n';
+		if (joystickMoved.position > minValForJoystick)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
+		else if (joystickMoved.position < -minValForJoystick)
+			ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
+		
+		lastInputByJoystick = true;
+	}
+}
+
+
+void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button)
+{
+	switch (button.button) 
+	{
+	case 0:
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+			EnterSystemOverview();
+		break;
+	case 1:
+		if(ECSGame::Instance().GetOverviewType() == OverviewType::System)
+			ExitSystemOverview();
+		break;
+	case 5:
+		if (ECSGame::Instance().GetGameState() == GameState::Game)
+			ECSGame::Instance().SetGameState(GameState::Pause);
+		else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+			ECSGame::Instance().SetGameState(GameState::Game);
+		break;
+	case 6:
+		ECSGame::Instance().CloseGame();
+		break;
+	}
+
+	lastInputByJoystick = true;
+}
+
+
+void InputSystem::OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button)
+{
+
+}
+
+
+void InputSystem::ZoomCamera(int direction) 
 {
 	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
 	sf::Vector2f previousCameraSize = spCameraCom->view.getSize();
-	//sf::Vector2f previousSize = spCameraCom->view.getSize();
-	//std::cout << mw.delta << '\n';
-	
+
+	float multiplier = 1.f;
+	if (lastInputByJoystick)
+		multiplier = zoomSpeedJoystickSlowing;
+
 	//Zoom camera
-	if (mw.delta < 0)
+	if (direction < 0)
 	{
-		spCameraCom->currentZoom = gel::clamp(spCameraCom->currentZoom*(1+(ECSGame::Instance().GetDeltaTime()* spCameraCom->zoomingSpeed)), spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
+		spCameraCom->currentZoom = gel::clamp(spCameraCom->currentZoom * (1 + (ECSGame::Instance().GetDeltaTime() * spCameraCom->zoomingSpeed * multiplier)), spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
 		//std::cout << "Current zoom INC: " << spCameraCom->currentZoom << '\n';
 	}
 	else
 	{
-		spCameraCom->currentZoom = gel::clamp(spCameraCom->currentZoom * (1 - (ECSGame::Instance().GetDeltaTime() * spCameraCom->zoomingSpeed)), spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
+		spCameraCom->currentZoom = gel::clamp(spCameraCom->currentZoom * (1 - (ECSGame::Instance().GetDeltaTime() * spCameraCom->zoomingSpeed * multiplier)), spCameraCom->zoomingBorders.x, spCameraCom->zoomingBorders.y);
 		//std::cout << "Current zoom DEC: " << spCameraCom->currentZoom << '\n';
 	}
 	spCameraCom->view.setSize(spCameraCom->cameraSize * spCameraCom->currentZoom);
-	
-	//Move camera so, it looks like camera zooms to the place where mouse is pointing
-	sf::Vector2f mousePositionInWorld = ConvertWindowPositionToWorld(spCameraCom->view, ECSGame::Instance().GetMousePosition());
 
-	float previousLeftXBorder = spCameraCom->view.getCenter().x - (previousCameraSize.x / 2.f);
-	float previousTopYBorder = spCameraCom->view.getCenter().y - (previousCameraSize.y / 2.f);
+	if (!lastInputByJoystick)
+	{
+		//Move camera so, it looks like camera zooms to the place where mouse is pointing
+		sf::Vector2f mousePositionInWorld = ConvertWindowPositionToWorld(spCameraCom->view, ECSGame::Instance().GetMousePosition());
 
-	float relativeXPos = (mousePositionInWorld.x - previousLeftXBorder) / previousCameraSize.x;
-	float relativeYPos = (mousePositionInWorld.y - previousTopYBorder) / previousCameraSize.y;
+		float previousLeftXBorder = spCameraCom->view.getCenter().x - (previousCameraSize.x / 2.f);
+		float previousTopYBorder = spCameraCom->view.getCenter().y - (previousCameraSize.y / 2.f);
 
-	float newLeftXBorder = spCameraCom->view.getCenter().x - (spCameraCom->view.getSize().x / 2.f);
-	float newTopYBorder = spCameraCom->view.getCenter().y - (spCameraCom->view.getSize().y / 2.f);
+		float relativeXPos = (mousePositionInWorld.x - previousLeftXBorder) / previousCameraSize.x;
+		float relativeYPos = (mousePositionInWorld.y - previousTopYBorder) / previousCameraSize.y;
 
-	sf::Vector2f newMousePosInWorld { gel::linearInterpolation(newLeftXBorder, newLeftXBorder + spCameraCom->view.getSize().x ,relativeXPos) , gel::linearInterpolation(newTopYBorder, newTopYBorder + spCameraCom->view.getSize().y ,relativeYPos) };
-	spCameraCom->view.move( mousePositionInWorld - newMousePosInWorld);
+		float newLeftXBorder = spCameraCom->view.getCenter().x - (spCameraCom->view.getSize().x / 2.f);
+		float newTopYBorder = spCameraCom->view.getCenter().y - (spCameraCom->view.getSize().y / 2.f);
+
+		sf::Vector2f newMousePosInWorld{ gel::linearInterpolation(newLeftXBorder, newLeftXBorder + spCameraCom->view.getSize().x ,relativeXPos) , gel::linearInterpolation(newTopYBorder, newTopYBorder + spCameraCom->view.getSize().y ,relativeYPos) };
+		spCameraCom->view.move(mousePositionInWorld - newMousePosInWorld);
+	}
 
 	//Check that camera do not go out of bounds
 	sf::Vector2f camCenter = spCameraCom->view.getCenter();
-	float moveX{0.f};
+	float moveX{ 0.f };
 	float moveY{ 0.f };
 	if (camCenter.x + (spCameraCom->view.getSize().x / 2.f) >= spCameraCom->horizontalBorders.y)
 		moveX = -(camCenter.x + (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.y);
@@ -161,7 +267,14 @@ void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw)
 	else if (camCenter.y - (spCameraCom->view.getSize().y / 2.f) <= spCameraCom->verticalBorders.x)
 		moveY = -(camCenter.y + moveY - (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.x);
 
-	spCameraCom->view.move({moveX, moveY});
+	spCameraCom->view.move({ moveX, moveY });
+}
+
+
+void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
+{
+	lastInputByJoystick = false;
+	ZoomCamera(mw.delta);
 }
 
 
@@ -169,6 +282,7 @@ void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement)
 {
 	//Move mouse
 	mouseIconEntity->SetPosition({ (float)mouseMovement.position.x, (float)mouseMovement.position.y});
+	//lastInputByJoystick = false;
 }
 
 
@@ -178,31 +292,11 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 	{
 		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock()!=nullptr) 
 		{
-			ECSGame::Instance().SetOverviewType(OverviewType::System);
-
-			SceneNodeVisitorChangeAllSystemVisibility visitor(true);
-			ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
-
-			//std::cout << "-- Entering system view: "<<'\n';
-			//wpSelectedSystemNode.lock()->OutputTree("  ");
-			SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
-			wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
-
-			//Setup background camera
-			std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
-			std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
-			sBackCameraCom->view.setCenter(wpSelectedSystemNode.lock()->GetEntity().lock()->GetPosition());
-			sBackCameraCom->view.setSize(sSpaceCameraCom->cameraSize* sSpaceCameraCom->zoomingBorders.x);
-
-			//Setup system camera
-			std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
-			sSystemCameraCom->view.setCenter(sf::Vector2f{0.f,0.f});
-			sSystemCameraCom->view.setSize(sSystemCameraCom->cameraSize);
-			sSystemCameraCom->currentZoom = 1.f;
-
-			signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
+			EnterSystemOverview();
 		}
 	}
+
+	lastInputByJoystick = false;
 }
 
 
@@ -211,6 +305,17 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 //is released. If I would use events, they are not called every frame, which is bad
 void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
+	//Check if joystick connected or not
+	if (sf::Joystick::isConnected(0) != joystickConnected) 
+	{
+		if (sf::Joystick::isConnected(0))
+			std::cout << "Joystick connected!\n";
+		else
+			std::cout << "Joystick disconnected!\n";
+
+		joystickConnected = sf::Joystick::isConnected(0);
+	}
+
 	//Set direction to 0,0
 	sf::Vector2f direction{ 0,0 };
 
@@ -218,22 +323,62 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	{
 		//Change direction to positive
 		direction.y -= 1.f;
+		lastInputByJoystick = false;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
 	{
 		//Change direction to negative
 		direction.y += 1.f;
+		lastInputByJoystick = false;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 	{
 		direction.x -= 1.f;
+		lastInputByJoystick = false;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 	{
 		direction.x += 1.f;
+		lastInputByJoystick = false;
+	}
+
+	if (joystickConnected)
+	{
+		//Get LEFT joysticks position
+		float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+		float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
+
+		if (abs(x) > minValForJoystick || abs(y) > minValForJoystick)
+		{
+			direction = sf::Vector2f{ x / 50.f, y / 50.f };
+			lastInputByJoystick = true;
+		}
+
+		//Get RIGHT joysticks position
+		float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::U);
+		float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+
+		//std::cout << "V: " << v<<'\n';
+		if (abs(u) > minValForJoystick || abs(v) > minValForJoystick)
+		{
+			sf::Vector2i previousMousePos = ECSGame::Instance().GetMousePosition();
+			float mouseSpeed = 100.f / mouseSpeedFromJoystick;
+			//std::cout <<"Move Y: " << (int)roundf(v / mouseSpeed) << '\n';
+			//lastMouseSpeed = sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) };
+			ECSGame::Instance().SetMousePosition(sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) });
+			lastInputByJoystick = true;
+		}
+
+		//Get LT and RT
+		float z = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z);
+		if (abs(z) > minValForJoystick)
+		{
+			lastInputByJoystick = true;
+			ZoomCamera(z);
+		}
 	}
 
 	//Deal with mouse movement
@@ -300,6 +445,8 @@ void MovementSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	//If game paused, then do nothing
 	SceneNodeVisitorMovement visitor(*this);
 	scene->AcceptVisitor(visitor);
+
+	//direction = sf::Vector2{ 0.f,0.f };
 }
 
 

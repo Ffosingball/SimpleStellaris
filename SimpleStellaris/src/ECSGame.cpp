@@ -19,6 +19,7 @@
 //Initialize game
 void ECSGame::Init(sf::RenderWindow& renderWindow) 
 {
+	renderWindowPtr = &renderWindow;
 	//Create scene root
 	sceneRoot = std::make_shared<SceneNode>();
 	uiRoot = std::make_shared<SceneNode>();
@@ -28,6 +29,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	std::srand(std::time(nullptr));
 	//Get window size
 	windowSize = renderWindow.getSize();
+	windowRelationToDefault = (float)windowSize.y / 1600.f;
 
 	//Load all resources
 	ResourceManager::Instance().LoadAllResources();
@@ -159,6 +161,24 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 	{
 		signals::onMouseButtonPressed(*mouseButtonPressed);
 	}
+
+	//Check if joysticks were moved
+	if (const auto* joystickMoved = event->getIf<sf::Event::JoystickMoved>())
+	{
+		signals::onJoystickMoved(*joystickMoved);
+	}
+
+	//Check if joysticks button pressed
+	if (const auto* joystickButPressed = event->getIf<sf::Event::JoystickButtonPressed>())
+	{
+		signals::onJoystickButtonPressed(*joystickButPressed);
+	}
+
+	//Check if joysticks button released
+	if (const auto* joystickButReleased = event->getIf<sf::Event::JoystickButtonReleased>())
+	{
+		signals::onJoystickButtonReleased(*joystickButReleased);
+	}
 }
 
 //Render all entities
@@ -243,4 +263,10 @@ float ECSGame::GetSimulationDeltaTime() const
 		return deltaTime * simulationSpeed;
 	else
 		return 0.f;
+}
+
+
+void ECSGame::SetMousePosition(sf::Vector2i newMousePos) const 
+{ 
+	sf::Mouse::setPosition(newMousePos, *renderWindowPtr); 
 }

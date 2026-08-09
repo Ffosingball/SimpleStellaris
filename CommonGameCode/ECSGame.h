@@ -44,6 +44,8 @@ public:
 	//Worst case: O(1)
 	sf::Vector2u GetWindowSize() const { return windowSize; }
 	//Worst case: O(1)
+	float GetUISize() const { return windowRelationToDefault; }
+	//Worst case: O(1)
 	sf::Vector2i GetMousePosition() const { return mousePosition; }
 	//Worst case: O(1)
 	int GetFPS() const { return previousFPS; }
@@ -63,6 +65,8 @@ public:
 	void CloseGame() { closeGame = true; }
 	//Worst case: O(1)
 	void SetSimulationSpeed(float simSpeed);
+	//Worst case: O(1)
+	void SetMousePosition(sf::Vector2i newMousePos) const;
 
 	//Override all methods from the parent
 	void Init(sf::RenderWindow& renderWindow) override;
@@ -98,4 +102,8 @@ private:
 	float daysPast{ 0.f };
 	//Simulation speed
 	float simulationSpeed{ 10.f };
+	//This is needed to keep UI size the same on every monitor
+	float windowRelationToDefault{ 1.f };
+	//Pointer to the window
+	sf::RenderWindow* renderWindowPtr;
 };

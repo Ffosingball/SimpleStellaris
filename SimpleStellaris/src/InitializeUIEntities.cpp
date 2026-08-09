@@ -170,13 +170,14 @@ void CreateDebugText()
 {
 	float fontSize = 20;
 
-	InitializeText("MouseCoordsText", " ", fontSize, sf::Vector2f{0.f, 0.f});
-	InitializeText("WorldCoordsText", " ", fontSize, sf::Vector2f{ 0.f, 25.f });
-	InitializeText("SystemsNearByText", " ", fontSize, sf::Vector2f{ 0.f, 50.f });
-	InitializeText("FPSText", " ", fontSize, sf::Vector2f{ 0.f, 75.f });
-	InitializeText("DaysPastText", " ", fontSize, sf::Vector2f{ 0.f, 100.f });
-	InitializeText("DateText", " ", fontSize, sf::Vector2f{ 0.f, 125.f });
-	InitializeText("RenderText", " ", fontSize, sf::Vector2f{ 0.f, 150.f });
+	float uiSize = ECSGame::Instance().GetUISize();
+	InitializeText("MouseCoordsText", " ", fontSize * uiSize, sf::Vector2f{0.f, 0.f} * uiSize);
+	InitializeText("WorldCoordsText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 25.f } * uiSize);
+	InitializeText("SystemsNearByText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 50.f } * uiSize);
+	InitializeText("FPSText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 75.f } * uiSize);
+	InitializeText("DaysPastText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 100.f } * uiSize);
+	InitializeText("DateText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 125.f } * uiSize);
+	InitializeText("RenderText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 150.f } * uiSize);
 }
 
 
@@ -188,6 +189,7 @@ void CreateUI()
 {
 	sf::Vector2f iconSize{100.f, 100.f};
 
+	float uiSize = ECSGame::Instance().GetUISize();
 	//Create selection icon
 	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("SelectedSystemIcon").lock();
 	//Add component
@@ -197,7 +199,7 @@ void CreateUI()
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
 	sf::IntRect intRect({0,0}, {32,32});
-	SetupRectangleShape(spRectShape, iconSize, "SelectionIcon");
+	SetupRectangleShape(spRectShape, iconSize * uiSize, "SelectionIcon");
 	spSSIcon->hidden = true;
 }
 
@@ -211,6 +213,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	float fontSize = 22;
 	float nebulaFontSize = 40;
 
+	float uiSize = ECSGame::Instance().GetUISize();
 	std::string name{"UNDEFINED"};
 	std::shared_ptr<Entity> spEntityToFollow = spNodeToFollow->GetEntity().lock();
 	if (spEntityToFollow->HasComponent(ComponentType::ObjectSystem))
@@ -225,7 +228,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 		fontSize = nebulaFontSize;
 	}
 	//Create text
-	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName, name, fontSize, sf::Vector2f{0,0});
+	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName, name, fontSize * uiSize, sf::Vector2f{0,0});
 	
 	//Add component
 	spText->AddComponent(ComponentType::UIFollower);
@@ -234,10 +237,10 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
 
 	std::shared_ptr<TextComponent> spUIText = GetTextComponent(*spText);
-	gel::CentreText(*spUIText->text, sf::Vector2f{ 0,fontSize*2.f });
+	gel::CentreText(*spUIText->text, sf::Vector2f{ 0,fontSize*2.f * uiSize });
 	spUIText->text->setFillColor(sf::Color(229,229,229));
 	spUIText->text->setOutlineColor(sf::Color(50,50,50));
-	spUIText->text->setOutlineThickness(1.f);
+	spUIText->text->setOutlineThickness(1.f * uiSize);
 
 	//counter++;
 
@@ -251,6 +254,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 void InitializeMouseIcon() 
 {
 	sf::Vector2f mouseSize{ 60.f, 60.f };
+	float uiSize = ECSGame::Instance().GetUISize();
 
 	std::weak_ptr<Entity> wpMouseIcon = ECSGame::Instance().GetEntityManager().NewEntity("MouseIcon");
 	ECSGame::Instance().GetUIRoot()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
@@ -259,7 +263,7 @@ void InitializeMouseIcon()
 
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*wpMouseIcon.lock());
-	SetupRectangleShape(spRectShape, mouseSize, "MouseIcon");
+	SetupRectangleShape(spRectShape, mouseSize * uiSize, "MouseIcon");
 	spRectShape->shape.setPosition({32,32});
 }
 
@@ -271,6 +275,7 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::s
 {
 	//if (iconTexture == "CenterOfMassIcon")
 	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
+	float uiSize = ECSGame::Instance().GetUISize();
 
 	//Create selection icon
 	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt(createIconIn, name).lock();
@@ -280,7 +285,7 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::s
 	spSSIcon->AddComponent(ComponentType::RectangleShape);
 	//Get component
 	std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spSSIcon);
-	SetupRectangleShape(spRectShape, iconSize, iconTexture);
+	SetupRectangleShape(spRectShape, iconSize * uiSize, iconTexture);
 	//spSSIcon->hidden = true;
 	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spSSIcon);
 	spUIFollower->nodeToFollow = nodeToFollow;
