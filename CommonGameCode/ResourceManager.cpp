@@ -519,6 +519,25 @@ const void ResourceManager::LoadAllResources()
 			texturesIntRects.emplace(name, textureSize);
 		}
 	}
+	{
+		std::string textureName{ "UI parts" };
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile("media/textures/UIParts.png"))
+			std::cout << "No texture found: " + textureName + "\n";
+		else
+		{
+			std::string name = "BottomUIPart";
+			sf::IntRect textureSize{ {0,21},{100,19} };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "TopUIPart";
+			textureSize.position = sf::Vector2i{ 0,0 };
+			textureSize.size = sf::Vector2i{ 100,11 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+		}
+	}
 
 
 	//LOAD FONTS

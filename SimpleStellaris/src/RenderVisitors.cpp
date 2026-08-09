@@ -75,6 +75,7 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
             //And now draw entities differently, depending on which other components they have
             if (spEntity->HasComponent(ComponentType::RectangleShape))
             {
+                //std::cout << "UI rec shape: "<<spEntity->GetName()<<'\n';
                 //Get component
                 std::shared_ptr<RectangleShapeComponent> spEntityRecShape = GetRectangleShapeComponent(*spEntity);
                 //Get absolute position of the entity in the world

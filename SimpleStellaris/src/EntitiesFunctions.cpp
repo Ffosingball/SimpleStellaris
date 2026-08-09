@@ -225,9 +225,9 @@ int GetKeyForSystemsPosition(sf::Vector2i gridPosition)
 
 
 //Worst case: O(N) where N is number of months in a year
-std::string GetDateFromDays(int daysPast) 
+void GetDateFromDays(int daysPast, int& day, std::string& month, int& year) 
 {
-	int year = daysPast / 365;
+	year = daysPast / 365;
 	daysPast %= 365;
 	daysPast++;
 
@@ -235,87 +235,109 @@ std::string GetDateFromDays(int daysPast)
 	if (daysPast <= 0) 
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " January " + std::to_string(year);
+		month = "January";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 28;
 	if (daysPast <= 0)
 	{
 		daysPast += 28;
-		return std::to_string(daysPast) + " February " + std::to_string(year);
+		month = "February";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 31;
 	if (daysPast <= 0)
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " March " + std::to_string(year);
+		month = "March";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 30;
 	if (daysPast <= 0)
 	{
 		daysPast += 30;
-		return std::to_string(daysPast) + " April " + std::to_string(year);
+		month = "April";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 31;
 	if (daysPast <= 0)
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " May " + std::to_string(year);
+		month = "May";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 30;
 	if (daysPast <= 0)
 	{
 		daysPast += 30;
-		return std::to_string(daysPast) + " June " + std::to_string(year);
+		month = "June";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 31;
 	if (daysPast <= 0)
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " July " + std::to_string(year);
+		month = "July";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 31;
 	if (daysPast <= 0)
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " August " + std::to_string(year);
+		month = "August";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 30;
 	if (daysPast <= 0)
 	{
 		daysPast += 30;
-		return std::to_string(daysPast) + " September " + std::to_string(year);
+		month = "September";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 31;
 	if (daysPast <= 0)
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " October " + std::to_string(year);
+		month = "October";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 30;
 	if (daysPast <= 0)
 	{
 		daysPast += 30;
-		return std::to_string(daysPast) + " November " + std::to_string(year);
+		month = "November";
+		day = daysPast;
+		return;
 	}
 
 	daysPast -= 31;
 	if (daysPast <= 0)
 	{
 		daysPast += 31;
-		return std::to_string(daysPast) + " December " + std::to_string(year);
+		month = "December";
+		day = daysPast;
+		return;
 	}
-
-	return "UKNOWN December " + std::to_string(year);
 }
 
 

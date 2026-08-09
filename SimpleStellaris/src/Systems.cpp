@@ -25,22 +25,42 @@ void InputSystem::Initialize()
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("MouseCoordsText").lock();
 	mousePosText = GetTextComponent(*mctPtr->GetEntity().lock());
+	debugTextes.push_back(mctPtr->GetEntity());
 
 	std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUIRoot()->FindChild("WorldCoordsText").lock();
 	worldPosText = GetTextComponent(*wctPtr->GetEntity().lock());
+	debugTextes.push_back(wctPtr->GetEntity());
 
 	std::shared_ptr<SceneNode> wsnPtr = ECSGame::Instance().GetUIRoot()->FindChild("SystemsNearByText").lock();
 	systemsNearByText = GetTextComponent(*wsnPtr->GetEntity().lock());
+	debugTextes.push_back(wsnPtr->GetEntity());
 
 	std::shared_ptr<SceneNode> wfpsPtr = ECSGame::Instance().GetUIRoot()->FindChild("FPSText").lock();
 	fpsText = GetTextComponent(*wfpsPtr->GetEntity().lock());
+	debugTextes.push_back(wfpsPtr->GetEntity());
 
 	std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUIRoot()->FindChild("SelectedSystemIcon").lock();
 	selectedSystemIcon = GetUIFollowerComponent(*wsiPtr->GetEntity().lock());
 	selectedSystemEntity = wsiPtr->GetEntity().lock();
+	//debugTextes.push_back(wsiPtr->GetEntity());
 
 	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUIRoot()->FindChild("MouseIcon").lock();
 	mouseIconEntity = mouseNodeSP->GetEntity().lock();
+
+	std::shared_ptr<SceneNode> s2Ptr = ECSGame::Instance().GetUIRoot()->FindChild("DaysPastText").lock();
+	debugTextes.push_back(s2Ptr->GetEntity());
+
+	std::shared_ptr<SceneNode> s3Ptr = ECSGame::Instance().GetUIRoot()->FindChild("DateText").lock();
+	debugTextes.push_back(s3Ptr->GetEntity());
+
+	std::shared_ptr<SceneNode> s4Ptr = ECSGame::Instance().GetUIRoot()->FindChild("RenderText").lock();
+	debugTextes.push_back(s4Ptr->GetEntity());
+
+	for (std::weak_ptr<Entity> e : debugTextes) 
+	{
+		e.lock()->hidden = true;
+	}
+	showDebugText = false;
 
 	systemName = "InputSystem";
 }
@@ -132,6 +152,14 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	else if (key.code == sf::Keyboard::Key::LShift)
 	{
 		shiftHold = true;
+	}
+	else if (key.code == sf::Keyboard::Key::F3)
+	{
+		showDebugText = !showDebugText;
+		for (std::weak_ptr<Entity> e : debugTextes)
+		{
+			e.lock()->hidden = showDebugText;
+		}
 	}
 
 	lastInputByJoystick = false;
@@ -455,9 +483,24 @@ void UISystem::Initialize()
 {
 	//Subscribe to some signals
 	signals::onRenderingComplete.connect(&UISystem::OnRenderingComplete, this);
+	signals::onSystemOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("RenderText").lock();
 	nodesText = GetTextComponent(*mctPtr->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp2 = ECSGame::Instance().GetUIRoot()->FindChild("MonthText").lock();
+	monthText = GetTextComponent(*sp2->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp3 = ECSGame::Instance().GetUIRoot()->FindChild("DayText").lock();
+	dayText = GetTextComponent(*sp3->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp4 = ECSGame::Instance().GetUIRoot()->FindChild("YearText").lock();
+	yearText = GetTextComponent(*sp4->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp5 = ECSGame::Instance().GetUIRoot()->FindChild("SimulationStateText").lock();
+	simStateText = GetTextComponent(*sp5->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp6 = ECSGame::Instance().GetUIRoot()->FindChild("SimulationSpeedText").lock();
+	simSpeedText = GetTextComponent(*sp6->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp7 = ECSGame::Instance().GetUIRoot()->FindChild("ViewSizeText").lock();
+	viewSizeText = GetTextComponent(*sp7->GetEntity().lock());
+	std::shared_ptr<SceneNode> sp8 = ECSGame::Instance().GetUIRoot()->FindChild("OverviewText").lock();
+	overviewText = GetTextComponent(*sp8->GetEntity().lock());
 
 	systemName = "UISystem";
 }
@@ -465,6 +508,58 @@ void UISystem::Initialize()
 void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	nodesText.lock()->text->setString("Total nodes: "+std::to_string(numOfNodes)+"; rendered: "+std::to_string(nodesRendered));
+	
+	int days = 0;
+	std::string month;
+	int years = 0;
+	GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
+
+	dayText.lock()->text->setString(std::to_string(days));
+	gel::CentreText(*dayText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+	monthText.lock()->text->setString(month);
+	gel::CentreText(*monthText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+	yearText.lock()->text->setString(std::to_string(years));
+	gel::CentreText(*yearText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+	if (ECSGame::Instance().GetGameState() == GameState::Pause)
+	{
+		simStateText.lock()->text->setString("PAUSED");
+		simStateText.lock()->text->setFillColor(sf::Color::Red);
+	}
+	else
+	{
+		simStateText.lock()->text->setString("RESUMED");
+		simStateText.lock()->text->setFillColor(sf::Color::White);
+	}
+	gel::CentreText(*simStateText.lock()->text, sf::Vector2 { 0.f, 0.f });
+	
+	simSpeedText.lock()->text->setString("Simulation speed "+std::to_string((int)ECSGame::Instance().GetSimulationSpeed())+" days/second");
+	gel::CentreText(*simSpeedText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+	std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
+	float size = spCamCom->view.getSize().x;
+	std::string part{ "." };
+	if (size > 100)
+		part = " ";
+	else if ((int)size<=0 && (int)((size - (int)size) * 100) < 10)
+		part = ".0"+ std::to_string((int)((size - (int)size) * 100));
+	else
+		part = "." + std::to_string((int)((size - (int)size) * 100));
+	//std::cout << (int)size << '\n';
+
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size)+part + " light years");
+	else
+		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size) + part + " astronomical units");
+	gel::CentreText(*viewSizeText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+		overviewText.lock()->text->setString("Space Overview");
+	else if(ECSGame::Instance().GetOverviewType() == OverviewType::System)
+		overviewText.lock()->text->setString(GetObjectSystemComponent(*wpSystemNodeSelected.lock()->GetEntity().lock())->systemName + " System");
+	gel::CentreText(*overviewText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
 	if (scene == ECSGame::Instance().GetUIRoot())
 	{
@@ -477,6 +572,11 @@ void UISystem::OnRenderingComplete(int numOfNodes, int nodesRendered)
 {
 	this->numOfNodes = numOfNodes;
 	this->nodesRendered = nodesRendered;
+}
+
+void UISystem::OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate)
+{
+	wpSystemNodeSelected = nodeToSimulate;
 }
 
 
@@ -533,7 +633,11 @@ void SimulationSystem::Initialize()
 void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	daysPastText.lock()->text->setString("Simulation speed: " + std::to_string(ECSGame::Instance().GetSimulationSpeed()) + "; Days past: " + std::to_string((int)ECSGame::Instance().GetDaysPast()));
-	dateText.lock()->text->setString("Proper Date: " + GetDateFromDays((int)ECSGame::Instance().GetDaysPast()));
+	int days = 0;
+	std::string month;
+	int years = 0;
+	GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
+	dateText.lock()->text->setString("Proper Date: " + std::to_string(days)+" "+month+std::to_string(years));
 
 	if (ECSGame::Instance().GetOverviewType() == OverviewType::System) 
 	{

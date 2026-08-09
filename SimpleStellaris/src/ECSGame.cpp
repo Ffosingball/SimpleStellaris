@@ -83,8 +83,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	gameState = GameState::Pause;
 	overviewType = OverviewType::Space;
 
-	//Output full sceneNode tree for debbuging
-	//sceneRoot->OutputTree(" ");
+	uiRoot->ChangeChildOrder(uiRoot->FindChild("MouseIcon").lock(), uiRoot->GetAllChildren().size()-1);
 }
 
 

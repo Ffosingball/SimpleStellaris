@@ -45,7 +45,7 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap();
 //Worst case: O(1)
 bool IsWorldPosInsideOfCamera(std::shared_ptr<CameraComponent> spCamCom, sf::Vector2f worldPos);
 //Worst case: O(N) where N is number of months in a year
-std::string GetDateFromDays(int daysPast);
+void GetDateFromDays(int daysPast, int& day, std::string& month, int& year);
 
 
 //Initializing functions
@@ -73,13 +73,13 @@ void InitializeAllCameras(const sf::Vector2u& windowSize);
 void SetupMoveTextProperties(const std::string textName, std::shared_ptr<SceneNode> nodeWithName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget);
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize);
+std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize, const std::string fontName, sf::Color color);
 //Worst case: O(2N+9M+3K) where N is number entities in game and M number of components in text
 // and K in number of components available
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking, const bool isMoving, const float* targetX, const float* targetY, const sf::Vector2f velocity, const bool skipOriginReset);
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color);
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
 std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);

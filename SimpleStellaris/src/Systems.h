@@ -35,10 +35,12 @@ private:
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
+	std::shared_ptr<TextComponent> fpsText{ nullptr };
+	std::vector<std::weak_ptr<Entity>> debugTextes;
+
 	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
 	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
-	std::shared_ptr<TextComponent> fpsText{ nullptr };
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };
@@ -50,6 +52,7 @@ private:
 	//How many times zoom on joystick slower than on mouse
 	float zoomSpeedJoystickSlowing= 0.1f;
 	//sf::Vector2i lastMouseSpeed{ 0,0 };
+	bool showDebugText = false;
 
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
@@ -81,9 +84,21 @@ private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
+	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
+
 	std::weak_ptr<TextComponent> nodesText;
 	int numOfNodes{ 0 };
 	int nodesRendered{ 0 };
+
+	std::weak_ptr<TextComponent> monthText;
+	std::weak_ptr<TextComponent> dayText;
+	std::weak_ptr<TextComponent> yearText;
+	std::weak_ptr<TextComponent> simStateText;
+	std::weak_ptr<TextComponent> simSpeedText;
+	std::weak_ptr<TextComponent> viewSizeText;
+	std::weak_ptr<TextComponent> overviewText;
+
+	std::weak_ptr<SceneNode> wpSystemNodeSelected;
 
 	void OnRenderingComplete(int numOfNodes, int nodesRendered);
 };
@@ -93,33 +108,12 @@ private:
 class MusicSystem :public System
 {
 public:
-	//Pointer to sound and music
-	//std::shared_ptr<sf::Music> mainMusic;
-	//std::shared_ptr<sf::Sound> spExplosionSound;
-	//std::shared_ptr<sf::Sound> spHurtSound;
-	//std::shared_ptr<sf::Sound> spShotSound;
-	//std::shared_ptr<sf::Sound> spWarningSound;
-	//std::shared_ptr<sf::Sound> spPowerUpSound;
-	//std::shared_ptr<sf::Sound> spWonSound;
-	//Variables to play some sounds several times
-	//int playExplosionSound{ 0 };
-	//float timeLeftToPlaySound{ 0.f };
-	//int playWonSound{ 0 };
-	//float timeLeftToPlayWonSound{0.f};
 
 	virtual ~MusicSystem() = default;
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
-	//Signals functions
-	//void OnGameRestart();
-	//void OnPlayExplosionSound();
-	//void OnPlayHurtSound(int n);
-	//void OnPlayShotSound();
-	//void OnPlayWarningSound();
-	//void OnPlayPowerUpSound();
-	//void OnPlayManyExplosionsSounds(int numOfTimesToPlay);
-	//void OnPlayWonSound();
+
 };
 
 
