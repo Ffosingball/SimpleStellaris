@@ -31,6 +31,8 @@ private:
 	void ZoomCamera(int direction);
 	void EnterSystemOverview();
 	void ExitSystemOverview();
+	void EnterPlanetFromSystemOverview();
+	void ExitPlanetToSystemOverview();
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
@@ -41,6 +43,7 @@ private:
 	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
 	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
+	std::weak_ptr<SceneNode> wpPlanetOrStarSelected;
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };
@@ -53,6 +56,9 @@ private:
 	float zoomSpeedJoystickSlowing= 0.1f;
 	//sf::Vector2i lastMouseSpeed{ 0,0 };
 	bool showDebugText = false;
+	float zoomAtWhichStartSelectPlanets{0.8f};
+	//In window pixels
+	int distanceFromMouseToIconToBeSelected{30};
 
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
@@ -140,6 +146,7 @@ private:
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
+	//void OnPlanetOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 
 	std::weak_ptr<TextComponent> daysPastText;
 	std::weak_ptr<TextComponent> dateText;
@@ -158,6 +165,7 @@ namespace signals
 	inline sigslot::signal<sf::Event::MouseButtonPressed> onMouseButtonPressed;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onSystemOverviewSet;
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onPlanetOverviewSet;
 	inline sigslot::signal<int, int> onRenderingComplete;
 	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;

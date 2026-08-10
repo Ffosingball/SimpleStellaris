@@ -1065,12 +1065,32 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 	{
 		textureNums.push_back(i);
 	}
+	std::vector<sf::Vector2f> positionsSelected;
+	std::vector<float> sizes;
 
 	int numOfNebulas = numOfNebulasDist(*randomizer);
 	for (int i = 0; i < numOfNebulas; i++) 
 	{
 		sf::Vector2f newPos{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
-		//std::cout << "Nebula pos: "<<newPos.x<<"; "<<newPos.y<<'\n';
+		float nebulaSize = sizeOfNebulasDist(*randomizer);
+		int index = 0;
+		int regeneratedPos = 0;
+		while (index < positionsSelected.size() && regeneratedPos<mapConfig.maxAmountOfSystemPosRegen) 
+		{
+			if (gel::distanceBetween2Points(newPos, positionsSelected[index]) < (sizes[index] + nebulaSize) / 2.f) 
+			{
+				index = -1;
+				newPos = sf::Vector2f{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
+				nebulaSize = sizeOfNebulasDist(*randomizer);
+				regeneratedPos++;
+			}
+			index++;
+		}
+		positionsSelected.push_back(newPos);
+		sizes.push_back(nebulaSize);
+
+		if (regeneratedPos >= mapConfig.maxAmountOfSystemPosRegen)
+			std::cout << "Regenerated nebula position " << regeneratedPos << " times\n";
 
 		//Create new nebula
 		std::shared_ptr<Entity> spNewNeb = CreateNewEntityAt(ptrNebulasNode, "Nebula" + std::to_string(i)).lock();
@@ -1081,7 +1101,7 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 
 		//Setup nebula properties
 		std::shared_ptr<NebulaComponent> spNebulaCom = GetNebulaComponent(*spNewNeb);
-		spNebulaCom->nebulaSize = sizeOfNebulasDist(*randomizer);
+		spNebulaCom->nebulaSize = nebulaSize;
 		//std::cout << "Nebula size: " << spNebulaCom->nebulaSize << '\n';
 		std::uniform_int_distribution<int> nameDist(0, nebulaNames.size() - 1);
 		int pos = nameDist(*randomizer);
@@ -1260,6 +1280,55 @@ std::string GetPlanetIconTextureName(PlanetType planetType, float planetSize, Sp
 		return "NeptuneLikePlanetIcon";
 	case PlanetType::UranusLike:
 		return "UranusLikePlanetIcon";
+	}
+
+	return "Placeholder";
+}
+
+
+std::string GetPlanetTextureName(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet)
+{
+	switch (planetType)
+	{
+	case PlanetType::BarrenDark:
+		return "DarkBarren";
+	case PlanetType::BarrenGrey:
+		return "GreyBarren";
+	case PlanetType::BarrenMarsLike:
+		return "RedBarren";
+	case PlanetType::VenusLike:
+		return "VenusLike";
+	case PlanetType::Oceanic:
+		return "Oceanic";
+	case PlanetType::EarthLike:
+		if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+			return "CloseEarthLike";
+		else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+			return "EarthLike";
+		else
+			return "AfarEarthLike";
+	case PlanetType::TitanLike:
+		return "TitanLike";
+	case PlanetType::Molten:
+		return "Molten";
+	case PlanetType::Icy:
+		return "Icy";
+	case PlanetType::Voulcanic:
+		return "Voulcanic";
+	case PlanetType::Desert:
+		return "Desert";
+	case PlanetType::HotJupiter:
+		return "HotJupiter";
+	case PlanetType::HotNeptune:
+		return "HotNeptune";
+	case PlanetType::JupiterLike:
+		return "JupiterLike";
+	case PlanetType::SaturnLike:
+		return "SaturnLike";
+	case PlanetType::NeptuneLike:
+		return "NeptuneLike";
+	case PlanetType::UranusLike:
+		return "UranusLike";
 	}
 
 	return "Placeholder";

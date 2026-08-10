@@ -304,9 +304,12 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             //Get planet component
             std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spEntity);
 
-            //Move planet
-            float rotation = (spPlanetCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spPlanetCom->initialRotationPosition;
-            spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spPlanetCom->orbitRadius);
+            if (spPlanetCom->isMoon || !simulateOnlyMoons)
+            {
+                //Move planet
+                float rotation = (spPlanetCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spPlanetCom->initialRotationPosition;
+                spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spPlanetCom->orbitRadius);
+            }
         }
     }
 }

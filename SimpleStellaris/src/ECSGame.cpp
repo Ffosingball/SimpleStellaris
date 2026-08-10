@@ -194,7 +194,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	int numOfNodes{ 0 }, renderedNodes{ 0 };
 	std::shared_ptr<SceneNode> spBackgroundNode;
-	if (overviewType == OverviewType::System) 
+	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
 	{
 		spBackgroundNode = sceneRoot->FindChild("Background").lock();
 
@@ -240,7 +240,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	//DEB: std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
 
 	signals::onRenderingComplete(numOfNodes, renderedNodes);
-	if (overviewType == OverviewType::System)
+	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
 	{
 		spBackgroundNode->GetEntity().lock()->hidden = false;
 		SceneNodeVisitorChangeNebulasVisibility visitor(false);

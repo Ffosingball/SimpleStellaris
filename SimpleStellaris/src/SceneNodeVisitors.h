@@ -165,12 +165,36 @@ private:
 
 
 
+class SceneNodeVisitorChangeSinglePlanetVisibility : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorChangeSinglePlanetVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    bool hidden;
+    int counter{ 0 };
+    std::shared_ptr<SceneNode> spSystemIconsNode;
+    std::shared_ptr<SceneNode> spObjectOrbitsNode;
+    std::shared_ptr<SceneNode> spPlanetPicNode;
+    float earthDiameter{12.756f};
+
+    sf::Vector2f planetIconSize{ 200.f, 200.f };
+    sf::Vector2f moonIconSize{ 100.f, 100.f };
+};
+
+
+
 class SceneNodeVisitorMoveObjectsInSystem : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorMoveObjectsInSystem() {}
+    SceneNodeVisitorMoveObjectsInSystem(bool simOnlyMoons) : simulateOnlyMoons(simOnlyMoons) {}
 
     void ProcessNode(SceneNode& node) override;
+
+private:
+    bool simulateOnlyMoons{ false };
 };
 
 
@@ -183,4 +207,23 @@ public:
     void ProcessNode(SceneNode& node) override;
 private:
     bool hidden;
+};
+
+
+
+class SceneNodeVisitorGetClosestNodeToPosition : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorGetClosestNodeToPosition(sf::Vector2f position, float maxDistance, bool checkPlanets) : position(position), maxDistance(maxDistance), checkPlanets(checkPlanets) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+    std::weak_ptr<SceneNode> wpClosestNode;
+
+private:
+    sf::Vector2f closestPosition{9999999.f, 9999999.f};
+
+    sf::Vector2f position;
+    float maxDistance;
+    bool checkPlanets;
 };

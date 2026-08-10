@@ -177,6 +177,7 @@ public:
 	//In radians per day
 	float rotationalVelocity{ 0.f };
 	std::string planetIconTextureName;
+	bool isMoon{ false };
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;

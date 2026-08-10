@@ -538,6 +538,109 @@ const void ResourceManager::LoadAllResources()
 			texturesIntRects.emplace(name, textureSize);
 		}
 	}
+	{
+		std::string textureName{ "PlanetTextures" };
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile("media/textures/PlanetTextures.png"))
+			std::cout << "No texture found: " + textureName + "\n";
+		else
+		{
+			std::string name = "NeptuneLike";
+			sf::IntRect textureSize{ {0,0},{40,40} };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "HotNeptune";
+			textureSize.position = sf::Vector2i{ 40,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Icy";
+			textureSize.position = sf::Vector2i{ 80,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "AfarEarthLike";
+			textureSize.position = sf::Vector2i{ 120,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "RedBarren";
+			textureSize.position = sf::Vector2i{ 160,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "UranusLike";
+			textureSize.position = sf::Vector2i{ 0,40 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "HotJupiter";
+			textureSize.position = sf::Vector2i{ 40,40 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Molten";
+			textureSize.position = sf::Vector2i{ 80,40 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "EarthLike";
+			textureSize.position = sf::Vector2i{ 120,40 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "GreyBarren";
+			textureSize.position = sf::Vector2i{ 160,40 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "SaturnLike";
+			textureSize.position = sf::Vector2i{ 0,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Desert";
+			textureSize.position = sf::Vector2i{ 40,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Titan";
+			textureSize.position = sf::Vector2i{ 80,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Oceanic";
+			textureSize.position = sf::Vector2i{ 120,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "DarkBarren";
+			textureSize.position = sf::Vector2i{ 160,80 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "JupiterLike";
+			textureSize.position = sf::Vector2i{ 0,120 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Voulcanic";
+			textureSize.position = sf::Vector2i{ 40,120 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "CloseEarthLike";
+			textureSize.position = sf::Vector2i{ 80,120 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "VenusLike";
+			textureSize.position = sf::Vector2i{ 120,120 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+		}
+	}
 
 
 	//LOAD FONTS
