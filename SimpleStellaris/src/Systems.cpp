@@ -103,7 +103,8 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 	wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
 
-	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
+	float earthDiameter = GetSystemPropertiesComponent(*ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap").lock()->GetEntity().lock())->mapConfig.earthDiameter;
+	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
 	//Setup planet camera
@@ -141,7 +142,8 @@ void InputSystem::ExitPlanetToSystemOverview()
 {
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
 
-	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
+	float earthDiameter = GetSystemPropertiesComponent(*ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap").lock()->GetEntity().lock())->mapConfig.earthDiameter;
+	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());

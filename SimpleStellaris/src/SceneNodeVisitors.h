@@ -168,7 +168,7 @@ private:
 class SceneNodeVisitorChangeSinglePlanetVisibility : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorChangeSinglePlanetVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode) {}
+    SceneNodeVisitorChangeSinglePlanetVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode, float earthDiameter) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode), earthDiameter(earthDiameter) {}
 
     void ProcessNode(SceneNode& node) override;
 
@@ -178,7 +178,7 @@ private:
     std::shared_ptr<SceneNode> spSystemIconsNode;
     std::shared_ptr<SceneNode> spObjectOrbitsNode;
     std::shared_ptr<SceneNode> spPlanetPicNode;
-    float earthDiameter{12.756f};
+    float earthDiameter{1.f};
 
     sf::Vector2f planetIconSize{ 200.f, 200.f };
     sf::Vector2f moonIconSize{ 100.f, 100.f };

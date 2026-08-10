@@ -86,6 +86,8 @@ std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeRock
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallIcyPlanetDist = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::mediumIcyPlanetDist = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeIcyPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeGiantPlanetDist = nullptr;
+std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallGiantPlanetDist = nullptr;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -387,12 +389,16 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 				spPlanetCom->planetType = PlanetType::NeptuneLike;
 			else
 				spPlanetCom->planetType = PlanetType::UranusLike;
+
+			spPlanetCom->planetSize = (*smallGiantPlanetDist)(*randomizer);
 			break;
 		case 3:
 			if ((*from0to1Dist)(*randomizer) > 0.5f)
 				spPlanetCom->planetType = PlanetType::JupiterLike;
 			else
 				spPlanetCom->planetType = PlanetType::SaturnLike;
+
+			spPlanetCom->planetSize = (*largeGiantPlanetDist)(*randomizer);
 			break;
 		}
 	}
@@ -427,9 +433,11 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			break;
 		case 5:
 			spPlanetCom->planetType = PlanetType::HotJupiter;
+			spPlanetCom->planetSize = (*largeGiantPlanetDist)(*randomizer);
 			break;
 		case 6:
 			spPlanetCom->planetType = PlanetType::HotNeptune;
+			spPlanetCom->planetSize = (*smallGiantPlanetDist)(*randomizer);
 			break;
 		}
 	}
@@ -931,6 +939,8 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	smallIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallIcyPlanetSizes.x, mapConfig.smallIcyPlanetSizes.y);
 	mediumIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumIcyPlanetSizes.x, mapConfig.mediumIcyPlanetSizes.y);
 	largeIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeIcyPlanetSizes.x, mapConfig.largeIcyPlanetSizes.y);
+	largeGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeGasSizes.x, mapConfig.largeGasSizes.y);
+	smallGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallGasSizes.x, mapConfig.smallGasSizes.y);
 
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesComponent(*ptrSpaceMapNode->GetEntity().lock());

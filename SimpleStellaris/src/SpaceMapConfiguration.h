@@ -167,6 +167,10 @@ struct SpaceMapConfigurations
 	float mediumIcyPlanetChance = 0.5f;
 	float largeIcyPlanetChance = 0.3f;
 
+	//gas giants config
+	sf::Vector2f smallGasSizes{ 3.5f,7.f };
+	sf::Vector2f largeGasSizes{ 7.5f,13.f };
+
 	//Planet orbits config
 	float chanceOfTheClosePlanet{ 0.4f };
 	float minDistanceBetweenPlanetOrbitsInPercentage{ 0.1f };
@@ -179,5 +183,55 @@ struct SpaceMapConfigurations
 	int numOfNebulaTextures = 4;
 
 	//Moons generation config
-	sf::Vector2f moonsOrbitsBoundaries{ 10.f, 3000.f };
+	float planetCameraMaxBoundary = 14000.f;
+	float earthDiameter{ 12.756f };
+	float maxMoonSizeRelativeToPlanetSize = 0.4f;
+	float minMoonSize = 0.1f;
+	
+	//Moons chances
+	float smallPlanet0MoonChance = 0.4f;
+	float smallPlanet1MoonChance = 0.6f;
+	float mediumPlanet1MoonChance = 0.7f;
+	float mediumPlanet2MoonChance = 0.3f;
+	float largePlanet1MoonChance = 0.65f;
+	float largePlanet2MoonChance = 0.23f;
+	float largePlanet3MoonChance = 0.12f;
+	float smallGasSize1MoonChance = 0.15f;
+	float smallGasSize2MoonChance = 0.25f;
+	float smallGasSize3MoonChance = 0.35f;
+	float smallgGasSize4MoonChance = 0.25f;
+	float largeGasSize1_2MoonChance = 0.15f;
+	float largeGasSize3_4MoonChance = 0.25f;
+	float largeGasSize5_6MoonChance = 0.35f;
+	float largeGasSize7_8MoonChance = 0.25f;
+
+	//Moons orbit chances
+	float rockyPlanetCloseOrbitMoonChance = 0.25f;
+	float rockyPlanetHabitableOrbitMoonChance = 0.5f;
+	float rockyPlanetAfarOrbitMoonChance = 0.75f;
+	float gasPlanetCloseOrbitMoonChance = 0.6f;
+	float gasPlanetHabitableOrbitMoonChance = 0.8f;
+	float gasPlanetAfarOrbitMoonChance = 1.f;
+
+	//Moons orbits config
+	float closeMoonOrbitChance = 0.7f;
+	float rockyPlanetCloseOrbitMultiplier = 0.6f;
+	float gasPlanetCloseOrbitMultiplier = 0.2f;
+
+	//Moon type chances
+	//ALSO voulcanic planets should appear only around gas giants!!!
+	float closerThanHabitBarrenMoonChance = 0.6f;
+	float closerThanHabitVoulcanicMoonChance = 0.2f;
+	float closerThanHabitVenusLikeMoonChance = 0.2f;
+	float furtherThanHabitBarrenMoonChance = 0.5f;
+	float furtherThanHabitVoulcanicMoonChance = 0.05f;
+	float furtherThanHabitTitanLikeMoonChance = 0.15f;
+	float furtherThanHabitIcyMoonChance = 0.3f;
+
+	float habitZoneBarrenMoonChance = 0.5f;
+	float habitZoneOceanMoonChance = 0.1f;
+	float habitZoneVenusLikeMoonChance = 0.2f;
+	float habitZoneEarthLikeChance = 0.02f;
+	float habitZoneDesertMoonChance = 0.02f;
+	float habitZoneVoulcanicMoonChance = 0.2f;
 };

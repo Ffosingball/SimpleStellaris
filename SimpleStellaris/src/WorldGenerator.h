@@ -64,6 +64,8 @@ private:
 	static std::shared_ptr<std::uniform_real_distribution<float>> smallIcyPlanetDist;
 	static std::shared_ptr<std::uniform_real_distribution<float>> mediumIcyPlanetDist;
 	static std::shared_ptr<std::uniform_real_distribution<float>> largeIcyPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> smallGiantPlanetDist;
+	static std::shared_ptr<std::uniform_real_distribution<float>> largeGiantPlanetDist;
 
 	WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying

@@ -503,7 +503,7 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	int cameraHeight = 1000;
-	float cameraVelocity = 20.f;//14.f
+	float cameraVelocity = 60.f;//14.f
 	float cameraZoomSpeed = 30.f;
 	float velocityChange = 8.f;
 	sf::Vector2f zoomBorders = { 0.01f, 5.f };
@@ -644,8 +644,8 @@ void CreateSpaceObjects()
 	spCameraCom2->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 	std::shared_ptr<CameraComponent> spCameraCom3 = GetCameraFromPlanetCameraEntity();
-	spCameraCom3->horizontalBorders = { -mapConfig.moonsOrbitsBoundaries.y * 2.f, mapConfig.moonsOrbitsBoundaries.y * 2.f };
-	spCameraCom3->verticalBorders = { -mapConfig.moonsOrbitsBoundaries.y * 2.f, mapConfig.moonsOrbitsBoundaries.y * 2.f };
+	spCameraCom3->horizontalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
+	spCameraCom3->verticalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
 	spCameraCom3->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 	SceneNodeSpaceObjectsCounter visitor(mapConfig);

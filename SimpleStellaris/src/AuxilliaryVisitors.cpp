@@ -566,46 +566,6 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
 
 
 
-float GetPlanetSize(std::shared_ptr<PlanetComponent> spPlanet)
-{
-    switch (spPlanet->planetType) 
-    {
-    case PlanetType::BarrenDark:
-    case PlanetType::BarrenGrey:
-    case PlanetType::BarrenMarsLike:
-    case PlanetType::VenusLike:
-    case PlanetType::Oceanic:
-    case PlanetType::EarthLike:
-    case PlanetType::TitanLike:
-    case PlanetType::Molten:
-    case PlanetType::Icy:
-    case PlanetType::Voulcanic:
-    case PlanetType::Desert:
-        return spPlanet->planetSize;
-        break;
-    case PlanetType::HotJupiter:
-        return 9.5f;
-        break;
-    case PlanetType::HotNeptune:
-        return 3.f;
-        break;
-    case PlanetType::JupiterLike:
-        return 12.f;
-        break;
-    case PlanetType::SaturnLike:
-        return 8.f;
-        break;
-    case PlanetType::NeptuneLike:
-        return 3.9f;
-        break;
-    case PlanetType::UranusLike:
-        return 4.5f;
-        break;
-    }
-}
-
-
-
 //Planet visibility processing function
 //I assume that the position of nodes in the system will not be changed!
 void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
@@ -638,7 +598,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     std::shared_ptr<Entity> spPlanPic = CreateNewEntityAt(node.GetSharedPtrToItself(), "PlanetPicture").lock();
                     spPlanPic->AddComponent(ComponentType::RectangleShape);
                     std::shared_ptr<RectangleShapeComponent> spRecShape = GetRectangleShapeComponent(*spPlanPic);
-                    SetupRectangleShape(spRecShape, sf::Vector2f{1.f,1.f} * GetPlanetSize(spPlanet) * earthDiameter, GetPlanetTextureName(spPlanet->planetType, GetHabitablePlanetComponent(*spEntity)));
+                    SetupRectangleShape(spRecShape, sf::Vector2f{1.f,1.f} * spPlanet->planetSize * earthDiameter, GetPlanetTextureName(spPlanet->planetType, GetHabitablePlanetComponent(*spEntity)));
                     spPlanPic->inheritParentPosition = false;
 
                     spPlanetPicNode = node.FindChild(*spPlanPic).lock();
