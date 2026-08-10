@@ -453,6 +453,7 @@ void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Ve
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
 	spCameraCom->speedChange = velocityChange;
 	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
+	spCameraCom->moveCamera = true;
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
@@ -490,6 +491,7 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
 	spCameraCom->speedChange = velocityChange;
 	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
+	spCameraCom->moveCamera = false;
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };
@@ -500,11 +502,11 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 //Creates planet overview camera
 void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
-	int cameraHeight = 300;
+	int cameraHeight = 1000;
 	float cameraVelocity = 20.f;//14.f
 	float cameraZoomSpeed = 30.f;
 	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = { 0.0001f, 8.f };
+	sf::Vector2f zoomBorders = { 0.01f, 5.f };
 	float outsideBordersMaxRenderDistance = 15.f;
 
 	//Create camera
@@ -525,6 +527,7 @@ void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	spCameraCom->zoomingSpeed = cameraZoomSpeed;
 	spCameraCom->speedChange = velocityChange;
 	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
+	spCameraCom->moveCamera = false;
 	//Get movement com
 	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };

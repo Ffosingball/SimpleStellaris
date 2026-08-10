@@ -65,9 +65,10 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	InitializeAllCameras(windowSize);
 	//Setup mouseIcon
 	InitializeMouseIcon();
+	//Initialize game ui
+	CreateUI();
 	//Create debug text
 	CreateDebugText();
-	CreateUI();
 
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)

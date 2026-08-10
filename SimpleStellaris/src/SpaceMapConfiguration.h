@@ -179,5 +179,5 @@ struct SpaceMapConfigurations
 	int numOfNebulaTextures = 4;
 
 	//Moons generation config
-	sf::Vector2f moonsOrbitsBoundaries{ 10.f, 2000.f };
+	sf::Vector2f moonsOrbitsBoundaries{ 10.f, 3000.f };
 };

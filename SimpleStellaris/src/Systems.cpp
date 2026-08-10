@@ -83,12 +83,14 @@ void InputSystem::EnterSystemOverview()
 	std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
 	sBackCameraCom->view.setCenter(wpSelectedSystemNode.lock()->GetEntity().lock()->GetPosition());
 	sBackCameraCom->view.setSize(sSpaceCameraCom->cameraSize * sSpaceCameraCom->zoomingBorders.x);
+	sSpaceCameraCom->moveCamera = false;
 
 	//Setup system camera
 	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
 	sSystemCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
 	sSystemCameraCom->view.setSize(sSystemCameraCom->cameraSize);
 	sSystemCameraCom->currentZoom = 1.f;
+	sSystemCameraCom->moveCamera = true;
 
 	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
 }
@@ -104,11 +106,15 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
-	//Setup system camera
-	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromPlanetCameraEntity();
-	sSystemCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
-	sSystemCameraCom->view.setSize(sSystemCameraCom->cameraSize);
-	sSystemCameraCom->currentZoom = 1.f;
+	//Setup planet camera
+	std::shared_ptr<CameraComponent> sPlanetCameraCom = GetCameraFromPlanetCameraEntity();
+	sPlanetCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
+	sPlanetCameraCom->view.setSize(sPlanetCameraCom->cameraSize);
+	sPlanetCameraCom->currentZoom = 1.f;
+	sPlanetCameraCom->moveCamera = true;
+
+	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
+	sSystemCameraCom->moveCamera = false;
 
 	signals::onPlanetOverviewSet(wpPlanetOrStarSelected.lock());
 }
@@ -121,10 +127,13 @@ void InputSystem::ExitSystemOverview()
 	SceneNodeVisitorChangeAllSystemVisibility visitor(false);
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 
-	//ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock()->OutputTree(" ");
-
 	SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 	wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+
+	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
+	sSystemCameraCom->moveCamera = false;
+	std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
+	sSpaceCameraCom->moveCamera = true;
 }
 
 
@@ -132,11 +141,18 @@ void InputSystem::ExitPlanetToSystemOverview()
 {
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
 
+	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
+	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
+
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 	wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
 
-	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
-	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
+	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
+	sSystemCameraCom->moveCamera = true;
+	std::shared_ptr<CameraComponent> sPlanetCameraCom = GetCameraFromPlanetCameraEntity();
+	sPlanetCameraCom->moveCamera = false;
+
+	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
 }
 
 
@@ -518,7 +534,10 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 			if (spE->HasComponent(ComponentType::Star))
 				systemsNearByText->text->setString(spE->GetName() + " (" + GetStarComponent(*spE)->starName + ")");
 			else if (spE->HasComponent(ComponentType::Planet))
-				systemsNearByText->text->setString(spE->GetName() + " (" + GetPlanetComponent(*spE)->planetName + "; "+ GetPlanetComponent(*spE)->planetIconTextureName +")");
+			{
+				std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spE);
+				systemsNearByText->text->setString(spE->GetName() + " (" + spPlanet->planetName + "; " + spPlanet->planetIconTextureName + "); size: " + std::to_string(spPlanet->planetSize));
+			}
 		}
 		else 
 		{
@@ -527,6 +546,8 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 			systemsNearByText->text->setString(" ");
 		}
 	}
+	else
+		selectedSystemIcon->nodeToFollow = {};
 
 	fpsText->text->setString(std::to_string(ECSGame::Instance().GetFPS())+" fps");
 
@@ -561,6 +582,7 @@ void UISystem::Initialize()
 	//Subscribe to some signals
 	signals::onRenderingComplete.connect(&UISystem::OnRenderingComplete, this);
 	signals::onSystemOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
+	signals::onPlanetOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUIRoot()->FindChild("RenderText").lock();
 	nodesText = GetTextComponent(*mctPtr->GetEntity().lock());
@@ -616,29 +638,43 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	gel::CentreText(*simSpeedText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
 	std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
+	OverviewType currentOverview = ECSGame::Instance().GetOverviewType();
 	float size = spCamCom->view.getSize().x;
 	std::string part{ "." };
-	if (size > 100)
+	if (currentOverview != OverviewType::Planet)
+	{
+		if (size > 100)
+			part = " ";
+		else if ((int)size <= 0 && (int)((size - (int)size) * 100) < 10)
+			part = ".0" + std::to_string((int)((size - (int)size) * 100));
+		else
+			part = "." + std::to_string((int)((size - (int)size) * 100));
+	}
+	else 
+	{
 		part = " ";
-	else if ((int)size<=0 && (int)((size - (int)size) * 100) < 10)
-		part = ".0"+ std::to_string((int)((size - (int)size) * 100));
-	else
-		part = "." + std::to_string((int)((size - (int)size) * 100));
+	}
 	//std::cout << (int)size << '\n';
 
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+	if (currentOverview == OverviewType::Space)
 		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size)+part + " light years");
-	else if(ECSGame::Instance().GetOverviewType() == OverviewType::System)
+	else if(currentOverview == OverviewType::System)
 		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size) + part + " astronomical units");
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
-		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size) + part + " kilometers");
-	
+	else if (currentOverview == OverviewType::Planet)
+		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)(size*1000.f)) + part + " kilometers");
 	gel::CentreText(*viewSizeText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+	if (currentOverview == OverviewType::Space)
 		overviewText.lock()->text->setString("Space Overview");
-	else if(ECSGame::Instance().GetOverviewType() == OverviewType::System)
+	else if(currentOverview == OverviewType::System)
 		overviewText.lock()->text->setString(GetObjectSystemComponent(*wpSystemNodeSelected.lock()->GetEntity().lock())->systemName + " System");
+	else if (currentOverview == OverviewType::Planet)
+	{
+		if (wpSystemNodeSelected.lock()->GetEntity().lock()->HasComponent(ComponentType::Planet))
+			overviewText.lock()->text->setString(GetPlanetComponent(*wpSystemNodeSelected.lock()->GetEntity().lock())->planetName + " Planet");
+		else
+			overviewText.lock()->text->setString("Planet Overview");
+	}
 	gel::CentreText(*overviewText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
 	if (scene == ECSGame::Instance().GetUIRoot())

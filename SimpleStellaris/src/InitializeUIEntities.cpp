@@ -256,7 +256,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	std::shared_ptr<Entity> spEntityToFollow = spNodeToFollow->GetEntity().lock();
 	if (spEntityToFollow->HasComponent(ComponentType::ObjectSystem))
 		name = GetObjectSystemComponent(*spEntityToFollow)->systemName;
-	else if(spEntityToFollow->HasComponent(ComponentType::Star))
+	else if (spEntityToFollow->HasComponent(ComponentType::Star))
 		name = GetStarComponent(*spEntityToFollow)->starName;
 	else if (spEntityToFollow->HasComponent(ComponentType::Planet))
 		name = GetPlanetComponent(*spEntityToFollow)->planetName;
@@ -265,6 +265,8 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 		name = GetNebulaComponent(*spEntityToFollow)->nebulaName;
 		fontSize = nebulaFontSize;
 	}
+	else
+		name = entityName;
 	//Create text
 	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName, name, fontSize * uiSize, sf::Vector2f{0,0});
 	
