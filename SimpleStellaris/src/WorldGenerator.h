@@ -66,6 +66,9 @@ private:
 	static std::shared_ptr<std::uniform_real_distribution<float>> largeIcyPlanetDist;
 	static std::shared_ptr<std::uniform_real_distribution<float>> smallGiantPlanetDist;
 	static std::shared_ptr<std::uniform_real_distribution<float>> largeGiantPlanetDist;
+	static std::shared_ptr<std::discrete_distribution<int>> closeOrbitMoonDist;
+	static std::shared_ptr<std::discrete_distribution<int>> habitableZoneMoonDist;
+	static std::shared_ptr<std::discrete_distribution<int>> farOrbitMoonDist;
 
 	WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
@@ -76,6 +79,8 @@ private:
 	static void checkRandomDistribution();
 	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
 	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition);
+	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
+	static void CreateMoon(float orbitRadius, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar);
 
 public:
 

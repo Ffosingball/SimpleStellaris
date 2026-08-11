@@ -88,6 +88,9 @@ std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::mediumIcy
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeIcyPlanetDist = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeGiantPlanetDist = nullptr;
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallGiantPlanetDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closeOrbitMoonDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::habitableZoneMoonDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::farOrbitMoonDist = nullptr;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -300,6 +303,286 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 
 
+//Orbit type: 0 - close, 1 - within habitable, 2 - far
+void WorldGenerator::CreateMoon(float orbitRadius, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar)
+{
+	std::shared_ptr<Entity> spMoon = CreateNewEntityAt(spNode, "Moon"+std::to_string(num)).lock();
+	spMoon->AddComponent(ComponentType::Planet);
+	std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spMoon);
+	spMoon->inheritParentPosition = false;
+	spPlanetCom->isMoon = true;
+	spMoon->hidden = true;
+
+	if (maxMoonSize > mapConfig.largeRockyPlanetSizes.y)
+		maxMoonSize = mapConfig.largeRockyPlanetSizes.y;
+
+	std::uniform_real_distribution<float> moonSizeDist(mapConfig.minMoonSize, maxMoonSize);
+	spPlanetCom->planetSize = moonSizeDist(*randomizer);
+	spPlanetCom->orbitRadius = orbitRadius;
+	
+	int barrenType{ -1 };
+	if (orbitType == 0) 
+	{
+		switch ((*closeOrbitMoonDist)(*randomizer)) 
+		{
+		case 0:
+			barrenType = (*oneThird)(*randomizer);
+			if (barrenType == 0)
+				spPlanetCom->planetType = PlanetType::BarrenDark;
+			else if (barrenType == 1)
+				spPlanetCom->planetType = PlanetType::BarrenGrey;
+			else
+				spPlanetCom->planetType = PlanetType::BarrenMarsLike;
+			break;
+		case 1:
+			if(mainPlanetSize>mapConfig.smallGasSizes.x)
+				spPlanetCom->planetType = PlanetType::Voulcanic;
+			else
+				spPlanetCom->planetType = PlanetType::BarrenGrey;
+			break;
+		case 2:
+			spPlanetCom->planetType = PlanetType::VenusLike;
+			break;
+		}
+	}
+	else if (orbitType == 1) 
+	{
+		switch ((*habitableZoneMoonDist)(*randomizer))
+		{
+		case 0:
+			barrenType = (*oneThird)(*randomizer);
+			if (barrenType == 0)
+				spPlanetCom->planetType = PlanetType::BarrenDark;
+			else if (barrenType == 1)
+				spPlanetCom->planetType = PlanetType::BarrenGrey;
+			else
+				spPlanetCom->planetType = PlanetType::BarrenMarsLike;
+			break;
+		case 1:
+			spPlanetCom->planetType = PlanetType::Oceanic;
+			spMoon->AddComponent(ComponentType::HabitablePlanet);
+			break;
+		case 2:
+			spPlanetCom->planetType = PlanetType::VenusLike;
+			break;
+		case 3:
+			spPlanetCom->planetType = PlanetType::EarthLike;
+			spMoon->AddComponent(ComponentType::HabitablePlanet);
+			break;
+		case 4:
+			spPlanetCom->planetType = PlanetType::Desert;
+			spMoon->AddComponent(ComponentType::HabitablePlanet);
+			break;
+		case 5:
+			if (mainPlanetSize > mapConfig.smallGasSizes.x)
+				spPlanetCom->planetType = PlanetType::Voulcanic;
+			else
+				spPlanetCom->planetType = PlanetType::BarrenGrey;
+			break;
+		}
+	}
+	else 
+	{
+		switch ((*farOrbitMoonDist)(*randomizer))
+		{
+		case 0:
+			barrenType = (*oneThird)(*randomizer);
+			if (barrenType == 0)
+				spPlanetCom->planetType = PlanetType::BarrenDark;
+			else if (barrenType == 1)
+				spPlanetCom->planetType = PlanetType::BarrenGrey;
+			else
+				spPlanetCom->planetType = PlanetType::BarrenMarsLike;
+			break;
+		case 1:
+			if (mainPlanetSize > mapConfig.smallGasSizes.x)
+				spPlanetCom->planetType = PlanetType::Voulcanic;
+			else
+				spPlanetCom->planetType = PlanetType::BarrenGrey;
+			break;
+		case 2:
+			spPlanetCom->planetType = PlanetType::TitanLike;
+			break;
+		case 3:
+			spPlanetCom->planetType = PlanetType::Icy;
+			break;
+		}
+	}
+
+	if (spMoon->HasComponent(ComponentType::HabitablePlanet))
+	{
+		std::shared_ptr<HabitablePlanetComponent> spHabPlCom = GetHabitablePlanetComponent(*spMoon);
+		spHabPlCom->distanceToStar = habitDistToStar;
+	}
+
+	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
+	spPlanetCom->rotationalVelocity = (std::sqrtf(6.6743f * (std::powf(10, -11) * 5.972 * std::powf(10, 25) * std::pow(spPlanetCom->planetSize,3)) / (spPlanetCom->orbitRadius * std::powf(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::powf(10, 3));
+}
+
+
+
+void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode)
+{
+	float chanceOfNoMoon{ 0.f };
+	int orbitType = 0;
+	if (spPlanet->orbitRadius < habitableZoneBoundaries.x) 
+	{
+		if (spPlanet->planetSize > mapConfig.smallGasSizes.x)
+			chanceOfNoMoon = mapConfig.gasPlanetCloseOrbitMoonChance;
+		else
+			chanceOfNoMoon = mapConfig.rockyPlanetCloseOrbitMoonChance;
+
+		orbitType = 0;
+	}
+	else if (spPlanet->orbitRadius < habitableZoneBoundaries.y)
+	{
+		if (spPlanet->planetSize > mapConfig.smallGasSizes.x)
+			chanceOfNoMoon = mapConfig.gasPlanetHabitableOrbitMoonChance;
+		else
+			chanceOfNoMoon = mapConfig.rockyPlanetHabitableOrbitMoonChance;
+
+		orbitType = 1;
+	}
+	else
+	{
+		if (spPlanet->planetSize > mapConfig.smallGasSizes.x)
+			chanceOfNoMoon = mapConfig.gasPlanetAfarOrbitMoonChance;
+		else
+			chanceOfNoMoon = mapConfig.rockyPlanetAfarOrbitMoonChance;
+
+		orbitType = 2;
+	}
+
+
+	if ((*from0to1Dist)(*randomizer) < chanceOfNoMoon)
+	{
+		int numberOfMoons{ 0 };
+		if (spPlanet->planetType == PlanetType::Icy || spPlanet->planetType == PlanetType::Oceanic) 
+		{
+			if (spPlanet->planetSize <= mapConfig.smallIcyPlanetSizes.y) 
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.smallPlanet1MoonChance)
+					numberOfMoons = 1;
+				else
+					return;
+			}
+			else if (spPlanet->planetSize <= mapConfig.mediumIcyPlanetSizes.y)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.mediumPlanet1MoonChance)
+					numberOfMoons = 1;
+				else
+					numberOfMoons = 2;
+			}
+			else 
+			{
+				int num = (*from0to1Dist)(*randomizer);
+				if(num< mapConfig.largePlanet1MoonChance)
+					numberOfMoons = 1;
+				else if (num < mapConfig.largePlanet1MoonChance+ mapConfig.largePlanet2MoonChance)
+					numberOfMoons = 2;
+				else
+					numberOfMoons = 3;
+			}
+		}
+		else if (spPlanet->planetSize >= mapConfig.smallGasSizes.x && spPlanet->planetSize <= mapConfig.smallGasSizes.y) 
+		{
+			int num = (*from0to1Dist)(*randomizer);
+			if (num < mapConfig.smallGasSize1MoonChance)
+				numberOfMoons = 1;
+			else if (num < mapConfig.smallGasSize1MoonChance + mapConfig.smallGasSize2MoonChance)
+				numberOfMoons = 2;
+			else if (num < mapConfig.smallGasSize1MoonChance + mapConfig.smallGasSize2MoonChance + mapConfig.smallGasSize3MoonChance)
+				numberOfMoons = 3;
+			else
+				numberOfMoons = 4;
+		}
+		else if (spPlanet->planetSize >= mapConfig.largeGasSizes.x && spPlanet->planetSize <= mapConfig.largeGasSizes.y)
+		{
+			int num = (*from0to1Dist)(*randomizer);
+			if (num < mapConfig.largeGasSize1_2MoonChance)
+			{
+				numberOfMoons = 1;
+				if ((*from0to1Dist)(*randomizer) < 0.5f)
+					numberOfMoons++;
+			}
+			else if (num < mapConfig.largeGasSize1_2MoonChance + mapConfig.largeGasSize3_4MoonChance)
+			{
+				numberOfMoons = 3;
+				if ((*from0to1Dist)(*randomizer) < 0.5f)
+					numberOfMoons++;
+			}
+			else if (num < mapConfig.largeGasSize1_2MoonChance + mapConfig.largeGasSize3_4MoonChance + mapConfig.largeGasSize5_6MoonChance)
+			{
+				numberOfMoons = 5;
+				if ((*from0to1Dist)(*randomizer) < 0.5f)
+					numberOfMoons++;
+			}
+			else
+			{
+				numberOfMoons = 7;
+				if ((*from0to1Dist)(*randomizer) < 0.5f)
+					numberOfMoons++;
+			}
+		}
+		else 
+		{
+			if (spPlanet->planetSize <= mapConfig.smallRockyPlanetSizes.y)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.smallPlanet1MoonChance)
+					numberOfMoons = 1;
+				else
+					return;
+			}
+			else if (spPlanet->planetSize <= mapConfig.mediumRockyPlanetSizes.y)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.mediumPlanet1MoonChance)
+					numberOfMoons = 1;
+				else
+					numberOfMoons = 2;
+			}
+			else
+			{
+				int num = (*from0to1Dist)(*randomizer);
+				if (num < mapConfig.largePlanet1MoonChance)
+					numberOfMoons = 1;
+				else if (num < mapConfig.largePlanet1MoonChance + mapConfig.largePlanet2MoonChance)
+					numberOfMoons = 2;
+				else
+					numberOfMoons = 3;
+			}
+		}
+
+		DistanceToStar habitDistToStar = DistanceToStar::None;
+		if (spPlanet->orbitRadius < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f))
+			habitDistToStar = DistanceToStar::Close;
+		else if (spPlanet->orbitRadius < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f * 2.f))
+			habitDistToStar = DistanceToStar::Medium;
+		else
+			habitDistToStar = DistanceToStar::Far;
+
+		float maxDistance = 600.f * std::pow(spPlanet->planetSize, 1.3f);
+		float minDistance = mapConfig.earthDiameter * spPlanet->planetSize;
+		std::uniform_real_distribution<float> moonOrbitRangeDist(minDistance,maxDistance);
+		std::shared_ptr<std::uniform_real_distribution<float>> closeMoonOrbitDist;
+		if (spPlanet->planetSize >= mapConfig.smallGasSizes.x)
+			closeMoonOrbitDist = std::make_shared<std::uniform_real_distribution<float>>(minDistance,maxDistance*mapConfig.gasPlanetCloseOrbitMultiplier);
+		else
+			closeMoonOrbitDist = std::make_shared<std::uniform_real_distribution<float>>(minDistance, maxDistance * mapConfig.rockyPlanetCloseOrbitMultiplier);
+	
+		for (int i = 0; i < numberOfMoons; i++) 
+		{
+			if ((*from0to1Dist)(*randomizer) < mapConfig.closeMoonOrbitChance)
+				CreateMoon((*closeMoonOrbitDist)(*randomizer), mapConfig.maxMoonSizeRelativeToPlanetSize*spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
+			else
+				CreateMoon(moonOrbitRangeDist(*randomizer), mapConfig.maxMoonSizeRelativeToPlanetSize* spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
+		}
+	}
+	else
+		return;
+}
+
+
+
 void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition)
 {
 	std::uniform_real_distribution<float> orbitDist(orbitBoundaries.x, orbitBoundaries.y);
@@ -363,9 +646,11 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 				break;
 			case 2:
 				spPlanetCom->planetType = PlanetType::HotJupiter;
+				spPlanetCom->planetSize = (*largeGiantPlanetDist)(*randomizer);
 				break;
 			case 3:
 				spPlanetCom->planetType = PlanetType::HotNeptune;
+				spPlanetCom->planetSize = (*smallGiantPlanetDist)(*randomizer);
 				break;
 			}
 		}
@@ -498,6 +783,8 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	spPlanetCom->rotationalVelocity = (std::sqrtf(6.6743f*(std::powf(10,-11)*starMass*2* std::powf(10, 30)) / (spPlanetCom->orbitRadius*1.5 * std::powf(10, 11))) * 86.4)/ (spPlanetCom->orbitRadius*1.5*std::powf(10,8));
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
 	//std::cout << "Planet rotational velocity(rad per year): " << spPlanetCom->rotationalVelocity*365<<'\n';
+
+	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
 }
 
 
@@ -907,6 +1194,25 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	afarOrbitWeights[2] = mapConfig.afarOrbitNeptuneLikeChance;
 	afarOrbitWeights[3] = mapConfig.afarOrbitJupiterLikeChance;
 
+	std::vector<float> closeOrbitMoonWeights(3);
+	closeOrbitMoonWeights[0] = mapConfig.closerThanHabitBarrenMoonChance;
+	closeOrbitMoonWeights[1] = mapConfig.closerThanHabitVoulcanicMoonChance;
+	closeOrbitMoonWeights[2] = mapConfig.closerThanHabitVenusLikeMoonChance;
+
+	std::vector<float> farOrbitMoonWeights(4);
+	farOrbitMoonWeights[0] = mapConfig.furtherThanHabitBarrenMoonChance;
+	farOrbitMoonWeights[1] = mapConfig.furtherThanHabitVoulcanicMoonChance;
+	farOrbitMoonWeights[2] = mapConfig.furtherThanHabitTitanLikeMoonChance;
+	farOrbitMoonWeights[3] = mapConfig.furtherThanHabitIcyMoonChance;
+
+	std::vector<float> habitableZoneOrbitMoonWeights(6);
+	habitableZoneOrbitMoonWeights[0] = mapConfig.habitZoneBarrenMoonChance;
+	habitableZoneOrbitMoonWeights[1] = mapConfig.habitZoneOceanMoonChance;
+	habitableZoneOrbitMoonWeights[2] = mapConfig.habitZoneVenusLikeMoonChance;
+	habitableZoneOrbitMoonWeights[3] = mapConfig.habitZoneEarthLikeMoonChance;
+	habitableZoneOrbitMoonWeights[4] = mapConfig.habitZoneDesertMoonChance;
+	habitableZoneOrbitMoonWeights[5] = mapConfig.habitZoneVoulcanicMoonChance;
+
 	//Create all distributions
 	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
 	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>(giantSystemWeights.begin(), giantSystemWeights.end());
@@ -941,6 +1247,9 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	largeIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeIcyPlanetSizes.x, mapConfig.largeIcyPlanetSizes.y);
 	largeGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeGasSizes.x, mapConfig.largeGasSizes.y);
 	smallGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallGasSizes.x, mapConfig.smallGasSizes.y);
+	closeOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitMoonWeights.begin(), closeOrbitMoonWeights.end());
+	habitableZoneMoonDist = std::make_shared<std::discrete_distribution<int>>(habitableZoneOrbitMoonWeights.begin(), habitableZoneOrbitMoonWeights.end());
+	farOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(farOrbitMoonWeights.begin(), farOrbitMoonWeights.end());
 
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesComponent(*ptrSpaceMapNode->GetEntity().lock());
@@ -1570,6 +1879,32 @@ void SetPlanetName(std::shared_ptr<SceneNode> spNodeWithPlanets, std::string nam
 }
 
 
+std::string GetRomanNumber(int number) 
+{
+	switch (number) 
+	{
+	case 1:
+		return "I";
+	case 2:
+		return "II";
+	case 3:
+		return "III";
+	case 4:
+		return "IV";
+	case 5:
+		return "V";
+	case 6:
+		return "VI";
+	case 7:
+		return "VII";
+	case 8:
+		return "VIII";
+	}
+
+	return "UNDEFINED";
+}
+
+
 
 void TextureSetter::ProcessNode(SceneNode& node) 
 {
@@ -1614,13 +1949,13 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				//Now set star names
 				if (spStar1Com->starType > spStar2Com->starType) 
 				{
-					spStar1Com->starName = spComSys->systemName+"-A";
-					spStar2Com->starName = spComSys->systemName + "-B";
+					spStar1Com->starName = spComSys->systemName+" A";
+					spStar2Com->starName = spComSys->systemName + " B";
 				}
 				else 
 				{
-					spStar2Com->starName = spComSys->systemName + "-A";
-					spStar1Com->starName = spComSys->systemName + "-B";
+					spStar2Com->starName = spComSys->systemName + " A";
+					spStar1Com->starName = spComSys->systemName + " B";
 				}
 
 				if (spComSys->systemType == SpaceSystemType::BinaryClose)
@@ -1669,47 +2004,47 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				//Now set star names
 				if (spStar1Com->starType > spStar2Com->starType && spStar1Com->starType > spStar3Com->starType)
 				{
-					spStar1Com->starName = spComSys->systemName + "-A";
+					spStar1Com->starName = spComSys->systemName + " A";
 
 					if (spStar2Com->starType > spStar3Com->starType)
 					{
-						spStar2Com->starName = spComSys->systemName + "-B";
-						spStar3Com->starName = spComSys->systemName + "-C";
+						spStar2Com->starName = spComSys->systemName + " B";
+						spStar3Com->starName = spComSys->systemName + " C";
 					}
 					else
 					{
-						spStar3Com->starName = spComSys->systemName + "-B";
-						spStar2Com->starName = spComSys->systemName + "-C";
+						spStar3Com->starName = spComSys->systemName + " B";
+						spStar2Com->starName = spComSys->systemName + " C";
 					}
 				}
 				else if(spStar2Com->starType > spStar1Com->starType && spStar2Com->starType > spStar3Com->starType)
 				{
-					spStar2Com->starName = spComSys->systemName + "-A";
+					spStar2Com->starName = spComSys->systemName + " A";
 
 					if (spStar1Com->starType > spStar3Com->starType)
 					{
-						spStar1Com->starName = spComSys->systemName + "-B";
-						spStar3Com->starName = spComSys->systemName + "-C";
+						spStar1Com->starName = spComSys->systemName + " B";
+						spStar3Com->starName = spComSys->systemName + " C";
 					}
 					else
 					{
-						spStar3Com->starName = spComSys->systemName + "-B";
-						spStar1Com->starName = spComSys->systemName + "-C";
+						spStar3Com->starName = spComSys->systemName + " B";
+						spStar1Com->starName = spComSys->systemName + " C";
 					}
 				}
 				else
 				{
-					spStar3Com->starName = spComSys->systemName + "-A";
+					spStar3Com->starName = spComSys->systemName + " A";
 
 					if (spStar1Com->starType > spStar2Com->starType)
 					{
-						spStar1Com->starName = spComSys->systemName + "-B";
-						spStar2Com->starName = spComSys->systemName + "-C";
+						spStar1Com->starName = spComSys->systemName + " B";
+						spStar2Com->starName = spComSys->systemName + " C";
 					}
 					else
 					{
-						spStar2Com->starName = spComSys->systemName + "-B";
-						spStar1Com->starName = spComSys->systemName + "-C";
+						spStar2Com->starName = spComSys->systemName + " B";
+						spStar1Com->starName = spComSys->systemName + " C";
 					}
 				}
 
@@ -1754,6 +2089,36 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spEntity);
 			spPlanet->planetIconTextureName = GetPlanetIconTextureName(spPlanet->planetType, spPlanet->planetSize, mapConfig, GetHabitablePlanetComponent(*spEntity));
 			spEntity->hidden = true;
+
+			if (spPlanet->isMoon) 
+			{
+				spEntity->AddComponent(ComponentType::RectangleShape);
+				std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
+				SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spPlanet->planetSize* mapConfig.earthDiameter, GetPlanetTextureName(spPlanet->planetType, GetHabitablePlanetComponent(*spEntity)));
+			}
+			else 
+			{
+				//std::string name = spPlanet->planetName;
+				std::vector<std::shared_ptr<SceneNode>> children = node.GetAllChildren();
+				if (!children.empty())
+				{
+					SortedPlanetComponentsList sortedPlanets;
+					for (std::shared_ptr<SceneNode> child : children)
+					{
+						if (child->GetEntity().lock()->HasComponent(ComponentType::Planet))
+							sortedPlanets.AddPlanetComponent(GetPlanetComponent(*child->GetEntity().lock()));
+					}
+
+					int counter = 1;
+					while (sortedPlanets.Size() > 0)
+					{
+						//sortedPlanets.DequeuePlanetComponent().lock()->planetName = "Nem";
+						//sortedPlanets.DequeuePlanetComponent().lock()->planetName = name + ' ' + GetRomanNumber(counter);
+						sortedPlanets.DequeuePlanetComponent().lock()->planetName = spPlanet->planetName + ' ' + GetRomanNumber(counter);
+						counter++;
+					}
+				}
+			}
 		}
 	}
 }

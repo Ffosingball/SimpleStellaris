@@ -180,7 +180,7 @@ private:
     std::shared_ptr<SceneNode> spPlanetPicNode;
     float earthDiameter{1.f};
 
-    sf::Vector2f planetIconSize{ 200.f, 200.f };
+    sf::Vector2f planetIconSize{ 140.f, 140.f };
     sf::Vector2f moonIconSize{ 100.f, 100.f };
 };
 

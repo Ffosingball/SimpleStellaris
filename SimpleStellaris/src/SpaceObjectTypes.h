@@ -69,5 +69,6 @@ enum class DistanceToStar
 {
 	Close,
 	Medium,
-	Far
+	Far,
+	None
 };

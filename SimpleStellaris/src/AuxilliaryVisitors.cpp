@@ -498,40 +498,43 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
         }
         else if (spEntity->HasComponent(ComponentType::Planet))
         {
-            spEntity->hidden = hidden;
-            if (!hidden)
+            std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spEntity);
+            if (!spPlanet->isMoon)
             {
-                std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spEntity);
-                //std::cout << spPlanet->planetName << ": " << spEntity->inheritParentPosition << '\n';
-                //Create text name entity for star
-                std::string name{ "PlanetNameText" + std::to_string(counter) };
-                CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, true);
-                //spStar->wpStarNameText.lock()->hidden = true;
-                //spEntity->hidden = false;
-                //Create icon
-                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), true, planetIconSize);
-                //Get parent for orbits
-                std::weak_ptr<SceneNode> wpFollowNode;
-                if (node.GetParent().lock()->GetEntity().lock()->HasComponent(ComponentType::ObjectSystem))
+                spEntity->hidden = hidden;
+                if (!hidden)
                 {
-                    if (GetObjectSystemComponent(*node.GetParent().lock()->GetEntity().lock())->systemType == SpaceSystemType::BinaryClose)
-                        wpFollowNode = node.GetParent().lock()->FindChild("CenterOfMass");
+                    //std::cout << spPlanet->planetName << ": " << spEntity->inheritParentPosition << '\n';
+                    //Create text name entity for star
+                    std::string name{ "PlanetNameText" + std::to_string(counter) };
+                    CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, true);
+                    //spStar->wpStarNameText.lock()->hidden = true;
+                    //spEntity->hidden = false;
+                    //Create icon
+                    CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), true, planetIconSize);
+                    //Get parent for orbits
+                    std::weak_ptr<SceneNode> wpFollowNode;
+                    if (node.GetParent().lock()->GetEntity().lock()->HasComponent(ComponentType::ObjectSystem))
+                    {
+                        if (GetObjectSystemComponent(*node.GetParent().lock()->GetEntity().lock())->systemType == SpaceSystemType::BinaryClose)
+                            wpFollowNode = node.GetParent().lock()->FindChild("CenterOfMass");
+                        else
+                            wpFollowNode = node.GetParent();
+                    }
                     else
                         wpFollowNode = node.GetParent();
+                    //Create orbit
+                    CreateOrbitFor(spObjectOrbitsNode, "Orbit" + std::to_string(counter), spEntity->inheritParentPosition, spPlanet->orbitRadius, wpFollowNode, 2.f, sf::Color(200, 200, 200, 255), true);
                 }
                 else
-                    wpFollowNode = node.GetParent();
-                //Create orbit
-                CreateOrbitFor(spObjectOrbitsNode, "Orbit" + std::to_string(counter), spEntity->inheritParentPosition, spPlanet->orbitRadius, wpFollowNode, 2.f, sf::Color(200,200,200,255), true);
-            }
-            else
-            {
-                std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("PlanetNameText" + std::to_string(counter)).lock()->GetEntity();
-                signals::onDeleteEntity(wpE, spSystemIconsNode);
-                std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + std::to_string(counter)).lock()->GetEntity();
-                signals::onDeleteEntity(wpE2, spSystemIconsNode);
-                std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + std::to_string(counter)).lock()->GetEntity();
-                signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+                {
+                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("PlanetNameText" + std::to_string(counter)).lock()->GetEntity();
+                    signals::onDeleteEntity(wpE, spSystemIconsNode);
+                    std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + std::to_string(counter)).lock()->GetEntity();
+                    signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                    std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + std::to_string(counter)).lock()->GetEntity();
+                    signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+                }
             }
         }
     }
@@ -587,11 +590,11 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                 {
                     //Create text name entity for star
                     std::string name{ "MoonNameText" + std::to_string(counter) };
-                    CreateSystemText(spSystemIconsNode, spPlanetPicNode, name, true);
+                    CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, false);
                     //Create icon
-                    CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "MoonIcon" + std::to_string(counter), true, moonIconSize);
+                    CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "MoonIcon" + std::to_string(counter), false, moonIconSize);
                     //Create orbit
-                    CreateOrbitFor(spObjectOrbitsNode, "MoonOrbit" + std::to_string(counter), spEntity->inheritParentPosition, spPlanet->orbitRadius, spPlanetPicNode, 2.f, sf::Color(200, 200, 200, 255), true);
+                    CreateOrbitFor(spObjectOrbitsNode, "MoonOrbit" + std::to_string(counter), spEntity->inheritParentPosition, spPlanet->orbitRadius, spPlanetPicNode, 2.f, sf::Color(200, 200, 200, 255), false);
                 }
                 else 
                 {
@@ -606,7 +609,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     std::string name{ spPlanet->planetName };
                     CreateSystemText(spSystemIconsNode, spPlanetPicNode, name, false);
                     //Create icon
-                    //CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), true, planetIconSize);
+                    CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + std::to_string(counter), false, planetIconSize);
                 }
             }
             else

@@ -311,9 +311,12 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             if (spPlanetCom->isMoon || !simulateOnlyMoons)
             {
                 //Move planet
+                //std::cout <<"Moved: " << spEntity->GetName() << '\n';
                 float rotation = (spPlanetCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spPlanetCom->initialRotationPosition;
                 spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spPlanetCom->orbitRadius);
             }
+            //else
+                //std::cout <<"Did not moved: " << spEntity->GetName() << '\n';
         }
     }
 }

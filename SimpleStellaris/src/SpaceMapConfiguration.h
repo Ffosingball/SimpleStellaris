@@ -231,7 +231,7 @@ struct SpaceMapConfigurations
 	float habitZoneBarrenMoonChance = 0.5f;
 	float habitZoneOceanMoonChance = 0.1f;
 	float habitZoneVenusLikeMoonChance = 0.2f;
-	float habitZoneEarthLikeChance = 0.02f;
+	float habitZoneEarthLikeMoonChance = 0.02f;
 	float habitZoneDesertMoonChance = 0.02f;
 	float habitZoneVoulcanicMoonChance = 0.2f;
 };
