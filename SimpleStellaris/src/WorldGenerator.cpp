@@ -53,6 +53,7 @@ std::shared_ptr<std::mt19937> WorldGenerator::randomizer = nullptr;
 float WorldGenerator::nebulaRareness = 2.f;
 int WorldGenerator::numberOfNebulas = 6;
 std::vector<float> WorldGenerator::orbitsGenerated;
+std::vector<float> WorldGenerator::moonOrbitsGenerated;
 
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::starDistribution = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::giantSysDistribution = nullptr;
@@ -304,7 +305,7 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 
 //Orbit type: 0 - close, 1 - within habitable, 2 - far
-void WorldGenerator::CreateMoon(float orbitRadius, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar)
+void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar)
 {
 	std::shared_ptr<Entity> spMoon = CreateNewEntityAt(spNode, "Moon"+std::to_string(num)).lock();
 	spMoon->AddComponent(ComponentType::Planet);
@@ -314,11 +315,33 @@ void WorldGenerator::CreateMoon(float orbitRadius, float maxMoonSize, int orbitT
 	spMoon->hidden = true;
 
 	if (maxMoonSize > mapConfig.largeRockyPlanetSizes.y)
-		maxMoonSize = mapConfig.largeRockyPlanetSizes.y;
+		maxMoonSize = mapConfig.largeRockyPlanetSizes.x;
 
 	std::uniform_real_distribution<float> moonSizeDist(mapConfig.minMoonSize, maxMoonSize);
 	spPlanetCom->planetSize = moonSizeDist(*randomizer);
-	spPlanetCom->orbitRadius = orbitRadius;
+
+	//spPlanetCom->orbitRadius = orbit;
+	float orbit = (*spMoonOrbitDist)(*randomizer);
+	int regeneratedCounter = 0;
+	int i = 0;
+	while (i < moonOrbitsGenerated.size() && regeneratedCounter < mapConfig.maxAmountOfSystemPosRegen)
+	{
+		if (orbit / moonOrbitsGenerated[i] < 1 + mapConfig.minDistanceBetweenPlanetOrbitsInPercentage && orbit / moonOrbitsGenerated[i] > 1 - mapConfig.minDistanceBetweenPlanetOrbitsInPercentage)
+		{
+			orbit = (*spMoonOrbitDist)(*randomizer);
+			i = 0;
+			regeneratedCounter++;
+		}
+
+		i++;
+	}
+	if (regeneratedCounter >= mapConfig.maxAmountOfSystemPosRegen)
+	{
+		std::cout << "Regenerated moon orbit " << regeneratedCounter << " times!\n";
+		return;
+	}
+	moonOrbitsGenerated.push_back(orbit);
+	spPlanetCom->orbitRadius = orbit;
 	
 	int barrenType{ -1 };
 	if (orbitType == 0) 
@@ -461,21 +484,33 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 		{
 			if (spPlanet->planetSize <= mapConfig.smallIcyPlanetSizes.y) 
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.smallPlanet1MoonChance)
+				//std::cout << "Planet: "<<GetPlanetTypeName(spPlanet->planetType)<<"; small icy!\n";
+				float num = (*from0to1Dist)(*randomizer);
+				//std::cout << mapConfig.smallPlanet1MoonChance <<"; chance: " <<num<< '\n';
+				if (num < mapConfig.smallPlanet1MoonChance)
 					numberOfMoons = 1;
 				else
 					return;
 			}
 			else if (spPlanet->planetSize <= mapConfig.mediumIcyPlanetSizes.y)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.mediumPlanet1MoonChance)
+				//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; medium icy!\n";
+				float num = (*from0to1Dist)(*randomizer);
+				//std::cout << mapConfig.mediumPlanet1MoonChance << "; chance: " << num << '\n';
+				if (num < mapConfig.mediumPlanet1MoonChance)
+				{
 					numberOfMoons = 1;
+				}
 				else
+				{
 					numberOfMoons = 2;
+				}
 			}
 			else 
 			{
-				int num = (*from0to1Dist)(*randomizer);
+				//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; large icy!\n";
+				float num = (*from0to1Dist)(*randomizer);
+				//std::cout << mapConfig.largePlanet1MoonChance + mapConfig.largePlanet2MoonChance << "; chance: " << num << '\n';
 				if(num< mapConfig.largePlanet1MoonChance)
 					numberOfMoons = 1;
 				else if (num < mapConfig.largePlanet1MoonChance+ mapConfig.largePlanet2MoonChance)
@@ -486,7 +521,9 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 		}
 		else if (spPlanet->planetSize >= mapConfig.smallGasSizes.x && spPlanet->planetSize <= mapConfig.smallGasSizes.y) 
 		{
-			int num = (*from0to1Dist)(*randomizer);
+			//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; small gas giants!\n";
+			float num = (*from0to1Dist)(*randomizer);
+			//std::cout << mapConfig.smallGasSize1MoonChance + mapConfig.smallGasSize2MoonChance + mapConfig.smallGasSize3MoonChance << "; chance: " << num << '\n';
 			if (num < mapConfig.smallGasSize1MoonChance)
 				numberOfMoons = 1;
 			else if (num < mapConfig.smallGasSize1MoonChance + mapConfig.smallGasSize2MoonChance)
@@ -498,7 +535,9 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 		}
 		else if (spPlanet->planetSize >= mapConfig.largeGasSizes.x && spPlanet->planetSize <= mapConfig.largeGasSizes.y)
 		{
-			int num = (*from0to1Dist)(*randomizer);
+			//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; large gas giants!\n";
+			float num = (*from0to1Dist)(*randomizer);
+			//std::cout << mapConfig.largeGasSize1_2MoonChance + mapConfig.largeGasSize3_4MoonChance + mapConfig.largeGasSize5_6MoonChance << "; chance: " << num << '\n';
 			if (num < mapConfig.largeGasSize1_2MoonChance)
 			{
 				numberOfMoons = 1;
@@ -528,21 +567,29 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 		{
 			if (spPlanet->planetSize <= mapConfig.smallRockyPlanetSizes.y)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.smallPlanet1MoonChance)
+				//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; small rocky!\n";
+				float num = (*from0to1Dist)(*randomizer);
+				//std::cout << mapConfig.smallPlanet1MoonChance << "; chance: " << num << '\n';
+				if (num < mapConfig.smallPlanet1MoonChance)
 					numberOfMoons = 1;
 				else
 					return;
 			}
 			else if (spPlanet->planetSize <= mapConfig.mediumRockyPlanetSizes.y)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.mediumPlanet1MoonChance)
+				//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; medium rocky!\n";
+				float num = (*from0to1Dist)(*randomizer);
+				//std::cout << mapConfig.mediumPlanet1MoonChance << "; chance: " << num << '\n';
+				if (num < mapConfig.mediumPlanet1MoonChance)
 					numberOfMoons = 1;
 				else
 					numberOfMoons = 2;
 			}
 			else
 			{
-				int num = (*from0to1Dist)(*randomizer);
+				//std::cout << "Planet: " << GetPlanetTypeName(spPlanet->planetType) << "; large rocky!\n";
+				float num = (*from0to1Dist)(*randomizer);
+				//std::cout << mapConfig.largePlanet1MoonChance + mapConfig.largePlanet2MoonChance << "; chance: " << num << '\n';
 				if (num < mapConfig.largePlanet1MoonChance)
 					numberOfMoons = 1;
 				else if (num < mapConfig.largePlanet1MoonChance + mapConfig.largePlanet2MoonChance)
@@ -562,19 +609,20 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 
 		float maxDistance = 600.f * std::pow(spPlanet->planetSize, 1.3f);
 		float minDistance = mapConfig.earthDiameter * spPlanet->planetSize;
-		std::uniform_real_distribution<float> moonOrbitRangeDist(minDistance,maxDistance);
+		std::shared_ptr<std::uniform_real_distribution<float>> moonOrbitRangeDist = std::make_shared<std::uniform_real_distribution<float>>(minDistance,maxDistance);
 		std::shared_ptr<std::uniform_real_distribution<float>> closeMoonOrbitDist;
 		if (spPlanet->planetSize >= mapConfig.smallGasSizes.x)
 			closeMoonOrbitDist = std::make_shared<std::uniform_real_distribution<float>>(minDistance,maxDistance*mapConfig.gasPlanetCloseOrbitMultiplier);
 		else
 			closeMoonOrbitDist = std::make_shared<std::uniform_real_distribution<float>>(minDistance, maxDistance * mapConfig.rockyPlanetCloseOrbitMultiplier);
 	
+		moonOrbitsGenerated.clear();
 		for (int i = 0; i < numberOfMoons; i++) 
 		{
 			if ((*from0to1Dist)(*randomizer) < mapConfig.closeMoonOrbitChance)
-				CreateMoon((*closeMoonOrbitDist)(*randomizer), mapConfig.maxMoonSizeRelativeToPlanetSize*spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
+				CreateMoon(closeMoonOrbitDist, mapConfig.maxMoonSizeRelativeToPlanetSize*spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
 			else
-				CreateMoon(moonOrbitRangeDist(*randomizer), mapConfig.maxMoonSizeRelativeToPlanetSize* spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
+				CreateMoon(moonOrbitRangeDist, mapConfig.maxMoonSizeRelativeToPlanetSize* spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
 		}
 	}
 	else
@@ -1114,17 +1162,17 @@ void WorldGenerator::checkRandomDistribution()
 	std::vector<int> numsDist(13);
 	for (int i = 0; i < 1500; i++)
 	{
-		int num = (*starDistribution)(*randomizer);
-		//std::cout << num << "  ";
-		numsDist[num]++;
+		float num = (*from0to1Dist)(*randomizer);
+		std::cout << num << "  ";
+		//numsDist[num]++;
 	}
 	std::cout <<'\n';
-	std::cout << " --- Results ---\n";
+	//std::cout << " --- Results ---\n";
 
-	for (int i = 0; i < numsDist.size(); i++) 
-	{
-		std::cout << i << ") " << numsDist[i] << '\n';
-	}
+	//for (int i = 0; i < numsDist.size(); i++) 
+	//{
+	//	std::cout << i << ") " << numsDist[i] << '\n';
+	//}
 }
 
 
@@ -1263,7 +1311,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
 		//std::cout <<" \n";
-		//std::cout << i <<") ";
+		//std::cout << i <<") \n";
 		
 		//Generate position
 		bool regeneratePos = true;

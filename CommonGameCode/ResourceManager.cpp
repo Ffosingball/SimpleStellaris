@@ -605,7 +605,7 @@ const void ResourceManager::LoadAllResources()
 			textures.emplace(name, texture);
 			texturesIntRects.emplace(name, textureSize);
 
-			name = "Titan";
+			name = "TitanLike";
 			textureSize.position = sf::Vector2i{ 80,80 };
 			textures.emplace(name, texture);
 			texturesIntRects.emplace(name, textureSize);

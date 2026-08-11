@@ -19,6 +19,16 @@ SceneNodeSpaceObjectsCounter::SceneNodeSpaceObjectsCounter(SpaceMapConfiguration
     {
         planetTypesAmount.push_back(0);
     }
+
+    for (int i = 0; i < 11; i++)
+    {
+        moonTypesAmount.push_back(0);
+    }
+
+    for (int i = 0; i < 10; i++)
+    {
+        numberOfMoonsAmount.push_back(0);
+    }
 }
 
 
@@ -117,126 +127,170 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
             std::shared_ptr<PlanetComponent> spComPlanet = GetPlanetComponent(*spEntity);
             std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet;
 
-            switch (spComPlanet->planetType)
+            if (!spComPlanet->isMoon)
             {
-            case PlanetType::BarrenDark:
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
-                    planetTypesAmount[0]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
-                    planetTypesAmount[1]++;
-                else
-                    planetTypesAmount[2]++;
-                break;
-            case PlanetType::BarrenGrey:
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
-                    planetTypesAmount[3]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
-                    planetTypesAmount[4]++;
-                else
-                    planetTypesAmount[5]++;
-                break;
-            case PlanetType::BarrenMarsLike:
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
-                    planetTypesAmount[6]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
-                    planetTypesAmount[7]++;
-                else
-                    planetTypesAmount[8]++;
-                break;
-            case PlanetType::VenusLike:
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
-                    planetTypesAmount[9]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
-                    planetTypesAmount[10]++;
-                else
-                    planetTypesAmount[11]++;
-                break;
-            case PlanetType::Oceanic:
-                if (spComPlanet->planetSize < mapConfig.smallIcyPlanetSizes.y)
-                    planetTypesAmount[12]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumIcyPlanetSizes.y)
-                    planetTypesAmount[13]++;
-                else
-                    planetTypesAmount[14]++;
-                break;
-            case PlanetType::EarthLike:
-                wpHabitablePlanet = GetHabitablePlanetComponent(*spEntity);
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                switch (spComPlanet->planetType)
                 {
-                    if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-                        planetTypesAmount[15]++;
-                    else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-                        planetTypesAmount[16]++;
+                case PlanetType::BarrenDark:
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                        planetTypesAmount[0]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                        planetTypesAmount[1]++;
                     else
-                        planetTypesAmount[17]++;
+                        planetTypesAmount[2]++;
+                    break;
+                case PlanetType::BarrenGrey:
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                        planetTypesAmount[3]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                        planetTypesAmount[4]++;
+                    else
+                        planetTypesAmount[5]++;
+                    break;
+                case PlanetType::BarrenMarsLike:
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                        planetTypesAmount[6]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                        planetTypesAmount[7]++;
+                    else
+                        planetTypesAmount[8]++;
+                    break;
+                case PlanetType::VenusLike:
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                        planetTypesAmount[9]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                        planetTypesAmount[10]++;
+                    else
+                        planetTypesAmount[11]++;
+                    break;
+                case PlanetType::Oceanic:
+                    if (spComPlanet->planetSize < mapConfig.smallIcyPlanetSizes.y)
+                        planetTypesAmount[12]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumIcyPlanetSizes.y)
+                        planetTypesAmount[13]++;
+                    else
+                        planetTypesAmount[14]++;
+                    break;
+                case PlanetType::EarthLike:
+                    wpHabitablePlanet = GetHabitablePlanetComponent(*spEntity);
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                    {
+                        if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+                            planetTypesAmount[15]++;
+                        else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+                            planetTypesAmount[16]++;
+                        else
+                            planetTypesAmount[17]++;
+                    }
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                    {
+                        if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+                            planetTypesAmount[18]++;
+                        else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+                            planetTypesAmount[19]++;
+                        else
+                            planetTypesAmount[20]++;
+                    }
+                    else
+                    {
+                        if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+                            planetTypesAmount[21]++;
+                        else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+                            planetTypesAmount[22]++;
+                        else
+                            planetTypesAmount[23]++;
+                    }
+                    break;
+                case PlanetType::TitanLike:
+                    planetTypesAmount[24]++;
+                    break;
+                case PlanetType::Molten:
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                        planetTypesAmount[25]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                        planetTypesAmount[26]++;
+                    else
+                        planetTypesAmount[27]++;
+                    break;
+                case PlanetType::Icy:
+                    if (spComPlanet->planetSize < mapConfig.smallIcyPlanetSizes.y)
+                        planetTypesAmount[28]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumIcyPlanetSizes.y)
+                        planetTypesAmount[29]++;
+                    else
+                        planetTypesAmount[30]++;
+                    break;
+                case PlanetType::Voulcanic:
+                    planetTypesAmount[31]++;
+                    break;
+                case PlanetType::Desert:
+                    if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
+                        planetTypesAmount[32]++;
+                    else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+                        planetTypesAmount[33]++;
+                    else
+                        planetTypesAmount[34]++;
+                    break;
+                case PlanetType::HotJupiter:
+                    planetTypesAmount[35]++;
+                    break;
+                case PlanetType::HotNeptune:
+                    planetTypesAmount[36]++;
+                    break;
+                case PlanetType::JupiterLike:
+                    planetTypesAmount[37]++;
+                    break;
+                case PlanetType::SaturnLike:
+                    planetTypesAmount[38]++;
+                    break;
+                case PlanetType::NeptuneLike:
+                    planetTypesAmount[39]++;
+                    break;
+                case PlanetType::UranusLike:
+                    planetTypesAmount[40]++;
+                    break;
                 }
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
+
+                numberOfMoonsAmount[node.GetAllChildren().size()]++;
+            }
+            else 
+            {
+                switch (spComPlanet->planetType)
                 {
-                    if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-                        planetTypesAmount[18]++;
-                    else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-                        planetTypesAmount[19]++;
-                    else
-                        planetTypesAmount[20]++;
+                case PlanetType::BarrenDark:
+                    moonTypesAmount[0]++;
+                    break;
+                case PlanetType::BarrenGrey:
+                    moonTypesAmount[1]++;
+                    break;
+                case PlanetType::BarrenMarsLike:
+                    moonTypesAmount[2]++;
+                    break;
+                case PlanetType::VenusLike:
+                    moonTypesAmount[3]++;
+                    break;
+                case PlanetType::Oceanic:
+                    moonTypesAmount[4]++;
+                    break;
+                case PlanetType::EarthLike:
+                    moonTypesAmount[5]++;
+                    break;
+                case PlanetType::TitanLike:
+                    moonTypesAmount[6]++;
+                    break;
+                case PlanetType::Molten:
+                    moonTypesAmount[7]++;
+                    break;
+                case PlanetType::Icy:
+                    moonTypesAmount[8]++;
+                    break;
+                case PlanetType::Voulcanic:
+                    moonTypesAmount[9]++;
+                    break;
+                case PlanetType::Desert:
+                    moonTypesAmount[10]++;
+                    break;
                 }
-                else
-                {
-                    if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-                        planetTypesAmount[21]++;
-                    else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-                        planetTypesAmount[22]++;
-                    else
-                        planetTypesAmount[23]++;
-                }
-                break;
-            case PlanetType::TitanLike:
-                planetTypesAmount[24]++;
-                break;
-            case PlanetType::Molten:
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
-                    planetTypesAmount[25]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
-                    planetTypesAmount[26]++;
-                else
-                    planetTypesAmount[27]++;
-                break;
-            case PlanetType::Icy:
-                if (spComPlanet->planetSize < mapConfig.smallIcyPlanetSizes.y)
-                    planetTypesAmount[28]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumIcyPlanetSizes.y)
-                    planetTypesAmount[29]++;
-                else
-                    planetTypesAmount[30]++;
-                break;
-            case PlanetType::Voulcanic:
-                planetTypesAmount[31]++;
-                break;
-            case PlanetType::Desert:
-                if (spComPlanet->planetSize < mapConfig.smallRockyPlanetSizes.y)
-                    planetTypesAmount[32]++;
-                else if (spComPlanet->planetSize < mapConfig.mediumRockyPlanetSizes.y)
-                    planetTypesAmount[33]++;
-                else
-                    planetTypesAmount[34]++;
-                break;
-            case PlanetType::HotJupiter:
-                planetTypesAmount[35]++;
-                break;
-            case PlanetType::HotNeptune:
-                planetTypesAmount[36]++;
-                break;
-            case PlanetType::JupiterLike:
-                planetTypesAmount[37]++;
-                break;
-            case PlanetType::SaturnLike:
-                planetTypesAmount[38]++;
-                break;
-            case PlanetType::NeptuneLike:
-                planetTypesAmount[39]++;
-                break;
-            case PlanetType::UranusLike:
-                planetTypesAmount[40]++;
-                break;
             }
         }
     }
@@ -361,6 +415,31 @@ void SceneNodeSpaceObjectsCounter::OutputAllData()
     }
     std::cout << " - Total planets: " << total << '\n';
     std::cout << " - Total habitable planets: " << totalHabitable << '\n';
+
+    total = 0;
+    std::cout << "\n";
+    std::cout << " - Moons statistics - \n";
+    std::cout << "Barren Dark: " << moonTypesAmount[0] << '\n';
+    std::cout << "Barren Grey: " << moonTypesAmount[1] << '\n';
+    std::cout << "Barren Red: " << moonTypesAmount[2] << '\n';
+    std::cout << "Venus Like: " << moonTypesAmount[3] << '\n';
+    std::cout << "Oceanic: " << moonTypesAmount[4] << '\n';
+    std::cout << "Earth Like: " << moonTypesAmount[5] << '\n';
+    std::cout << "Titan Like: " << moonTypesAmount[6] << '\n';
+    std::cout << "Molten: " << moonTypesAmount[7] << '\n';
+    std::cout << "Icy: " << moonTypesAmount[8] << '\n';
+    std::cout << "Voulcanic: " << moonTypesAmount[9] << '\n';
+    std::cout << "Desert: " << moonTypesAmount[10] << '\n';
+    for (int i : moonTypesAmount)
+    {
+        total += i;
+    }
+    std::cout << " - Total moonss: " << total << '\n';
+    std::cout << " - Number of moons in planets - \n";
+    for (int i =0; i<numberOfMoonsAmount.size(); i++) 
+    {
+        std::cout << i << " moons have " << numberOfMoonsAmount[i] << " planets\n";
+    }
 }
 
 

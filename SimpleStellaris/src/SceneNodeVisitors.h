@@ -111,6 +111,8 @@ private:
     int ternaryAfarSysAmount{ 0 };
 
     std::vector<int> planetTypesAmount;
+    std::vector<int> moonTypesAmount;
+    std::vector<int> numberOfMoonsAmount;
 
     SpaceMapConfigurations& mapConfig;
 
@@ -180,8 +182,8 @@ private:
     std::shared_ptr<SceneNode> spPlanetPicNode;
     float earthDiameter{1.f};
 
-    sf::Vector2f planetIconSize{ 140.f, 140.f };
-    sf::Vector2f moonIconSize{ 100.f, 100.f };
+    sf::Vector2f planetIconSize{ 70.f, 70.f };
+    sf::Vector2f moonIconSize{ 50.f, 50.f };
 };
 
 

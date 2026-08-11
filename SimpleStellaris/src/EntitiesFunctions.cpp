@@ -502,11 +502,11 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 //Creates planet overview camera
 void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
-	int cameraHeight = 1000;
-	float cameraVelocity = 60.f;//14.f
-	float cameraZoomSpeed = 30.f;
+	int cameraHeight = 1500;
+	float cameraVelocity = 50.f;//14.f
+	float cameraZoomSpeed = 20.f;
 	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = { 0.01f, 5.f };
+	sf::Vector2f zoomBorders = { 0.008f, 7.f };
 	float outsideBordersMaxRenderDistance = 15.f;
 
 	//Create camera
@@ -647,6 +647,8 @@ void CreateSpaceObjects()
 	spCameraCom3->horizontalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
 	spCameraCom3->verticalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
 	spCameraCom3->view.setCenter(sf::Vector2f{ 0.f, 0.f });
+
+	//WorldGenerator::checkRandomDistribution();
 
 	SceneNodeSpaceObjectsCounter visitor(mapConfig);
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);

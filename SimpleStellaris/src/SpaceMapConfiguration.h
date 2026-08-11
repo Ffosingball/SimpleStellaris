@@ -151,8 +151,8 @@ struct SpaceMapConfigurations
 
 	//Rocky planet config; applied for all planets except: gas giants, icy and oceanic worlds
 	sf::Vector2f smallRockyPlanetSizes{ 0.3f,0.8f };
-	sf::Vector2f mediumRockyPlanetSizes{ 0.8f,1.2f };
-	sf::Vector2f largeRockyPlanetSizes{ 1.2f,2.2f };
+	sf::Vector2f mediumRockyPlanetSizes{ 0.8f,1.3f };
+	sf::Vector2f largeRockyPlanetSizes{ 1.3f,2.2f };
 	//1 - 100%, 0 - 0%
 	float smallRockyPlanetChance = 0.45f;
 	float mediumRockyPlanetChance = 0.35f;
