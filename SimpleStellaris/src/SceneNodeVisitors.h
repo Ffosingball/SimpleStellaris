@@ -156,7 +156,6 @@ public:
 
 private:
     bool hidden;
-    int counter{ 0 };
     std::shared_ptr<SceneNode> spSystemIconsNode;
     std::shared_ptr<SceneNode> spObjectOrbitsNode;
 
@@ -176,7 +175,6 @@ public:
 
 private:
     bool hidden;
-    int counter{ 0 };
     std::shared_ptr<SceneNode> spSystemIconsNode;
     std::shared_ptr<SceneNode> spObjectOrbitsNode;
     std::shared_ptr<SceneNode> spPlanetPicNode;

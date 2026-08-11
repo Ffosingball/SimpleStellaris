@@ -842,7 +842,10 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 	//std::cout << spSystemOrStarNode->GetCombinedParentsNames()<<'\n';
 
 	std::shared_ptr<StarComponent> spStarCom;
+	//std::shared_ptr<Entity> spEntity2 = spSystemOrStarNode->GetParent().lock()->GetEntity().lock();
 	std::shared_ptr<Entity> spEntity = spSystemOrStarNode->GetEntity().lock();
+	if(!spEntity->HasComponent(ComponentType::Star) && !spEntity->HasComponent(ComponentType::ObjectSystem))
+		spEntity = spSystemOrStarNode->GetParent().lock()->GetEntity().lock();
 	sf::Vector2f orbitBoundaries{0.f, 0.f};
 	sf::Vector2f habitableBoundaries{ -1.f, -1.f };
 	bool checkMaxOrbitBounds=false;
@@ -1340,6 +1343,9 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		spNewSystem->AddComponent(ComponentType::ObjectSystem);
 		std::shared_ptr<ObjectSystemComponent> spSystemCom = GetObjectSystemComponent(*spNewSystem);
 		std::shared_ptr<SceneNode> ptrNewSysNode = ptrSpaceMapNode->FindChild(*spNewSystem).lock();
+		//Create node which will store all system nodes
+		std::shared_ptr<Entity> spNewEn = CreateNewEntityAt(ptrNewSysNode, "Node").lock();
+		std::shared_ptr<SceneNode> spNewNode = ptrSpaceMapNode->FindChild(*spNewEn).lock();
 		//Set position
 		int yPos = (int)((newPos.y - mapConfig.verticalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
 		int xPos = (int)((newPos.x - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
@@ -1347,7 +1353,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		spNewSystem->SetPosition(newPos);
 
 		//Create star in that system
-		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(ptrNewSysNode, "Star1").lock();
+		std::shared_ptr<Entity> spStar1 = CreateNewEntityAt(spNewNode, "Star1").lock();
 		spStar1->AddComponent(ComponentType::Star);
 		std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*spStar1);
 		spStar1->inheritParentPosition = false;
@@ -1357,52 +1363,52 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 0:
 			spStar1Com->starType = StarType::RedSupergiant;
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(ptrNewSysNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
+			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
 			break;
 		case 1:
 			spStar1Com->starType = StarType::RedGiant;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 2:
 			spStar1Com->starType = StarType::Otype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 3:
 			spStar1Com->starType = StarType::Btype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 4:
 			spStar1Com->starType = StarType::Atype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 5:
 			spStar1Com->starType = StarType::Ftype;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 6:
 			spStar1Com->starType = StarType::GsunLike;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 7:
 			spStar1Com->starType = StarType::KorangeDwarf;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 8:
 			spStar1Com->starType = StarType::MredDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 9:
 			spStar1Com->starType = StarType::BrownDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 10:
 			spStar1Com->starType = StarType::WhiteDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, ptrNewSysNode, spStar1, mapConfig);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
 		case 11:
 			spStar1Com->starType = StarType::NeutronStar;
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(ptrNewSysNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
+			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
 			break;
 		case 12:
 			spStar1Com->starType = StarType::BlackHole;
@@ -1410,6 +1416,9 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 			std::cout << "Black Hole\n";
 			break;
 		}
+
+		spSystemCom->spAllSystemObjectsNode = spNewNode;
+		ptrNewSysNode->RemoveByEntity(spNewEn);
 
 		//Calculate how far nebula is
 		//ADD THIS IN THE FUTURE IF NECESSARY!
@@ -1968,10 +1977,10 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			spEntity->AddComponent(ComponentType::RectangleShape);
 			std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
 			
-			std::shared_ptr<SceneNode> ptrSysNode = wpSpaceMapNode.lock()->FindChild(*spEntity).lock();
+			//std::shared_ptr<SceneNode> ptrSysNode = wpSpaceMapNode.lock()->FindChild(*spEntity).lock();
 			if (spComSys->systemType == SpaceSystemType::Single) 
 			{
-				std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
+				std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
 				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
 				SetSystemTexture(spRectShape, spStar1Com->starType);
 				SetSystemName(spComSys, spStar1Com->starType);
@@ -1986,9 +1995,9 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar) 
 			{
 				//std::cout << "Binary\n";
-				std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
+				std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
 				std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
-				std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
+				std::shared_ptr<SceneNode> ptrStar2Node = spComSys->spAllSystemObjectsNode->FindChild("Star2").lock();
 				std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
 
 				SetSystemTexture(spRectShape, std::max(spStar1Com->starType, spStar2Com->starType));
@@ -2009,7 +2018,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				if (spComSys->systemType == SpaceSystemType::BinaryClose)
 				{
 					//Now set planet names
-					SetPlanetName(ptrSysNode, spComSys->systemName, 99);
+					SetPlanetName(spComSys->spAllSystemObjectsNode, spComSys->systemName, 99);
 				}
 				else 
 				{
@@ -2027,19 +2036,19 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				if (spComSys->systemType == SpaceSystemType::TernaryAfar) 
 				{
 					//std::cout << "Ternary afar\n";
-					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
+					std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
 					spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
-					std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
+					std::shared_ptr<SceneNode> ptrStar2Node = spComSys->spAllSystemObjectsNode->FindChild("Star2").lock();
 					spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
-					std::shared_ptr<SceneNode> ptrStar3Node = ptrSysNode->FindChild("Star3").lock();
+					std::shared_ptr<SceneNode> ptrStar3Node = spComSys->spAllSystemObjectsNode->FindChild("Star3").lock();
 					spStar3Com = GetStarComponent(*ptrStar3Node->GetEntity().lock());
 				}
 				else 
 				{
 					//std::cout << "Ternary binary\n";
-					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
+					std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
 					spStar1Com = GetStarComponent(*ptrStar1Node->GetEntity().lock());
-					std::shared_ptr<SceneNode> ptrInsideSysNode = ptrSysNode->FindChild("InsideSystem").lock();
+					std::shared_ptr<SceneNode> ptrInsideSysNode = spComSys->spAllSystemObjectsNode->FindChild("InsideSystem").lock();
 					std::shared_ptr<SceneNode> ptrStar2Node = ptrInsideSysNode->FindChild("Star2").lock();
 					spStar2Com = GetStarComponent(*ptrStar2Node->GetEntity().lock());
 					std::shared_ptr<SceneNode> ptrStar3Node = ptrInsideSysNode->FindChild("Star3").lock();
@@ -2099,9 +2108,9 @@ void TextureSetter::ProcessNode(SceneNode& node)
 
 				if (spComSys->systemType == SpaceSystemType::TernaryAfar) 
 				{
-					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
-					std::shared_ptr<SceneNode> ptrStar2Node = ptrSysNode->FindChild("Star2").lock();
-					std::shared_ptr<SceneNode> ptrStar3Node = ptrSysNode->FindChild("Star3").lock();
+					std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
+					std::shared_ptr<SceneNode> ptrStar2Node = spComSys->spAllSystemObjectsNode->FindChild("Star2").lock();
+					std::shared_ptr<SceneNode> ptrStar3Node = spComSys->spAllSystemObjectsNode->FindChild("Star3").lock();
 					
 					//Now set planet names
 					SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
@@ -2110,8 +2119,8 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				}
 				else 
 				{
-					std::shared_ptr<SceneNode> ptrStar1Node = ptrSysNode->FindChild("Star1").lock();
-					std::shared_ptr<SceneNode> ptrInsideSysNode = ptrSysNode->FindChild("InsideSystem").lock();
+					std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
+					std::shared_ptr<SceneNode> ptrInsideSysNode = spComSys->spAllSystemObjectsNode->FindChild("InsideSystem").lock();
 				
 					//Now set planet names
 					SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
@@ -2122,6 +2131,8 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			//Create text name entity for system
 			std::string name{ "SystemNameText" };
 			CreateSystemText(wpSystemNamesNode.lock(), node.GetSharedPtrToItself(), name, true);
+
+			spComSys->spAllSystemObjectsNode->AcceptVisitor(*this);
 		}
 		else if (spEntity->HasComponent(ComponentType::Star))
 		{

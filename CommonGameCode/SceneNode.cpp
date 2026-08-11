@@ -121,12 +121,12 @@ void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e)
 			break;
 		}
 	}
+
 	if (iFound >= 0)
 	{
 		//If child is found, then remove it from the list
+		children[iFound]->parent = {};
 		children.erase(children.begin() + iFound);
-		//Vector has been changed, so we HAVE TO update POINTERS!!!
-		//UpdateParentRecursive();
 	}
 	else
 	{

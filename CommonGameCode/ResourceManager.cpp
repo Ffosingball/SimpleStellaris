@@ -454,7 +454,7 @@ const void ResourceManager::LoadAllResources()
 			textures.emplace(name, texture);
 			texturesIntRects.emplace(name, textureSize);
 
-			name = "VolcanicPlanetIcon";
+			name = "VoulcanicPlanetIcon";
 			textureSize.position = sf::Vector2i{ 64,80 };
 			textures.emplace(name, texture);
 			texturesIntRects.emplace(name, textureSize);

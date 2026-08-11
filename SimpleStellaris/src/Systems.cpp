@@ -73,15 +73,19 @@ void InputSystem::EnterSystemOverview()
 	SceneNodeVisitorChangeAllSystemVisibility visitor(true);
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 
+	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
+	std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spSelectedSystemNode->GetEntity().lock());
+	spSelectedSystemNode->AddChild(spSysCom->spAllSystemObjectsNode);
+
 	//std::cout << "-- Entering system view: "<<'\n';
 	//wpSelectedSystemNode.lock()->OutputTree("  ");
 	SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
-	wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+	spSelectedSystemNode->AcceptVisitor(visitor2);
 
 	//Setup background camera
 	std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
 	std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
-	sBackCameraCom->view.setCenter(wpSelectedSystemNode.lock()->GetEntity().lock()->GetPosition());
+	sBackCameraCom->view.setCenter(spSelectedSystemNode->GetEntity().lock()->GetPosition());
 	sBackCameraCom->view.setSize(sSpaceCameraCom->cameraSize * sSpaceCameraCom->zoomingBorders.x);
 	sSpaceCameraCom->moveCamera = false;
 
@@ -130,6 +134,10 @@ void InputSystem::ExitSystemOverview()
 
 	SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 	wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+
+	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
+	std::shared_ptr<ObjectSystemComponent> spSysCom = GetObjectSystemComponent(*spSelectedSystemNode->GetEntity().lock());
+	spSelectedSystemNode->RemoveByEntity(spSysCom->spAllSystemObjectsNode->GetEntity().lock());
 
 	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
 	sSystemCameraCom->moveCamera = false;
