@@ -70,6 +70,7 @@ private:
 	static std::shared_ptr<std::discrete_distribution<int>> closeOrbitMoonDist;
 	static std::shared_ptr<std::discrete_distribution<int>> habitableZoneMoonDist;
 	static std::shared_ptr<std::discrete_distribution<int>> farOrbitMoonDist;
+	static std::shared_ptr<std::uniform_int_distribution<int>> RingTypeDist;
 
 	WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
@@ -81,6 +82,7 @@ private:
 	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition);
 	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
 	static void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar);
+	static void GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType, SpaceMapConfigurations& mapConfig);
 
 public:
 

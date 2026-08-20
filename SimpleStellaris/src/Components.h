@@ -29,7 +29,8 @@ enum class ComponentType
 	SystemProperties,
 	UIFollower,
 	HabitablePlanet,
-	OrbitVisualizer
+	OrbitVisualizer,
+	Ring
 };
 
 
@@ -186,6 +187,19 @@ public:
 
 
 
+//Component of the ring
+class RingComponent : public Component
+{
+public:
+	int ringNumber{ -1 };
+	double ringRadius{ 0.0 };
+
+	//Worst case: O(1)
+	ComponentType GetComponentType() const override;
+};
+
+
+
 class HabitablePlanetComponent : public Component
 {
 public:
@@ -306,3 +320,5 @@ std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity
 std::shared_ptr<HabitablePlanetComponent> GetHabitablePlanetComponent(const Entity& entity);
 //Worst case: O(N) where N is number of components in entity
 std::shared_ptr<OrbitVisualizerComponent> GetOrbitVisualizerComponent(const Entity& entity);
+//Worst case: O(N) where N is number of components in entity
+std::shared_ptr<RingComponent> GetRingComponent(const Entity& entity);

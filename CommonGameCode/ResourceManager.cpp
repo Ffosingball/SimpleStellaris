@@ -641,6 +641,59 @@ const void ResourceManager::LoadAllResources()
 			texturesIntRects.emplace(name, textureSize);
 		}
 	}
+	{
+		std::string textureName{ "RingsTexture" };
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile("media/textures/Rings.png"))
+			std::cout << "No texture found: " + textureName + "\n";
+		else
+		{
+			std::string name = "Ring0";
+			sf::IntRect textureSize{ {0,0},{100,100} };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring1";
+			textureSize.position = sf::Vector2i{ 100,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring2";
+			textureSize.position = sf::Vector2i{ 200,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring3";
+			textureSize.position = sf::Vector2i{ 0,100 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring4";
+			textureSize.position = sf::Vector2i{ 100,100 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring5";
+			textureSize.position = sf::Vector2i{ 200,100 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring6";
+			textureSize.position = sf::Vector2i{ 0,200 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring7";
+			textureSize.position = sf::Vector2i{ 100,200 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "Ring8";
+			textureSize.position = sf::Vector2i{ 200,200 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+		}
+	}
 
 
 	//LOAD FONTS

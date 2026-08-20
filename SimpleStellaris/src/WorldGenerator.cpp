@@ -92,6 +92,7 @@ std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallGian
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closeOrbitMoonDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::habitableZoneMoonDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::farOrbitMoonDist = nullptr;
+//add Ring dist!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -631,6 +632,30 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 
 
 
+//Planet type: 0 - rocky/icy, 1 - gas
+void WorldGenerator::GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType, SpaceMapConfigurations& mapConfig)
+{
+	float ringChance = (*from0to1Dist)(*randomizer);
+
+	bool generateRings = false;
+	if (ringChance < mapConfig.gasPlanetRingChance && (planetType == PlanetType::NeptuneLike || planetType == PlanetType::HotNeptune || planetType == PlanetType::UranusLike || planetType == PlanetType::JupiterLike || planetType == PlanetType::SaturnLike || planetType == PlanetType::HotJupiter))
+		generateRings = true;
+	else if (ringChance < mapConfig.rockyPlanetRingChance)
+		generateRings = true;
+
+	if (generateRings)
+	{
+		std::shared_ptr<Entity> spMoon = CreateNewEntityAt(spPlanetNode, "Rings").lock();
+		spMoon->AddComponent(ComponentType::Ring);
+		std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*spMoon);
+
+		spRingCom->ringRadius = mapConfig.ringSizeComparedToPlanet * planetSize;
+		spRingCom->ringNumber = ;
+	}
+}
+
+
+
 void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition)
 {
 	std::uniform_real_distribution<double> orbitDist(static_cast<double>(orbitBoundaries.x), static_cast<double>(orbitBoundaries.y));
@@ -833,6 +858,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	//std::cout << "Planet rotational velocity(rad per year): " << spPlanetCom->rotationalVelocity*365<<'\n';
 
 	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
+	GenerateRings():
 }
 
 
