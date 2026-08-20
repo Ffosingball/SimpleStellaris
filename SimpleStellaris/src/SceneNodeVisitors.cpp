@@ -68,7 +68,11 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                 bool moveCamera = true;
                 if (spCameraCom->cameraLocked) 
                 {
-                    spCameraCom->view.setCenter(spCameraCom->wpNodeLockedOn.lock()->GetCombinedPosition());
+                    std::weak_ptr<SceneNode> wpPlanetPic = spCameraCom->wpNodeLockedOn.lock()->FindChild("PlanetPicture");
+                    if(wpPlanetPic.lock()!=nullptr)
+                        spCameraCom->view.setCenter(wpPlanetPic.lock()->GetCombinedPosition());
+                    else
+                        spCameraCom->view.setCenter(spCameraCom->wpNodeLockedOn.lock()->GetCombinedPosition());
                     //std::cout << "Locked on: " << spCameraCom->wpNodeLockedOn.lock()->GetEntity().lock()->GetName() << '\n';
                 
                     //Check that camera do not go out of bounds
@@ -348,8 +352,8 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
                 double rotation = (spPlanetCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spPlanetCom->initialRotationPosition;
                 spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spPlanetCom->orbitRadius), static_cast<float>(std::cos(rotation) * spPlanetCom->orbitRadius)));
 
-                if(spPlanetCom->isMoon && ECSGame::Instance().GetOverviewType()==OverviewType::Planet)
-                    std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spPlanetCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
+                //if(spPlanetCom->isMoon && ECSGame::Instance().GetOverviewType()==OverviewType::Planet)
+                //    std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spPlanetCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
             }
             //else
                 //std::cout <<"Did not moved: " << spEntity->GetName() << '\n';

@@ -36,11 +36,11 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	
 	//Create and sdd systems to the list
 	systems.emplace_back(std::make_shared<InputSystem>());
+	systems.emplace_back(std::make_shared<SimulationSystem>());
 	systems.emplace_back(std::make_shared<MovementSystem>());
 	systems.emplace_back(std::make_shared<UISystem>());
 	systems.emplace_back(std::make_shared<MusicSystem>());
 	systems.emplace_back(std::make_shared<GameSystem>());
-	systems.emplace_back(std::make_shared<SimulationSystem>());
 
 	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
 
