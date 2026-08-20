@@ -646,10 +646,22 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
     if (spEntity != nullptr)
     {
         bool checkDistance = false;
+        bool setParentAsTarget = false;
         if (spEntity->HasComponent(ComponentType::Star))
             checkDistance = true;
-        else if (spEntity->HasComponent(ComponentType::Planet) && checkPlanets)
+        else if (spEntity->HasComponent(ComponentType::Planet) && checkPlanets && currentOverview == OverviewType::System)
             checkDistance = true;
+        else if (spEntity->HasComponent(ComponentType::Planet) && currentOverview == OverviewType::Planet)
+        {
+            std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spEntity);
+            if(spPlanetCom->isMoon)
+                checkDistance = true;
+        }
+        else if (currentOverview == OverviewType::Planet && spEntity->GetName() == "PlanetPicture")
+        {
+            checkDistance = true;
+            setParentAsTarget = true;
+        }
 
         if (checkDistance) 
         {
@@ -657,7 +669,10 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
             if (newDistance < gel::distanceBetween2Points(closestPosition, position) && newDistance < maxDistance) 
             {
                 closestPosition = node.GetCombinedPosition();
-                wpClosestNode = node.GetSharedPtrToItself();
+                if(!setParentAsTarget)
+                    wpClosestNode = node.GetSharedPtrToItself();
+                else
+                    wpClosestNode = node.GetParent();
             }
         }
     }

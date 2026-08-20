@@ -503,7 +503,7 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
 {
 	int cameraHeight = 1500;
-	float cameraVelocity = 50.f;//14.f
+	float cameraVelocity = 120.f;//14.f
 	float cameraZoomSpeed = 20.f;
 	float velocityChange = 8.f;
 	sf::Vector2f zoomBorders = { 0.008f, 7.f };

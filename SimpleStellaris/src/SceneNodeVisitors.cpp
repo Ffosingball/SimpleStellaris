@@ -65,7 +65,38 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                 //If it has camera component then move camera, not entity
                 std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spEntity);
                 
-                if (spCameraCom->moveCamera)
+                bool moveCamera = true;
+                if (spCameraCom->cameraLocked) 
+                {
+                    spCameraCom->view.setCenter(spCameraCom->wpNodeLockedOn.lock()->GetCombinedPosition());
+                    //std::cout << "Locked on: " << spCameraCom->wpNodeLockedOn.lock()->GetEntity().lock()->GetName() << '\n';
+                
+                    //Check that camera do not go out of bounds
+                    sf::Vector2f camCenter = spCameraCom->view.getCenter();
+                    float moveX{ 0.f };
+                    float moveY{ 0.f };
+                    if (camCenter.x + (spCameraCom->view.getSize().x / 2.f) >= spCameraCom->horizontalBorders.y)
+                        moveX = -(camCenter.x + (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.y);
+                    else if (camCenter.x - (spCameraCom->view.getSize().x / 2.f) <= spCameraCom->horizontalBorders.x)
+                        moveX = -(camCenter.x + moveX - (spCameraCom->view.getSize().x / 2.f) - spCameraCom->horizontalBorders.x);
+
+                    if (camCenter.y + (spCameraCom->view.getSize().y / 2.f) >= spCameraCom->verticalBorders.y)
+                        moveY = -(camCenter.y + moveY + (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.y);
+                    else if (camCenter.y - (spCameraCom->view.getSize().y / 2.f) <= spCameraCom->verticalBorders.x)
+                        moveY = -(camCenter.y + moveY - (spCameraCom->view.getSize().y / 2.f) - spCameraCom->verticalBorders.x);
+
+                    spCameraCom->view.move({ moveX, moveY });
+                    moveCamera = false;
+                }
+
+                if (movementSystem.direction != sf::Vector2f{ 0,0 } && spCameraCom->cameraLocked)
+                {
+                    spCameraCom->cameraLocked = false;
+                    spCameraCom->wpNodeLockedOn = {};
+                    moveCamera = true;
+                }
+
+                if (spCameraCom->moveCamera && moveCamera)
                 {
                     //Check if we can move camera or not
                     //Get movement component
@@ -89,7 +120,6 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                         newPos.y += moveY;
 
                     spCameraCom->view.setCenter(newPos);
-
                     //spCameraCom->view.setCenter({ gel::clamp((spMovementCom->velocity.x * speedMultiplier * movementSystem.direction.x * dt) + spCameraCom->view.getCenter().x, spCameraCom->horizontalBorders.x,spCameraCom->horizontalBorders.y), gel::clamp((spMovementCom->velocity.y * speedMultiplier * movementSystem.direction.y * dt) + spCameraCom->view.getCenter().y, spCameraCom->verticalBorders.x,spCameraCom->verticalBorders.y) });
                 }
             }
@@ -319,4 +349,6 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
                 //std::cout <<"Did not moved: " << spEntity->GetName() << '\n';
         }
     }
+
+    //sf::Vect
 }

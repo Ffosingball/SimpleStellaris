@@ -44,6 +44,7 @@ private:
 	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
 	std::weak_ptr<SceneNode> wpPlanetOrStarSelected;
+	std::weak_ptr<SceneNode> wpMoonOrPlanetSelected;
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };

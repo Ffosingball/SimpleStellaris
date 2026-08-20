@@ -219,6 +219,7 @@ public:
     void ProcessNode(SceneNode& node) override;
 
     std::weak_ptr<SceneNode> wpClosestNode;
+    OverviewType currentOverview=OverviewType::System;
 
 private:
     sf::Vector2f closestPosition{9999999.f, 9999999.f};

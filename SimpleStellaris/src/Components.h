@@ -233,6 +233,8 @@ public:
 	float speedChange{ 5.f };
 	//How far outside of camera borders I can consider objects as within camera borders
 	float renderOutsideBoundsFor{ 20.f };
+	bool cameraLocked{ false };
+	std::weak_ptr<SceneNode> wpNodeLockedOn;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;

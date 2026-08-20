@@ -166,6 +166,23 @@ void InputSystem::ExitPlanetToSystemOverview()
 }
 
 
+void LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
+{
+	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
+	spCameraCom->cameraLocked = true;
+	spCameraCom->wpNodeLockedOn = wpNodeToLockOn;
+	//std::cout<< "Locked camera on: " << spCameraCom->wpNodeLockedOn.lock()->GetEntity().lock()->GetName() << '\n';
+}
+
+
+void CancelCameraLock()
+{
+	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
+	spCameraCom->cameraLocked = false;
+	spCameraCom->wpNodeLockedOn = {};
+}
+
+
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
 {
@@ -289,6 +306,22 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 			ExitPlanetToSystemOverview();
 		break;
+	case 2:
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+		{
+			LockCameraOnNode(wpSelectedSystemNode);
+		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+		{
+			LockCameraOnNode(wpPlanetOrStarSelected);
+		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+		{
+			LockCameraOnNode(wpMoonOrPlanetSelected);
+		}
+		else
+			CancelCameraLock();
+		break;
 	case 5:
 		if (ECSGame::Instance().GetGameState() == GameState::Game)
 			ECSGame::Instance().SetGameState(GameState::Pause);
@@ -332,7 +365,7 @@ void InputSystem::ZoomCamera(int direction)
 	}
 	spCameraCom->view.setSize(spCameraCom->cameraSize * spCameraCom->currentZoom);
 
-	if (!lastInputByJoystick)
+	if (!lastInputByJoystick && !spCameraCom->cameraLocked)
 	{
 		//Move camera so, it looks like camera zooms to the place where mouse is pointing
 		sf::Vector2f mousePositionInWorld = ConvertWindowPositionToWorld(spCameraCom->view, ECSGame::Instance().GetMousePosition());
@@ -383,6 +416,7 @@ void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement)
 }
 
 
+
 void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed)
 {
 	if (mouseButPressed.button == sf::Mouse::Button::Left) 
@@ -396,6 +430,23 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent(ComponentType::Planet))
 				EnterPlanetFromSystemOverview();
 		}
+	}
+	else if (mouseButPressed.button == sf::Mouse::Button::Right)
+	{
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+		{
+			LockCameraOnNode(wpSelectedSystemNode);
+		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+		{
+			LockCameraOnNode(wpPlanetOrStarSelected);
+		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+		{
+			LockCameraOnNode(wpMoonOrPlanetSelected);
+		}
+		else
+			CancelCameraLock();
 	}
 
 	lastInputByJoystick = false;
@@ -523,24 +574,47 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 
 		systemsNearByText->text->setString(message);
 	}
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 	{
-		bool selectPlanets = false;
-		if (spCamCom->currentZoom < zoomAtWhichStartSelectPlanets)
-			selectPlanets = true;
+		bool selectPlanets = true;
+		if (spCamCom->currentZoom > zoomAtWhichStartSelectPlanets && ECSGame::Instance().GetOverviewType() == OverviewType::System)
+			selectPlanets = false;
 
 		float maxDistance = ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ distanceFromMouseToIconToBeSelected, 0 }).x - ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ 0,0 }).x;
 		//std::cout << "MaxDist: "<<maxDistance<<;
 
 		SceneNodeVisitorGetClosestNodeToPosition visitor(positionInWorld, maxDistance, selectPlanets);
-		wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+		{
+			visitor.currentOverview = OverviewType::System;
+			wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
+		}
+		else
+		{
+			visitor.currentOverview = OverviewType::Planet;
+			wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor);
+		}
 
 		if (visitor.wpClosestNode.lock() != nullptr)
 		{
-			wpPlanetOrStarSelected = visitor.wpClosestNode;
-			selectedSystemIcon->nodeToFollow = wpPlanetOrStarSelected;
+			std::shared_ptr<Entity> spE;
+			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+			{
+				wpPlanetOrStarSelected = visitor.wpClosestNode;
+				selectedSystemIcon->nodeToFollow = wpPlanetOrStarSelected;
+				spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
+			}
+			else 
+			{
+				wpMoonOrPlanetSelected = visitor.wpClosestNode;
+				spE = wpMoonOrPlanetSelected.lock()->GetEntity().lock();
+				std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spE);
+				if(spPlanetCom->isMoon)
+					selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected;
+				else
+					selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected.lock()->FindChild("PlanetPicture");
+			}
 
-			std::shared_ptr<Entity> spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
 			if (spE->HasComponent(ComponentType::Star))
 				systemsNearByText->text->setString(spE->GetName() + " (" + GetStarComponent(*spE)->starName + ")");
 			else if (spE->HasComponent(ComponentType::Planet))
@@ -552,8 +626,12 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		else 
 		{
 			selectedSystemIcon->nodeToFollow = {};
-			wpPlanetOrStarSelected = {};
 			systemsNearByText->text->setString(" ");
+
+			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+				wpPlanetOrStarSelected = {};
+			else
+				wpMoonOrPlanetSelected = {};
 		}
 	}
 	else
