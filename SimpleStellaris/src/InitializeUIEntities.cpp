@@ -334,7 +334,7 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::s
 
 
 
-void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, bool inheritParentPosition, float orbitRadius, std::weak_ptr<SceneNode> wpNodeToFollow, float outlineThikness, sf::Color outlineColor, bool hideIfZoomLarge)
+void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, bool inheritParentPosition, double orbitRadius, std::weak_ptr<SceneNode> wpNodeToFollow, float outlineThikness, sf::Color outlineColor, bool hideIfZoomLarge)
 {
 	//Create orbit
 	std::shared_ptr<Entity> spOrbitE = CreateNewEntityAt(spParentNode, name).lock();

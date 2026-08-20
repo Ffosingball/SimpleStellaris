@@ -456,7 +456,7 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 //I process movement and fire keys in every frame, because game reacts to the key press
 //on the same frame as it was pressed, and it will react every fram until the key
 //is released. If I would use events, they are not called every frame, which is bad
-void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
 	//Check if joystick connected or not
 	if (sf::Joystick::isConnected(0) != joystickConnected) 
@@ -654,11 +654,12 @@ void MovementSystem::Initialize()
 }
 
 
-void MovementSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void MovementSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
 	//If game paused, then do nothing
 	SceneNodeVisitorMovement visitor(*this);
 	scene->AcceptVisitor(visitor);
+	ui->AcceptVisitor(visitor);
 
 	//direction = sf::Vector2{ 0.f,0.f };
 }
@@ -692,7 +693,7 @@ void UISystem::Initialize()
 	systemName = "UISystem";
 }
 
-void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void UISystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
 	nodesText.lock()->text->setString("Total nodes: "+std::to_string(numOfNodes)+"; rendered: "+std::to_string(nodesRendered));
 	
@@ -765,11 +766,8 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	}
 	gel::CentreText(*overviewText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
-	if (scene == ECSGame::Instance().GetUIRoot())
-	{
-		SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera(), GetCameraFromUICameraEntity());
-		scene->AcceptVisitor(visitor);
-	}
+	SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera(), GetCameraFromUICameraEntity());
+	ui->AcceptVisitor(visitor);
 }
 
 void UISystem::OnRenderingComplete(int numOfNodes, int nodesRendered)
@@ -793,7 +791,7 @@ void MusicSystem::Initialize()
 	systemName = "MusicSystem";
 }
 
-void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void MusicSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
 	
 }
@@ -810,9 +808,9 @@ void GameSystem::Initialize()
 
 
 //Update systems visibility
-void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void GameSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
-	if (scene == ECSGame::Instance().GetSceneRoot() && ECSGame::Instance().GetOverviewType()==OverviewType::Space)
+	if (ECSGame::Instance().GetOverviewType()==OverviewType::Space)
 	{
 		SceneNodeVisitorSystemVisibility visitor(GetCurrentlyActiveCamera());
 		scene->AcceptVisitor(visitor);
@@ -835,7 +833,7 @@ void SimulationSystem::Initialize()
 	dateText = GetTextComponent(*wctPtr->GetEntity().lock());
 }
 
-void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
 	daysPastText.lock()->text->setString("Simulation speed: " + std::to_string(ECSGame::Instance().GetSimulationSpeed()) + "; Days past: " + std::to_string((int)ECSGame::Instance().GetDaysPast()));
 	int days = 0;

@@ -85,6 +85,11 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	overviewType = OverviewType::Space;
 
 	uiRoot->ChangeChildOrder(uiRoot->FindChild("MouseIcon").lock(), uiRoot->GetAllChildren().size()-1);
+
+	//std::cout << "Int: "<<sizeof(int)<<'\n';
+	//std::cout << "Float: " << sizeof(float) << '\n';
+	//std::cout << "Double: " << sizeof(double) << '\n';
+	std::cout << std::setprecision(15);
 }
 
 
@@ -114,18 +119,16 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	//for debbuging purposes
 	//DEB: sf::Clock timer;
 
-	//std::cout << "Update\n";
+	//std::cout << " -- Update\n";
 	//Update all systems
 	for (std::shared_ptr<System> system : systems)
 	{
-		system->Update(sceneRoot, deltaTime);
-		system->Update(uiRoot, deltaTime);
+		system->Update(sceneRoot, uiRoot, deltaTime);
 		//DEB: std::cout << "  --"<<system->GetSystemName()<<": " << timer.restart().asSeconds() << '\n';
 	}
 
 	//Process entities removal
-	deleteSystem.Update(sceneRoot, deltaTime);
-	deleteSystem.Update(uiRoot, deltaTime);
+	deleteSystem.Update(sceneRoot, uiRoot, deltaTime);
 	//DEB: std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 }
 

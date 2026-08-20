@@ -285,7 +285,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             if (spEntity->HasComponent(ComponentType::OrbitVisualizer))
             {
                 std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = GetOrbitVisualizerComponent(*spEntity);
-                spOrbitVisualizer->orbitShape.setRadius(spOrbitVisualizer->orbitSize*(spUICamCom->view.getSize().y /spCamCom->view.getSize().y));
+                spOrbitVisualizer->orbitShape.setRadius(static_cast<float>(spOrbitVisualizer->orbitSize)*(spUICamCom->view.getSize().y /spCamCom->view.getSize().y));
                 //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
                 spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
             }
@@ -323,6 +323,7 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
     //Check that pointer is valid
     if (spEntity != nullptr)
     {
+        //std::cout << spEntity->GetName()<<'\n';
         //Check if entity has star component
         if (spEntity->HasComponent(ComponentType::Star))
         {
@@ -330,8 +331,10 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             std::shared_ptr<StarComponent> spStarCom = GetStarComponent(*spEntity);
 
             //Move star
-            float rotation = (spStarCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spStarCom->initialRotationPosition;
-            spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spStarCom->orbitRadius);
+            double rotation = (spStarCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spStarCom->initialRotationPosition;
+            //std::cout << "Double: " << std::sin(rotation) * spStarCom->orbitRadius << '\n';
+            spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spStarCom->orbitRadius), static_cast<float>(std::cos(rotation) * spStarCom->orbitRadius)));
+            //std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spStarCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
         }//Check if entity has planet component
         else if (spEntity->HasComponent(ComponentType::Planet))
         {
@@ -342,8 +345,11 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             {
                 //Move planet
                 //std::cout <<"Moved: " << spEntity->GetName() << '\n';
-                float rotation = (spPlanetCom->rotationalVelocity * ECSGame::Instance().GetDaysPast()) + spPlanetCom->initialRotationPosition;
-                spEntity->SetPosition(sf::Vector2f(std::sin(rotation), std::cos(rotation)) * spPlanetCom->orbitRadius);
+                double rotation = (spPlanetCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spPlanetCom->initialRotationPosition;
+                spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spPlanetCom->orbitRadius), static_cast<float>(std::cos(rotation) * spPlanetCom->orbitRadius)));
+
+                if(spPlanetCom->isMoon && ECSGame::Instance().GetOverviewType()==OverviewType::Planet)
+                    std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spPlanetCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
             }
             //else
                 //std::cout <<"Did not moved: " << spEntity->GetName() << '\n';

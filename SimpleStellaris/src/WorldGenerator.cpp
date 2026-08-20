@@ -52,8 +52,8 @@ std::shared_ptr<std::mt19937> WorldGenerator::randomizer = nullptr;
 //How much rarer tiles with nebula will be generated to usual tiles
 float WorldGenerator::nebulaRareness = 2.f;
 int WorldGenerator::numberOfNebulas = 6;
-std::vector<float> WorldGenerator::orbitsGenerated;
-std::vector<float> WorldGenerator::moonOrbitsGenerated;
+std::vector < double > WorldGenerator::orbitsGenerated;
+std::vector<double> WorldGenerator::moonOrbitsGenerated;
 
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::starDistribution = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::giantSysDistribution = nullptr;
@@ -61,8 +61,8 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::mediumSysDistri
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::dwarfSysDistribution = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::binarySysDistribution = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::ternarySysDistribution = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::closeStarsDistances = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::afarStarsDistances = nullptr;
+std::shared_ptr<std::uniform_real_distribution<double>> WorldGenerator::closeStarsDistances = nullptr;
+std::shared_ptr<std::uniform_real_distribution<double>> WorldGenerator::afarStarsDistances = nullptr;
 std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::oneThird = std::make_shared<std::uniform_int_distribution<int>>(0,2);
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
 std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
@@ -225,7 +225,7 @@ float GetStarMass(StarType starType)
 
 
 
-void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, float distanceBetweenStars, float randomPosition, std::shared_ptr<SceneNode> ptrSystemNode)
+void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, double distanceBetweenStars, float randomPosition, std::shared_ptr<SceneNode> ptrSystemNode)
 {
 	std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*star1Sp);
 	std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*star2Sp);
@@ -262,9 +262,9 @@ void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::share
 	spStar1Com->orbitRadius = distanceBetweenStars * (mass2/(mass1+mass2));
 	spStar2Com->orbitRadius = distanceBetweenStars * (mass1 / (mass1 + mass2));
 
-	float T = std::sqrtf(std::powf(distanceBetweenStars,3)/(mass1+mass2));
+	double T = std::sqrt(std::pow(distanceBetweenStars,3)/(mass1+mass2));
 	//velocity in radians per year
-	float omega = (2*PI) / T;
+	double omega = (2*PI) / T;
 
 	//Assuming that in my game every year has 365 days
 	spStar1Com->rotationalVelocity = omega / 365;
@@ -275,7 +275,7 @@ void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::share
 }
 
 
-void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, std::shared_ptr<Entity> star3Sp, float distanceBetweenStars, float randomPosition)
+void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, std::shared_ptr<Entity> star3Sp, double distanceBetweenStars, float randomPosition)
 {
 	std::shared_ptr<StarComponent> spStar1Com = GetStarComponent(*star1Sp);
 	std::shared_ptr<StarComponent> spStar2Com = GetStarComponent(*star2Sp);
@@ -289,9 +289,9 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 	float mass2 = GetStarMass(spStar2Com->starType);
 	float mass3 = GetStarMass(spStar3Com->starType);
 
-	float T = std::sqrtf(std::powf(distanceBetweenStars, 3) / (mass1 + mass2 + mass3));
+	double T = std::sqrt(std::pow(distanceBetweenStars, 3) / (mass1 + mass2 + mass3));
 	//velocity in radians per year
-	float omega = (2 * PI) / T;
+	double omega = (2 * PI) / T;
 
 	spStar1Com->rotationalVelocity = omega / 365;
 	spStar2Com->rotationalVelocity = omega / 365;
@@ -439,7 +439,7 @@ void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<f
 	}
 
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
-	spPlanetCom->rotationalVelocity = (std::sqrtf(6.6743f * (std::powf(10, -11) * 5.972 * std::powf(10, 25) * std::pow(spPlanetCom->planetSize,3)) / (spPlanetCom->orbitRadius * std::powf(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::powf(10, 3));
+	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743 * (std::pow(10, -11) * 5.972 * std::pow(10, 25) * std::pow(spPlanetCom->planetSize,3)) / (spPlanetCom->orbitRadius * std::pow(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::pow(10, 3));
 }
 
 
@@ -448,7 +448,7 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 {
 	float chanceOfNoMoon{ 0.f };
 	int orbitType = 0;
-	if (spPlanet->orbitRadius < habitableZoneBoundaries.x) 
+	if (static_cast<float>(spPlanet->orbitRadius) < habitableZoneBoundaries.x)
 	{
 		if (spPlanet->planetSize > mapConfig.smallGasSizes.x)
 			chanceOfNoMoon = mapConfig.gasPlanetCloseOrbitMoonChance;
@@ -457,7 +457,7 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 
 		orbitType = 0;
 	}
-	else if (spPlanet->orbitRadius < habitableZoneBoundaries.y)
+	else if (static_cast<float>(spPlanet->orbitRadius) < habitableZoneBoundaries.y)
 	{
 		if (spPlanet->planetSize > mapConfig.smallGasSizes.x)
 			chanceOfNoMoon = mapConfig.gasPlanetHabitableOrbitMoonChance;
@@ -600,9 +600,9 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 		}
 
 		DistanceToStar habitDistToStar = DistanceToStar::None;
-		if (spPlanet->orbitRadius < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f))
+		if (static_cast<float>(spPlanet->orbitRadius) < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f))
 			habitDistToStar = DistanceToStar::Close;
-		else if (spPlanet->orbitRadius < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f * 2.f))
+		else if (static_cast<float>(spPlanet->orbitRadius) < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f * 2.f))
 			habitDistToStar = DistanceToStar::Medium;
 		else
 			habitDistToStar = DistanceToStar::Far;
@@ -633,8 +633,8 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 
 void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition)
 {
-	std::uniform_real_distribution<float> orbitDist(orbitBoundaries.x, orbitBoundaries.y);
-	float orbit = orbitDist(*randomizer);
+	std::uniform_real_distribution<double> orbitDist(static_cast<double>(orbitBoundaries.x), static_cast<double>(orbitBoundaries.y));
+	double orbit = orbitDist(*randomizer);
 	int regeneratedCounter = 0;
 	int i = 0;
 	while (i<orbitsGenerated.size() && regeneratedCounter<mapConfig.maxAmountOfSystemPosRegen) 
@@ -670,11 +670,11 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	bool icyPlanet = false;
 
 	//std::cout << "Planet orbit: " << spPlanetCom->orbitRadius<<'\n';
-	if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x) 
+	if (static_cast<float>(spPlanetCom->orbitRadius) < habitableZoneBoundaries.x)
 	{
 		//std::cout << "Generate close planet \n";
 		//Closer than habit
-		if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x / 3.f)
+		if (static_cast<float>(spPlanetCom->orbitRadius) < habitableZoneBoundaries.x / 3.f)
 		{
 			spPlanetCom->planetType = PlanetType::Molten;
 			rockyPlanet = true;
@@ -703,7 +703,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			}
 		}
 	}
-	else if (spPlanetCom->orbitRadius > habitableZoneBoundaries.y)
+	else if (static_cast<float>(spPlanetCom->orbitRadius) > habitableZoneBoundaries.y)
 	{
 		//std::cout << "Generate far planet \n";
 		//Further than habit
@@ -779,9 +779,9 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	{
 		std::shared_ptr<HabitablePlanetComponent> spHabPlCom = GetHabitablePlanetComponent(*spPlanet);
 
-		if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f))
+		if (static_cast<float>(spPlanetCom->orbitRadius) < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f))
 			spHabPlCom->distanceToStar = DistanceToStar::Close;
-		else if (spPlanetCom->orbitRadius < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f *2.f))
+		else if (static_cast<float>(spPlanetCom->orbitRadius) < habitableZoneBoundaries.x + ((habitableZoneBoundaries.y - habitableZoneBoundaries.x) / 3.f *2.f))
 			spHabPlCom->distanceToStar = DistanceToStar::Medium;
 		else
 			spHabPlCom->distanceToStar = DistanceToStar::Far;
@@ -828,7 +828,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 			spPlanetCom->planetSize = (*largeIcyPlanetDist)(*randomizer);
 	}
 
-	spPlanetCom->rotationalVelocity = (std::sqrtf(6.6743f*(std::powf(10,-11)*starMass*2* std::powf(10, 30)) / (spPlanetCom->orbitRadius*1.5 * std::powf(10, 11))) * 86.4)/ (spPlanetCom->orbitRadius*1.5*std::powf(10,8));
+	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743*(std::pow(10,-11)*starMass*2* std::pow(10, 30)) / (spPlanetCom->orbitRadius*1.5 * std::pow(10, 11))) * 86.4)/ (spPlanetCom->orbitRadius*1.5*std::pow(10,8));
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
 	//std::cout << "Planet rotational velocity(rad per year): " << spPlanetCom->rotationalVelocity*365<<'\n';
 
@@ -837,7 +837,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 
 
 
-void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars, bool singleStarSystem, bool inheritPosition)
+void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition)
 {
 	//std::cout << spSystemOrStarNode->GetCombinedParentsNames()<<'\n';
 
@@ -881,9 +881,9 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 
 		//std::cout << "Star 1 rad: "<< spStar1Com->orbitRadius<<"; Star2 rad"<<;
 		if(spStar1Com->orbitRadius> spStar2Com->orbitRadius)
-			orbitBoundaries.x = spStar1Com->orbitRadius * 1.4f;
+			orbitBoundaries.x = static_cast<float>(spStar1Com->orbitRadius * 1.4);
 		else
-			orbitBoundaries.x = spStar2Com->orbitRadius * 1.4f;
+			orbitBoundaries.x = static_cast<float>(spStar2Com->orbitRadius * 1.4);
 
 		if (spStar1Com->starType>spStar2Com->starType)
 			spStarCom = spStar1Com;
@@ -1012,8 +1012,8 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 	//Check boundaries for binary and ternary systems
 	if (checkMaxOrbitBounds) 
 	{
-		if (orbitBoundaries.y > distanceBetweenStars * (1.f / 3.f))
-			orbitBoundaries.y = distanceBetweenStars * (1.f / 3.f);
+		if (orbitBoundaries.y > static_cast<float>(distanceBetweenStars * (1.f / 3.f)))
+			orbitBoundaries.y = static_cast<float>(distanceBetweenStars * (1.f / 3.f));
 	}
 
 	//std::cout << "Orbit Min: " << orbitBoundaries.x << "; Orbit Max: " << orbitBoundaries.y << '\n';
@@ -1056,7 +1056,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 	case 0:
 	{
 		spSystemCom->systemType = SpaceSystemType::Single;
-		GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
+		GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
 		return;
 	}
 	case 1:
@@ -1071,10 +1071,10 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 		if ((*binarySysDistribution)(*randomizer) == 0)
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryClose;
-			float distBetStars = (*closeStarsDistances)(*randomizer);
+			double distBetStars = (*closeStarsDistances)(*randomizer);
 
 			if (GetStarComponent(*spStar2)->starType == StarType::RedGiant && distBetStars < 1.5)
-				distBetStars = 1.5f;
+				distBetStars = 1.5;
 
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			GeneratePlanets(ptrSystemNode, mapConfig, distBetStars, false, false);
@@ -1082,7 +1082,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 		else
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryAfar;
-			float distBetStars = (*afarStarsDistances)(*randomizer);
+			double distBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, false, true);
 			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, false, true);
@@ -1119,14 +1119,14 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			//spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
-			float closeDistBetStars = (*closeStarsDistances)(*randomizer);
+			double closeDistBetStars = (*closeStarsDistances)(*randomizer);
 
-			if ((GetStarComponent(*spStar2)->starType == StarType::RedGiant || GetStarComponent(*spStar3)->starType == StarType::RedGiant) && closeDistBetStars < 1.5f)
-				closeDistBetStars = 1.5f;
+			if ((GetStarComponent(*spStar2)->starType == StarType::RedGiant || GetStarComponent(*spStar3)->starType == StarType::RedGiant) && closeDistBetStars < 1.5)
+				closeDistBetStars = 1.5;
 
-			float afarDistBetStars = (*afarStarsDistances)(*randomizer);
+			double afarDistBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateBinarySystemProperties(spStar3, spStar2, closeDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
-			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, (*afarStarsDistances)(*randomizer), (*from0to1Dist)(*randomizer), ptrSystemNode);
+			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, afarDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			
 			GeneratePlanets(ptrSystemNode->FindChild("InsideSystem").lock(), mapConfig, afarDistBetStars, false, true);
 			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, afarDistBetStars, false, true);
@@ -1147,7 +1147,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
-			float distBetStars = (*afarStarsDistances)(*randomizer);
+			double distBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateTernaryAfarSystemProperties(spStar1Entity, spStar2, spStar3, distBetStars, (*from0to2_3Dist)(*randomizer));
 			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, false, true);
 			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, false, true);
@@ -1271,8 +1271,8 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	dwarfSysDistribution = std::make_shared<std::discrete_distribution<int>>(dwarfsSystemWeights.begin(), dwarfsSystemWeights.end());
 	binarySysDistribution = std::make_shared<std::discrete_distribution<int>>(binarySystemWeights.begin(), binarySystemWeights.end());
 	ternarySysDistribution = std::make_shared<std::discrete_distribution<int>>(ternarySystemWeights.begin(), ternarySystemWeights.end());
-	closeStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.closeStarsBoundaries.x, mapConfig.closeStarsBoundaries.y);
-	afarStarsDistances = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.afarStarsBoundaries.x, mapConfig.afarStarsBoundaries.y);
+	closeStarsDistances = std::make_shared<std::uniform_real_distribution<double>>(static_cast<double>(mapConfig.closeStarsBoundaries.x), static_cast<double>(mapConfig.closeStarsBoundaries.y));
+	afarStarsDistances = std::make_shared<std::uniform_real_distribution<double>>(static_cast<double>(mapConfig.afarStarsBoundaries.x), static_cast<double>(mapConfig.afarStarsBoundaries.y));
 	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x,mapConfig.horizontalPosBoundaries.y);
 	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
 	redSupGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedSupergiant.x, mapConfig.planetsAmountRedSupergiant.y);
@@ -1363,7 +1363,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 0:
 			spStar1Com->starType = StarType::RedSupergiant;
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
+			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
 			break;
 		case 1:
 			spStar1Com->starType = StarType::RedGiant;
@@ -1408,7 +1408,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		case 11:
 			spStar1Com->starType = StarType::NeutronStar;
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.f, true, false);
+			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
 			break;
 		case 12:
 			spStar1Com->starType = StarType::BlackHole;
@@ -1771,7 +1771,7 @@ void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRe
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, sf::Vector2f{ mapConfig.sunDiameter,mapConfig.sunDiameter } * starSizeMultiplier, textureName);
+	SetupRectangleShape(spRectShape, sf::Vector2f{ static_cast<float>(mapConfig.sunDiameter), static_cast<float>(mapConfig.sunDiameter) } * starSizeMultiplier, textureName);
 	//"media/textures/starsPicture.png"
 }
 

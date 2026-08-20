@@ -90,7 +90,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
 void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize);
-void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, bool inheritParentPosition, float orbitRadius, std::weak_ptr<SceneNode> spNodeToFollow, float outlineThikness, sf::Color outlineColor, bool hideIfZoomLarge);
+void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, bool inheritParentPosition, double orbitRadius, std::weak_ptr<SceneNode> spNodeToFollow, float outlineThikness, sf::Color outlineColor, bool hideIfZoomLarge);
 
 //Animation functions
 

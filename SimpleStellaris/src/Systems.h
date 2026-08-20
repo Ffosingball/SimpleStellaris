@@ -17,7 +17,7 @@ public:
 	virtual ~InputSystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 	//Signals functions
 	void OnKeyPressed(sf::Event::KeyPressed key);
 	void OnKeyReleased(sf::Event::KeyReleased key);
@@ -74,7 +74,7 @@ public:
 	virtual ~MovementSystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 	//Set direction to the new one
 	void OnMoveCamera(sf::Vector2f direction) { this->direction = direction; }
 };
@@ -89,7 +89,7 @@ public:
 	virtual ~UISystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 
@@ -119,7 +119,7 @@ public:
 	virtual ~MusicSystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 
 };
 
@@ -133,7 +133,7 @@ public:
 	virtual ~GameSystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 };
 
 
@@ -144,7 +144,7 @@ public:
 
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 	//void OnPlanetOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);

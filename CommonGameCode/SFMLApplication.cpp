@@ -8,13 +8,17 @@ namespace gel
 {
 	void SFMLApplication::Run(const std::string& title)
 	{
-        //Open the window
-		//sf::Vector2u windowSize(windowWidth, windowHeight);
-		//sf::VideoMode videoMode(windowSize);
+        //SET IN PART SCREEN
+        //sf::Vector2u windowSize(1200, 800);
+        //sf::VideoMode videoMode(windowSize);
+        //auto renderWindow = sf::RenderWindow(videoMode, title.c_str());
+        
+        //SET IN FULLSCREEN
         //Get all videomodes
         std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
         //first one is usually the best option
         auto renderWindow = sf::RenderWindow(modes[0], title.c_str(), sf::State::Fullscreen);
+        
         //Stabilize fps
         renderWindow.setVerticalSyncEnabled(true);
         //Hide mouse

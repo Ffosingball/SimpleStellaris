@@ -29,8 +29,8 @@ private:
 	static std::shared_ptr<std::mt19937> randomizer;
 	static float nebulaRareness;
 	static int numberOfNebulas;
-	static std::vector<float> orbitsGenerated;
-	static std::vector<float> moonOrbitsGenerated;
+	static std::vector<double> orbitsGenerated;
+	static std::vector<double> moonOrbitsGenerated;
 
 	//Distributions
 	static std::shared_ptr<std::discrete_distribution<int>> starDistribution;
@@ -39,8 +39,8 @@ private:
 	static std::shared_ptr<std::discrete_distribution<int>> dwarfSysDistribution;
 	static std::shared_ptr<std::discrete_distribution<int>> binarySysDistribution;
 	static std::shared_ptr<std::discrete_distribution<int>> ternarySysDistribution;
-	static std::shared_ptr<std::uniform_real_distribution<float>> closeStarsDistances;
-	static std::shared_ptr<std::uniform_real_distribution<float>> afarStarsDistances;
+	static std::shared_ptr<std::uniform_real_distribution<double>> closeStarsDistances;
+	static std::shared_ptr<std::uniform_real_distribution<double>> afarStarsDistances;
 	static std::shared_ptr<std::uniform_int_distribution<int>> oneThird;
 	static std::shared_ptr<std::uniform_real_distribution<float>> from0to1Dist;
 	static std::shared_ptr<std::uniform_real_distribution<float>> from0to2_3Dist;
@@ -77,7 +77,7 @@ private:
 
 	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty, SpaceMapConfigurations& mapConfig);
 	static void StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom);
-	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, float distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
+	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
 	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition);
 	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
 	static void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar);

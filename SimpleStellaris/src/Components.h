@@ -103,7 +103,7 @@ public:
 
 	sf::CircleShape orbitShape;
 	//In A.U.
-	float orbitSize{1.f};
+	double orbitSize{1.0};
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
@@ -132,11 +132,11 @@ public:
 	std::string starName;
 
 	//Distances in astronomical units
-	float orbitRadius{ 0.f };
+	double orbitRadius{ 0.0 };
 	//0 rad - up, 0.5PI rad - right, PI rad - down, 1.5PI rad - left
-	float initialRotationPosition{ 0.f };
+	double initialRotationPosition{ 0.0 };
 	//In radians per day
-	float rotationalVelocity{ 0.f };
+	double rotationalVelocity{ 0.0 };
 
 	//Pointers to text i=and icon of the star
 	std::weak_ptr<Entity> wpStarNameText;
@@ -172,11 +172,11 @@ public:
 	float planetSize{ 0.f };
 	std::string planetName;
 	//Distances in astronomical units
-	float orbitRadius{ 0.f };
+	double orbitRadius{ 0.0 };
 	//0 rad - up, 0.5PI rad - right, PI rad - down, 1.5PI rad - left
-	float initialRotationPosition{ 0.f };
+	double initialRotationPosition{ 0.0 };
 	//In radians per day
-	float rotationalVelocity{ 0.f };
+	double rotationalVelocity{ 0.0 };
 	std::string planetIconTextureName;
 	bool isMoon{ false };
 
