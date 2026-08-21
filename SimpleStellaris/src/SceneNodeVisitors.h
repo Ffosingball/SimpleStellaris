@@ -117,6 +117,8 @@ private:
     SpaceMapConfigurations& mapConfig;
 
     sf::Vector2f blackHolePos;
+
+    int ringsAmount{0};
 };
 
 
@@ -159,7 +161,7 @@ private:
     std::shared_ptr<SceneNode> spSystemIconsNode;
     std::shared_ptr<SceneNode> spObjectOrbitsNode;
 
-    sf::Vector2f planetIconSize{50.f, 50.f};
+    sf::Vector2f planetIconSize{70.f, 70.f};
     sf::Vector2f starIconSize{ 140.f, 140.f };
     sf::Vector2f centerOfMassIconSize{ 90.f, 90.f };
 };
@@ -180,8 +182,8 @@ private:
     std::shared_ptr<SceneNode> spPlanetPicNode;
     float earthDiameter{1.f};
 
-    sf::Vector2f planetIconSize{ 70.f, 70.f };
-    sf::Vector2f moonIconSize{ 50.f, 50.f };
+    sf::Vector2f planetIconSize{ 120.f, 120.f };
+    sf::Vector2f moonIconSize{ 80.f, 80.f };
 };
 
 

@@ -39,7 +39,7 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
     if (spEntity != nullptr)
     {
         //Check if entity has system component
-        if (spEntity->HasComponent(ComponentType::ObjectSystem))
+        if (spEntity->HasComponent(ComponentType::ObjectSystem) && spEntity->GetName()!= "InsideSystem")
         {
             std::shared_ptr<ObjectSystemComponent> spComSys = GetObjectSystemComponent(*spEntity);
 
@@ -61,6 +61,8 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
                 ternaryAfarSysAmount++;
                 break;
             }
+
+            spComSys->spAllSystemObjectsNode->AcceptVisitor(*this);
         }
         else if (spEntity->HasComponent(ComponentType::Star))
         {
@@ -293,6 +295,10 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
                 }
             }
         }
+        else if (spEntity->HasComponent(ComponentType::Ring))
+        {
+            ringsAmount++;
+        }
     }
 }
 
@@ -434,12 +440,15 @@ void SceneNodeSpaceObjectsCounter::OutputAllData()
     {
         total += i;
     }
-    std::cout << " - Total moonss: " << total << '\n';
+    std::cout << " - Total moons: " << total << '\n';
     std::cout << " - Number of moons in planets - \n";
     for (int i =0; i<numberOfMoonsAmount.size(); i++) 
     {
         std::cout << i << " moons have " << numberOfMoonsAmount[i] << " planets\n";
     }
+
+    std::cout << "\n";
+    std::cout << " - Number of planets with rings: " << ringsAmount << '\n';
 }
 
 
@@ -621,6 +630,12 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                         wpFollowNode = node.GetParent();
                     //Create orbit
                     CreateOrbitFor(spObjectOrbitsNode, "Orbit" + spPlanet->planetName, spEntity->inheritParentPosition, spPlanet->orbitRadius, wpFollowNode, 2.f, sf::Color(200, 200, 200, 255), true);
+                    //Create ring icon if needed
+                    if (node.FindChild("Rings").lock() != nullptr)
+                    {
+                        std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*node.FindChild("Rings").lock()->GetEntity().lock());
+                        CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spRingCom->ringIconTextureName, "RingIcon" + spPlanet->planetName, true, planetIconSize);
+                    }
                 }
                 else
                 {
@@ -630,6 +645,12 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                     signals::onDeleteEntity(wpE2, spSystemIconsNode);
                     std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spPlanet->planetName).lock()->GetEntity();
                     signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+
+                    if (node.FindChild("Rings").lock() != nullptr) 
+                    {
+                        std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName).lock()->GetEntity();
+                        signals::onDeleteEntity(wpE, spSystemIconsNode);
+                    }
                 }
             }
         }
@@ -720,6 +741,12 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     CreateSystemText(spSystemIconsNode, spPlanetPicNode, name, false);
                     //Create icon
                     CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + spPlanet->planetName, false, planetIconSize);
+                    //Create rings icon if they exist
+                    if (node.FindChild("Rings").lock() != nullptr)
+                    {
+                        std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*node.FindChild("Rings").lock()->GetEntity().lock());
+                        CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spRingCom->ringIconTextureName, "RingIcon" + spPlanet->planetName, false, planetIconSize);
+                    }
                 }
             }
             else
@@ -741,8 +768,18 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     signals::onDeleteEntity(wpE, spSystemIconsNode);
                     std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName).lock()->GetEntity();
                     signals::onDeleteEntity(wpE2, spSystemIconsNode);
+
+                    if (node.FindChild("Rings").lock() != nullptr)
+                    {
+                        std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName).lock()->GetEntity();
+                        signals::onDeleteEntity(wpE, spSystemIconsNode);
+                    }
                 }
             }
+        }
+        else if (spEntity->HasComponent(ComponentType::Ring))
+        {
+            spEntity->hidden = hidden;
         }
     }
 }

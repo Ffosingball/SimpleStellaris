@@ -694,6 +694,39 @@ const void ResourceManager::LoadAllResources()
 			texturesIntRects.emplace(name, textureSize);
 		}
 	}
+	{
+		std::string textureName{ "RingsIcons" };
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile("media/textures/ringsIcons.png"))
+			std::cout << "No texture found: " + textureName + "\n";
+		else
+		{
+			std::string name = "RingIconSmallRocky";
+			sf::IntRect textureSize{ {0,0},{32,32} };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "RingIconMediumRocky";
+			textureSize.position = sf::Vector2i{ 32,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "RingIconLargeRocky";
+			textureSize.position = sf::Vector2i{ 64,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "RingIconSmallGas";
+			textureSize.position = sf::Vector2i{ 96,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+
+			name = "RingIconLargeGas";
+			textureSize.position = sf::Vector2i{ 128,0 };
+			textures.emplace(name, texture);
+			texturesIntRects.emplace(name, textureSize);
+		}
+	}
 
 
 	//LOAD FONTS

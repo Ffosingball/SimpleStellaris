@@ -650,7 +650,7 @@ void CreateSpaceObjects()
 
 	//WorldGenerator::checkRandomDistribution();
 
-	//SceneNodeSpaceObjectsCounter visitor(mapConfig);
-	//ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
-	//visitor.OutputAllData();
+	SceneNodeSpaceObjectsCounter visitor(mapConfig);
+	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+	visitor.OutputAllData();
 }

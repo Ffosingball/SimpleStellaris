@@ -92,7 +92,7 @@ std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallGian
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closeOrbitMoonDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::habitableZoneMoonDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::farOrbitMoonDist = nullptr;
-//add Ring dist!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::RingTypeDist = nullptr;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -645,12 +645,14 @@ void WorldGenerator::GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, floa
 
 	if (generateRings)
 	{
-		std::shared_ptr<Entity> spMoon = CreateNewEntityAt(spPlanetNode, "Rings").lock();
-		spMoon->AddComponent(ComponentType::Ring);
-		std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*spMoon);
+		std::shared_ptr<Entity> spRing = CreateNewEntityAt(spPlanetNode, "Rings").lock();
+		spRing->AddComponent(ComponentType::Ring);
+		std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*spRing);
+		spRing->hidden = true;
+		spRing->inheritParentPosition = false;
 
-		spRingCom->ringRadius = mapConfig.ringSizeComparedToPlanet * planetSize;
-		spRingCom->ringNumber = ;
+		spRingCom->ringSize = mapConfig.ringSizeComparedToPlanet * planetSize;
+		spRingCom->ringNumber = (*RingTypeDist)(*randomizer);
 	}
 }
 
@@ -857,8 +859,8 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
 	//std::cout << "Planet rotational velocity(rad per year): " << spPlanetCom->rotationalVelocity*365<<'\n';
 
+	GenerateRings(spNode->FindChild("Planet" + std::to_string(num)).lock(), spPlanetCom->planetSize, spPlanetCom->planetType, mapConfig);
 	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
-	GenerateRings():
 }
 
 
@@ -1327,6 +1329,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	closeOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitMoonWeights.begin(), closeOrbitMoonWeights.end());
 	habitableZoneMoonDist = std::make_shared<std::discrete_distribution<int>>(habitableZoneOrbitMoonWeights.begin(), habitableZoneOrbitMoonWeights.end());
 	farOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(farOrbitMoonWeights.begin(), farOrbitMoonWeights.end());
+	RingTypeDist = std::make_shared<std::uniform_int_distribution<int>>(0, mapConfig.numOfAvailableRingTextures-1);
 
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesComponent(*ptrSpaceMapNode->GetEntity().lock());
@@ -1988,6 +1991,50 @@ std::string GetRomanNumber(int number)
 }
 
 
+std::string GetRingIconTextureName(PlanetType planetType, float planetSize, SpaceMapConfigurations& mapConfig)
+{
+	switch (planetType)
+	{
+	case PlanetType::BarrenDark:
+	case PlanetType::BarrenGrey:
+	case PlanetType::BarrenMarsLike:
+	case PlanetType::VenusLike:
+	case PlanetType::EarthLike:
+	case PlanetType::Molten:
+	case PlanetType::Desert:
+		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
+			return "RingIconSmallRocky";
+		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
+			return "RingIconMediumRocky";
+		else
+			return "RingIconLargeRocky";
+	case PlanetType::Icy:
+	case PlanetType::Oceanic:
+		if (planetSize < mapConfig.smallIcyPlanetSizes.y)
+			return "RingIconSmallRocky";
+		else if (planetSize < mapConfig.mediumIcyPlanetSizes.y)
+			return "RingIconMediumRocky";
+		else
+			return "RingIconLargeRocky";
+	case PlanetType::Voulcanic:
+	case PlanetType::TitanLike:
+		return "RingIconSmallRocky";
+	case PlanetType::HotJupiter:
+	case PlanetType::HotNeptune:
+	case PlanetType::JupiterLike:
+	case PlanetType::SaturnLike:
+	case PlanetType::NeptuneLike:
+	case PlanetType::UranusLike:
+		if (planetSize < mapConfig.largeGasSizes.x)
+			return "RingIconSmallGas";
+		else
+			return "RingIconLargeGas";
+	}
+
+	return "Placeholder";
+}
+
+
 
 void TextureSetter::ProcessNode(SceneNode& node) 
 {
@@ -2204,6 +2251,17 @@ void TextureSetter::ProcessNode(SceneNode& node)
 					}
 				}
 			}
+		}
+		else if (spEntity->HasComponent(ComponentType::Ring))
+		{
+			std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*spEntity);
+
+			spEntity->AddComponent(ComponentType::RectangleShape);
+			std::shared_ptr<RectangleShapeComponent> spRectShape = GetRectangleShapeComponent(*spEntity);
+			SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spRingCom->ringSize* mapConfig.earthDiameter, "Ring"+std::to_string(spRingCom->ringNumber));
+
+			std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*node.GetParent().lock()->GetEntity().lock());
+			spRingCom->ringIconTextureName = GetRingIconTextureName(spPlanetCom->planetType,spPlanetCom->planetSize,mapConfig);
 		}
 	}
 }

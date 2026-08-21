@@ -192,7 +192,8 @@ class RingComponent : public Component
 {
 public:
 	int ringNumber{ -1 };
-	double ringRadius{ 0.0 };
+	float ringSize{ 0.0f };
+	std::string ringIconTextureName;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
