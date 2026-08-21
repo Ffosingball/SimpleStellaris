@@ -56,14 +56,14 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
     {
         //std::cout << dt << ") " << spEntity->GetName();
         //Check if entity has a movement component
-        if (spEntity->HasComponent(ComponentType::Movement))
+        if (spEntity->HasComponent<MovementComponent>())
         {
             //std::cout << " has " << " movement com" << '\n';
             //If yes, then check which other component it has
-            if (spEntity->HasComponent(ComponentType::Camera))
+            if (spEntity->HasComponent<CameraComponent>())
             {
                 //If it has camera component then move camera, not entity
-                std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spEntity);
+                std::shared_ptr<CameraComponent> spCameraCom = spEntity->FindComponent<CameraComponent>().lock();
                 
                 bool moveCamera = true;
                 if (spCameraCom->cameraLocked) 
@@ -104,7 +104,7 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                 {
                     //Check if we can move camera or not
                     //Get movement component
-                    std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+                    std::shared_ptr<MovementComponent> spMovementCom = spEntity->FindComponent<MovementComponent>().lock();
 
                     float speedMultiplier = spCameraCom->currentZoom * spCameraCom->speedChange;
                     //Move camera
@@ -127,11 +127,11 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                     //spCameraCom->view.setCenter({ gel::clamp((spMovementCom->velocity.x * speedMultiplier * movementSystem.direction.x * dt) + spCameraCom->view.getCenter().x, spCameraCom->horizontalBorders.x,spCameraCom->horizontalBorders.y), gel::clamp((spMovementCom->velocity.y * speedMultiplier * movementSystem.direction.y * dt) + spCameraCom->view.getCenter().y, spCameraCom->verticalBorders.x,spCameraCom->verticalBorders.y) });
                 }
             }
-            else if (spEntity->HasComponent(ComponentType::UIPart)) 
+            else if (spEntity->HasComponent<UIPartComponent>())
             {
                 //Get components
-                std::shared_ptr<UIPartComponent> spTextCom = GetUIPartComponent(*spEntity);
-                std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+                std::shared_ptr<UIPartComponent> spTextCom = spEntity->FindComponent<UIPartComponent>().lock();
+                std::shared_ptr<MovementComponent> spMovementCom = spEntity->FindComponent<MovementComponent>().lock();
 
                 //Check if it have special movement logic
                 if (spTextCom->moveIt) 
@@ -168,7 +168,7 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
             else 
             {
                 //Get component
-                std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spEntity);
+                std::shared_ptr<MovementComponent> spMovementCom = spEntity->FindComponent<MovementComponent>().lock();
 
                 //Move it
                 sf::Transformable transformable = spEntity->GetTransformable();
@@ -195,10 +195,10 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
     if (spEntity != nullptr)
     {
         //Check if entity has UI component
-        if (spEntity->HasComponent(ComponentType::UIPart))
+        if (spEntity->HasComponent<UIPartComponent>())
         {
             //Get UI component
-            std::shared_ptr<UIPartComponent> spEntityText = GetUIPartComponent(*spEntity);
+            std::shared_ptr<UIPartComponent> spEntityText = spEntity->FindComponent<UIPartComponent>().lock();
 
             //Check if this text blinks or not
             if (spEntityText->isBlinking) 
@@ -226,7 +226,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                         spEntityText->flatLine = true;
                     }
                     //Get component
-                    std::shared_ptr<TextComponent> spEntityTextCom = GetTextComponent(*spEntity);
+                    std::shared_ptr<TextComponent> spEntityTextCom = spEntity->FindComponent<TextComponent>().lock();
 
                     //Get color values
                     sf::Color color = spEntityTextCom->text->getFillColor();
@@ -247,9 +247,9 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             }
 
             //Check if entity has UIFollower component
-            if (spEntity->HasComponent(ComponentType::UIFollower))
+            if (spEntity->HasComponent<UIFollowerComponent>())
             {
-                std::shared_ptr<UIFollowerComponent> spEntityFollower = GetUIFollowerComponent(*spEntity);
+                std::shared_ptr<UIFollowerComponent> spEntityFollower = spEntity->FindComponent<UIFollowerComponent>().lock();
 
                 bool hide = false;
                 if (spEntityFollower->nodeToFollow.lock() == nullptr)
@@ -289,9 +289,9 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             }
 
             //Check if entity has OrbitVisualizer component
-            if (spEntity->HasComponent(ComponentType::OrbitVisualizer))
+            if (spEntity->HasComponent<OrbitVisualizerComponent>())
             {
-                std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = GetOrbitVisualizerComponent(*spEntity);
+                std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = spEntity->FindComponent<OrbitVisualizerComponent>().lock();
                 spOrbitVisualizer->orbitShape.setRadius(static_cast<float>(spOrbitVisualizer->orbitSize)*(spUICamCom->view.getSize().y /spCamCom->view.getSize().y));
                 //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
                 spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
@@ -311,7 +311,7 @@ void SceneNodeVisitorSystemVisibility::ProcessNode(SceneNode& node)
     if (spEntity != nullptr)
     {
         //Check if entity has object system component
-        if (spEntity->HasComponent(ComponentType::ObjectSystem))
+        if (spEntity->HasComponent<ObjectSystemComponent>())
         {
             if (IsWorldPosInsideOfCamera(spCamCom, spEntity->GetPosition()))
                 spEntity->hidden = false;
@@ -332,10 +332,10 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
     {
         //std::cout << spEntity->GetName()<<'\n';
         //Check if entity has star component
-        if (spEntity->HasComponent(ComponentType::Star))
+        if (spEntity->HasComponent<StarComponent>())
         {
             //Get star component
-            std::shared_ptr<StarComponent> spStarCom = GetStarComponent(*spEntity);
+            std::shared_ptr<StarComponent> spStarCom = spEntity->FindComponent<StarComponent>().lock();
 
             //Move star
             double rotation = (spStarCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spStarCom->initialRotationPosition;
@@ -343,10 +343,10 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spStarCom->orbitRadius), static_cast<float>(std::cos(rotation) * spStarCom->orbitRadius)));
             //std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spStarCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
         }//Check if entity has planet component
-        else if (spEntity->HasComponent(ComponentType::Planet))
+        else if (spEntity->HasComponent<PlanetComponent>())
         {
             //Get planet component
-            std::shared_ptr<PlanetComponent> spPlanetCom = GetPlanetComponent(*spEntity);
+            std::shared_ptr<PlanetComponent> spPlanetCom = spEntity->FindComponent<PlanetComponent>().lock();
 
             if (spPlanetCom->isMoon || !simulateOnlyMoons)
             {

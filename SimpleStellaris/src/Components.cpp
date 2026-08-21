@@ -5,307 +5,41 @@
 #include <SFML/Graphics.hpp>
 #include "SpaceObjectTypes.h"
 
-//Component to render tileMap
-//Worst case: O(1)
-ComponentType TileMapComponent::GetComponentType() const
-{
-	return ComponentType::TileMap;
-}
-
-//Component of the star
-//Worst case: O(1)
-ComponentType StarComponent::GetComponentType() const
-{
-	return ComponentType::Star;
-}
-
-//Component of the movement
-//Worst case: O(1)
-ComponentType MovementComponent::GetComponentType() const
-{
-	return ComponentType::Movement;
-}
-
-//Component of the planet
-//Worst case: O(1)
-ComponentType PlanetComponent::GetComponentType() const
-{
-	return ComponentType::Planet;
-}
-
-//Component of the objectSystem
-//Worst case: O(1)
-ComponentType ObjectSystemComponent::GetComponentType() const
-{
-	return ComponentType::ObjectSystem;
-}
-
-//Component of the nebula
-//Worst case: O(1)
-ComponentType NebulaComponent::GetComponentType() const
-{
-	return ComponentType::Nebula;
-}
-
-//Component for text
-//Worst case: O(1)
-ComponentType TextComponent::GetComponentType() const
-{
-	return ComponentType::Text;
-}
-
-//Component of camera
-//Worst case: O(1)
-ComponentType CameraComponent::GetComponentType() const
-{
-	return ComponentType::Camera;
-}
-
-//Component to render UI parts
-//Worst case: O(1)
-ComponentType UIPartComponent::GetComponentType() const
-{
-	return ComponentType::UIPart;
-}
-
-//Component to render entity
-//Worst case: O(1)
-ComponentType RectangleShapeComponent::GetComponentType() const
-{
-	return ComponentType::RectangleShape;
-}
-
-//Worst case: O(1)
-ComponentType SystemPropertiesComponent::GetComponentType() const
-{
-	return ComponentType::SystemProperties;
-}
-
-//Worst case: O(1)
-ComponentType UIFollowerComponent::GetComponentType() const
-{
-	return ComponentType::UIFollower;
-}
-
-//Worst case: O(1)
-ComponentType HabitablePlanetComponent::GetComponentType() const
-{
-	return ComponentType::HabitablePlanet;
-}
-
-//Worst case: O(1)
-ComponentType OrbitVisualizerComponent::GetComponentType() const
-{
-	return ComponentType::OrbitVisualizer;
-}
-
-//Worst case: O(1)
-ComponentType RingComponent::GetComponentType() const
-{
-	return ComponentType::Ring;
-}
-
-
-//This function creates any component and return shared pointer to it
-//Worst case: O(N) where N is number of available components in game
-std::shared_ptr<Component> ComponentFactory(ComponentType ct) 
-{
-	switch (ct)
-	{
-	case ComponentType::TileMap:
-		return std::make_shared<TileMapComponent>();
-	case ComponentType::Star:
-		return std::make_shared<StarComponent>();
-	case ComponentType::Planet:
-		return std::make_shared<PlanetComponent>();
-	case ComponentType::ObjectSystem:
-		return std::make_shared<ObjectSystemComponent>();
-	case ComponentType::Nebula:
-		return std::make_shared<NebulaComponent>();
-	case ComponentType::Text:
-		return std::make_shared<TextComponent>();
-	case ComponentType::Camera:
-		return std::make_shared<CameraComponent>();
-	case ComponentType::UIPart:
-		return std::make_shared<UIPartComponent>();
-	case ComponentType::Movement:
-		return std::make_shared<MovementComponent>();
-	case ComponentType::RectangleShape:
-		return std::make_shared<RectangleShapeComponent>();
-	case ComponentType::SystemProperties:
-		return std::make_shared<SystemPropertiesComponent>();
-	case ComponentType::UIFollower:
-		return std::make_shared<UIFollowerComponent>();
-	case ComponentType::HabitablePlanet:
-		return std::make_shared<HabitablePlanetComponent>();
-	case ComponentType::OrbitVisualizer:
-		return std::make_shared<OrbitVisualizerComponent>();
-	case ComponentType::Ring:
-		return std::make_shared<RingComponent>();
-	}
-
-	return {};
-}
 
 //This function translates componentType into string
 //Worst case: O(N) where N is number of components available in game
-std::string PrintComponentName(ComponentType ct) 
+std::string PrintComponentName(std::shared_ptr<Component> spComponent) 
 {
-	switch (ct)
-	{
-	case ComponentType::Star:
+	if (std::dynamic_pointer_cast<StarComponent>(spComponent))
 		return "Star";
-	case ComponentType::Planet:
+	else if (std::dynamic_pointer_cast<PlanetComponent>(spComponent))
 		return "Planet";
-	case ComponentType::ObjectSystem:
+	else if (std::dynamic_pointer_cast<ObjectSystemComponent>(spComponent))
 		return "ObjectSystem";
-	case ComponentType::Text:
+	else if (std::dynamic_pointer_cast<TextComponent>(spComponent))
 		return "Text";
-	case ComponentType::Camera:
+	else if (std::dynamic_pointer_cast<CameraComponent>(spComponent))
 		return "Camera";
-	case ComponentType::UIPart:
+	else if (std::dynamic_pointer_cast<UIPartComponent>(spComponent))
 		return "UIPart";
-	case ComponentType::Nebula:
+	else if (std::dynamic_pointer_cast<NebulaComponent>(spComponent))
 		return "Nebula";
-	case ComponentType::TileMap:
+	else if (std::dynamic_pointer_cast<TileMapComponent>(spComponent))
 		return "TileMap";
-	case ComponentType::Movement:
+	else if (std::dynamic_pointer_cast<MovementComponent>(spComponent))
 		return "Movement";
-	case ComponentType::RectangleShape:
+	else if (std::dynamic_pointer_cast<RectangleShapeComponent>(spComponent))
 		return "RectangleShape";
-	case ComponentType::SystemProperties:
+	else if (std::dynamic_pointer_cast<SystemPropertiesComponent>(spComponent))
 		return "SystemProperties";
-	case ComponentType::UIFollower:
+	else if (std::dynamic_pointer_cast<UIFollowerComponent>(spComponent))
 		return "UIFollower";
-	case ComponentType::HabitablePlanet:
+	else if (std::dynamic_pointer_cast<HabitablePlanetComponent>(spComponent))
 		return "HabitablePlanet";
-	case ComponentType::OrbitVisualizer:
+	else if (std::dynamic_pointer_cast<OrbitVisualizerComponent>(spComponent))
 		return "OrbitVisualizer";
-	case ComponentType::Ring:
+	else if (std::dynamic_pointer_cast<RingComponent>(spComponent))
 		return "Ring";
-	}
-
-	return "---";
-}
-
-
-//These functions just return specific component of the entity
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<StarComponent> GetStarComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Star);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<StarComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<NebulaComponent> GetNebulaComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Nebula);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<NebulaComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<TileMapComponent> GetTileMapComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::TileMap);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<TileMapComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<PlanetComponent> GetPlanetComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Planet);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<PlanetComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<ObjectSystemComponent> GetObjectSystemComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::ObjectSystem);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<ObjectSystemComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<TextComponent> GetTextComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Text);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<TextComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<CameraComponent> GetCameraComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Camera);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<CameraComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<MovementComponent> GetMovementComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Movement);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<MovementComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<RectangleShapeComponent> GetRectangleShapeComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::RectangleShape);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<RectangleShapeComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<UIPartComponent> GetUIPartComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::UIPart);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<UIPartComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::SystemProperties);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<SystemPropertiesComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::UIFollower);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<UIFollowerComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<HabitablePlanetComponent> GetHabitablePlanetComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::HabitablePlanet);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<HabitablePlanetComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<OrbitVisualizerComponent> GetOrbitVisualizerComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::OrbitVisualizer);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<OrbitVisualizerComponent>(spComponentBase);
-}
-
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<RingComponent> GetRingComponent(const Entity& entity)
-{
-	std::weak_ptr<Component> wpComponentBase = entity.FindComponent(ComponentType::Ring);
-	std::shared_ptr<Component> spComponentBase = wpComponentBase.lock();
-	return std::static_pointer_cast<RingComponent>(spComponentBase);
+	else
+		return "---";
 }

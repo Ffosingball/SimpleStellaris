@@ -173,7 +173,7 @@ struct SpaceMapConfigurations
 
 	//Planet orbits config
 	float chanceOfTheClosePlanet{ 0.4f };
-	float minDistanceBetweenPlanetOrbitsInPercentage{ 0.1f };
+	float minDistanceBetweenPlanetOrbitsInPercentage{ 0.15f };
 
 	//Nebulas generation config
 	float minimalDistanceFromTheMapBorder{ 0.15f };

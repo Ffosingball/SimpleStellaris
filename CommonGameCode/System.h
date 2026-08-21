@@ -51,7 +51,7 @@ namespace signals
 {
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityCreated;
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityDestroyed;
-	inline sigslot::signal<const Entity&, ComponentType> onComponentAdded;
-	inline sigslot::signal<const Entity&, ComponentType> onComponentRemove;
+	//inline sigslot::signal<const Entity&, ComponentType> onComponentAdded;
+	//inline sigslot::signal<const Entity&, ComponentType> onComponentRemove;
 	inline sigslot::signal<std::weak_ptr<Entity>, std::weak_ptr<SceneNode>> onDeleteEntity;
 }

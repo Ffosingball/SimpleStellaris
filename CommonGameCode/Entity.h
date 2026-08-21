@@ -3,6 +3,8 @@
 #include "Component.h"
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <type_traits>
+#include <vector>
 
 //Template for the entity
 class Entity 
@@ -28,19 +30,87 @@ public:
 	void SetTransformable(const sf::Transformable& transformable)
 	{ this->transformable=transformable; }
 
-	//Find component by type
+	//Find component by its type
 	//Worst case: O(N) where N is number of components in entity
-	std::weak_ptr<Component> FindComponent(ComponentType ct) const;
+	template<typename T>
+	std::weak_ptr<T> FindComponent() const
+	{
+		static_assert(std::is_base_of_v<Component, T>, "T must inherit from Component");
+
+		for (int i = 0; i < components.size(); i++)
+		{
+			std::shared_ptr<T> spCom = std::dynamic_pointer_cast<T>(components[i]);
+			if (spCom)
+				return spCom;
+		}
+
+		return {};
+	}
+
 	//Check if entity has this type of component
 	//Worst case: O(N) where N is number of components in entity
-	bool HasComponent(ComponentType ct) const;
+	template<typename T>
+	bool HasComponent() const 
+	{
+		static_assert(std::is_base_of_v<Component, T>, "T must inherit from Component");
+
+		if (FindComponent<T>().lock()==nullptr)
+			return false;
+		else
+			return true;
+	}
+
 	//Add new component
 	//Worst case: O(N+M) where N is number of components in entity and M
 	//number of components available in game
-	std::weak_ptr<Component> AddComponent(ComponentType ct);
+	template<typename T>
+	std::weak_ptr<T> AddComponent() 
+	{
+		static_assert(std::is_base_of_v<Component, T>, "T must inherit from Component");
+
+		std::weak_ptr<T> wp = FindComponent<T>();
+
+		//Check if component does not exist
+		if (wp.lock()==nullptr)
+		{
+			//Then add it to the list
+			std::shared_ptr<T> sp = std::make_shared<T>();
+			components.emplace_back(sp);
+			wp = sp;
+			//signals::onComponentAdded(*this, ct);
+			//And return it
+			return wp;
+		}
+		else
+			return wp;
+	}
+
 	//Remove component
 	//Worst case: O(N) where N is number of components in entity
-	void RemoveComponent(ComponentType ct);
+	template<typename T>
+	void RemoveComponent() 
+	{
+		static_assert(std::is_base_of_v<Component, T>, "T must inherit from Component");
+
+		int index = -1;
+		for (int i = 0; i < components.size(); i++)
+		{
+			//If component is found, then return its index
+			std::shared_ptr<T> spCom = std::dynamic_pointer_cast<T>(components[i]);
+			if (spCom)
+			{
+				index = i;
+				break;
+			}
+		}
+
+		//Check if component exist, then remove it
+		if (index != -1)
+		{
+			//signals::onComponentRemove(*this, ct);
+			components.erase(components.begin() + index);
+		}
+	}
 
 	//Move entity
 	//Worst case: O(1)
@@ -67,5 +137,4 @@ private:
 
 	//Find index of the component in the list
 	//Worst case: O(N) where N is number of components in entity
-	int FindComponentIndex(ComponentType ct) const;
 };

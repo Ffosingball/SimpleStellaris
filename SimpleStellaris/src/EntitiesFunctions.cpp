@@ -119,7 +119,7 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 		sCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
 
-	return GetCameraComponent(*sCamera);
+	return sCamera->FindComponent<CameraComponent>().lock();
 }
 
 
@@ -130,7 +130,7 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
 {
 	std::weak_ptr<SceneNode> wSnode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
 	std::shared_ptr<Entity> sSmap = wSnode.lock()->GetEntity().lock();
-	return GetSystemPropertiesComponent(*sSmap);
+	return sSmap->FindComponent<SystemPropertiesComponent>().lock();
 }
 
 
@@ -142,7 +142,7 @@ std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity()
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("UICamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
-	return GetCameraComponent(*sCamera);
+	return sCamera->FindComponent<CameraComponent>().lock();
 }
 
 
@@ -153,7 +153,7 @@ std::shared_ptr<CameraComponent> GetCameraFromBackgroundCameraEntity()
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("BackgroundCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
-	return GetCameraComponent(*sCamera);
+	return sCamera->FindComponent<CameraComponent>().lock();
 }
 
 
@@ -164,7 +164,7 @@ std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity()
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("SystemCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
-	return GetCameraComponent(*sCamera);
+	return sCamera->FindComponent<CameraComponent>().lock();
 }
 
 
@@ -174,7 +174,7 @@ std::shared_ptr<CameraComponent> GetCameraFromPlanetCameraEntity()
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
-	return GetCameraComponent(*sCamera);
+	return sCamera->FindComponent<CameraComponent>().lock();
 }
 
 
@@ -185,7 +185,7 @@ std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity()
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("SpaceCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
-	return GetCameraComponent(*sCamera);
+	return sCamera->FindComponent<CameraComponent>().lock();
 }
 
 
@@ -414,9 +414,8 @@ void InitializeUICamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vecto
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "UICamera").lock();
 	//Add component
-	spCamera->AddComponent(ComponentType::Camera);
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spCamera);
+	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
 	//set camera properties
 	spCameraCom->view.setSize(static_cast<sf::Vector2f>(windowSize));
 	spCameraCom->view.setCenter(static_cast<sf::Vector2f>(windowSize) / 2.f);
@@ -439,10 +438,9 @@ void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Ve
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "SpaceCamera").lock();
 	//Add component
-	spCamera->AddComponent(ComponentType::Camera);
-	spCamera->AddComponent(ComponentType::Movement);
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spCamera);
+	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
+	std::shared_ptr<MovementComponent> spMovementCom = spCamera->AddComponent<MovementComponent>().lock();
 	//set camera properties
 	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
 	//Set camera sizes
@@ -456,7 +454,6 @@ void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Ve
 	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
 	spCameraCom->moveCamera = true;
 	//Get movement com
-	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
 }
 
@@ -477,10 +474,9 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "SystemCamera").lock();
 	//Add component
-	spCamera->AddComponent(ComponentType::Camera);
-	spCamera->AddComponent(ComponentType::Movement);
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spCamera);
+	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
+	std::shared_ptr<MovementComponent> spMovementCom = spCamera->AddComponent<MovementComponent>().lock();
 	//set camera properties
 	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
 	//Set camera sizes
@@ -494,7 +490,6 @@ void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
 	spCameraCom->moveCamera = false;
 	//Get movement com
-	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };
 }
 
@@ -513,10 +508,9 @@ void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "PlanetCamera").lock();
 	//Add component
-	spCamera->AddComponent(ComponentType::Camera);
-	spCamera->AddComponent(ComponentType::Movement);
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spCamera);
+	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
+	std::shared_ptr<MovementComponent> spMovementCom = spCamera->AddComponent<MovementComponent>().lock();
 	//set camera properties
 	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
 	//Set camera sizes
@@ -530,7 +524,6 @@ void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::V
 	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
 	spCameraCom->moveCamera = false;
 	//Get movement com
-	std::shared_ptr<MovementComponent> spMovementCom = GetMovementComponent(*spCamera);
 	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };
 }
 
@@ -544,9 +537,8 @@ void InitializeBackgroundCamera(std::shared_ptr<SceneNode> spCameraNode, const s
 	//Create camera
 	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "BackgroundCamera").lock();
 	//Add component
-	spCamera->AddComponent(ComponentType::Camera);
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraComponent(*spCamera);
+	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
 	//set camera properties
 	spCameraCom->view.setSize(static_cast<sf::Vector2f>(windowSize));
 	spCameraCom->view.setCenter(static_cast<sf::Vector2f>(windowSize) / 2.f);
@@ -587,9 +579,8 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(SpaceMapConfigurations
 	//Create tileMap
 	std::shared_ptr<Entity> spTileMap = CreateNewEntityAtRoot("Background").lock();
 	// Add components
-	spTileMap->AddComponent(ComponentType::TileMap);
 	//Get component
-	std::shared_ptr<TileMapComponent> spTileMapCom = GetTileMapComponent(*spTileMap);
+	std::shared_ptr<TileMapComponent> spTileMapCom = spTileMap->AddComponent<TileMapComponent>().lock();
 	//set tilemap properties
 	spTileMapCom->tileMap.tileSize = tilesSize;
 	spTileMapCom->tileMap.marginSize = sf::Vector2i{ 0,0 };
@@ -620,7 +611,7 @@ void CreateSpaceObjects()
 	//Get spaceMap node
 	std::weak_ptr<SceneNode> wpNode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
 	std::shared_ptr<SceneNode> spNode = wpNode.lock();
-	SpaceMapConfigurations mapConfig = GetSystemPropertiesComponent(*spNode->GetEntity().lock())->mapConfig;
+	SpaceMapConfigurations mapConfig = spNode->GetEntity().lock()->FindComponent<SystemPropertiesComponent>().lock()->mapConfig;
 	//Firstly generate background
 	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(mapConfig);
 	//Secondly generate nebulas

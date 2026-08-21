@@ -12,27 +12,6 @@
 #include "SceneNode.h"
 #include "GameState.h"
 
-//List of all components
-enum class ComponentType
-{
-	ObjectSystem,
-	Planet,
-	Star,
-	Text,
-	Camera,
-	UIPart,
-	TileMap,
-	Nebula,
-	Movement,
-	RectangleShape,
-	SpaceObject,
-	SystemProperties,
-	UIFollower,
-	HabitablePlanet,
-	OrbitVisualizer,
-	Ring
-};
-
 
 
 //Component which tells that the object is a system of other object (for example
@@ -46,9 +25,6 @@ public:
 	//0 - outside of nebula, 1 - at the center of it
 	float distToTheNebula{0.f};
 	std::shared_ptr<SceneNode> spAllSystemObjectsNode;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -59,9 +35,6 @@ class RectangleShapeComponent : public Component
 public:
 
 	sf::RectangleShape shape;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -73,9 +46,6 @@ public:
 
 	SpaceMapConfigurations mapConfig;
 	std::unordered_map<int, std::weak_ptr<SceneNode>> systemsPositions;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -91,9 +61,6 @@ public:
 	bool hideIfOutsideOfCamera = true;
 	bool hideAnyway = false;
 	bool hideIfZoomSmallEnough = false;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -106,9 +73,6 @@ public:
 	sf::CircleShape orbitShape;
 	//In A.U.
 	double orbitSize{1.0};
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -119,9 +83,6 @@ class MovementComponent : public Component
 public:
 
 	sf::Vector2f velocity{ 0.f,0.f };
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -142,9 +103,6 @@ public:
 
 	//Pointers to text i=and icon of the star
 	std::weak_ptr<Entity> wpStarNameText;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -157,9 +115,6 @@ public:
 	float nebulaSize{ 0.f };
 	std::string nebulaName;
 	std::weak_ptr<UIFollowerComponent> wpTextFollower;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -181,9 +136,6 @@ public:
 	double rotationalVelocity{ 0.0 };
 	std::string planetIconTextureName;
 	bool isMoon{ false };
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -195,9 +147,6 @@ public:
 	int ringNumber{ -1 };
 	float ringSize{ 0.0f };
 	std::string ringIconTextureName;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -206,9 +155,6 @@ class HabitablePlanetComponent : public Component
 {
 public:
 	DistanceToStar distanceToStar;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -219,9 +165,6 @@ class TileMapComponent : public Component
 public:
 
 	TileMap tileMap;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -251,9 +194,6 @@ public:
 	float renderOutsideBoundsFor{ 20.f };
 	bool cameraLocked{ false };
 	std::weak_ptr<SceneNode> wpNodeLockedOn;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -264,9 +204,6 @@ class TextComponent : public Component
 public:
 	//Stores text
 	std::shared_ptr<sf::Text> text;
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
 
 
@@ -286,41 +223,4 @@ public:
 	bool moveIt{ false };
 	bool destroyAtTarget{ false };
 	sf::Vector2f targetPosition{ 0.f,0.f };
-
-	//Worst case: O(1)
-	ComponentType GetComponentType() const override;
 };
-
-
-
-//Shortcut functions to get specific component from the entity
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<TextComponent> GetTextComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<CameraComponent> GetCameraComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<UIPartComponent> GetUIPartComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<TileMapComponent> GetTileMapComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<StarComponent> GetStarComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<PlanetComponent> GetPlanetComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<ObjectSystemComponent> GetObjectSystemComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<NebulaComponent> GetNebulaComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<MovementComponent> GetMovementComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<RectangleShapeComponent> GetRectangleShapeComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<UIFollowerComponent> GetUIFollowerComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<HabitablePlanetComponent> GetHabitablePlanetComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<OrbitVisualizerComponent> GetOrbitVisualizerComponent(const Entity& entity);
-//Worst case: O(N) where N is number of components in entity
-std::shared_ptr<RingComponent> GetRingComponent(const Entity& entity);
