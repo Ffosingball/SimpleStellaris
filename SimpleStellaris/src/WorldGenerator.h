@@ -20,6 +20,7 @@
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
 #include "SpaceMapConfiguration.h"
+#include "CompilerInstructions.h"
 
 
 class WorldGenerator 
@@ -93,7 +94,6 @@ public:
 	static std::vector<int> GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
 	static void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode, SpaceMapConfigurations& mapConfig);
 	static void GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, SpaceMapConfigurations& mapConfig, std::shared_ptr<SceneNode> spSystemNamesNode);
-	static void checkRandomDistribution();
 };
 
 

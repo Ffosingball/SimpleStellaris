@@ -16,6 +16,7 @@
 #include "SpaceObjectTypes.h"
 #include "WorldGenerator.h"
 #include "SceneNodeVisitors.h"
+#include "CompilerInstructions.h"
 
 //Put here functions for creation and managing entities!
 
@@ -650,7 +651,9 @@ void CreateSpaceObjects()
 
 	//WorldGenerator::checkRandomDistribution();
 
+#ifdef OUTPUT_WORLD_STATISTICS
 	SceneNodeSpaceObjectsCounter visitor(mapConfig);
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 	visitor.OutputAllData();
+#endif
 }

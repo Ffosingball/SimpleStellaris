@@ -14,6 +14,7 @@
 #include "SpaceObjectTypes.h"
 #include "WorldGenerator.h"
 #include "CommonGameCode.h"
+#include "CompilerInstructions.h"
 
 
 //Initialize game
@@ -116,20 +117,26 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 		daysPast += deltaTime * simulationSpeed;
 	}
 
+#ifdef OUTPUT_FRAME_TIMING
 	//for debbuging purposes
-	//DEB: sf::Clock timer;
+	sf::Clock timer;
+	std::cout << " -- Update\n";
+#endif
 
-	//std::cout << " -- Update\n";
 	//Update all systems
 	for (std::shared_ptr<System> system : systems)
 	{
 		system->Update(sceneRoot, uiRoot, deltaTime);
-		//DEB: std::cout << "  --"<<system->GetSystemName()<<": " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+		std::cout << "  --"<<system->GetSystemName()<<": " << timer.restart().asSeconds() << '\n';
+#endif
 	}
 
 	//Process entities removal
 	deleteSystem.Update(sceneRoot, uiRoot, deltaTime);
-	//DEB: std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
+#endif
 }
 
 
@@ -187,14 +194,18 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 //Render all entities
 void ECSGame::Render(sf::RenderWindow& renderWindow)
 {
+#ifdef OUTPUT_FRAME_TIMING
 	//for debbuging purposes
-	//DEB: sf::Clock timer;
+	sf::Clock timer;
+#endif
 
 	//Check if we need to close a game
 	if (closeGame)
 		renderWindow.close();
 
-	//DEB: std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+	std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
+#endif
 
 	int numOfNodes{ 0 }, renderedNodes{ 0 };
 	std::shared_ptr<SceneNode> spBackgroundNode;
@@ -228,7 +239,9 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	numOfNodes += visitor.didNotRenderedEntities + visitor.renderedEntities;
 	renderedNodes += visitor.renderedEntities;
 	//DEB: visitor.OutputRenderStatistics();
-	//DEB: std::cout << "  --Scene Rendering: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+	std::cout << "  --Scene Rendering: " << timer.restart().asSeconds() << '\n';
+#endif
 
 	//Set renderWindow to render UI
 	std::shared_ptr<CameraComponent> sUICameraCom = GetCameraFromUICameraEntity();
@@ -241,7 +254,9 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	numOfNodes += visitor2.didNotRenderedEntities + visitor2.renderedEntities;
 	renderedNodes += visitor2.renderedEntities;
 	//DEB: visitor2.OutputRenderStatistics();
-	//DEB: std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+	std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
+#endif
 
 	signals::onRenderingComplete(numOfNodes, renderedNodes);
 	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)

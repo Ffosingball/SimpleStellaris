@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include <SFML/Graphics.hpp>
+#include "CompilerInstructions.h"
 
 namespace gel
 {
@@ -30,8 +31,10 @@ namespace gel
         //Create a clock to get deltaTime
         sf::Clock clock;
 
+#ifdef OUTPUT_FRAME_TIMING
         //Debug timer
-        //DEB: sf::Clock timer;
+        sf::Clock timer;
+#endif
 
         //Main game loop
         while (renderWindow.isOpen())
@@ -39,8 +42,10 @@ namespace gel
             //get deltaTime
             float dt = clock.restart().asSeconds();
 
-            //DEB: std::cout << " -Display: " << timer.restart().asSeconds() << '\n';
-            //DEB: std::cout << "Next frame: " << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+            std::cout << " -Display: " << timer.restart().asSeconds() << '\n';
+            std::cout << "Next frame: " << '\n';
+#endif
 
             // Process events
             while (const std::optional event = renderWindow.pollEvent())
@@ -52,19 +57,27 @@ namespace gel
                 // Event handling code here
                 HandleEvent(event);
             }
-            //DEB: std::cout << " -Handle events: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+            std::cout << " -Handle events: " << timer.restart().asSeconds() << '\n';
+#endif
 
             // Update logic
             Update(dt, renderWindow);
-            //DEB: std::cout << " -Update: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+            std::cout << " -Update: " << timer.restart().asSeconds() << '\n';
+#endif
 
             // Clear window
             renderWindow.clear();
-            //DEB: std::cout << " -Clear: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+            std::cout << " -Clear: " << timer.restart().asSeconds() << '\n';
+#endif
 
             //Draw to the window
             Render(renderWindow);
-            //DEB: std::cout << " -Render: " << timer.restart().asSeconds() << '\n';
+#ifdef OUTPUT_FRAME_TIMING
+            std::cout << " -Render: " << timer.restart().asSeconds() << '\n';
+#endif
 
             //Display image from the double buffer
             renderWindow.display();

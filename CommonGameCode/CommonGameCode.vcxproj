@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonGameCode.h" />
+    <ClInclude Include="CompilerInstructions.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ECSGame.h" />
     <ClInclude Include="Entity.h" />

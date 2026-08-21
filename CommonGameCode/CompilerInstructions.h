@@ -1,0 +1,5 @@
+#pragma once
+
+//#define OUTPUT_FRAME_TIMING
+//#define OUTPUT_WORLD_GENERATION_MESSAGES
+//#define OUTPUT_WORLD_STATISTICS

@@ -8,6 +8,7 @@
 #include <memory>
 #include "ECSGame.h"
 #include <SFML/Graphics.hpp>
+#include "CompilerInstructions.h"
 
 enum class GameState;
 enum class OverviewType;
