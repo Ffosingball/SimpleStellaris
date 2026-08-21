@@ -562,7 +562,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //spStar->wpStarNameText.lock()->hidden = true;
                 //spEntity->hidden = false;
                 //Create icon
-                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + spStar->starName, false, starIconSize);
+                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + spStar->starName, false, starIconSize, true, sf::Vector2f{0.001f, 10.f});
                 //Create orbit
                 if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->HasComponent(ComponentType::ObjectSystem))
                 {
@@ -723,7 +723,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     std::string name{ "MoonNameText" + spPlanet->planetName };
                     CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, false);
                     //Create icon
-                    CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "MoonIcon" + spPlanet->planetName, false, moonIconSize);
+                    CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "MoonIcon" + spPlanet->planetName, false, moonIconSize, true);
                     //Create orbit
                     CreateOrbitFor(spObjectOrbitsNode, "MoonOrbit" + spPlanet->planetName, spEntity->inheritParentPosition, spPlanet->orbitRadius, spPlanetPicNode, 2.f, sf::Color(200, 200, 200, 255), false);
                 }
@@ -740,12 +740,12 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     std::string name{ "PlanetText"+spPlanet->planetName};
                     CreateSystemText(spSystemIconsNode, spPlanetPicNode, name, false);
                     //Create icon
-                    CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + spPlanet->planetName, false, planetIconSize);
+                    CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + spPlanet->planetName, false, planetIconSize, true);
                     //Create rings icon if they exist
                     if (node.FindChild("Rings").lock() != nullptr)
                     {
                         std::shared_ptr<RingComponent> spRingCom = GetRingComponent(*node.FindChild("Rings").lock()->GetEntity().lock());
-                        CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spRingCom->ringIconTextureName, "RingIcon" + spPlanet->planetName, false, planetIconSize);
+                        CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spRingCom->ringIconTextureName, "RingIcon" + spPlanet->planetName, false, planetIconSize, true);
                     }
                 }
             }

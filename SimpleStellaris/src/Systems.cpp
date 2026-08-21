@@ -66,8 +66,28 @@ void InputSystem::Initialize()
 }
 
 
+void LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
+{
+	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
+	spCameraCom->cameraLocked = true;
+	spCameraCom->wpNodeLockedOn = wpNodeToLockOn;
+	//std::cout<< "Locked camera on: " << spCameraCom->wpNodeLockedOn.lock()->GetEntity().lock()->GetName() << '\n';
+}
+
+
+void CancelCameraLock()
+{
+	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
+	spCameraCom->cameraLocked = false;
+	spCameraCom->wpNodeLockedOn = {};
+}
+
+
 void InputSystem::EnterSystemOverview() 
 {
+	//Cancel camera lock
+	CancelCameraLock();
+
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
 
 	SceneNodeVisitorChangeAllSystemVisibility visitor(true);
@@ -102,6 +122,9 @@ void InputSystem::EnterSystemOverview()
 
 void InputSystem::EnterPlanetFromSystemOverview()
 {
+	//Cancel camera lock
+	CancelCameraLock();
+
 	ECSGame::Instance().SetOverviewType(OverviewType::Planet);
 
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
@@ -127,6 +150,9 @@ void InputSystem::EnterPlanetFromSystemOverview()
 
 void InputSystem::ExitSystemOverview() 
 {
+	//Cancel camera lock
+	CancelCameraLock();
+
 	ECSGame::Instance().SetOverviewType(OverviewType::Space);
 
 	SceneNodeVisitorChangeAllSystemVisibility visitor(false);
@@ -148,6 +174,9 @@ void InputSystem::ExitSystemOverview()
 
 void InputSystem::ExitPlanetToSystemOverview()
 {
+	//Cancel camera lock
+	CancelCameraLock();
+
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
 
 	float earthDiameter = GetSystemPropertiesComponent(*ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap").lock()->GetEntity().lock())->mapConfig.earthDiameter;
@@ -163,23 +192,6 @@ void InputSystem::ExitPlanetToSystemOverview()
 	sPlanetCameraCom->moveCamera = false;
 
 	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
-}
-
-
-void LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
-{
-	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
-	spCameraCom->cameraLocked = true;
-	spCameraCom->wpNodeLockedOn = wpNodeToLockOn;
-	//std::cout<< "Locked camera on: " << spCameraCom->wpNodeLockedOn.lock()->GetEntity().lock()->GetName() << '\n';
-}
-
-
-void CancelCameraLock()
-{
-	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
-	spCameraCom->cameraLocked = false;
-	spCameraCom->wpNodeLockedOn = {};
 }
 
 

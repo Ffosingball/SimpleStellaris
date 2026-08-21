@@ -311,7 +311,7 @@ void InitializeMouseIcon()
 //Creates icons for system overview
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize)
+void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize, bool hideIfZoomSmall, sf::Vector2f zoomLevelAtWhichHide)
 {
 	//if (iconTexture == "CenterOfMassIcon")
 	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
@@ -330,6 +330,8 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::s
 	std::shared_ptr<UIFollowerComponent> spUIFollower = GetUIFollowerComponent(*spSSIcon);
 	spUIFollower->nodeToFollow = nodeToFollow;
 	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
+	spUIFollower->hideIfZoomSmallEnough = hideIfZoomSmall;
+	spUIFollower->zoomLevelsAtWhichHideEntity = zoomLevelAtWhichHide;
 }
 
 

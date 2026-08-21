@@ -59,7 +59,7 @@ private:
 	bool showDebugText = false;
 	float zoomAtWhichStartSelectPlanets{0.8f};
 	//In window pixels
-	int distanceFromMouseToIconToBeSelected{30};
+	int distanceFromMouseToIconToBeSelected{60};
 
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };

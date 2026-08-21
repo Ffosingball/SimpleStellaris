@@ -236,8 +236,8 @@ struct SpaceMapConfigurations
 	float habitZoneVoulcanicMoonChance = 0.2f;
 
 	//Rings config
-	float rockyPlanetRingChance = 0.01f;
-	float gasPlanetRingChance = 0.1f;
+	float rockyPlanetRingChance = 0.02f;
+	float gasPlanetRingChance = 0.2f;
 	int numOfAvailableRingTextures = 9;
 	float ringSizeComparedToPlanet = 2.5f;
 };

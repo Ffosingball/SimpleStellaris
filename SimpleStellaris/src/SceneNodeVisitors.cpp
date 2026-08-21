@@ -262,14 +262,17 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     hide = true;
                 else if (spEntityFollower->hideIfZoomLargeEnough) 
                 {
-                    if (spCamCom->currentZoom > spEntityFollower->zoomLevelAtWhichHideEntity)
-                    {
+                    if (spCamCom->currentZoom > spEntityFollower->zoomLevelsAtWhichHideEntity.y)
                         hide = true;
-                    }
                     else 
-                    {
                         hide = false;
-                    }
+                }
+                else if (spEntityFollower->hideIfZoomSmallEnough)
+                {
+                    if (spCamCom->currentZoom < spEntityFollower->zoomLevelsAtWhichHideEntity.x)
+                        hide = true;
+                    else
+                        hide = false;
                 }
 
                 if (hide)

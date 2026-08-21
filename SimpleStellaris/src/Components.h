@@ -87,9 +87,10 @@ public:
 
 	std::weak_ptr<SceneNode> nodeToFollow;
 	bool hideIfZoomLargeEnough = false;
-	float zoomLevelAtWhichHideEntity{1.1f};
+	sf::Vector2f zoomLevelsAtWhichHideEntity{0.1f, 1.1f};
 	bool hideIfOutsideOfCamera = true;
 	bool hideAnyway = false;
+	bool hideIfZoomSmallEnough = false;
 
 	//Worst case: O(1)
 	ComponentType GetComponentType() const override;
