@@ -125,6 +125,8 @@ private:
 
 std::string GetSystemTextureName(StarType starType);
 std::string GetPlanetTextureName(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet);
+float GetStarMass(StarType starType);
+float GetStarRadius(StarType starType);
 
 
 class SortedPlanetComponentsList 

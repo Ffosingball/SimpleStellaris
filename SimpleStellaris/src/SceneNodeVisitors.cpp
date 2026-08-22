@@ -292,7 +292,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             if (spEntity->HasComponent<OrbitVisualizerComponent>())
             {
                 std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = spEntity->FindComponent<OrbitVisualizerComponent>().lock();
-                spOrbitVisualizer->orbitShape.setRadius(static_cast<float>(spOrbitVisualizer->orbitSize)*(spUICamCom->view.getSize().y /spCamCom->view.getSize().y));
+                spOrbitVisualizer->orbitShape.setRadius(static_cast<float>(spOrbitVisualizer->orbitSize*(static_cast<double>(spUICamCom->view.getSize().y) / static_cast<double>(spCamCom->view.getSize().y))));
                 //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
                 spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
             }

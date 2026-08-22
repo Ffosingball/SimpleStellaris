@@ -48,12 +48,16 @@ void SetupMoveTextProperties(const std::string textName, std::shared_ptr<SceneNo
 //This function creates a text
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize, const std::string fontName, sf::Color color)
+std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize, const std::string fontName, sf::Color color, std::weak_ptr<SceneNode> spCreateAt)
 {
 	//create entity
-	std::shared_ptr<Entity> spUI = CreateNewEntityAtUIRoot(textName).lock();
+	std::shared_ptr<Entity> spUI;
+	if (spCreateAt.lock() != nullptr)
+		spUI = CreateNewEntityAt(spCreateAt.lock(), textName).lock();
+	else
+		spUI = CreateNewEntityAtUIRoot(textName).lock();
 	//Add component
-	spUI->AddComponent<UIFollowerComponent>();
+	spUI->AddComponent<UIPartComponent>();
 	std::shared_ptr<TextComponent> spUICom = spUI->AddComponent<TextComponent>().lock();
 	//Get font from the resource manager
 	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont(fontName).lock();
@@ -72,10 +76,10 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 //Creates text without moving animation
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color = sf::Color{255,255,255})
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color = sf::Color{255,255,255}, std::weak_ptr<SceneNode> spCreateAt)
 {
 	//Check if text exist then use existing one, otherwise create new one
-	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, fontName, color);
+	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, fontName, color, spCreateAt);
 	spUI->AddComponent<MovementComponent>();
 	//Get component
 	std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
@@ -86,34 +90,6 @@ std::shared_ptr<Entity> InitializeText(const std::string name, const std::string
 	if (centerText)
 		gel::CentreText(*spTextCom->text, sf::Vector2{0.f,0.f});
 	
-	spUI->SetPosition(position);
-
-	return spUI;
-}
-
-
-
-//Creates text without moving animation at provided node
-//Worst case: O(3N+2M) where N is number of components in entity and M number of components
-//available in game
-std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position)
-{
-	//create entity
-	std::shared_ptr<Entity> spUI = CreateNewEntityAt(spNode, name).lock();
-
-	//Add component
-	spUI->AddComponent<UIPartComponent>();
-	std::shared_ptr<TextComponent> spUICom = spUI->AddComponent<TextComponent>().lock();
-	//Get font from the resource manager
-	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont("Pixel").lock();
-	
-	//Set text properties
-	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
-	spUICom->text->setFillColor(sf::Color::White);
-	spUICom->text->setCharacterSize(fontSize);
-	spUICom->text->setString(text);
-
-	//Set text position
 	spUI->SetPosition(position);
 
 	return spUI;
@@ -187,15 +163,18 @@ void CreateUI()
 	sf::Vector2f iconSize{100.f, 100.f};
 	sf::Vector2f uiTopPartSize{ 1000.f, 120.f };
 	sf::Vector2f uiBottomPartSize{ 1200.f, 200.f };
-	float dateFontSize = 35;
+	sf::Vector2f uiInfoPartSize{ 800.f, 700.f };
+	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
-	float mainFontSize = 50;
+	float mainFontSize = 40;
+	float infoFontSize = 25;
 	std::string fontName = "PixelBold";
 	sf::Color importantColor = sf::Color{ 235, 175, 38 };
 	sf::Color usualColor = sf::Color{ 255,255,255 };
 
 	float uiSize = ECSGame::Instance().GetUISize();
+	std::shared_ptr<SceneNode> spUIRootNode = ECSGame::Instance().GetUIRoot();
 	//CREATE SELECTION ICON
 	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("SelectedSystemIcon").lock();
 	//Add component
@@ -220,14 +199,34 @@ void CreateUI()
 	SetupRectangleShape(spRectShape3, uiBottomPartSize * uiSize, "BottomUIPart");
 	spLoPart->SetPosition(sf::Vector2f{ 1280.f,1600.f-(uiBottomPartSize.y / 2.f) } * uiSize);
 
+	std::shared_ptr<SceneNode> spLowerPartNode = spUIRootNode->FindChild(*spLoPart).lock();
+	std::shared_ptr<SceneNode> spUpperPartNode = spUIRootNode->FindChild(*spToPart).lock();
 	//CREATE UI textes
-	InitializeText("MonthText", " ", dateFontSize * uiSize, sf::Vector2f{ 1420.f, 1500.f } * uiSize, fontName, true, importantColor);
-	InitializeText("DayText", " ", dateFontSize * uiSize, sf::Vector2f{ 1170.f, 1500.f } * uiSize, fontName, true, importantColor);
-	InitializeText("YearText", " ", dateFontSize * uiSize, sf::Vector2f{ 1660.f, 1500.f } * uiSize, fontName, true, importantColor);
-	InitializeText("SimulationStateText", " ", dateFontSize * uiSize, sf::Vector2f{ 980.f, 1500.f } * uiSize, fontName, true, usualColor);
-	InitializeText("SimulationSpeedText", " ", simulationFontSize * uiSize, sf::Vector2f{ 1280.f, 1440.f } * uiSize, fontName, true, usualColor);
-	InitializeText("ViewSizeText", " ", metricsFontSize * uiSize, sf::Vector2f{ 1280.f, 1560.f } * uiSize, fontName, true, usualColor);
-	InitializeText("OverviewText", " ", mainFontSize * uiSize, sf::Vector2f{ 1280.f, 60.f } * uiSize, fontName, true, importantColor);
+	InitializeText("MonthText", " ", dateFontSize * uiSize, sf::Vector2f{ 140.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+	InitializeText("DayText", " ", dateFontSize * uiSize, sf::Vector2f{ -110.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+	InitializeText("YearText", " ", dateFontSize * uiSize, sf::Vector2f{ 380.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+	InitializeText("SimulationStateText", " ", dateFontSize * uiSize, sf::Vector2f{ -300.f, 0.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+	InitializeText("SimulationSpeedText", " ", simulationFontSize * uiSize, sf::Vector2f{ 0.f, -60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+	InitializeText("ViewSizeText", " ", metricsFontSize * uiSize, sf::Vector2f{ 0.f, 60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+	InitializeText("OverviewText", " ", mainFontSize * uiSize, sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
+
+	//CREATE SIDE part of ui
+	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUIRoot("InfoPart").lock();
+	//Add component
+	spInfoPart->AddComponent<UIPartComponent>();
+	std::shared_ptr<RectangleShapeComponent> spRectShape4 = spInfoPart->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShape4, uiInfoPartSize * uiSize, "UIPartSide");
+	spInfoPart->SetPosition(sf::Vector2f{ 300.f, 800.f } * uiSize);
+
+	std::shared_ptr<SceneNode> spInfoPartNode = spUIRootNode->FindChild(*spInfoPart).lock();
+	//CREATE INFO textes
+	InitializeText("InfoText0", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, -240.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText1", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, -160.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText2", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f,-80.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText3", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText4", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 80.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText5", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 160.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText6", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 240.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 }
 
 
@@ -257,7 +256,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	else
 		name = entityName;
 	//Create text
-	std::shared_ptr<Entity> spText = InitializeTextAt(systemNode, entityName, name, fontSize * uiSize, sf::Vector2f{0,0});
+	std::shared_ptr<Entity> spText = InitializeText(entityName, name, fontSize * uiSize, sf::Vector2f{0,0}, "Pixel", false, sf::Color::White, systemNode);
 	
 	//Add component
 	std::shared_ptr<UIFollowerComponent> spUIFollower = spText->AddComponent<UIFollowerComponent>().lock();
@@ -327,11 +326,11 @@ void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, b
 	spOrbitE->inheritParentPosition = inheritParentPosition;
 
 	std::shared_ptr<OrbitVisualizerComponent> spOrbitVis = spOrbitE->AddComponent<OrbitVisualizerComponent>().lock();
-	spOrbitVis->orbitShape.setPointCount(150);
+	spOrbitVis->orbitShape.setPointCount(300);
 	spOrbitVis->orbitShape.setOutlineColor(outlineColor);
 	spOrbitVis->orbitShape.setOutlineThickness(outlineThikness);
 	spOrbitVis->orbitShape.setFillColor(sf::Color(0, 0, 0, 0));
-	spOrbitVis->orbitSize = orbitRadius;
+	spOrbitVis->orbitSize = orbitRadius*0.9996;
 
 	std::shared_ptr<UIFollowerComponent> spUIFollower = spOrbitE->AddComponent<UIFollowerComponent>().lock();
 	spUIFollower->nodeToFollow = wpNodeToFollow;

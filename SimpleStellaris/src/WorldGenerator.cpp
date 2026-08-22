@@ -19,9 +19,6 @@
 #include "CompilerInstructions.h"
 
 
-constexpr double PI = 3.14159265358979323846;
-
-
 //Read data from the file
 std::vector<std::string> ReadStarNamesFromCSV(const std::string fname)
 {
@@ -226,6 +223,41 @@ float GetStarMass(StarType starType)
 
 
 
+float GetStarRadius(StarType starType)
+{
+	switch (starType)
+	{
+	case StarType::RedSupergiant:
+		return 1000.f;
+	case StarType::RedGiant:
+		return 100.f;
+	case StarType::Otype:
+		return 10.f;
+	case StarType::Btype:
+		return 3.f;
+	case StarType::Atype:
+		return 1.6f;
+	case StarType::Ftype:
+		return 1.2f;
+	case StarType::GsunLike:
+		return 1.f;
+	case StarType::KorangeDwarf:
+		return 0.8f;
+	case StarType::MredDwarf:
+		return 0.5f;
+	case StarType::BrownDwarf:
+		return 0.1f;
+	case StarType::WhiteDwarf:
+		return 0.01f;
+	case StarType::NeutronStar:
+		return 0.001f;
+	case StarType::BlackHole:
+		return 0.0001f;
+	}
+}
+
+
+
 void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::shared_ptr<Entity> star2Sp, double distanceBetweenStars, float randomPosition, std::shared_ptr<SceneNode> ptrSystemNode)
 {
 	std::shared_ptr<StarComponent> spStar1Com = star1Sp->FindComponent<StarComponent>().lock();
@@ -265,14 +297,14 @@ void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::share
 
 	double T = std::sqrt(std::pow(distanceBetweenStars,3)/(mass1+mass2));
 	//velocity in radians per year
-	double omega = (2*PI) / T;
+	double omega = (2*gel::PI) / T;
 
 	//Assuming that in my game every year has 365 days
 	spStar1Com->rotationalVelocity = omega / 365;
 	spStar2Com->rotationalVelocity = omega / 365;
 
-	spStar1Com->initialRotationPosition = PI*randomPosition;
-	spStar2Com->initialRotationPosition = PI * (1+randomPosition);
+	spStar1Com->initialRotationPosition = gel::PI*randomPosition;
+	spStar2Com->initialRotationPosition = gel::PI * (1+randomPosition);
 }
 
 
@@ -292,15 +324,15 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 	double T = std::sqrt(std::pow(distanceBetweenStars, 3) / (mass1 + mass2 + mass3));
 	//velocity in radians per year
-	double omega = (2 * PI) / T;
+	double omega = (2 * gel::PI) / T;
 
 	spStar1Com->rotationalVelocity = omega / 365;
 	spStar2Com->rotationalVelocity = omega / 365;
 	spStar3Com->rotationalVelocity = omega / 365;
 
-	spStar1Com->initialRotationPosition = PI * randomPosition;
-	spStar2Com->initialRotationPosition = PI * ((2.f/3.f) + randomPosition);
-	spStar3Com->initialRotationPosition = PI * ((4.f / 3.f) + randomPosition);
+	spStar1Com->initialRotationPosition = gel::PI * randomPosition;
+	spStar2Com->initialRotationPosition = gel::PI * ((2.f/3.f) + randomPosition);
+	spStar3Com->initialRotationPosition = gel::PI * ((4.f / 3.f) + randomPosition);
 }
 
 
@@ -440,8 +472,8 @@ void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<f
 		spHabPlCom->distanceToStar = habitDistToStar;
 	}
 
-	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
-	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743 * (std::pow(10, -11) * 5.972 * std::pow(10, 25) * std::pow(mainPlanetSize,3)) / (spPlanetCom->orbitRadius * std::pow(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::pow(10, 4));
+	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * gel::PI;
+	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743 * (std::pow(10, -11) * 1.194 * std::pow(10, 25) * gel::sphereVolume(mainPlanetSize/2.0)) / (spPlanetCom->orbitRadius * std::pow(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::pow(10, 5));
 }
 
 
@@ -836,7 +868,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	}
 
 	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743*(std::pow(10,-11)*starMass*2* std::pow(10, 30)) / (spPlanetCom->orbitRadius*1.5 * std::pow(10, 11))) * 86.4)/ (spPlanetCom->orbitRadius*1.5*std::pow(10,8));
-	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * PI;
+	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * gel::PI;
 
 	GenerateRings(spNode->FindChild("Planet" + std::to_string(num)).lock(), spPlanetCom->planetSize, spPlanetCom->planetType, mapConfig);
 	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());

@@ -81,6 +81,46 @@ std::string GetPlanetTypeName(PlanetType planetType)
 }
 
 
+std::string GetProperPlanetTypeName(PlanetType planetType)
+{
+	switch (planetType)
+	{
+	case PlanetType::BarrenDark:
+	case PlanetType::BarrenGrey:
+	case PlanetType::BarrenMarsLike:
+		return "Barren";
+	case PlanetType::VenusLike:
+		return "Toxic";
+	case PlanetType::Oceanic:
+		return "Oceanic";
+	case PlanetType::EarthLike:
+		return "Earth Like";
+	case PlanetType::TitanLike:
+		return "Methan";
+	case PlanetType::Molten:
+		return "Molten";
+	case PlanetType::Icy:
+		return "Icy";
+	case PlanetType::Voulcanic:
+		return "Voulcanic";
+	case PlanetType::Desert:
+		return "Desert";
+	case PlanetType::HotJupiter:
+		return "Hot Jupiter";
+	case PlanetType::HotNeptune:
+		return "Hot Neptune";
+	case PlanetType::JupiterLike:
+	case PlanetType::SaturnLike:
+		return "Large Gas Giant";
+	case PlanetType::NeptuneLike:
+	case PlanetType::UranusLike:
+		return "Small Gas Giant";
+	}
+
+	return "UNKNOWN";
+}
+
+
 std::string GetSpaceSystemTypeName(SpaceSystemType spaceSystemType)
 {
 	switch (spaceSystemType) 
@@ -97,6 +137,24 @@ std::string GetSpaceSystemTypeName(SpaceSystemType spaceSystemType)
 		return "TernaryAfar";
 	case SpaceSystemType::TernaryTwoCloseThirdAfar:
 		return "TernaryTwoBinaryOneAfar";
+	}
+
+	return "UNKNOWN";
+}
+
+
+std::string GetSystemTypeName(SpaceSystemType systemType)
+{
+	switch (systemType)
+	{
+	case SpaceSystemType::Single:
+		return "Single";
+	case SpaceSystemType::BinaryClose:
+	case SpaceSystemType::BinaryAfar:
+		return "Binary";
+	case SpaceSystemType::TernaryAfar:
+	case SpaceSystemType::TernaryTwoCloseThirdAfar:
+		return "Ternary";
 	}
 
 	return "UNKNOWN";

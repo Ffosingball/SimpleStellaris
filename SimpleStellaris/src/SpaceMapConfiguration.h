@@ -16,22 +16,6 @@ struct SpaceMapConfigurations
 	sf::Vector2f verticalPosBoundaries{ -400.f, 400.f };
 	sf::Vector2f horizontalPosBoundaries{ -400.f, 400.f };
 
-	//Star sizes
-	//All sizes relative to sun size
-	float redSupGiantSize = 1000.f;
-	float redGiantSize = 100.f;
-	float classOSize = 10.f;
-	float classBSize = 3.f;
-	float classASize = 1.6f;
-	float classFSize = 1.2f;
-	float classGSize = 1.f;
-	float classKSize = 0.8f;
-	float classMSize = 0.5f;
-	float brownDwarfSize = 0.1f;
-	float whiteDwarfSize = 0.01f;
-	float neutronSize = 0.01f;
-	float blackHoleSize = 0.001f;
-
 	//Star chances to appear
 	float redSupGiantChance = 0.25f;//Before 0.001
 	float redGiantChance = 2.f;//Before 1.8

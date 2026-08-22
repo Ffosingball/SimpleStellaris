@@ -782,3 +782,43 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
         }
     }
 }
+
+
+
+void VisitorCountPlanets::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        if (spEntity->HasComponent<PlanetComponent>())
+        {
+            std::shared_ptr<PlanetComponent> spPlanet = spEntity->FindComponent<PlanetComponent>().lock();
+            
+            if(countMoons)
+                counter++;
+            else
+            {
+                if (!spPlanet->isMoon)
+                    counter++;
+            }
+        }
+    }
+}
+
+
+
+void VisitorCountHabitablePlanets::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        if (spEntity->HasComponent<HabitablePlanetComponent>())
+        {
+            counter++;
+        }
+    }
+}

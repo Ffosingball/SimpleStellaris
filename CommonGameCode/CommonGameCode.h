@@ -3,6 +3,8 @@
 
 namespace gel
 {
+	constexpr double PI = 3.14159265358979323846;
+
 	//This function sets text at the provided position
 	//Worst case: O(1)
 	void CentreText(sf::Text& text, const sf::Vector2f& position);
@@ -20,5 +22,10 @@ namespace gel
 	float clamp(float value, float minValue, float maxValue);
 	//Worst case: O(1)
 	bool DetectCollision(const sf::Vector2f& entity1Pos, const sf::Vector2f& entity1Size, const sf::Vector2f& entity2Pos, const sf::Vector2f& entity2Size);
+	float sphereVolume(float radius);
+	double sphereVolume(double radius);
+
+	void AlignTextToLeftSide(sf::Text& text, const sf::Vector2f& position);
+	std::string roundNumberForOutput(float n, int digitsAfterSeparator, char separator='.');
 }
 

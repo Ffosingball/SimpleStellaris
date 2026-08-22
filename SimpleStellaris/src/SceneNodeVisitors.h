@@ -230,3 +230,27 @@ private:
     float maxDistance;
     bool checkPlanets;
 };
+
+
+class VisitorCountPlanets : public SceneNodeVisitor
+{
+public:
+    VisitorCountPlanets(bool countMoons) : countMoons(countMoons) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+    int counter{0};
+private:
+    bool countMoons{0};
+};
+
+
+class VisitorCountHabitablePlanets : public SceneNodeVisitor
+{
+public:
+    VisitorCountHabitablePlanets() {}
+
+    void ProcessNode(SceneNode& node) override;
+
+    int counter{0};
+};

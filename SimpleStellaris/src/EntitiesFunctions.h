@@ -74,16 +74,13 @@ void InitializeAllCameras(const sf::Vector2u& windowSize);
 void SetupMoveTextProperties(const std::string textName, std::shared_ptr<SceneNode> nodeWithName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget);
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize, const std::string fontName, sf::Color color);
+std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize, const std::string fontName, sf::Color color, std::weak_ptr<SceneNode> spCreateAt = {});
 //Worst case: O(2N+9M+3K) where N is number entities in game and M number of components in text
 // and K in number of components available
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking, const bool isMoving, const float* targetX, const float* targetY, const sf::Vector2f velocity, const bool skipOriginReset);
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color);
-//Worst case: O(3N+2M) where N is number of components in entity and M number of components
-//available in game
-std::shared_ptr<Entity> InitializeTextAt(std::shared_ptr<SceneNode> spNode, const std::string name, const std::string text, const int fontSize, const sf::Vector2f position);
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color, std::weak_ptr<SceneNode> spCreateAt = {});
 //Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
 //number of components available in game and K number of components to add to the text
 std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge);

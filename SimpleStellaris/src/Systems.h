@@ -105,9 +105,21 @@ private:
 	std::weak_ptr<TextComponent> viewSizeText;
 	std::weak_ptr<TextComponent> overviewText;
 
+	std::weak_ptr<Entity> infoText0;
+	std::weak_ptr<Entity> infoText1;
+	std::weak_ptr<Entity> infoText2;
+	std::weak_ptr<Entity> infoText3;
+	std::weak_ptr<Entity> infoText4;
+	std::weak_ptr<Entity> infoText5;
+	std::weak_ptr<Entity> infoText6;
+	std::weak_ptr<Entity> wpInfoPanel;
+
 	std::weak_ptr<SceneNode> wpSystemNodeSelected;
+	std::weak_ptr<SceneNode> wpObjectNodeToTellInfoAbout;
 
 	void OnRenderingComplete(int numOfNodes, int nodesRendered);
+	void OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode);
+	void OnHideInfoPanel();
 };
 
 
@@ -171,4 +183,6 @@ namespace signals
 	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;
 	inline sigslot::signal<sf::Event::JoystickButtonReleased> onJoystickButtonReleased;
+	inline sigslot::signal<std::weak_ptr<SceneNode>> onShowInfoPanel;
+	inline sigslot::signal<> onHideInfoPanel;
 }

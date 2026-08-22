@@ -18,6 +18,17 @@ namespace gel
 	}
 
 	//Worst case: O(1)
+	void AlignTextToLeftSide(sf::Text& text, const sf::Vector2f& position)
+	{
+		//Calculate correct origin
+		sf::Vector2f centre = text.getGlobalBounds().size / 2.f;
+		sf::Vector2f localBounds = centre + text.getLocalBounds().position;
+		//Then set origin and position
+		text.setOrigin(sf::Vector2f{ 0.f, localBounds.y });
+		text.setPosition(sf::Vector2f{ 0.f, position.y });
+	}
+
+	//Worst case: O(1)
 	void SetTextOrigin(sf::Text& text, const sf::Vector2f& position)
 	{
 		//Calculate correct origin
@@ -77,5 +88,20 @@ namespace gel
 	float distanceBetween2Points(sf::Vector2f pos1, sf::Vector2f pos2) 
 	{
 		return std::sqrt(std::pow(std::abs(pos1.x-pos2.x), 2)+ std::pow(std::abs(pos1.y - pos2.y), 2));
+	}
+
+	float sphereVolume(float radius) 
+	{
+		return (4.f / 3.f) * static_cast<float>(PI) * std::pow(radius, 3);
+	}
+
+	double sphereVolume(double radius)
+	{
+		return (4.0 / 3.0) * PI * std::pow(radius, 3);
+	}
+
+	std::string roundNumberForOutput(float n, int digitsAfterSeparator, char separator) 
+	{
+		return std::to_string((int)n)+separator+std::to_string((int)(n*std::pow(10,digitsAfterSeparator))-(((int)n)* (int)std::pow(10, digitsAfterSeparator)));
 	}
 }

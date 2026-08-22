@@ -52,6 +52,7 @@ enum class PlanetType
 };
 
 std::string GetPlanetTypeName(PlanetType planetType);
+std::string GetProperPlanetTypeName(PlanetType planetType);
 
 enum class SpaceSystemType
 {
@@ -64,6 +65,7 @@ enum class SpaceSystemType
 };
 
 std::string GetSpaceSystemTypeName(SpaceSystemType systemType);
+std::string GetSystemTypeName(SpaceSystemType systemType);
 
 enum class DistanceToStar 
 {
