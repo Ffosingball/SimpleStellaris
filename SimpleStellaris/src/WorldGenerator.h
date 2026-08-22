@@ -78,7 +78,7 @@ private:
 	WorldGenerator& operator=(const WorldGenerator&) = delete;
 
 	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty, SpaceMapConfigurations& mapConfig);
-	static void StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom);
+	static void GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, SpaceMapConfigurations& mapConfig);
 	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
 	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition);
 	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
@@ -111,7 +111,7 @@ public:
 private:
 	void SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
 	void SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpaceSys, StarType starType);
-	void SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType);
+	void SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType, float starSize);
 
 	unsigned int seed{0};
 	std::vector<std::string> listOfBrightStarNames;
@@ -125,8 +125,6 @@ private:
 
 std::string GetSystemTextureName(StarType starType);
 std::string GetPlanetTextureName(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet);
-float GetStarMass(StarType starType);
-float GetStarRadius(StarType starType);
 
 
 class SortedPlanetComponentsList 

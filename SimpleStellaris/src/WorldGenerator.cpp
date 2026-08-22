@@ -139,120 +139,76 @@ std::vector<int> WorldGenerator::GenerateGridOfRandomNumbers(sf::Vector2i gridSi
 }
 
 
-void WorldGenerator::StarTypeGenerator(std::weak_ptr<StarComponent> wpStarCom) 
+void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, SpaceMapConfigurations& mapConfig) 
 {
 	std::shared_ptr<StarComponent> spStarCom = wpStarCom.lock();
 	switch ((*starDistribution)(*randomizer))
 	{
 	case 0:
-		spStarCom->starType = StarType::RedGiant;
+		spStarCom->starType = StarType::RedSupergiant;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeRedSupergiant.x, mapConfig.starSizeRedSupergiant.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize/20.f, mapConfig.starMassPower);
 		break;
 	case 1:
 		spStarCom->starType = StarType::RedGiant;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeRedGiant.x, mapConfig.starSizeRedGiant.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize/20.f, mapConfig.starMassPower);
 		break;
 	case 2:
 		spStarCom->starType = StarType::Otype;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassO.x, mapConfig.starSizeClassO.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 3:
 		spStarCom->starType = StarType::Btype;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassB.x, mapConfig.starSizeClassB.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 4:
 		spStarCom->starType = StarType::Atype;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassA.x, mapConfig.starSizeClassA.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 5:
 		spStarCom->starType = StarType::Ftype;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassF.x, mapConfig.starSizeClassF.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 6:
 		spStarCom->starType = StarType::GsunLike;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassG.x, mapConfig.starSizeClassG.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 7:
 		spStarCom->starType = StarType::KorangeDwarf;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassK.x, mapConfig.starSizeClassK.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 8:
 		spStarCom->starType = StarType::MredDwarf;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeClassM.x, mapConfig.starSizeClassM.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 9:
 		spStarCom->starType = StarType::BrownDwarf;
+		spStarCom->starSize = gel::linearInterpolation(mapConfig.starSizeBrownDwarf.x, mapConfig.starSizeBrownDwarf.y, (*from0to1Dist)(*randomizer));
+		spStarCom->starMass = std::pow(spStarCom->starSize, mapConfig.starMassPower);
 		break;
 	case 10:
 		spStarCom->starType = StarType::WhiteDwarf;
+		spStarCom->starSize = 0.01f;
+		spStarCom->starMass = gel::linearInterpolation(mapConfig.starMassWhiteDwarf.x, mapConfig.starMassWhiteDwarf.y, (*from0to1Dist)(*randomizer));
 		break;
 	case 11:
 		spStarCom->starType = StarType::NeutronStar;
+		spStarCom->starSize = 0.001f;
+		spStarCom->starMass = gel::linearInterpolation(mapConfig.starMassNeutronStar.x, mapConfig.starMassNeutronStar.y, (*from0to1Dist)(*randomizer));
 		break;
 	case 12:
-		spStarCom->starType = StarType::WhiteDwarf;
+		spStarCom->starType = StarType::BlackHole;
+		spStarCom->starSize = 0.0001f;
+		spStarCom->starMass = gel::linearInterpolation(mapConfig.starMassBlackHole.x, mapConfig.starMassBlackHole.y, (*from0to1Dist)(*randomizer));
 		break;
-	}
-}
-
-
-
-float GetStarMass(StarType starType) 
-{
-	switch (starType) 
-	{
-	case StarType::RedSupergiant:
-		return 20.f;
-	case StarType::RedGiant:
-		return 4.f;
-	case StarType::Otype:
-		return 25.f;
-	case StarType::Btype:
-		return 9.f;
-	case StarType::Atype:
-		return 1.7f;
-	case StarType::Ftype:
-		return 1.2f;
-	case StarType::GsunLike:
-		return 1.f;
-	case StarType::KorangeDwarf:
-		return 0.6f;
-	case StarType::MredDwarf:
-		return 0.3f;
-	case StarType::BrownDwarf:
-		return 0.044f;
-	case StarType::WhiteDwarf:
-		return 0.6f;
-	case StarType::NeutronStar:
-		return 1.6f;
-	case StarType::BlackHole:
-		return 50.f;
-	}
-}
-
-
-
-float GetStarRadius(StarType starType)
-{
-	switch (starType)
-	{
-	case StarType::RedSupergiant:
-		return 1000.f;
-	case StarType::RedGiant:
-		return 100.f;
-	case StarType::Otype:
-		return 10.f;
-	case StarType::Btype:
-		return 3.f;
-	case StarType::Atype:
-		return 1.6f;
-	case StarType::Ftype:
-		return 1.2f;
-	case StarType::GsunLike:
-		return 1.f;
-	case StarType::KorangeDwarf:
-		return 0.8f;
-	case StarType::MredDwarf:
-		return 0.5f;
-	case StarType::BrownDwarf:
-		return 0.1f;
-	case StarType::WhiteDwarf:
-		return 0.01f;
-	case StarType::NeutronStar:
-		return 0.001f;
-	case StarType::BlackHole:
-		return 0.0001f;
 	}
 }
 
@@ -271,11 +227,11 @@ void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::share
 		for (std::shared_ptr<SceneNode> child : children) 
 		{
 			if (child->GetEntity().lock()->HasComponent<StarComponent>())
-				mass1 += GetStarMass(child->GetEntity().lock()->FindComponent<StarComponent>().lock()->starType);
+				mass1 += child->GetEntity().lock()->FindComponent<StarComponent>().lock()->starMass;
 		}
 	}
 	else
-		mass1 = GetStarMass(spStar1Com->starType);
+		mass1 = spStar1Com->starMass;
 
 
 	float mass2{ 0.f };
@@ -286,11 +242,11 @@ void CalculateBinarySystemProperties(std::shared_ptr<Entity> star1Sp, std::share
 		for (std::shared_ptr<SceneNode> child : children)
 		{
 			if (child->GetEntity().lock()->HasComponent<StarComponent>())
-				mass2 += GetStarMass(child->GetEntity().lock()->FindComponent<StarComponent>().lock()->starType);
+				mass2 += child->GetEntity().lock()->FindComponent<StarComponent>().lock()->starMass;
 		}
 	}
 	else
-		mass2 = GetStarMass(spStar2Com->starType);
+		mass2 = spStar2Com->starMass;
 
 	spStar1Com->orbitRadius = distanceBetweenStars * (mass2/(mass1+mass2));
 	spStar2Com->orbitRadius = distanceBetweenStars * (mass1 / (mass1 + mass2));
@@ -318,9 +274,9 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 	spStar2Com->orbitRadius = distanceBetweenStars / 2.f;
 	spStar3Com->orbitRadius = distanceBetweenStars / 2.f;
 
-	float mass1 = GetStarMass(spStar1Com->starType);
-	float mass2 = GetStarMass(spStar2Com->starType);
-	float mass3 = GetStarMass(spStar3Com->starType);
+	float mass1 = spStar1Com->starMass;
+	float mass2 = spStar2Com->starMass;
+	float mass3 = spStar3Com->starMass;
 
 	double T = std::sqrt(std::pow(distanceBetweenStars, 3) / (mass1 + mass2 + mass3));
 	//velocity in radians per year
@@ -925,7 +881,7 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 		else
 			spStarCom = spStar2Com;
 
-		starMass = GetStarMass(spStar1Com->starType) + GetStarMass(spStar2Com->starType);
+		starMass = spStar1Com->starMass + spStar2Com->starMass;
 	}
 	else
 	{
@@ -937,7 +893,7 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 		if (!singleStarSystem)
 			checkMaxOrbitBounds = true;
 
-		starMass = GetStarMass(spStarCom->starType);
+		starMass = spStarCom->starMass;
 	}
 
 	//Check if this system will have planets or not
@@ -1096,7 +1052,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 	{
 		//Create star in that system
 		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-		StarTypeGenerator(spStar2->AddComponent<StarComponent>().lock());
+		GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig);
 		spStar2->inheritParentPosition = false;
 
 		//Determine binary system type
@@ -1139,11 +1095,11 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			//Create 2 stars in the inside system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(spInsideSysNode, "Star2").lock();
-			StarTypeGenerator(spStar2->AddComponent<StarComponent>().lock());
+			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig);
 			//spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(spInsideSysNode, "Star3").lock();
-			StarTypeGenerator(spStar3->AddComponent<StarComponent>().lock());
+			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig);
 			//spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
@@ -1165,11 +1121,11 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			//Create 2 stars in that system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-			StarTypeGenerator(spStar2->AddComponent<StarComponent>().lock());
+			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig);
 			spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(ptrSystemNode, "Star3").lock();
-			StarTypeGenerator(spStar3->AddComponent<StarComponent>().lock());
+			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig);
 			spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
@@ -1361,60 +1317,34 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		std::shared_ptr<StarComponent> spStar1Com = spStar1->AddComponent<StarComponent>().lock();
 		spStar1->inheritParentPosition = false;
 
-		switch ((*starDistribution)(*randomizer)) 
+		GenerateStarProperties(spStar1Com, mapConfig);
+		switch (spStar1Com->starType)
 		{
-		case 0:
-			spStar1Com->starType = StarType::RedSupergiant;
+		case StarType::RedSupergiant:
 			spSystemCom->systemType = SpaceSystemType::Single;
 			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
 			break;
-		case 1:
-			spStar1Com->starType = StarType::RedGiant;
+		case StarType::RedGiant:
+		case StarType::Otype:
+		case StarType::Btype:
+		case StarType::Atype:
 			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
-		case 2:
-			spStar1Com->starType = StarType::Otype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 3:
-			spStar1Com->starType = StarType::Btype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 4:
-			spStar1Com->starType = StarType::Atype;
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 5:
-			spStar1Com->starType = StarType::Ftype;
+		case StarType::Ftype:
+		case StarType::GsunLike:
+		case StarType::KorangeDwarf:
 			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
-		case 6:
-			spStar1Com->starType = StarType::GsunLike;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 7:
-			spStar1Com->starType = StarType::KorangeDwarf;
-			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 8:
-			spStar1Com->starType = StarType::MredDwarf;
+		case StarType::MredDwarf:
+		case StarType::BrownDwarf:
+		case StarType::WhiteDwarf:
 			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
 			break;
-		case 9:
-			spStar1Com->starType = StarType::BrownDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 10:
-			spStar1Com->starType = StarType::WhiteDwarf;
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
-			break;
-		case 11:
-			spStar1Com->starType = StarType::NeutronStar;
+		case StarType::NeutronStar:
 			spSystemCom->systemType = SpaceSystemType::Single;
 			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
 			break;
-		case 12:
-			spStar1Com->starType = StarType::BlackHole;
+		case StarType::BlackHole:
 			spSystemCom->systemType = SpaceSystemType::Single;
 			break;
 		}
@@ -1719,12 +1649,12 @@ void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> sp
 }
 
 
-void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
+void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType, float starSize)
 {
 	sf::Vector2i pictureSize{ 300,300 };
 	std::string textureName{ "Placeholder" };
 
-	float starSizeMultiplier = 9.f;
+	//float starSizeMultiplier = 9.f;
 	switch (starType)
 	{
 	case StarType::BlackHole:
@@ -1761,16 +1691,15 @@ void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRe
 		textureName = "Oclass";
 		break;
 	case StarType::RedGiant:
-		starSizeMultiplier *= 20.f;
 		textureName = "RedGiant";
 		break;
 	case StarType::RedSupergiant:
-		starSizeMultiplier *= 100.f;
 		textureName = "RedGiant";
 		break;
 	}
 
-	SetupRectangleShape(spRectShape, sf::Vector2f{ static_cast<float>(mapConfig.sunDiameter), static_cast<float>(mapConfig.sunDiameter) } * starSizeMultiplier, textureName);
+	float starSizeMultiplier = 1.34f;
+	SetupRectangleShape(spRectShape, sf::Vector2f{ static_cast<float>(mapConfig.sunDiameter), static_cast<float>(mapConfig.sunDiameter) } * starSize * starSizeMultiplier, textureName);
 }
 
 
@@ -2180,7 +2109,7 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
 			spEntity->hidden = true;
 
-			SetStarTexture(spRectShape, spStar->starType);
+			SetStarTexture(spRectShape, spStar->starType, spStar->starSize);
 		}
 		else if (spEntity->HasComponent<PlanetComponent>())
 		{

@@ -94,6 +94,10 @@ public:
 	StarType starType;
 	std::string starName;
 
+	//Relative to sun size and mass
+	float starSize{ 1.f };
+	float starMass{ 1.f };
+
 	//Distances in astronomical units
 	double orbitRadius{ 0.0 };
 	//0 rad - up, 0.5PI rad - right, PI rad - down, 1.5PI rad - left

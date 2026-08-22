@@ -217,52 +217,52 @@ const void ResourceManager::LoadAllResources()
 		else
 		{
 			textures.emplace("BlackHole", texture);
-			sf::IntRect textureSizes11{ {600,900},{300,300} };
-			texturesIntRects.emplace("BlackHole", textureSizes11);
+			sf::IntRect textureSize{ {700,1050},{350,350} };
+			texturesIntRects.emplace("BlackHole", textureSize);
 
 			textures.emplace("NeutronStar", texture);
-			sf::IntRect textureSizes{ {300,900},{300,300} };
-			texturesIntRects.emplace("NeutronStar", textureSizes);
+			textureSize.position = sf::Vector2i{ 350,1050 };
+			texturesIntRects.emplace("NeutronStar", textureSize);
 
 			textures.emplace("WhiteDwarf", texture);
-			sf::IntRect textureSizes1{ {0,900},{300,300} };
-			texturesIntRects.emplace("WhiteDwarf", textureSizes1);
+			textureSize.position = sf::Vector2i{ 0,1050 };
+			texturesIntRects.emplace("WhiteDwarf", textureSize);
 
 			textures.emplace("BrownDwarf", texture);
-			sf::IntRect textureSizes2{ {600,600},{300,300} };
-			texturesIntRects.emplace("BrownDwarf", textureSizes2);
+			textureSize.position = sf::Vector2i{ 700,1050 };
+			texturesIntRects.emplace("BrownDwarf", textureSize);
 
 			textures.emplace("Mclass", texture);
-			sf::IntRect textureSizes3{ {300,600},{300,300} };
-			texturesIntRects.emplace("Mclass", textureSizes3);
+			textureSize.position = sf::Vector2i{ 350,700 };
+			texturesIntRects.emplace("Mclass", textureSize);
 
 			textures.emplace("Kclass", texture);
-			sf::IntRect textureSizes4{ {0,600},{300,300} };
-			texturesIntRects.emplace("Kclass", textureSizes4);
+			textureSize.position = sf::Vector2i{ 0,700 };
+			texturesIntRects.emplace("Kclass", textureSize);
 
 			textures.emplace("Gclass", texture);
-			sf::IntRect textureSizes5{ {600,300},{300,300} };
-			texturesIntRects.emplace("Gclass", textureSizes5);
+			textureSize.position = sf::Vector2i{ 700,350 };
+			texturesIntRects.emplace("Gclass", textureSize);
 
 			textures.emplace("Fclass", texture);
-			sf::IntRect textureSizes6{ {300,300},{300,300} };
-			texturesIntRects.emplace("Fclass", textureSizes6);
+			textureSize.position = sf::Vector2i{ 350,350 };;
+			texturesIntRects.emplace("Fclass", textureSize);
 
 			textures.emplace("Aclass", texture);
-			sf::IntRect textureSizes7{ {0,300},{300,300} };
-			texturesIntRects.emplace("Aclass", textureSizes7);
+			textureSize.position = sf::Vector2i{ 0,350 };
+			texturesIntRects.emplace("Aclass", textureSize);
 
 			textures.emplace("Bclass", texture);
-			sf::IntRect textureSizes8{ {600,0},{300,300} };
-			texturesIntRects.emplace("Bclass", textureSizes8);
+			textureSize.position = sf::Vector2i{ 700,0 };
+			texturesIntRects.emplace("Bclass", textureSize);
 
 			textures.emplace("Oclass", texture);
-			sf::IntRect textureSizes9{ {300,0},{300,300} };
-			texturesIntRects.emplace("Oclass", textureSizes9);
+			textureSize.position = sf::Vector2i{ 350,0 };
+			texturesIntRects.emplace("Oclass", textureSize);
 
 			textures.emplace("RedGiant", texture);
-			sf::IntRect textureSizes10{ {0,0},{300,300} };
-			texturesIntRects.emplace("RedGiant", textureSizes10);
+			textureSize.position = sf::Vector2i{ 0,0 };
+			texturesIntRects.emplace("RedGiant", textureSize);
 		}
 	}
 	{

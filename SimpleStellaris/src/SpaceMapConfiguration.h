@@ -52,6 +52,23 @@ struct SpaceMapConfigurations
 	sf::Vector2f afarStarsBoundaries{ 15.f, 1000.f };
 	double sunDiameter{ 0.009346 };//0.009346
 
+	float starMassPower{ 1.5f };
+
+	//Star sizes
+	sf::Vector2f starSizeRedSupergiant{ 400.f,1200.f };
+	sf::Vector2f starSizeRedGiant{ 80.f,400.f };
+	sf::Vector2f starSizeClassO{ 6.6f,20.f };
+	sf::Vector2f starSizeClassB{ 1.8f,6.6f };
+	sf::Vector2f starSizeClassA{ 1.4f,1.8f };
+	sf::Vector2f starSizeClassF{ 1.15f,1.4f };
+	sf::Vector2f starSizeClassG{ 0.96f,1.15f };
+	sf::Vector2f starSizeClassK{ 0.7f,0.96f };
+	sf::Vector2f starSizeClassM{ 0.3f,0.7f };
+	sf::Vector2f starSizeBrownDwarf{ 0.02f,0.1f };
+	sf::Vector2f starMassWhiteDwarf{ 0.3f,1.f };
+	sf::Vector2f starMassNeutronStar{ 1.1f,2.f };
+	sf::Vector2f starMassBlackHole{ 3.f,100.f };
+
 	//Planets configuration
 	//Habitable zone size
 	sf::Vector2f habitableZoneRedSupergiant{ 70.999f,71.f };//No hab planets

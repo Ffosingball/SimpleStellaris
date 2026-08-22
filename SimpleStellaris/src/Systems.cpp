@@ -898,8 +898,8 @@ void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			{
 				spText0->setString("Name: " + spStarCom->starName);
 				spText1->setString("Type: " + GetStarTypeName(spStarCom->starType));
-				spText2->setString("Mass: " + gel::roundNumberForOutput(GetStarMass(spStarCom->starType),2)+" solar masses");
-				spText3->setString("Radius: " + gel::roundNumberForOutput(GetStarRadius(spStarCom->starType), 2)+" solar radiuses");
+				spText2->setString("Mass: " + gel::roundNumberForOutput(spStarCom->starMass,2)+" solar masses");
+				spText3->setString("Radius: " + gel::roundNumberForOutput(spStarCom->starSize, 2)+" solar radiuses");
 
 				std::weak_ptr<ObjectSystemComponent> wpSysCom = wpObjectNode.lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>();
 				if(wpSysCom.lock()==nullptr)
