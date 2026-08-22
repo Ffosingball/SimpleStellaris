@@ -163,12 +163,12 @@ void CreateUI()
 	sf::Vector2f iconSize{100.f, 100.f};
 	sf::Vector2f uiTopPartSize{ 1000.f, 120.f };
 	sf::Vector2f uiBottomPartSize{ 1200.f, 200.f };
-	sf::Vector2f uiInfoPartSize{ 800.f, 700.f };
+	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
 	float mainFontSize = 40;
-	float infoFontSize = 25;
+	float infoFontSize = 21;
 	std::string fontName = "PixelBold";
 	sf::Color importantColor = sf::Color{ 235, 175, 38 };
 	sf::Color usualColor = sf::Color{ 255,255,255 };
@@ -216,17 +216,17 @@ void CreateUI()
 	spInfoPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape4 = spInfoPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape4, uiInfoPartSize * uiSize, "UIPartSide");
-	spInfoPart->SetPosition(sf::Vector2f{ 300.f, 800.f } * uiSize);
+	spInfoPart->SetPosition(sf::Vector2f{ 390.f, 800.f } * uiSize);
 
 	std::shared_ptr<SceneNode> spInfoPartNode = spUIRootNode->FindChild(*spInfoPart).lock();
 	//CREATE INFO textes
-	InitializeText("InfoText0", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, -240.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText1", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, -160.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText2", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f,-80.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText3", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText4", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 80.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText5", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 160.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText6", " ", infoFontSize * uiSize, sf::Vector2f{ -260.f, 240.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText0", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText1", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText2", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText3", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText4", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText5", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	InitializeText("InfoText6", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 }
 
 

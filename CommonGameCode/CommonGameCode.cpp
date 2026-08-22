@@ -100,8 +100,25 @@ namespace gel
 		return (4.0 / 3.0) * PI * std::pow(radius, 3);
 	}
 
-	std::string roundNumberForOutput(float n, int digitsAfterSeparator, char separator) 
+	std::string roundNumberForOutput(float n, int digitsAfterSeparator) 
 	{
-		return std::to_string((int)n)+separator+std::to_string((int)(n*std::pow(10,digitsAfterSeparator))-(((int)n)* (int)std::pow(10, digitsAfterSeparator)));
+		if (digitsAfterSeparator < 0)
+			return std::to_string((int)n);
+
+		std::ostringstream stream;
+		stream << std::fixed << std::setprecision(digitsAfterSeparator) << n;
+		std::string s = stream.str();
+
+		int l = s.length();
+		while (s[l - 1] == '0')
+		{
+			s.pop_back();
+			l--;
+		}
+
+		if(s[l - 1] == '.')
+			s.pop_back();
+
+		return s;
 	}
 }

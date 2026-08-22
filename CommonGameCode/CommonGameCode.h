@@ -26,6 +26,6 @@ namespace gel
 	double sphereVolume(double radius);
 
 	void AlignTextToLeftSide(sf::Text& text, const sf::Vector2f& position);
-	std::string roundNumberForOutput(float n, int digitsAfterSeparator, char separator='.');
+	std::string roundNumberForOutput(float n, int digitsAfterSeparator);
 }
 

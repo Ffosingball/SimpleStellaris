@@ -881,8 +881,12 @@ void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			
 			if (spEntity->GetName() == "InsideSystem") 
 			{
-				spText0->setString("Orbital period: " + std::to_string((int)convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity))+" days");
-				spText1->setString("Distance to center of mass: " + gel::roundNumberForOutput(spStarCom->orbitRadius, 2)+ " AU");
+				float period = convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity);
+				if(period<365*2)
+					spText0->setString("Orbital period: " + std::to_string((int)period)+" days");
+				else
+					spText0->setString("Orbital period: " + std::to_string((int)(period/365)) + " years");
+				spText1->setString("Orbit radius: " + gel::roundNumberForOutput(spStarCom->orbitRadius, 2)+ " AU");
 				
 				spText2->setString(" ");
 				spText3->setString(" ");
@@ -895,20 +899,29 @@ void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 				spText0->setString("Name: " + spStarCom->starName);
 				spText1->setString("Type: " + GetStarTypeName(spStarCom->starType));
 				spText2->setString("Mass: " + gel::roundNumberForOutput(GetStarMass(spStarCom->starType),2)+" solar masses");
-				spText3->setString("Radius: " + std::to_string(GetStarRadius(spStarCom->starType))+" solar radiuses");
-				if (wpObjectNode.lock()->GetParent().lock()->GetEntity().lock()->HasComponent<ObjectSystemComponent>())
+				spText3->setString("Radius: " + gel::roundNumberForOutput(GetStarRadius(spStarCom->starType), 2)+" solar radiuses");
+
+				std::weak_ptr<ObjectSystemComponent> wpSysCom = wpObjectNode.lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>();
+				if(wpSysCom.lock()==nullptr)
+					wpSysCom = wpObjectNode.lock()->GetParent().lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>();
+				
+				if (wpSysCom.lock()!=nullptr)
 				{
-					std::shared_ptr<ObjectSystemComponent> spSysNode = wpObjectNode.lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-					if (spSysNode->systemType != SpaceSystemType::Single)
+					if (wpSysCom.lock()->systemType != SpaceSystemType::Single)
 					{
-						spText4->setString("Orbital period: " + std::to_string((int)convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity)) + " days");
-						spText5->setString("Distance to center of mass: " + gel::roundNumberForOutput(spStarCom->orbitRadius,1) + " AU");
+						float period = convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity);
+						if (period < 365 * 2)
+							spText4->setString("Orbital period: " + std::to_string((int)period) + " days");
+						else
+							spText4->setString("Orbital period: " + std::to_string((int)(period / 365)) + " years");
+						spText5->setString("Orbit radius: " + gel::roundNumberForOutput(spStarCom->orbitRadius, 2) + " AU");
 					}
 					else
 					{
 						spText4->setString(" ");
 						spText5->setString(" ");
 					}
+
 				}
 				else 
 				{
@@ -952,7 +965,11 @@ void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			spText2->setString("Orbit radius: " + gel::roundNumberForOutput(spPlanetCom->orbitRadius,2) + " AU");
 		else
 			spText2->setString("Orbit radius: " + std::to_string((int)(spPlanetCom->orbitRadius*1000.f)) + " km");
-		spText3->setString("Orbital period: " + gel::roundNumberForOutput(convertRotationalVelocityIntoPeriod(spPlanetCom->rotationalVelocity),1) + " days");
+		float period = convertRotationalVelocityIntoPeriod(spPlanetCom->rotationalVelocity);
+		if (period < 365 * 2)
+			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period,1) + " days");
+		else
+			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period / 365,1) + " years");
 		spText4->setString("Radius: " + std::to_string((int)(spPlanetCom->planetSize * 500.f * spProp->mapConfig.earthDiameter)) + " km");
 		spText5->setString("Mass: " + gel::roundNumberForOutput(gel::sphereVolume(spPlanetCom->planetSize / 2.f) * 2.f, 2) + " earth masses");
 
