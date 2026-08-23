@@ -562,7 +562,8 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //spStar->wpStarNameText.lock()->hidden = true;
                 //spEntity->hidden = false;
                 //Create icon
-                CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + spStar->starName, false, starIconSize, true, sf::Vector2f{0.001f, 10.f});
+                std::shared_ptr<Entity> spIconEntity = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + spStar->starName, false, starIconSize, true, sf::Vector2f{0.001f, 10.f});
+                spIconEntity->AddComponent<StarIconComponent>();
                 //Create orbit
                 if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->HasComponent<ObjectSystemComponent>())
                 {
@@ -819,6 +820,43 @@ void VisitorCountHabitablePlanets::ProcessNode(SceneNode& node)
         if (spEntity->HasComponent<HabitablePlanetComponent>())
         {
             counter++;
+        }
+    }
+}
+
+
+void ChangeAllNodesVisibility::ProcessNode(SceneNode& node) 
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        spEntity->hidden = hidden;
+        if (spEntity->HasComponent<UIFollowerComponent>()) 
+        {
+            std::shared_ptr<UIFollowerComponent> spUIFol = spEntity->FindComponent<UIFollowerComponent>().lock();
+            spUIFol->hideAnyway = hidden;
+        }
+    }
+}
+
+
+void ChangeAllNodesVisibilityExceptStarIcons::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        if (!spEntity->HasComponent<StarIconComponent>())
+        {
+            spEntity->hidden = hidden;
+            if (spEntity->HasComponent<UIFollowerComponent>())
+            {
+                std::shared_ptr<UIFollowerComponent> spUIFol = spEntity->FindComponent<UIFollowerComponent>().lock();
+                spUIFol->hideAnyway = hidden;
+            }
         }
     }
 }

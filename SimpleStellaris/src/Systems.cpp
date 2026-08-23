@@ -64,6 +64,7 @@ void InputSystem::Initialize()
 	}
 	showDebugText = false;
 
+	previousFrameOverview = OverviewType::Space;
 	systemName = "InputSystem";
 }
 
@@ -197,6 +198,39 @@ void InputSystem::ExitPlanetToSystemOverview()
 }
 
 
+void ChangeUIVisibility(bool hide) 
+{
+	ChangeAllNodesVisibility visitor(hide);
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+	{
+		std::shared_ptr<SceneNode> spSystemNamesNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock();
+		spSystemNamesNode->AcceptVisitor(visitor);
+	}
+	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+	{
+		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock();
+		spNode->AcceptVisitor(visitor);
+		spNode = ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock();
+		spNode->AcceptVisitor(visitor);
+	}
+	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+	{
+		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock();
+		spNode->AcceptVisitor(visitor);
+
+		spNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock();
+		ChangeAllNodesVisibilityExceptStarIcons visitor2(hide);
+		spNode->AcceptVisitor(visitor2);
+	}
+
+	std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUIRoot()->FindChild("UpperPart").lock();
+	spNode->AcceptVisitor(visitor);
+	spNode = ECSGame::Instance().GetUIRoot()->FindChild("LowerPart").lock();
+	spNode->AcceptVisitor(visitor);
+}
+
+
+
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
 {
@@ -253,6 +287,19 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 		{
 			e.lock()->hidden = showDebugText;
 		}
+	}
+	else if (key.code == sf::Keyboard::Key::Tab)
+	{
+		if (infoPanelIsShown)
+			signals::onHideInfoPanel();
+		else
+			signals::onShowInfoPanel();
+		infoPanelIsShown = !infoPanelIsShown;
+	}
+	else if (key.code == sf::Keyboard::Key::Q)
+	{
+		UIHidden = !UIHidden;
+		ChangeUIVisibility(UIHidden);
 	}
 
 	lastInputByJoystick = false;
@@ -335,6 +382,17 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 		}
 		else
 			CancelCameraLock();
+		break;
+	case 3:
+		if(infoPanelIsShown)
+			signals::onHideInfoPanel();
+		else
+			signals::onShowInfoPanel();
+		infoPanelIsShown = !infoPanelIsShown;
+		break;
+	case 4:
+		UIHidden = !UIHidden;
+		ChangeUIVisibility(UIHidden);
 		break;
 	case 5:
 		if (ECSGame::Instance().GetGameState() == GameState::Game)
@@ -582,12 +640,12 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 		{
 			selectedSystemIcon->nodeToFollow = {};
 			wpSelectedSystemNode = {};
-			signals::onHideInfoPanel();
+			signals::onClearInfoPanel();
 		}
 		else
 		{
 			selectedSystemIcon->nodeToFollow = systemsNearBy[closestSystemIndex];
-			signals::onShowInfoPanel(wpSelectedSystemNode);
+			signals::onUpdateInfoPanel(wpSelectedSystemNode);
 		}
 
 		systemsNearByText->text->setString(message);
@@ -595,7 +653,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 	{
 		bool selectPlanets = true;
-		if (spCamCom->currentZoom > zoomAtWhichStartSelectPlanets && ECSGame::Instance().GetOverviewType() == OverviewType::System)
+		if ((spCamCom->currentZoom > zoomAtWhichStartSelectPlanets || UIHidden) && ECSGame::Instance().GetOverviewType() == OverviewType::System)
 			selectPlanets = false;
 
 		float maxDistance = ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ distanceFromMouseToIconToBeSelected, 0 }).x - ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ 0,0 }).x;
@@ -621,7 +679,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 				wpPlanetOrStarSelected = visitor.wpClosestNode;
 				selectedSystemIcon->nodeToFollow = wpPlanetOrStarSelected;
 				spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
-				signals::onShowInfoPanel(wpPlanetOrStarSelected);
+				signals::onUpdateInfoPanel(wpPlanetOrStarSelected);
 			}
 			else 
 			{
@@ -633,7 +691,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 				else
 					selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected.lock()->FindChild("PlanetPicture");
 				
-				signals::onShowInfoPanel(wpMoonOrPlanetSelected);
+				signals::onUpdateInfoPanel(wpMoonOrPlanetSelected);
 			}
 
 			if (spE->HasComponent<StarComponent>())
@@ -648,7 +706,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 		{
 			selectedSystemIcon->nodeToFollow = {};
 			systemsNearByText->text->setString(" ");
-			signals::onHideInfoPanel();
+			signals::onClearInfoPanel();
 
 			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 				wpPlanetOrStarSelected = {};
@@ -661,8 +719,13 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 
 	fpsText->text->setString(std::to_string(ECSGame::Instance().GetFPS())+" fps");
 
+	if (previousFrameOverview != ECSGame::Instance().GetOverviewType() && UIHidden)
+		ChangeUIVisibility(true);
+
 	//Signal the direction to the movement system
 	signals::onMoveCamera(direction);
+
+	previousFrameOverview = ECSGame::Instance().GetOverviewType();
 }
 
 
@@ -694,8 +757,10 @@ void UISystem::Initialize()
 	signals::onRenderingComplete.connect(&UISystem::OnRenderingComplete, this);
 	signals::onSystemOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
 	signals::onPlanetOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
-	signals::onShowInfoPanel.connect(&UISystem::OnShowInfoPanel, this);
+	signals::onUpdateInfoPanel.connect(&UISystem::OnUpdateInfoPanel, this);
 	signals::onHideInfoPanel.connect(&UISystem::OnHideInfoPanel, this);
+	signals::onShowInfoPanel.connect(&UISystem::OnShowInfoPanel, this);
+	signals::onClearInfoPanel.connect(&UISystem::OnClearInfoPanel, this);
 
 	std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUIRoot()->FindChild("RenderText").lock();
 	nodesText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
@@ -831,17 +896,8 @@ double convertRotationalVelocityIntoPeriod(double rotationalVelocity)
 
 
 
-void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode) 
+void UISystem::OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode) 
 {
-	wpInfoPanel.lock()->hidden = false;
-	infoText0.lock()->hidden = false;
-	infoText1.lock()->hidden = false;
-	infoText2.lock()->hidden = false;
-	infoText3.lock()->hidden = false;
-	infoText4.lock()->hidden = false;
-	infoText5.lock()->hidden = false;
-	infoText6.lock()->hidden = false;
-
 	std::shared_ptr<sf::Text> spText0 = infoText0.lock()->FindComponent<TextComponent>().lock()->text;
 	std::shared_ptr<sf::Text> spText1 = infoText1.lock()->FindComponent<TextComponent>().lock()->text;
 	std::shared_ptr<sf::Text> spText2 = infoText2.lock()->FindComponent<TextComponent>().lock()->text;
@@ -961,7 +1017,7 @@ void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 
 		spText0->setString("Name: " + spPlanetCom->planetName);
 		spText1->setString("Type: " + GetProperPlanetTypeName(spPlanetCom->planetType));
-		if(ECSGame::Instance().GetOverviewType()==OverviewType::System)
+		if(ECSGame::Instance().GetOverviewType()==OverviewType::System || !spPlanetCom->isMoon)
 			spText2->setString("Orbit radius: " + gel::roundNumberForOutput(spPlanetCom->orbitRadius,2) + " AU");
 		else
 			spText2->setString("Orbit radius: " + std::to_string((int)(spPlanetCom->orbitRadius*1000.f)) + " km");
@@ -992,6 +1048,37 @@ void UISystem::OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 	gel::AlignTextToLeftSide(*spText4, sf::Vector2{ 0.f, 0.f });
 	gel::AlignTextToLeftSide(*spText5, sf::Vector2{ 0.f, 0.f });
 	gel::AlignTextToLeftSide(*spText6, sf::Vector2{ 0.f, 0.f });
+}
+
+void UISystem::OnClearInfoPanel()
+{
+	std::shared_ptr<sf::Text> spText0 = infoText0.lock()->FindComponent<TextComponent>().lock()->text;
+	std::shared_ptr<sf::Text> spText1 = infoText1.lock()->FindComponent<TextComponent>().lock()->text;
+	std::shared_ptr<sf::Text> spText2 = infoText2.lock()->FindComponent<TextComponent>().lock()->text;
+	std::shared_ptr<sf::Text> spText3 = infoText3.lock()->FindComponent<TextComponent>().lock()->text;
+	std::shared_ptr<sf::Text> spText4 = infoText4.lock()->FindComponent<TextComponent>().lock()->text;
+	std::shared_ptr<sf::Text> spText5 = infoText5.lock()->FindComponent<TextComponent>().lock()->text;
+	std::shared_ptr<sf::Text> spText6 = infoText6.lock()->FindComponent<TextComponent>().lock()->text;
+
+	spText0->setString(" ");
+	spText1->setString(" ");
+	spText2->setString(" ");
+	spText3->setString(" ");
+	spText4->setString(" ");
+	spText5->setString(" ");
+	spText6->setString(" ");
+}
+
+void UISystem::OnShowInfoPanel()
+{
+	wpInfoPanel.lock()->hidden = false;
+	infoText0.lock()->hidden = false;
+	infoText1.lock()->hidden = false;
+	infoText2.lock()->hidden = false;
+	infoText3.lock()->hidden = false;
+	infoText4.lock()->hidden = false;
+	infoText5.lock()->hidden = false;
+	infoText6.lock()->hidden = false;
 }
 
 void UISystem::OnHideInfoPanel() 

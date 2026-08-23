@@ -212,6 +212,7 @@ void CreateUI()
 
 	//CREATE SIDE part of ui
 	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUIRoot("InfoPart").lock();
+	spInfoPart->hidden = true;
 	//Add component
 	spInfoPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape4 = spInfoPart->AddComponent<RectangleShapeComponent>().lock();
@@ -220,13 +221,20 @@ void CreateUI()
 
 	std::shared_ptr<SceneNode> spInfoPartNode = spUIRootNode->FindChild(*spInfoPart).lock();
 	//CREATE INFO textes
-	InitializeText("InfoText0", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText1", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText2", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText3", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText4", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText5", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	InitializeText("InfoText6", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	std::shared_ptr<Entity> spTextEn = InitializeText("InfoText0", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("InfoText1", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("InfoText2", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("InfoText3", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("InfoText4", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("InfoText5", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("InfoText6", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
 }
 
 
@@ -296,7 +304,7 @@ void InitializeMouseIcon()
 //Creates icons for system overview
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize, bool hideIfZoomSmall, sf::Vector2f zoomLevelAtWhichHide)
+std::shared_ptr<Entity> CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize, bool hideIfZoomSmall, sf::Vector2f zoomLevelAtWhichHide)
 {
 	//if (iconTexture == "CenterOfMassIcon")
 	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
@@ -313,6 +321,8 @@ void CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::s
 	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
 	spUIFollower->hideIfZoomSmallEnough = hideIfZoomSmall;
 	spUIFollower->zoomLevelsAtWhichHideEntity = zoomLevelAtWhichHide;
+
+	return spSSIcon;
 }
 
 

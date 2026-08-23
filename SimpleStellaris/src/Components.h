@@ -162,6 +162,9 @@ public:
 };
 
 
+class StarIconComponent : public Component {};
+
+
 
 //Component of the tilemap
 class TileMapComponent : public Component

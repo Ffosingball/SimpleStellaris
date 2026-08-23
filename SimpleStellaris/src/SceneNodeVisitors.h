@@ -229,6 +229,7 @@ private:
     sf::Vector2f position;
     float maxDistance;
     bool checkPlanets;
+    //bool 
 };
 
 
@@ -253,4 +254,27 @@ public:
     void ProcessNode(SceneNode& node) override;
 
     int counter{0};
+};
+
+
+class ChangeAllNodesVisibility : public SceneNodeVisitor
+{
+public:
+    ChangeAllNodesVisibility(bool hidden) : hidden(hidden) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    bool hidden;
+};
+
+class ChangeAllNodesVisibilityExceptStarIcons : public SceneNodeVisitor
+{
+public:
+    ChangeAllNodesVisibilityExceptStarIcons(bool hidden) : hidden(hidden) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    bool hidden;
 };

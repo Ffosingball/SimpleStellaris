@@ -52,14 +52,18 @@ private:
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;
 	float minValForJoystick = 5.f;
-	float mouseSpeedFromJoystick = 20.f;
+	float mouseSpeedFromJoystick = 14.f;
 	//How many times zoom on joystick slower than on mouse
-	float zoomSpeedJoystickSlowing= 0.1f;
+	float zoomSpeedJoystickSlowing= 0.2f;
 	//sf::Vector2i lastMouseSpeed{ 0,0 };
 	bool showDebugText = false;
 	float zoomAtWhichStartSelectPlanets{0.8f};
 	//In window pixels
 	int distanceFromMouseToIconToBeSelected{60};
+	bool infoPanelIsShown{ false };
+	bool UIHidden{ false };
+
+	OverviewType previousFrameOverview;
 
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
@@ -118,8 +122,10 @@ private:
 	std::weak_ptr<SceneNode> wpObjectNodeToTellInfoAbout;
 
 	void OnRenderingComplete(int numOfNodes, int nodesRendered);
-	void OnShowInfoPanel(std::weak_ptr<SceneNode> wpObjectNode);
+	void OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode);
+	void OnClearInfoPanel();
 	void OnHideInfoPanel();
+	void OnShowInfoPanel();
 };
 
 
@@ -183,6 +189,8 @@ namespace signals
 	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;
 	inline sigslot::signal<sf::Event::JoystickButtonReleased> onJoystickButtonReleased;
-	inline sigslot::signal<std::weak_ptr<SceneNode>> onShowInfoPanel;
+	inline sigslot::signal<std::weak_ptr<SceneNode>> onUpdateInfoPanel;
 	inline sigslot::signal<> onHideInfoPanel;
+	inline sigslot::signal<> onShowInfoPanel;
+	inline sigslot::signal<> onClearInfoPanel;
 }

@@ -40,6 +40,8 @@ std::string PrintComponentName(std::shared_ptr<Component> spComponent)
 		return "OrbitVisualizer";
 	else if (std::dynamic_pointer_cast<RingComponent>(spComponent))
 		return "Ring";
+	else if (std::dynamic_pointer_cast<StarIconComponent>(spComponent))
+		return "StarIconComponent";
 	else
 		return "---";
 }
