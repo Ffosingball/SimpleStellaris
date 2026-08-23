@@ -206,7 +206,14 @@ void ChangeUIVisibility(bool hide)
 		std::shared_ptr<SceneNode> spSystemNamesNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock();
 		spSystemNamesNode->AcceptVisitor(visitor);
 	}
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+	else if (hide == false) 
+	{
+		ChangeAllNodesVisibilityExceptNebulaTexts visitor2(hide);
+		std::shared_ptr<SceneNode> spSystemNamesNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock();
+		spSystemNamesNode->AcceptVisitor(visitor2);
+	}
+	
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 	{
 		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock();
 		spNode->AcceptVisitor(visitor);

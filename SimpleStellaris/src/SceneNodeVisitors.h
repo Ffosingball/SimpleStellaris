@@ -278,3 +278,14 @@ public:
 private:
     bool hidden;
 };
+
+class ChangeAllNodesVisibilityExceptNebulaTexts : public SceneNodeVisitor
+{
+public:
+    ChangeAllNodesVisibilityExceptNebulaTexts(bool hidden) : hidden(hidden) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    bool hidden;
+};

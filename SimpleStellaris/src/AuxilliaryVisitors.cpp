@@ -860,3 +860,23 @@ void ChangeAllNodesVisibilityExceptStarIcons::ProcessNode(SceneNode& node)
         }
     }
 }
+
+
+void ChangeAllNodesVisibilityExceptNebulaTexts::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        if (!spEntity->HasComponent<NebulaTextComponent>())
+        {
+            spEntity->hidden = hidden;
+            if (spEntity->HasComponent<UIFollowerComponent>())
+            {
+                std::shared_ptr<UIFollowerComponent> spUIFol = spEntity->FindComponent<UIFollowerComponent>().lock();
+                spUIFol->hideAnyway = hidden;
+            }
+        }
+    }
+}

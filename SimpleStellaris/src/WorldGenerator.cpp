@@ -1427,7 +1427,9 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 
 		//Setup nebula name text
 		std::string name{ "NebulaNameText" };
-		std::shared_ptr<UIFollowerComponent> spUiFollower = CreateSystemText(spSystemNamesNode, ptrNebulasNode->FindChild("Nebula" + std::to_string(i)).lock(), name, false)->FindComponent<UIFollowerComponent>().lock();
+		std::shared_ptr<Entity> spNebTextEn = CreateSystemText(spSystemNamesNode, ptrNebulasNode->FindChild("Nebula" + std::to_string(i)).lock(), name, false);
+		spNebTextEn->AddComponent<NebulaTextComponent>();
+		std::shared_ptr<UIFollowerComponent> spUiFollower = spNebTextEn->FindComponent<UIFollowerComponent>().lock();
 		spNebulaCom->wpTextFollower = spUiFollower;
 	}
 }
