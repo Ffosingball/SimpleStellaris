@@ -1,0 +1,32 @@
+Keyboard and mouse:
+- W, A, S, D - move camera around; unlocks camera if it is locked
+- Q - show/hide all UI
+- Tab - show/hide info panel about selected space object
+- LMB - go into selected system or planet
+- RMB - lock camera on the selected object/unlock camera if no object is selected
+- Mouse Wheel - zoom in or out
+- Move mouse around to select space objects; selected object is indicated by white rhombus
+- Space - pause/resume simulation
+- Arrow Up - increase simulation speed by 1
+- Arrow Down - decrease simulation speed by 1
+- Ctrl - hold it while pressing arrow up or down to change simulation speed by 10
+- Shift - hold it while pressing arrow up or down to change simulation speed by 100
+- F3 - open/close debug text
+- Ecs - exit planet or system overview/exit game if in space overview
+
+
+Logitech joystick:
+- Left Joystick - move camera around; unlocks camera if it is locked
+- LB - show/hide all UI
+- Y - show/hide info panel about selected space object
+- A - go into selected system or planet
+- X - lock camera on the selected object/unlock camera if no object is selected
+- LT/RT - zoom in or out
+- Right Joystick - Move mouse around to select space objects; selected object is indicated by white rhombus
+- RB - pause/resume simulation
+- D-pad right - increase simulation speed by 10
+- D-pad left - decrease simulation speed by 10
+- D-pad up - increase simulation speed by 1
+- D-pad down - decrease simulation speed by 1
+- B - exit planet or system overview
+- Back - exit game
