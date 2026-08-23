@@ -59,9 +59,6 @@ public:
 
 private:
 
-	//Upadate parent pointer, of all children
-	//void UpdateParentRecursive();
-
 	//Pointer to the entity
 	std::weak_ptr<Entity> entity;
 	//Pointer to the parent

@@ -15,7 +15,8 @@ enum class StarType
 	Btype,
 	Otype,
 	RedGiant,
-	RedSupergiant
+	RedSupergiant,
+	None
 };
 
 std::string GetStarTypeName(StarType starType);
@@ -27,7 +28,8 @@ enum class SpaceObjectType
 	Planet,
 	Asteroid,
 	Nebula,
-	System
+	System,
+	None
 };
 
 enum class PlanetType
@@ -48,7 +50,8 @@ enum class PlanetType
 	JupiterLike,
 	SaturnLike,
 	NeptuneLike,
-	UranusLike
+	UranusLike,
+	None
 };
 
 std::string GetPlanetTypeName(PlanetType planetType);
@@ -61,7 +64,8 @@ enum class SpaceSystemType
 	BinaryAfar,
 	BinaryCloseWithin,
 	TernaryTwoCloseThirdAfar,
-	TernaryAfar
+	TernaryAfar,
+	None
 };
 
 std::string GetSpaceSystemTypeName(SpaceSystemType systemType);

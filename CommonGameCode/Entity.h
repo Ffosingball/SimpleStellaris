@@ -37,8 +37,10 @@ public:
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T must inherit from Component");
 
+		//Traverse list of all components
 		for (int i = 0; i < components.size(); i++)
 		{
+			//Check if current component is the one we are looking for
 			std::shared_ptr<T> spCom = std::dynamic_pointer_cast<T>(components[i]);
 			if (spCom)
 				return spCom;
@@ -54,6 +56,7 @@ public:
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T must inherit from Component");
 
+		//Check if this component has been found or not
 		if (FindComponent<T>().lock()==nullptr)
 			return false;
 		else
@@ -61,8 +64,7 @@ public:
 	}
 
 	//Add new component
-	//Worst case: O(N+M) where N is number of components in entity and M
-	//number of components available in game
+	//Worst case: O(N) where N is number of components in entity
 	template<typename T>
 	std::weak_ptr<T> AddComponent() 
 	{
@@ -70,18 +72,17 @@ public:
 
 		std::weak_ptr<T> wp = FindComponent<T>();
 
-		//Check if component does not exist
+		//Check that component does not exist
 		if (wp.lock()==nullptr)
 		{
 			//Then add it to the list
 			std::shared_ptr<T> sp = std::make_shared<T>();
 			components.emplace_back(sp);
 			wp = sp;
-			//signals::onComponentAdded(*this, ct);
 			//And return it
 			return wp;
 		}
-		else
+		else//Otherwise return existing component
 			return wp;
 	}
 
@@ -107,7 +108,6 @@ public:
 		//Check if component exist, then remove it
 		if (index != -1)
 		{
-			//signals::onComponentRemove(*this, ct);
 			components.erase(components.begin() + index);
 		}
 	}
@@ -131,10 +131,10 @@ public:
 	bool inheritParentPosition = true;
 
 private:
-	std::string name;//name of the entity
-	sf::Transformable transformable;//Transform of the entity
-	std::vector<std::shared_ptr<Component>> components;//all components of the entity
-
-	//Find index of the component in the list
-	//Worst case: O(N) where N is number of components in entity
+	//name of the entity
+	std::string name;
+	//Transform of the entity
+	sf::Transformable transformable;
+	//all components of the entity
+	std::vector<std::shared_ptr<Component>> components;
 };

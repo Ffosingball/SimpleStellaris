@@ -23,9 +23,9 @@ void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scen
 	//Check if vector is empty
 	while (entitiesToDelete.size()>0)
 	{
+		//For each entity in the list get it and node in which it exist
 		std::weak_ptr<Entity> entityToDelete = entitiesToDelete.back();
 		entitiesToDelete.pop_back();
-
 		std::weak_ptr<SceneNode> nodeToDeleteFrom = deleteEntityFrom.back();
 		deleteEntityFrom.pop_back();
 

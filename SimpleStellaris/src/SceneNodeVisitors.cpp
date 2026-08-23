@@ -234,9 +234,9 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     uint8_t alphaValue{255};
                     //Check which state the text is and get correct alpha value
                     if (spEntityText->decreasingVisibility)
-                        alphaValue = gel::linearInterpolation(255, 90, spEntityText->blinkTime / spEntityText->blinkingPeriod);
+                        alphaValue = (uint8_t)gel::linearInterpolation(255, 90, spEntityText->blinkTime / spEntityText->blinkingPeriod);
                     else
-                        alphaValue = gel::linearInterpolation(90, 255, spEntityText->blinkTime / spEntityText->blinkingPeriod);
+                        alphaValue = (uint8_t)gel::linearInterpolation(90, 255, spEntityText->blinkTime / spEntityText->blinkingPeriod);
 
                     //Set new alphaValue
                     color.a = alphaValue;

@@ -17,6 +17,7 @@ namespace gel
 		text.setPosition(position);
 	}
 
+	//Aligns text at left side
 	//Worst case: O(1)
 	void AlignTextToLeftSide(sf::Text& text, const sf::Vector2f& position)
 	{
@@ -84,41 +85,59 @@ namespace gel
 		return true;
 	}
 
+	//Calculates distance between two points
 	//Worst case: O(1)
 	float distanceBetween2Points(sf::Vector2f pos1, sf::Vector2f pos2) 
 	{
-		return std::sqrt(std::pow(std::abs(pos1.x-pos2.x), 2)+ std::pow(std::abs(pos1.y - pos2.y), 2));
+		return std::sqrtf(std::powf(std::abs(pos1.x-pos2.x), 2)+ std::powf(std::abs(pos1.y - pos2.y), 2));
 	}
 
+	//Calculates sphere volume
+	//Worst case: O(1)
 	float sphereVolume(float radius) 
 	{
-		return (4.f / 3.f) * static_cast<float>(PI) * std::pow(radius, 3);
+		return (4.f / 3.f) * static_cast<float>(PI) * std::powf(radius, 3);
 	}
 
+	//Calculates sphere volume
+	//Worst case: O(1)
 	double sphereVolume(double radius)
 	{
 		return (4.0 / 3.0) * PI * std::pow(radius, 3);
 	}
 
-	std::string roundNumberForOutput(float n, int digitsAfterSeparator) 
+	//Formats double number to string
+	//Worst case: O(N) where N is number of digits in the number
+	std::string roundNumberForOutput(double n, int digitsAfterSeparator)
 	{
+		//If negative number is given then return whole number
 		if (digitsAfterSeparator < 0)
 			return std::to_string((int)n);
 
+		//Truncate all extra digits
 		std::ostringstream stream;
 		stream << std::fixed << std::setprecision(digitsAfterSeparator) << n;
 		std::string s = stream.str();
 
-		int l = s.length();
+		//Remove loose 0s at the end
+		int l = (int)s.length();
 		while (s[l - 1] == '0')
 		{
 			s.pop_back();
 			l--;
 		}
 
-		if(s[l - 1] == '.')
+		//Remove dot if there is no 0s left
+		if (s[l - 1] == '.')
 			s.pop_back();
 
 		return s;
+	}
+
+	//Formats float number to string
+	//Worst case: O(N) where N is number of digits in the number
+	std::string roundNumberForOutput(float n, int digitsAfterSeparator)
+	{
+		return roundNumberForOutput((double)n, digitsAfterSeparator);
 	}
 }

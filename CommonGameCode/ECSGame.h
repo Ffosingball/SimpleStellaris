@@ -9,9 +9,7 @@
 #include "ECSGame.h"
 #include <SFML/Graphics.hpp>
 #include "CompilerInstructions.h"
-
-enum class GameState;
-enum class OverviewType;
+#include "GameState.h"
 
 //This is a base of the main game loop
 class ECSGame : public gel::SFMLApplication
@@ -87,14 +85,18 @@ private:
 	std::vector<std::shared_ptr<System>> systems;
 
 	float deltaTime{ 0.f };
+	//Time passed since start of the game
 	float timeSinceStart{ 0.f };
 	sf::Vector2u windowSize{ 0,0 };
 	sf::Vector2i mousePosition{ 0,0 };
+	//Previous will be used to output the fps
 	int previousFPS{ 0 };
+	//This is used to count fps of the current second
 	int fps{ 0 };
 	//Stores current gameState
-	GameState gameState;
-	OverviewType overviewType;
+	GameState gameState = GameState::None;
+	//Stores current overview type
+	OverviewType overviewType = OverviewType::None;
 	//Boolean to check if window should be closed or not
 	bool closeGame{false};
 	//System which deletes all required entities at the end of the frame
@@ -106,5 +108,5 @@ private:
 	//This is needed to keep UI size the same on every monitor
 	float windowRelationToDefault{ 1.f };
 	//Pointer to the window
-	sf::RenderWindow* renderWindowPtr;
+	sf::RenderWindow* renderWindowPtr = nullptr;
 };

@@ -63,7 +63,7 @@ private:
 	bool infoPanelIsShown{ false };
 	bool UIHidden{ false };
 
-	OverviewType previousFrameOverview;
+	OverviewType previousFrameOverview = OverviewType::None;
 
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };

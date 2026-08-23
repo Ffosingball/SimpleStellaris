@@ -123,6 +123,7 @@ private:
 
 
 
+//To change visibility of the system node which accepted this visitor
 class SceneNodeVisitorSystemVisibility : public SceneNodeVisitor
 {
 public:
@@ -136,6 +137,7 @@ private:
 
 
 
+//To change all systems visibility 
 class SceneNodeVisitorChangeAllSystemVisibility : public SceneNodeVisitor
 {
 public:
@@ -149,6 +151,7 @@ private:
 
 
 
+//To change visibility of the planet node which accepted this visitor
 class SceneNodeVisitorChangeSingleSystemVisibility: public SceneNodeVisitor
 {
 public:
@@ -233,6 +236,7 @@ private:
 };
 
 
+
 class VisitorCountPlanets : public SceneNodeVisitor
 {
 public:
@@ -246,6 +250,7 @@ private:
 };
 
 
+
 class VisitorCountHabitablePlanets : public SceneNodeVisitor
 {
 public:
@@ -255,6 +260,7 @@ public:
 
     int counter{0};
 };
+
 
 
 class ChangeAllNodesVisibility : public SceneNodeVisitor
@@ -268,6 +274,8 @@ private:
     bool hidden;
 };
 
+
+
 class ChangeAllNodesVisibilityExceptStarIcons : public SceneNodeVisitor
 {
 public:
@@ -278,6 +286,8 @@ public:
 private:
     bool hidden;
 };
+
+
 
 class ChangeAllNodesVisibilityExceptNebulaTexts : public SceneNodeVisitor
 {

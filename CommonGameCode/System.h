@@ -20,7 +20,7 @@ public:
 	//To update entities every frame
 	virtual void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) {}
 
-	std::string& const GetSystemName() { return systemName; }
+	const std::string& GetSystemName() { return systemName; }
 
 protected:
 	std::string systemName;
@@ -37,7 +37,7 @@ public:
 	virtual ~DeleteSystem() = default;
 	//Worst case: O(1)
 	void Initialize() override;
-	//Worst case: O(N*M) where N is number of nodes in game and M number of entities to delete
+	//Worst case: O(N*M) where N is number of nodes in provided node and M number of entities to delete
 	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 private:
 	//This functions will be called when appropriate signal will be signaled
@@ -47,11 +47,10 @@ private:
 	void OnEntityToDelete(std::weak_ptr<Entity> wEntity, std::weak_ptr<SceneNode> wNodeWithChildToDelete);
 };
 
+//This namespace will store all signals
 namespace signals 
 {
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityCreated;
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityDestroyed;
-	//inline sigslot::signal<const Entity&, ComponentType> onComponentAdded;
-	//inline sigslot::signal<const Entity&, ComponentType> onComponentRemove;
 	inline sigslot::signal<std::weak_ptr<Entity>, std::weak_ptr<SceneNode>> onDeleteEntity;
 }

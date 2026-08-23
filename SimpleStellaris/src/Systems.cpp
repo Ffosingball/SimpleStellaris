@@ -483,7 +483,7 @@ void InputSystem::ZoomCamera(int direction)
 void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
 {
 	lastInputByJoystick = false;
-	ZoomCamera(mw.delta);
+	ZoomCamera((int)mw.delta);
 }
 
 
@@ -609,7 +609,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 		if (abs(z) > minValForJoystick)
 		{
 			lastInputByJoystick = true;
-			ZoomCamera(z);
+			ZoomCamera((int)z);
 		}
 	}
 
@@ -944,7 +944,7 @@ void UISystem::OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			
 			if (spEntity->GetName() == "InsideSystem") 
 			{
-				float period = convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity);
+				float period = (float)convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity);
 				if(period<365*2)
 					spText0->setString("Orbital period: " + std::to_string((int)period)+" days");
 				else
@@ -972,7 +972,7 @@ void UISystem::OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 				{
 					if (wpSysCom.lock()->systemType != SpaceSystemType::Single)
 					{
-						float period = convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity);
+						float period = (float)convertRotationalVelocityIntoPeriod(spStarCom->rotationalVelocity);
 						if (period < 365 * 2)
 							spText4->setString("Orbital period: " + std::to_string((int)period) + " days");
 						else
@@ -1028,7 +1028,7 @@ void UISystem::OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			spText2->setString("Orbit radius: " + gel::roundNumberForOutput(spPlanetCom->orbitRadius,2) + " AU");
 		else
 			spText2->setString("Orbit radius: " + std::to_string((int)(spPlanetCom->orbitRadius*1000.f)) + " km");
-		float period = convertRotationalVelocityIntoPeriod(spPlanetCom->rotationalVelocity);
+		float period = (float)convertRotationalVelocityIntoPeriod(spPlanetCom->rotationalVelocity);
 		if (period < 365 * 2)
 			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period,1) + " days");
 		else

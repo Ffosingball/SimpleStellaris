@@ -34,7 +34,6 @@
   <ItemGroup>
     <ClInclude Include="src\Components.h" />
     <ClInclude Include="src\EntitiesFunctions.h" />
-    <ClInclude Include="src\GameState.h" />
     <ClInclude Include="src\SceneNodeVisitors.h" />
     <ClInclude Include="src\SpaceMapConfiguration.h" />
     <ClInclude Include="src\SpaceObjectTypes.h" />
@@ -142,6 +141,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../../build/lib/$(Configuration);../../contrib/SFML-3.0.0/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>CommonGameCode.lib;sfml-system-s-d.lib;sfml-window-s-d.lib;sfml-graphics-s-d.lib;sfml-audio-s-d.lib;sfml-window-s-d.lib;opengl32.lib;gdi32.lib;freetyped.lib;sfml-system-s-d.lib;winmm.lib;vorbisfiled.lib;vorbisencd.lib;vorbisd.lib;FLACd.lib;oggd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalOptions>/IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -149,7 +149,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>

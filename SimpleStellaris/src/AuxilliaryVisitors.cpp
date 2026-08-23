@@ -15,6 +15,7 @@
 
 SceneNodeSpaceObjectsCounter::SceneNodeSpaceObjectsCounter(SpaceMapConfigurations& mapConfig) : mapConfig(mapConfig)
 {
+    //Initialize vectors
     for (int i = 0; i < 41; i++) 
     {
         planetTypesAmount.push_back(0);
@@ -43,6 +44,7 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
         {
             std::shared_ptr<ObjectSystemComponent> spComSys = spEntity->FindComponent<ObjectSystemComponent>().lock();
 
+            //Count correct system type
             switch (spComSys->systemType) 
             {
             case SpaceSystemType::Single:
@@ -68,55 +70,44 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
         {
             std::shared_ptr<StarComponent> spComStar = spEntity->FindComponent<StarComponent>().lock();
 
+            //Count correct star type
             switch (spComStar->starType)
             {
             case StarType::RedGiant:
                 redGiantAmount++;
-                //std::cout << "   Red Giant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::RedSupergiant:
                 redSupGiantAmount++;
-                //std::cout << "   Red Supergiant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Otype:
                 OclassAmount++;
-                //std::cout << "   Blue Supergiant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Btype:
                 BclassAmount++;
-                //std::cout << "   Blue Giant Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Atype:
                 AclassAmount++;
-                //std::cout << "   Bluish-White Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::Ftype:
                 FclassAmount++;
-                //std::cout << "   White Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::GsunLike:
                 GclassAmount++;
-                //std::cout << "   Yellow Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::KorangeDwarf:
                 KclassAmount++;
-                //std::cout << "   Orange Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::MredDwarf:
                 MclassAmount++;
-                //std::cout << "   Red Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::BrownDwarf:
                 brownDwarfAmount++;
-                //std::cout << "   Brawn Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::WhiteDwarf:
                 whiteDwarfAmount++;
-                //std::cout << "   White Dwarf Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::NeutronStar:
                 neutronAmount++;
-                //std::cout << "   Neutron Star (" << spEntity->GetName() << "): " << '\n';
                 break;
             case StarType::BlackHole:
                 blackHoleAmount++;
@@ -129,8 +120,10 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
             std::shared_ptr<PlanetComponent> spComPlanet = spEntity->FindComponent<PlanetComponent>().lock();
             std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet;
 
+            //Check if it is a moon or not
             if (!spComPlanet->isMoon)
             {
+                //If not, count correct planet type
                 switch (spComPlanet->planetType)
                 {
                 case PlanetType::BarrenDark:
@@ -257,6 +250,7 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
             }
             else 
             {
+                //Else count correct moon type
                 switch (spComPlanet->planetType)
                 {
                 case PlanetType::BarrenDark:
@@ -464,10 +458,12 @@ void SceneNodeVisitorChangeAllSystemVisibility::ProcessNode(SceneNode& node)
         //Check if entity has object system component
         if (spEntity->HasComponent<ObjectSystemComponent>() && spEntity->GetName()!="InsideSystem")
         {
+            //Then hide system
             spEntity->hidden = hidden;
         }
         else if (spEntity->HasComponent<NebulaComponent>())
         {
+            //If it is a nebula, leave it but hide its text
             std::shared_ptr<NebulaComponent> spNebula = spEntity->FindComponent<NebulaComponent>().lock();
             spNebula->wpTextFollower.lock()->hideAnyway = hidden;
         }
@@ -475,6 +471,7 @@ void SceneNodeVisitorChangeAllSystemVisibility::ProcessNode(SceneNode& node)
 }
 
 
+//Nebula visibility processing function
 void SceneNodeVisitorChangeNebulasVisibility::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -484,6 +481,7 @@ void SceneNodeVisitorChangeNebulasVisibility::ProcessNode(SceneNode& node)
     {
         if (spEntity->HasComponent<NebulaComponent>())
         {
+            //Change visibility if it is a nebula
             spEntity->hidden = hidden;
         }
     }
@@ -492,7 +490,6 @@ void SceneNodeVisitorChangeNebulasVisibility::ProcessNode(SceneNode& node)
 
 
 //System visibility processing function
-//I assume that the position of nodes in the system will not be changed!
 void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -500,12 +497,13 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
     //Check that pointer is valid
     if (spEntity != nullptr)
     {
+        //Check if entity is a center of mass of two stars inside ternary system
         if (spEntity->HasComponent<ObjectSystemComponent>() && spEntity->GetName() == "InsideSystem")
         {
             spEntity->hidden = hidden;
             if (!hidden)
             {
-                //Now set center of mass icon
+                //Now set center of mass icon and orbit around which it rotates
                 std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
                 node.AddChild(std::make_shared<SceneNode>(wpCoM));
                 std::shared_ptr<StarComponent> spStar = spEntity->FindComponent<StarComponent>().lock();
@@ -515,6 +513,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             }
             else
             {
+                //If hide then delete all created nodes with entities
                 std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("ObjectIconInSys").lock()->GetEntity();
                 signals::onDeleteEntity(wpE, spSystemIconsNode);
                 std::weak_ptr<Entity> wpE2 = node.FindChild("CenterOfMass").lock()->GetEntity();
@@ -529,9 +528,10 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             std::shared_ptr<ObjectSystemComponent> spSysCom = spEntity->FindComponent<ObjectSystemComponent>().lock();
             if (!hidden)
             {
+                //Check if system is not single
                 if (spSysCom->systemType != SpaceSystemType::Single)
                 {
-                    //Now set center of mass icon
+                    //Then create there center of mass icon
                     std::weak_ptr<Entity> wpCoM = ECSGame::Instance().GetEntityManager().NewEntity("CenterOfMass");
                     spNode->AddChild(std::make_shared<SceneNode>(wpCoM));
                     wpCoM.lock()->inheritParentPosition = false;
@@ -541,6 +541,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             }
             else 
             {
+                //If hide then delete all created nodes with entities
                 if (spSysCom->systemType != SpaceSystemType::Single)
                 {
                     std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("ObjectIcon" + spSysCom->systemName).lock()->GetEntity();
@@ -552,6 +553,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
         }
         else if (spEntity->HasComponent<StarComponent>())
         {
+            //If star then
             spEntity->hidden = hidden;
             std::shared_ptr<StarComponent> spStar = spEntity->FindComponent<StarComponent>().lock();
             if (!hidden) 
@@ -559,12 +561,10 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //Create text name entity for star
                 std::string name{ "StarNameText" + spStar->starName };
                 spStar->wpStarNameText = CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, false);
-                //spStar->wpStarNameText.lock()->hidden = true;
-                //spEntity->hidden = false;
                 //Create icon
                 std::shared_ptr<Entity> spIconEntity = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, GetSystemTextureName(spStar->starType), "ObjectIcon" + spStar->starName, false, starIconSize, true, sf::Vector2f{0.001f, 10.f});
                 spIconEntity->AddComponent<StarIconComponent>();
-                //Create orbit
+                //Create orbit if system is not single
                 if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->HasComponent<ObjectSystemComponent>())
                 {
                     if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock()->systemType != SpaceSystemType::Single)
@@ -578,10 +578,12 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             }
             else 
             {
+                //If hide then delete all created nodes with entities
                 std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("StarNameText" + spStar->starName).lock()->GetEntity();
                 signals::onDeleteEntity(wpE, spSystemIconsNode);
                 std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("ObjectIcon" + spStar->starName).lock()->GetEntity();
                 signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                //Delete orbit id system not single
                 if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->HasComponent<ObjectSystemComponent>())
                 {
                     if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock()->systemType != SpaceSystemType::Single)
@@ -607,15 +609,11 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             if (!spPlanet->isMoon)
             {
                 spEntity->hidden = hidden;
-                //std::shared_ptr<PlanetComponent> spPlanet = GetPlanetComponent(*spEntity);
                 if (!hidden)
                 {
-                    //std::cout << spPlanet->planetName << ": " << spEntity->inheritParentPosition << '\n';
                     //Create text name entity for star
                     std::string name{ "PlanetNameText" + spPlanet->planetName };
                     CreateSystemText(spSystemIconsNode, node.GetSharedPtrToItself(), name, true);
-                    //spStar->wpStarNameText.lock()->hidden = true;
-                    //spEntity->hidden = false;
                     //Create icon
                     CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + spPlanet->planetName, true, planetIconSize);
                     //Get parent for orbits
@@ -640,6 +638,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 }
                 else
                 {
+                    //If hide then delete all created nodes with entities
                     std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("PlanetNameText" + spPlanet->planetName).lock()->GetEntity();
                     signals::onDeleteEntity(wpE, spSystemIconsNode);
                     std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName).lock()->GetEntity();
@@ -660,6 +659,7 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
 
 
 
+//This function checks if current node is the closest to the provided distance or not
 void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node) 
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -669,6 +669,7 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
     {
         bool checkDistance = false;
         bool setParentAsTarget = false;
+        //Now find out whether this node should be considered or not
         if (spEntity->HasComponent<StarComponent>())
             checkDistance = true;
         else if (spEntity->HasComponent<PlanetComponent>() && checkPlanets && currentOverview == OverviewType::System)
@@ -687,6 +688,7 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
 
         if (checkDistance) 
         {
+            //If yes then check if this is the closest one and if its within the provided area
             float newDistance = gel::distanceBetween2Points(position, node.GetCombinedPosition());
             if (newDistance < gel::distanceBetween2Points(closestPosition, position) && newDistance < maxDistance) 
             {
@@ -703,7 +705,6 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
 
 
 //Planet visibility processing function
-//I assume that the position of nodes in the system will not be changed!
 void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -751,6 +752,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
             }
             else
             {
+                //If hide then delete all created nodes with entities
                 if (spPlanet->isMoon)
                 {
                     std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("MoonOrbit" + spPlanet->planetName).lock()->GetEntity();
@@ -786,6 +788,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
 
 
 
+//Counts all planets, or planets with moons
 void VisitorCountPlanets::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -810,6 +813,7 @@ void VisitorCountPlanets::ProcessNode(SceneNode& node)
 
 
 
+//Counts only habitable planets
 void VisitorCountHabitablePlanets::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -825,6 +829,7 @@ void VisitorCountHabitablePlanets::ProcessNode(SceneNode& node)
 }
 
 
+//Changes every node visibility
 void ChangeAllNodesVisibility::ProcessNode(SceneNode& node) 
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -842,6 +847,8 @@ void ChangeAllNodesVisibility::ProcessNode(SceneNode& node)
 }
 
 
+
+//Changes every node visibility except entities with StarIconComponent
 void ChangeAllNodesVisibilityExceptStarIcons::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
@@ -862,6 +869,8 @@ void ChangeAllNodesVisibilityExceptStarIcons::ProcessNode(SceneNode& node)
 }
 
 
+
+//Changes every node visibility except entities with NebulaTextComponent
 void ChangeAllNodesVisibilityExceptNebulaTexts::ProcessNode(SceneNode& node)
 {
     std::shared_ptr<Entity> spEntity = node.GetEntity().lock();

@@ -1268,7 +1268,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = ptrSpaceMapNode->GetEntity().lock()->FindComponent<SystemPropertiesComponent>().lock();
-	int gridWidth = (mapConfig.horizontalPosBoundaries.y - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems;
+	int gridWidth =(int)((mapConfig.horizontalPosBoundaries.y - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
 
 	
 	for (int i=0; i < mapConfig.systemAmount; i++) 
@@ -1410,7 +1410,7 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 		//Setup nebula properties
 		std::shared_ptr<NebulaComponent> spNebulaCom = spNewNeb->AddComponent<NebulaComponent>().lock();
 		spNebulaCom->nebulaSize = nebulaSize;
-		std::uniform_int_distribution<int> nameDist(0, nebulaNames.size() - 1);
+		std::uniform_int_distribution<int> nameDist(0, (int)nebulaNames.size() - 1);
 		int pos = nameDist(*randomizer);
 		spNebulaCom->nebulaName = nebulaNames[pos];
 		nebulaNames[pos] = nebulaNames.back();
@@ -1418,7 +1418,7 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 
 		//Setup nebula texture
 		std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spNewNeb->AddComponent<RectangleShapeComponent>().lock();
-		std::uniform_int_distribution<int> textureNumDist(0, textureNums.size() - 1);
+		std::uniform_int_distribution<int> textureNumDist(0, (int)textureNums.size() - 1);
 		int num = textureNumDist(*randomizer);
 		SetupRectangleShape(spRectShapeCom, sf::Vector2f{ spNebulaCom->nebulaSize,spNebulaCom->nebulaSize }, "Nebula" + std::to_string(textureNums[num]));
 		textureNums[num] = textureNums.back();
@@ -2200,4 +2200,4 @@ std::weak_ptr<PlanetComponent> SortedPlanetComponentsList::DequeuePlanetComponen
 }
 
 
-int SortedPlanetComponentsList::Size() { return sortedListOfPlanetCom.size(); }
+int SortedPlanetComponentsList::Size() { return (int)sortedListOfPlanetCom.size(); }

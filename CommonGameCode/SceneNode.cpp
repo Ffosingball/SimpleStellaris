@@ -191,15 +191,19 @@ std::weak_ptr<SceneNode> SceneNode::FindChild(const std::string& s)
 //Worst case: O(N) where N is number of children
 void SceneNode::ChangeChildOrder(const std::shared_ptr<SceneNode> child, int position)
 {
-	if (position >= children.size())
+	//Check that position is within the vector range
+	if (position >= children.size() || position<0)
 		std::cout << "Position outside of vector range!\n";
 
 	std::vector<std::shared_ptr<SceneNode>> newOrder(children.size());
 
+	//While position is not reached, just copy a vector
 	int newOrderPos = 0;
 	int oldOrderPos = 0;
 	while (newOrderPos < position) 
 	{
+		//Check if current child is the child we need to change position, so to prevent
+		//accidentally having two same children
 		if (children[oldOrderPos] != child)
 		{
 			newOrder[newOrderPos] = children[oldOrderPos];
@@ -210,11 +214,15 @@ void SceneNode::ChangeChildOrder(const std::shared_ptr<SceneNode> child, int pos
 			oldOrderPos++;
 	}
 
+	//When position reached insert child
 	newOrder[newOrderPos] = child;
 	newOrderPos++;
 
+	//After continue copying other children
 	while (newOrderPos < children.size())
 	{
+		//Check if current child is the child we need to change position, so to prevent
+		//accidentally having two same children
 		if (children[oldOrderPos] != child)
 		{
 			newOrder[newOrderPos] = children[oldOrderPos];
@@ -236,11 +244,14 @@ void SceneNode::ChangeChildOrder(const std::shared_ptr<Entity> entity, int posit
 
 	std::vector<std::shared_ptr<SceneNode>> newOrder(children.size());
 
+	//While position is not reached, just copy a vector
 	int newOrderPos = 0;
 	int oldOrderPos = 0;
 	int childPos{-1};
 	while (newOrderPos < position)
 	{
+		//Check if current child is the child we need to change position, so to prevent
+		//accidentally having two same children
 		if (children[oldOrderPos]->GetEntity().lock() != entity)
 		{
 			newOrder[newOrderPos] = children[oldOrderPos];
@@ -256,8 +267,11 @@ void SceneNode::ChangeChildOrder(const std::shared_ptr<Entity> entity, int posit
 
 	newOrderPos++;
 
+	//After continue copying other children
 	while (newOrderPos < children.size())
 	{
+		//Check if current child is the child we need to change position, so to prevent
+		//accidentally having two same children
 		if (children[oldOrderPos]->GetEntity().lock() != entity)
 		{
 			newOrder[newOrderPos] = children[oldOrderPos];
@@ -272,8 +286,9 @@ void SceneNode::ChangeChildOrder(const std::shared_ptr<Entity> entity, int posit
 	}
 
 	if (childPos == -1)
-		childPos = children.size() - 1;
+		childPos = (int)children.size() - 1;
 
+	//Insert child at provided position
 	newOrder[position] = children[childPos];
 	children = newOrder;
 }

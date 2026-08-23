@@ -1,27 +1,28 @@
 #pragma once
 
-//Game states
+//Game states, tells whether the simulation is stopped or not
 enum class GameState 
 {
 	Pause,
-	Game
+	Game,
+	None
 };
 
 //Difficulty levels
-//From this level depend spawn rate of enemies,
-//fire period of enemies and spawn rate of power ups
 enum class DifficultyLevel
 {
 	Easy,
 	Medium,
-	Hard
+	Hard,
+	None
 };
 
-//View type
+//View type, what player is looking at now
 enum class OverviewType
 {
 	Space,
 	System,
 	Planet,
-	Always
+	Always,
+	None
 };

@@ -10,6 +10,7 @@ namespace sf
 	class Event;
 }
 
+//Template of the main game loop
 namespace gel
 {
 	class SFMLApplication
@@ -28,7 +29,5 @@ namespace gel
 		virtual void Render(sf::RenderWindow& renderWindow) {}
 		//It is called when some event is happened
 		virtual void HandleEvent(const std::optional<sf::Event>& event) {}
-
-		//sf::RenderWindow& renderWindow;
 	};
 }

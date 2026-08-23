@@ -140,17 +140,17 @@ void InitializeMovingText(const std::string name, const std::string text, const 
 //available in game and K number of texts to create
 void CreateDebugText() 
 {
-	float fontSize = 20;
+	float fontSize = 20.f;
 	std::string fontName = "PixelBold";
 
 	float uiSize = ECSGame::Instance().GetUISize();
-	InitializeText("MouseCoordsText", " ", fontSize * uiSize, sf::Vector2f{0.f, 0.f} * uiSize, fontName, false);
-	InitializeText("WorldCoordsText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false);
-	InitializeText("SystemsNearByText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false);
-	InitializeText("FPSText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false);
-	InitializeText("DaysPastText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false);
-	InitializeText("DateText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false);
-	InitializeText("RenderText", " ", fontSize * uiSize, sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false);
+	InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{0.f, 0.f} * uiSize, fontName, false);
+	InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false);
+	InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false);
+	InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false);
+	InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false);
+	InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false);
+	InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false);
 }
 
 
@@ -202,13 +202,13 @@ void CreateUI()
 	std::shared_ptr<SceneNode> spLowerPartNode = spUIRootNode->FindChild(*spLoPart).lock();
 	std::shared_ptr<SceneNode> spUpperPartNode = spUIRootNode->FindChild(*spToPart).lock();
 	//CREATE UI textes
-	InitializeText("MonthText", " ", dateFontSize * uiSize, sf::Vector2f{ 140.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
-	InitializeText("DayText", " ", dateFontSize * uiSize, sf::Vector2f{ -110.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
-	InitializeText("YearText", " ", dateFontSize * uiSize, sf::Vector2f{ 380.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
-	InitializeText("SimulationStateText", " ", dateFontSize * uiSize, sf::Vector2f{ -300.f, 0.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-	InitializeText("SimulationSpeedText", " ", simulationFontSize * uiSize, sf::Vector2f{ 0.f, -60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-	InitializeText("ViewSizeText", " ", metricsFontSize * uiSize, sf::Vector2f{ 0.f, 60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-	InitializeText("OverviewText", " ", mainFontSize * uiSize, sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
+	InitializeText("MonthText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 140.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+	InitializeText("DayText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -110.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+	InitializeText("YearText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 380.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+	InitializeText("SimulationStateText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -300.f, 0.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+	InitializeText("SimulationSpeedText", " ", (int)(simulationFontSize * uiSize), sf::Vector2f{ 0.f, -60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+	InitializeText("ViewSizeText", " ", (int)(metricsFontSize * uiSize), sf::Vector2f{ 0.f, 60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+	InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
 
 	//CREATE SIDE part of ui
 	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUIRoot("InfoPart").lock();
@@ -221,19 +221,19 @@ void CreateUI()
 
 	std::shared_ptr<SceneNode> spInfoPartNode = spUIRootNode->FindChild(*spInfoPart).lock();
 	//CREATE INFO textes
-	std::shared_ptr<Entity> spTextEn = InitializeText("InfoText0", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	std::shared_ptr<Entity> spTextEn = InitializeText("InfoText0", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
-	spTextEn = InitializeText("InfoText1", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn = InitializeText("InfoText1", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
-	spTextEn = InitializeText("InfoText2", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn = InitializeText("InfoText2", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
-	spTextEn = InitializeText("InfoText3", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn = InitializeText("InfoText3", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
-	spTextEn = InitializeText("InfoText4", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn = InitializeText("InfoText4", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
-	spTextEn = InitializeText("InfoText5", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn = InitializeText("InfoText5", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
-	spTextEn = InitializeText("InfoText6", " ", infoFontSize * uiSize, sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn = InitializeText("InfoText6", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
 }
 
@@ -264,7 +264,7 @@ std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, 
 	else
 		name = entityName;
 	//Create text
-	std::shared_ptr<Entity> spText = InitializeText(entityName, name, fontSize * uiSize, sf::Vector2f{0,0}, "Pixel", false, sf::Color::White, systemNode);
+	std::shared_ptr<Entity> spText = InitializeText(entityName, name, (int)(fontSize * uiSize), sf::Vector2f{0,0}, "Pixel", false, sf::Color::White, systemNode);
 	
 	//Add component
 	std::shared_ptr<UIFollowerComponent> spUIFollower = spText->AddComponent<UIFollowerComponent>().lock();

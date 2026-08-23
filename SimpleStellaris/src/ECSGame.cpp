@@ -27,7 +27,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	//I noticed, that random function generates same random numbers every time when I start
 	//my game again, so to solve this issue I seed it with current time at the start of the
 	//game
-	std::srand(std::time(nullptr));
+	std::srand((unsigned int)std::time(nullptr));
 	//Get window size
 	windowSize = renderWindow.getSize();
 	windowRelationToDefault = (float)windowSize.y / 1600.f;
@@ -85,7 +85,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	gameState = GameState::Pause;
 	overviewType = OverviewType::Space;
 
-	uiRoot->ChangeChildOrder(uiRoot->FindChild("MouseIcon").lock(), uiRoot->GetAllChildren().size()-1);
+	uiRoot->ChangeChildOrder(uiRoot->FindChild("MouseIcon").lock(), (int)uiRoot->GetAllChildren().size()-1);
 
 	//std::cout << "Int: "<<sizeof(int)<<'\n';
 	//std::cout << "Float: " << sizeof(float) << '\n';
@@ -104,7 +104,7 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	{
 		timeSinceStart -= 1.f;
 		previousFPS = fps;
-		fps = 0.f;
+		fps = 0;
 	}
 	fps++;
 

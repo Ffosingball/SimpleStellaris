@@ -19,7 +19,7 @@
 class ObjectSystemComponent : public Component 
 {
 public:
-	SpaceSystemType systemType;
+	SpaceSystemType systemType = SpaceSystemType::None;
 	//vector of pointers to the central object in the system
 	std::string systemName;
 	//0 - outside of nebula, 1 - at the center of it

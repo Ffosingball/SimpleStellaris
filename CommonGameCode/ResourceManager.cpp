@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 
+//This only exist for the tileMap
 //Worst case: O(1)
 const std::weak_ptr<sf::Texture> ResourceManager::LoadTexture(const std::string& filename)
 {

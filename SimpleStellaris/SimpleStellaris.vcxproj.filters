@@ -56,9 +56,6 @@
     <ClInclude Include="src\EntitiesFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SceneNodeVisitors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
