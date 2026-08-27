@@ -762,8 +762,112 @@ const void ResourceManager::LoadAllResources()
 	
 	
 	//LOAD MUSIC
+	{
+		std::string musicName{ "Ambient1" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/alexgrohl-horror.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
+	{
+		std::string musicName{ "Ambient2" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/everything_is_dead-dark-mysterious-dreamscape.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
+	{
+		std::string musicName{ "Ambient3" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/leberch-cinematic-space.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
+	{
+		std::string musicName{ "Ambient4" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/playstarz_music-space-ambient.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
+	{
+		std::string musicName{ "Ambient5" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/solarflex-space.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
+	{
+		std::string musicName{ "Ambient6" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/tunetank-dark-space-ambient.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
+	{
+		std::string musicName{ "Ambient7" };
+		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+		if (!music->openFromFile("media/music/Ambient/welbornworks-abandonedbase.ogg"))
+			std::cout << "No music found: " + musicName + "\n";
+		else
+			musics.emplace(musicName, music);
+	}
 	
 
 
 	//LOAD SOUNDS
+	{
+		std::string sfxName{ "EnterSFX" };
+		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+		if (!soundBuf->loadFromFile("media/sfx/Enter_sfx.mp3"))
+			std::cout << "No sfx found: " + sfxName + "\n";
+		else
+			soundBuffers.emplace(sfxName, soundBuf);
+	}
+	{
+		std::string sfxName{ "ExitSFX" };
+		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+		if (!soundBuf->loadFromFile("media/sfx/Exit_sfx.mp3"))
+			std::cout << "No sfx found: " + sfxName + "\n";
+		else
+			soundBuffers.emplace(sfxName, soundBuf);
+	}
+	{
+		std::string sfxName{ "ResumeSFX" };
+		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+		if (!soundBuf->loadFromFile("media/sfx/Resume_sfx.mp3"))
+			std::cout << "No sfx found: " + sfxName + "\n";
+		else
+			soundBuffers.emplace(sfxName, soundBuf);
+	}
+	{
+		std::string sfxName{ "PauseSFX" };
+		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+		if (!soundBuf->loadFromFile("media/sfx/Pause_sfx.mp3"))
+			std::cout << "No sfx found: " + sfxName + "\n";
+		else
+			soundBuffers.emplace(sfxName, soundBuf);
+	}
+	{
+		std::string sfxName{ "LockCameraSFX" };
+		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+		if (!soundBuf->loadFromFile("media/sfx/LockCamera_sfx.mp3"))
+			std::cout << "No sfx found: " + sfxName + "\n";
+		else
+			soundBuffers.emplace(sfxName, soundBuf);
+	}
+	{
+		std::string sfxName{ "UnlockCameraSFX" };
+		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+		if (!soundBuf->loadFromFile("media/sfx/UnlockCamera_sfx.mp3"))
+			std::cout << "No sfx found: " + sfxName + "\n";
+		else
+			soundBuffers.emplace(sfxName, soundBuf);
+	}
 }

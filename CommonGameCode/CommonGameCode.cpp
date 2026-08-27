@@ -60,6 +60,12 @@ namespace gel
 		return linearInterpolation(zMin, zMax, Randf01());
 	}
 
+	//right number is not included
+	int RandInt(int zMin, int zMax)
+	{
+		return zMin + (int)((float)(zMax-zMin)*Randf01());
+	}
+
 	//Return value which will be between this two values
 	//Worst case: O(1)
 	float clamp(float value, float minValue, float maxValue) 

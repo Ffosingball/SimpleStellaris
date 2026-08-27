@@ -16,6 +16,8 @@ namespace gel
 	//Get random number from 0 to 1
 	//Worst case: O(1)
 	float Randf01();
+	//right number is not included
+	int RandInt(int zMin, int zMax);
 	//Returns postion between two points using percentage of how far from the left point
 	//Worst case: O(1)
 	float linearInterpolation(float min, float max, float pos);

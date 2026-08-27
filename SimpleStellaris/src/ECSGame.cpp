@@ -35,13 +35,17 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	//Load all resources
 	ResourceManager::Instance().LoadAllResources();
 	
-	//Create and sdd systems to the list
-	systems.emplace_back(std::make_shared<InputSystem>());
+	//Create and add systems to the list
+	std::shared_ptr<InputSystem> spInputSystem = std::make_shared<InputSystem>();
+	systems.emplace_back(spInputSystem);
 	systems.emplace_back(std::make_shared<SimulationSystem>());
 	systems.emplace_back(std::make_shared<MovementSystem>());
 	systems.emplace_back(std::make_shared<UISystem>());
-	systems.emplace_back(std::make_shared<MusicSystem>());
+	std::shared_ptr<MusicSystem> spMusicSystem = std::make_shared<MusicSystem>();
+	systems.emplace_back(spMusicSystem);
 	systems.emplace_back(std::make_shared<GameSystem>());
+
+	spInputSystem->musicSystem = spMusicSystem;
 
 	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
 

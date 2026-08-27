@@ -69,20 +69,23 @@ void InputSystem::Initialize()
 }
 
 
-void LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
+void InputSystem::LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
 {
 	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
 	spCameraCom->cameraLocked = true;
 	spCameraCom->wpNodeLockedOn = wpNodeToLockOn;
-	//std::cout<< "Locked camera on: " << spCameraCom->wpNodeLockedOn.lock()->GetEntity().lock()->GetName() << '\n';
+
+	musicSystem->PlayLockCameraSFX();
 }
 
 
-void CancelCameraLock()
+void InputSystem::CancelCameraLock()
 {
 	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
 	spCameraCom->cameraLocked = false;
 	spCameraCom->wpNodeLockedOn = {};
+
+	musicSystem->PlayUnlockCameraSFX();
 }
 
 
@@ -120,6 +123,7 @@ void InputSystem::EnterSystemOverview()
 	sSystemCameraCom->moveCamera = true;
 
 	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
+	musicSystem->PlayEnterSelectedSystemSFX();
 }
 
 
@@ -148,6 +152,7 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	sSystemCameraCom->moveCamera = false;
 
 	signals::onPlanetOverviewSet(wpPlanetOrStarSelected.lock());
+	musicSystem->PlayEnterSelectedSystemSFX();
 }
 
 
@@ -172,6 +177,8 @@ void InputSystem::ExitSystemOverview()
 	sSystemCameraCom->moveCamera = false;
 	std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
 	sSpaceCameraCom->moveCamera = true;
+
+	musicSystem->PlayExitSelectedSystemSFX();
 }
 
 
@@ -195,6 +202,7 @@ void InputSystem::ExitPlanetToSystemOverview()
 	sPlanetCameraCom->moveCamera = false;
 
 	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
+	musicSystem->PlayExitSelectedSystemSFX();
 }
 
 
@@ -237,6 +245,20 @@ void ChangeUIVisibility(bool hide)
 }
 
 
+void InputSystem::PauseSimulation() 
+{
+	ECSGame::Instance().SetGameState(GameState::Pause);
+	musicSystem->PlayPauseSimulationSFX();
+}
+
+
+void InputSystem::ResumeSimulation()
+{
+	ECSGame::Instance().SetGameState(GameState::Game);
+	musicSystem->PlayResumeSimulationSFX();
+}
+
+
 
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
@@ -244,9 +266,9 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	if (key.code == sf::Keyboard::Key::Space)
 	{
 		if (ECSGame::Instance().GetGameState() == GameState::Game)
-			ECSGame::Instance().SetGameState(GameState::Pause);
-		else if(ECSGame::Instance().GetGameState() == GameState::Pause)
-			ECSGame::Instance().SetGameState(GameState::Game);
+			PauseSimulation();
+		else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+			ResumeSimulation();
 	}
 	else if (key.code == sf::Keyboard::Key::Escape)
 	{
@@ -403,9 +425,9 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 		break;
 	case 5:
 		if (ECSGame::Instance().GetGameState() == GameState::Game)
-			ECSGame::Instance().SetGameState(GameState::Pause);
+			PauseSimulation();
 		else if (ECSGame::Instance().GetGameState() == GameState::Pause)
-			ECSGame::Instance().SetGameState(GameState::Game);
+			ResumeSimulation();
 		break;
 	case 6:
 		ECSGame::Instance().CloseGame();
@@ -1104,15 +1126,97 @@ void UISystem::OnHideInfoPanel()
 
 
 //MUSIC SYSTEM
+void MusicSystem::MixMusicList() 
+{
+	std::vector<std::weak_ptr<sf::Music>> newListToPlay;
+	while (listOfMusicToPlay.size() > 0) 
+	{
+		int musicSelected = gel::RandInt(0, listOfMusicToPlay.size());
+		newListToPlay.push_back(listOfMusicToPlay[musicSelected]);
+		listOfMusicToPlay[musicSelected] = listOfMusicToPlay.back();
+		listOfMusicToPlay.pop_back();
+	}
+
+	listOfMusicToPlay = newListToPlay;
+	currentMusicPlaying = 0;
+}
+
 void MusicSystem::Initialize()
 {
-	
 	systemName = "MusicSystem";
+
+	spEnterSelectedSystemSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("EnterSFX").lock());
+	spExitSelectedSystemSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("ExitSFX").lock());
+	spResumeSimulationSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("ResumeSFX").lock());
+	spPauseSimulationSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("PauseSFX").lock());
+	spLockCameraSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("LockCameraSFX").lock());
+	spUnlockCameraSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("UnlockCameraSFX").lock());
+
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient1"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient2"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient3"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient4"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient5"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient6"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient7"));
+
+	MixMusicList();
 }
 
 void MusicSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
-	
+	std::shared_ptr<sf::Music> currentlyPlayingMusic = listOfMusicToPlay[currentMusicPlaying].lock();
+
+	if (playMusic && (currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Paused || listOfMusicToPlay[currentMusicPlaying].lock()->getStatus() == sf::SoundSource::Status::Stopped))
+	{
+		currentlyPlayingMusic->setVolume(overallVolume * musicVolume * 100);
+		currentlyPlayingMusic->play();
+	}
+	else if(!playMusic && currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Playing)
+		currentlyPlayingMusic->pause();
+
+	if (currentlyPlayingMusic->getDuration() <= currentlyPlayingMusic->getPlayingOffset()) 
+	{
+		currentMusicPlaying++;
+		if (currentMusicPlaying >= listOfMusicToPlay.size())
+			MixMusicList();
+	}
+}
+
+void MusicSystem::PlayEnterSelectedSystemSFX() 
+{
+	spEnterSelectedSystemSound->setVolume(overallVolume * sfxVolume * 100);
+	spEnterSelectedSystemSound->play();
+}
+
+void MusicSystem::PlayExitSelectedSystemSFX()
+{
+	spExitSelectedSystemSound->setVolume(overallVolume * sfxVolume * 100);
+	spExitSelectedSystemSound->play();
+}
+
+void MusicSystem::PlayPauseSimulationSFX()
+{
+	spPauseSimulationSound->setVolume(overallVolume * sfxVolume * 100);
+	spPauseSimulationSound->play();
+}
+
+void MusicSystem::PlayResumeSimulationSFX()
+{
+	spResumeSimulationSound->setVolume(overallVolume * sfxVolume * 100);
+	spResumeSimulationSound->play();
+}
+
+void MusicSystem::PlayLockCameraSFX()
+{
+	spLockCameraSound->setVolume(overallVolume * sfxVolume * 100);
+	spLockCameraSound->play();
+}
+
+void MusicSystem::PlayUnlockCameraSFX()
+{
+	spUnlockCameraSound->setVolume(overallVolume * sfxVolume * 100);
+	spUnlockCameraSound->play();
 }
 
 

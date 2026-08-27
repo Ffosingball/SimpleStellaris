@@ -9,12 +9,16 @@
 #include <SFML/Audio.hpp>
 #include "Components.h"
 
+class MusicSystem;
+
 
 //Input system processes inputs
 class InputSystem :public System 
 {
 public:
 	virtual ~InputSystem() = default;
+
+	std::shared_ptr<MusicSystem> musicSystem;
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
@@ -33,6 +37,10 @@ private:
 	void ExitSystemOverview();
 	void EnterPlanetFromSystemOverview();
 	void ExitPlanetToSystemOverview();
+	void LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn);
+	void CancelCameraLock();
+	void PauseSimulation();
+	void ResumeSimulation();
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
@@ -135,10 +143,35 @@ class MusicSystem :public System
 public:
 
 	virtual ~MusicSystem() = default;
+
+	void PlayEnterSelectedSystemSFX();
+	void PlayExitSelectedSystemSFX();
+	void PlayPauseSimulationSFX();
+	void PlayResumeSimulationSFX();
+	void PlayLockCameraSFX();
+	void PlayUnlockCameraSFX();
+
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
 
+	void MixMusicList();
+
+	std::shared_ptr<sf::Sound> spEnterSelectedSystemSound;
+	std::shared_ptr<sf::Sound> spExitSelectedSystemSound;
+	std::shared_ptr<sf::Sound> spPauseSimulationSound;
+	std::shared_ptr<sf::Sound> spResumeSimulationSound;
+	std::shared_ptr<sf::Sound> spLockCameraSound;
+	std::shared_ptr<sf::Sound> spUnlockCameraSound;
+
+	std::vector<std::weak_ptr<sf::Music>> listOfMusicToPlay;
+
+	//Volume is in range from 0 to 1
+	float sfxVolume{ 0.7f };
+	float musicVolume{ 1.f };
+	float overallVolume{ 1.f };
+	int currentMusicPlaying{ 0 };
+	bool playMusic{ true };
 };
 
 
