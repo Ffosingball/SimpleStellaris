@@ -71,9 +71,15 @@ void InputSystem::Initialize()
 
 void InputSystem::LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
 {
+	CancelCameraLock();
+
 	std::shared_ptr<CameraComponent> spCameraCom = GetCurrentlyActiveCamera();
 	spCameraCom->cameraLocked = true;
 	spCameraCom->wpNodeLockedOn = wpNodeToLockOn;
+
+	std::shared_ptr<Entity> spEntity = wpNodeToLockOn.lock()->GetEntity().lock();
+	if ((spEntity->HasComponent<StarComponent>() || spEntity->HasComponent<PlanetComponent>()) && !spEntity->HasComponent<ObjectSystemComponent>())
+		musicSystem->PlaySelectedObjectSound(spEntity);
 
 	musicSystem->PlayLockCameraSFX();
 }
@@ -85,6 +91,7 @@ void InputSystem::CancelCameraLock()
 	spCameraCom->cameraLocked = false;
 	spCameraCom->wpNodeLockedOn = {};
 
+	musicSystem->StopSelectedObjectSound();
 	musicSystem->PlayUnlockCameraSFX();
 }
 
@@ -638,6 +645,9 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	//Deal with mouse movement
 	sf::Vector2i mousePosition = ECSGame::Instance().GetMousePosition();
 	std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
+
+	if (direction != sf::Vector2f{ 0,0 } && spCamCom->cameraLocked)
+		CancelCameraLock();
 
 	mousePosText->text->setString("Window pos: " + std::to_string(mousePosition.x) + "; " + std::to_string(mousePosition.y));
 	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(spCamCom->view, mousePosition);
@@ -1217,6 +1227,143 @@ void MusicSystem::PlayUnlockCameraSFX()
 {
 	spUnlockCameraSound->setVolume(overallVolume * sfxVolume * 100);
 	spUnlockCameraSound->play();
+}
+
+
+std::weak_ptr<sf::Music> GetSoundNameForSpaceObject(std::shared_ptr<Entity> spSelectedEntity)
+{
+	std::string soundName{ "Placeholder" };
+
+	if (spSelectedEntity->HasComponent<StarComponent>()) 
+	{
+		std::shared_ptr<StarComponent> spStarCom = spSelectedEntity->FindComponent<StarComponent>().lock();
+
+		switch (spStarCom->starType)
+		{
+		case StarType::BlackHole:
+			soundName =  "Black Hole Sound";
+			break;
+		case StarType::NeutronStar:
+			soundName = "Pulsar1 Sound";
+			break;
+		case StarType::WhiteDwarf:
+			soundName = "White Dwarf Sound";
+			break;
+		case StarType::BrownDwarf:
+			soundName = "Brown Dwarf Sound";
+			break;
+		case StarType::MredDwarf:
+			soundName = "M Class Sound";
+			break;
+		case StarType::KorangeDwarf:
+			soundName = "K Class Sound";
+			break;
+		case StarType::GsunLike:
+			soundName = "G Class Sound";
+			break;
+		case StarType::Ftype:
+			soundName = "F Class Sound";
+			break;
+		case StarType::Atype:
+			soundName = "A Class Sound";
+			break;
+		case StarType::Btype:
+			soundName = "B Class Sound";
+			break;
+		case StarType::Otype:
+			soundName = "O Class Sound";
+			break;
+		case StarType::RedGiant:
+			soundName = "Red Giant Sound";
+			break;
+		case StarType::RedSupergiant:
+			soundName = "Red Supergiant Sound";
+			break;
+		}
+	}
+	else if (spSelectedEntity->HasComponent<PlanetComponent>())
+	{
+		std::shared_ptr<PlanetComponent> spPlanetCom = spSelectedEntity->FindComponent<PlanetComponent>().lock();
+		std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet = spSelectedEntity->FindComponent<HabitablePlanetComponent>().lock();
+
+		switch (spPlanetCom->planetType)
+		{
+		case PlanetType::BarrenDark:
+			soundName = "Dark Barren Sound";
+			break;
+		case PlanetType::BarrenGrey:
+			soundName = "Grey Barren Sound";
+			break;
+		case PlanetType::BarrenMarsLike:
+			soundName = "Red Barren Sound";
+			break;
+		case PlanetType::VenusLike:
+			soundName = "Venus Like Sound";
+			break;
+		case PlanetType::Oceanic:
+			soundName = "Oceanic Sound";
+			break;
+		case PlanetType::EarthLike:
+			if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
+				soundName = "Earth Like Close Sound";
+			else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
+				soundName = "Earth Like Medium Sound";
+			else
+				soundName = "Earth Like Far Sound";
+			break;
+		case PlanetType::TitanLike:
+			soundName = "Titan Like Sound";
+			break;
+		case PlanetType::Molten:
+			soundName = "Molten Sound";
+			break;
+		case PlanetType::Icy:
+			soundName = "Icy Sound";
+			break;
+		case PlanetType::Voulcanic:
+			soundName = "Voulcanic Sound";
+			break;
+		case PlanetType::Desert:
+			soundName = "Desert Sound";
+			break;
+		case PlanetType::HotJupiter:
+		case PlanetType::HotNeptune:
+			soundName = "Hot Gas Planet Sound";
+			break;
+		case PlanetType::JupiterLike:
+			soundName = "Jupiter Like Sound";
+			break;
+		case PlanetType::SaturnLike:
+			soundName = "Saturn Like Sound";
+			break;
+		case PlanetType::NeptuneLike:
+			soundName = "Neptune Like Sound";
+			break;
+		case PlanetType::UranusLike:
+			soundName = "Uranus Like Sound";
+			break;
+		}
+	}
+
+	return ResourceManager::Instance().GetMusic(soundName);
+}
+
+
+void MusicSystem::PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity)
+{
+	wpSelectedObjectSound = GetSoundNameForSpaceObject(spSelectedEntity);
+	wpSelectedObjectSound.lock()->setLooping(true);
+	wpSelectedObjectSound.lock()->setVolume(overallVolume*musicVolume*100);
+	wpSelectedObjectSound.lock()->play();
+	playMusic = false;
+}
+
+
+void MusicSystem::StopSelectedObjectSound() 
+{
+	if(wpSelectedObjectSound.lock()!=nullptr)
+		wpSelectedObjectSound.lock()->stop();
+	playMusic = true;
 }
 
 

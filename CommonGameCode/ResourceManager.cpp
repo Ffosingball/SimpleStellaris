@@ -98,7 +98,7 @@ const std::weak_ptr<sf::Font> ResourceManager::GetFont(const std::string& fontna
 //Worst case: O(1)
 const std::weak_ptr<sf::Music> ResourceManager::GetMusic(const std::string& musicname)
 {
-	//Find soundBuf in the map by name
+	//Find music in the map by name
 	auto it1 = musics.find(musicname);
 	std::weak_ptr<sf::Music> musicW;
 
@@ -114,760 +114,1045 @@ const std::weak_ptr<sf::Music> ResourceManager::GetMusic(const std::string& musi
 
 const void ResourceManager::LoadAllResources() 
 {
-	//LOAD TEXTURES
+	if (!resourcesLoaded)
 	{
-		std::string textureName{ "Placeholder" };
-		//Create texture pointer
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		//Load textures and check if it succeded or failed
-		if (!texture->loadFromFile("media/textures/placeholder.png"))
-			std::cout << "No texture found: "+textureName+"\n";
-		else
+		//LOAD TEXTURES
 		{
-			//Add it to map and its size
-			textures.emplace(textureName, texture);
-			sf::IntRect textureSizes{ {0,0},{32,32} };
-			texturesIntRects.emplace(textureName, textureSizes);
+			std::string textureName{ "Placeholder" };
+			//Create texture pointer
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			//Load textures and check if it succeded or failed
+			if (!texture->loadFromFile("media/textures/placeholder.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				//Add it to map and its size
+				textures.emplace(textureName, texture);
+				sf::IntRect textureSizes{ {0,0},{32,32} };
+				texturesIntRects.emplace(textureName, textureSizes);
+			}
 		}
-	}
-	{
-		std::string textureName{ "MouseIcon" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/MouseIcon.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			textures.emplace(textureName, texture);
-			sf::IntRect textureSizes{ {0,0},{32,32} };
-			texturesIntRects.emplace(textureName, textureSizes);
+			std::string textureName{ "MouseIcon" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/MouseIcon.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace(textureName, texture);
+				sf::IntRect textureSizes{ {0,0},{32,32} };
+				texturesIntRects.emplace(textureName, textureSizes);
+			}
 		}
-	}
-	{
-		std::string textureName{ "SelectionIcon" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/SelectionIcon.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			textures.emplace(textureName, texture);
-			sf::IntRect textureSizes{ {0,0},{32,32} };
-			texturesIntRects.emplace(textureName, textureSizes);
+			std::string textureName{ "SelectionIcon" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/SelectionIcon.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace(textureName, texture);
+				sf::IntRect textureSizes{ {0,0},{32,32} };
+				texturesIntRects.emplace(textureName, textureSizes);
+			}
 		}
-	}
-	{
-		std::string textureName{ "systemPictures" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/starsPicture.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			textures.emplace("NeutronStarSystem", texture);
-			sf::IntRect textureSizes{ {0,0},{17,17} };
-			texturesIntRects.emplace("NeutronStarSystem", textureSizes);
+			std::string textureName{ "systemPictures" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/starsPicture.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace("NeutronStarSystem", texture);
+				sf::IntRect textureSizes{ {0,0},{17,17} };
+				texturesIntRects.emplace("NeutronStarSystem", textureSizes);
 
-			textures.emplace("WhiteDwarfSystem", texture);
-			sf::IntRect textureSizes1{ {17,0},{17,17} };
-			texturesIntRects.emplace("WhiteDwarfSystem", textureSizes1);
+				textures.emplace("WhiteDwarfSystem", texture);
+				sf::IntRect textureSizes1{ {17,0},{17,17} };
+				texturesIntRects.emplace("WhiteDwarfSystem", textureSizes1);
 
-			textures.emplace("BrownDwarfSystem", texture);
-			sf::IntRect textureSizes2{ {34,0},{17,17} };
-			texturesIntRects.emplace("BrownDwarfSystem", textureSizes2);
+				textures.emplace("BrownDwarfSystem", texture);
+				sf::IntRect textureSizes2{ {34,0},{17,17} };
+				texturesIntRects.emplace("BrownDwarfSystem", textureSizes2);
 
-			textures.emplace("MclassSystem", texture);
-			sf::IntRect textureSizes3{ {0,17},{17,17} };
-			texturesIntRects.emplace("MclassSystem", textureSizes3);
+				textures.emplace("MclassSystem", texture);
+				sf::IntRect textureSizes3{ {0,17},{17,17} };
+				texturesIntRects.emplace("MclassSystem", textureSizes3);
 
-			textures.emplace("KclassSystem", texture);
-			sf::IntRect textureSizes4{ {17,17},{17,17} };
-			texturesIntRects.emplace("KclassSystem", textureSizes4);
+				textures.emplace("KclassSystem", texture);
+				sf::IntRect textureSizes4{ {17,17},{17,17} };
+				texturesIntRects.emplace("KclassSystem", textureSizes4);
 
-			textures.emplace("GclassSystem", texture);
-			sf::IntRect textureSizes5{ {34,17},{17,17} };
-			texturesIntRects.emplace("GclassSystem", textureSizes5);
+				textures.emplace("GclassSystem", texture);
+				sf::IntRect textureSizes5{ {34,17},{17,17} };
+				texturesIntRects.emplace("GclassSystem", textureSizes5);
 
-			textures.emplace("FclassSystem", texture);
-			sf::IntRect textureSizes6{ {0,34},{17,17} };
-			texturesIntRects.emplace("FclassSystem", textureSizes6);
+				textures.emplace("FclassSystem", texture);
+				sf::IntRect textureSizes6{ {0,34},{17,17} };
+				texturesIntRects.emplace("FclassSystem", textureSizes6);
 
-			textures.emplace("AclassSystem", texture);
-			sf::IntRect textureSizes7{ {17,34},{17,17} };
-			texturesIntRects.emplace("AclassSystem", textureSizes7);
+				textures.emplace("AclassSystem", texture);
+				sf::IntRect textureSizes7{ {17,34},{17,17} };
+				texturesIntRects.emplace("AclassSystem", textureSizes7);
 
-			textures.emplace("BclassSystem", texture);
-			sf::IntRect textureSizes8{ {34,34},{17,17} };
-			texturesIntRects.emplace("BclassSystem", textureSizes8);
+				textures.emplace("BclassSystem", texture);
+				sf::IntRect textureSizes8{ {34,34},{17,17} };
+				texturesIntRects.emplace("BclassSystem", textureSizes8);
 
-			textures.emplace("OclassSystem", texture);
-			sf::IntRect textureSizes9{ {0,51},{17,17} };
-			texturesIntRects.emplace("OclassSystem", textureSizes9);
+				textures.emplace("OclassSystem", texture);
+				sf::IntRect textureSizes9{ {0,51},{17,17} };
+				texturesIntRects.emplace("OclassSystem", textureSizes9);
 
-			textures.emplace("RedGiantSystem", texture);
-			sf::IntRect textureSizes10{ {17,51},{17,17} };
-			texturesIntRects.emplace("RedGiantSystem", textureSizes10);
+				textures.emplace("RedGiantSystem", texture);
+				sf::IntRect textureSizes10{ {17,51},{17,17} };
+				texturesIntRects.emplace("RedGiantSystem", textureSizes10);
 
-			textures.emplace("RedSupergiantSystem", texture);
-			sf::IntRect textureSizes11{ {34,51},{17,17} };
-			texturesIntRects.emplace("RedSupergiantSystem", textureSizes11);
+				textures.emplace("RedSupergiantSystem", texture);
+				sf::IntRect textureSizes11{ {34,51},{17,17} };
+				texturesIntRects.emplace("RedSupergiantSystem", textureSizes11);
+			}
 		}
-	}
-	{
-		std::string textureName{ "starPictures" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/starsTextures.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			textures.emplace("BlackHole", texture);
-			sf::IntRect textureSize{ {700,1050},{350,350} };
-			texturesIntRects.emplace("BlackHole", textureSize);
+			std::string textureName{ "starPictures" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/starsTextures.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace("BlackHole", texture);
+				sf::IntRect textureSize{ {700,1050},{350,350} };
+				texturesIntRects.emplace("BlackHole", textureSize);
 
-			textures.emplace("NeutronStar", texture);
-			textureSize.position = sf::Vector2i{ 350,1050 };
-			texturesIntRects.emplace("NeutronStar", textureSize);
+				textures.emplace("NeutronStar", texture);
+				textureSize.position = sf::Vector2i{ 350,1050 };
+				texturesIntRects.emplace("NeutronStar", textureSize);
 
-			textures.emplace("WhiteDwarf", texture);
-			textureSize.position = sf::Vector2i{ 0,1050 };
-			texturesIntRects.emplace("WhiteDwarf", textureSize);
+				textures.emplace("WhiteDwarf", texture);
+				textureSize.position = sf::Vector2i{ 0,1050 };
+				texturesIntRects.emplace("WhiteDwarf", textureSize);
 
-			textures.emplace("BrownDwarf", texture);
-			textureSize.position = sf::Vector2i{ 700,1050 };
-			texturesIntRects.emplace("BrownDwarf", textureSize);
+				textures.emplace("BrownDwarf", texture);
+				textureSize.position = sf::Vector2i{ 700,1050 };
+				texturesIntRects.emplace("BrownDwarf", textureSize);
 
-			textures.emplace("Mclass", texture);
-			textureSize.position = sf::Vector2i{ 350,700 };
-			texturesIntRects.emplace("Mclass", textureSize);
+				textures.emplace("Mclass", texture);
+				textureSize.position = sf::Vector2i{ 350,700 };
+				texturesIntRects.emplace("Mclass", textureSize);
 
-			textures.emplace("Kclass", texture);
-			textureSize.position = sf::Vector2i{ 0,700 };
-			texturesIntRects.emplace("Kclass", textureSize);
+				textures.emplace("Kclass", texture);
+				textureSize.position = sf::Vector2i{ 0,700 };
+				texturesIntRects.emplace("Kclass", textureSize);
 
-			textures.emplace("Gclass", texture);
-			textureSize.position = sf::Vector2i{ 700,350 };
-			texturesIntRects.emplace("Gclass", textureSize);
+				textures.emplace("Gclass", texture);
+				textureSize.position = sf::Vector2i{ 700,350 };
+				texturesIntRects.emplace("Gclass", textureSize);
 
-			textures.emplace("Fclass", texture);
-			textureSize.position = sf::Vector2i{ 350,350 };;
-			texturesIntRects.emplace("Fclass", textureSize);
+				textures.emplace("Fclass", texture);
+				textureSize.position = sf::Vector2i{ 350,350 };;
+				texturesIntRects.emplace("Fclass", textureSize);
 
-			textures.emplace("Aclass", texture);
-			textureSize.position = sf::Vector2i{ 0,350 };
-			texturesIntRects.emplace("Aclass", textureSize);
+				textures.emplace("Aclass", texture);
+				textureSize.position = sf::Vector2i{ 0,350 };
+				texturesIntRects.emplace("Aclass", textureSize);
 
-			textures.emplace("Bclass", texture);
-			textureSize.position = sf::Vector2i{ 700,0 };
-			texturesIntRects.emplace("Bclass", textureSize);
+				textures.emplace("Bclass", texture);
+				textureSize.position = sf::Vector2i{ 700,0 };
+				texturesIntRects.emplace("Bclass", textureSize);
 
-			textures.emplace("Oclass", texture);
-			textureSize.position = sf::Vector2i{ 350,0 };
-			texturesIntRects.emplace("Oclass", textureSize);
+				textures.emplace("Oclass", texture);
+				textureSize.position = sf::Vector2i{ 350,0 };
+				texturesIntRects.emplace("Oclass", textureSize);
 
-			textures.emplace("RedGiant", texture);
-			textureSize.position = sf::Vector2i{ 0,0 };
-			texturesIntRects.emplace("RedGiant", textureSize);
+				textures.emplace("RedGiant", texture);
+				textureSize.position = sf::Vector2i{ 0,0 };
+				texturesIntRects.emplace("RedGiant", textureSize);
+			}
 		}
-	}
-	{
-		std::string textureName{ "CenterOfMassIcon" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/centerOfMass.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			textures.emplace(textureName, texture);
-			sf::IntRect textureSizes{ {0,0},{64,64} };
-			texturesIntRects.emplace(textureName, textureSizes);
+			std::string textureName{ "CenterOfMassIcon" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/centerOfMass.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace(textureName, texture);
+				sf::IntRect textureSizes{ {0,0},{64,64} };
+				texturesIntRects.emplace(textureName, textureSizes);
+			}
 		}
-	}
-	{
-		std::string textureName{ "PlanetIcons" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/planetsIcons.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			std::string name = "SmallMoltenPlanetIcon";
-			sf::IntRect textureSize{ {0,0},{16,16} };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+			std::string textureName{ "PlanetIcons" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/planetsIcons.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "SmallMoltenPlanetIcon";
+				sf::IntRect textureSize{ {0,0},{16,16} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumMoltenPlanetIcon";
-			textureSize.position = sf::Vector2i{16,0};
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumMoltenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeMoltenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeMoltenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallVenusLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallVenusLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumVenusLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumVenusLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeVenusLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 80,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeVenusLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 80,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallGreyBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 0,16 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallGreyBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumGreyBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 16,16 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumGreyBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeGreyBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,16 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeGreyBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallOceanicPlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,16 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallOceanicPlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumOceanicPlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,16 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumOceanicPlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeOceanicPlanetIcon";
-			textureSize.position = sf::Vector2i{ 80,16 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeOceanicPlanetIcon";
+				textureSize.position = sf::Vector2i{ 80,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 0,32 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 16,32 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,32 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallAfarEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,32 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallAfarEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumAfarEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,32 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumAfarEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeAfarEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 80,32 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeAfarEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 80,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallCloseEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 0,48 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallCloseEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumCloseEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 16,48 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumCloseEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeCloseEarthLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,48 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeCloseEarthLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallRedBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,48 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallRedBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumRedBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,48 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumRedBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeRedBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 80,48 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeRedBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 80,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallDesertPlanetIcon";
-			textureSize.position = sf::Vector2i{ 0,64 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallDesertPlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumDesertPlanetIcon";
-			textureSize.position = sf::Vector2i{ 16,64 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumDesertPlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeDesertPlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,64 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeDesertPlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallIcyPlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,64 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallIcyPlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumIcyPlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,64 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumIcyPlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeIcyPlanetIcon";
-			textureSize.position = sf::Vector2i{ 80,64 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeIcyPlanetIcon";
+				textureSize.position = sf::Vector2i{ 80,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SmallDarkBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 0,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SmallDarkBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "MediumDarkBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 16,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "MediumDarkBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "LargeDarkBarrenPlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "LargeDarkBarrenPlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "TitanLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "TitanLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "VoulcanicPlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "VoulcanicPlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "UranusLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 80,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "UranusLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 80,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "NeptuneLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 0,96 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "NeptuneLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "HotNeptunePlanetIcon";
-			textureSize.position = sf::Vector2i{ 16,96 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "HotNeptunePlanetIcon";
+				textureSize.position = sf::Vector2i{ 16,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "JupiterLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 32,96 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "JupiterLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 32,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SaturnLikePlanetIcon";
-			textureSize.position = sf::Vector2i{ 48,96 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SaturnLikePlanetIcon";
+				textureSize.position = sf::Vector2i{ 48,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "HotJupiterPlanetIcon";
-			textureSize.position = sf::Vector2i{ 64,96 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "HotJupiterPlanetIcon";
+				textureSize.position = sf::Vector2i{ 64,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
 		}
-	}
 
-	{
-		std::string textureName{ "Nebulas" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/Nebulas.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			std::string name = "Nebula0";
-			sf::IntRect textureSize{ {0,0},{100,100} };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+			std::string textureName{ "Nebulas" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/Nebulas.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "Nebula0";
+				sf::IntRect textureSize{ {0,0},{100,100} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Nebula1";
-			textureSize.position = sf::Vector2i{ 100,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Nebula1";
+				textureSize.position = sf::Vector2i{ 100,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Nebula2";
-			textureSize.position = sf::Vector2i{ 200,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Nebula2";
+				textureSize.position = sf::Vector2i{ 200,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Nebula3";
-			textureSize.position = sf::Vector2i{ 300,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Nebula3";
+				textureSize.position = sf::Vector2i{ 300,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
 		}
-	}
-	{
-		std::string textureName{ "UI parts" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/UIParts.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			std::string name = "BottomUIPart";
-			sf::IntRect textureSize{ {0,21},{100,19} };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+			std::string textureName{ "UI parts" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/UIParts.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "BottomUIPart";
+				sf::IntRect textureSize{ {0,21},{100,19} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "TopUIPart";
-			textureSize.position = sf::Vector2i{ 0,0 };
-			textureSize.size = sf::Vector2i{ 100,11 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "TopUIPart";
+				textureSize.position = sf::Vector2i{ 0,0 };
+				textureSize.size = sf::Vector2i{ 100,11 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
 		}
-	}
-	{
-		std::string textureName{ "PlanetTextures" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/PlanetTextures.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			std::string name = "NeptuneLike";
-			sf::IntRect textureSize{ {0,0},{40,40} };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+			std::string textureName{ "PlanetTextures" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/PlanetTextures.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "NeptuneLike";
+				sf::IntRect textureSize{ {0,0},{40,40} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "HotNeptune";
-			textureSize.position = sf::Vector2i{ 40,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "HotNeptune";
+				textureSize.position = sf::Vector2i{ 40,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Icy";
-			textureSize.position = sf::Vector2i{ 80,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Icy";
+				textureSize.position = sf::Vector2i{ 80,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "AfarEarthLike";
-			textureSize.position = sf::Vector2i{ 120,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "AfarEarthLike";
+				textureSize.position = sf::Vector2i{ 120,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "RedBarren";
-			textureSize.position = sf::Vector2i{ 160,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "RedBarren";
+				textureSize.position = sf::Vector2i{ 160,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "UranusLike";
-			textureSize.position = sf::Vector2i{ 0,40 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "UranusLike";
+				textureSize.position = sf::Vector2i{ 0,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "HotJupiter";
-			textureSize.position = sf::Vector2i{ 40,40 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "HotJupiter";
+				textureSize.position = sf::Vector2i{ 40,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Molten";
-			textureSize.position = sf::Vector2i{ 80,40 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Molten";
+				textureSize.position = sf::Vector2i{ 80,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "EarthLike";
-			textureSize.position = sf::Vector2i{ 120,40 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "EarthLike";
+				textureSize.position = sf::Vector2i{ 120,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "GreyBarren";
-			textureSize.position = sf::Vector2i{ 160,40 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "GreyBarren";
+				textureSize.position = sf::Vector2i{ 160,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "SaturnLike";
-			textureSize.position = sf::Vector2i{ 0,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "SaturnLike";
+				textureSize.position = sf::Vector2i{ 0,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Desert";
-			textureSize.position = sf::Vector2i{ 40,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Desert";
+				textureSize.position = sf::Vector2i{ 40,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "TitanLike";
-			textureSize.position = sf::Vector2i{ 80,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "TitanLike";
+				textureSize.position = sf::Vector2i{ 80,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Oceanic";
-			textureSize.position = sf::Vector2i{ 120,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Oceanic";
+				textureSize.position = sf::Vector2i{ 120,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "DarkBarren";
-			textureSize.position = sf::Vector2i{ 160,80 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "DarkBarren";
+				textureSize.position = sf::Vector2i{ 160,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "JupiterLike";
-			textureSize.position = sf::Vector2i{ 0,120 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "JupiterLike";
+				textureSize.position = sf::Vector2i{ 0,120 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Voulcanic";
-			textureSize.position = sf::Vector2i{ 40,120 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Voulcanic";
+				textureSize.position = sf::Vector2i{ 40,120 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "CloseEarthLike";
-			textureSize.position = sf::Vector2i{ 80,120 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "CloseEarthLike";
+				textureSize.position = sf::Vector2i{ 80,120 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "VenusLike";
-			textureSize.position = sf::Vector2i{ 120,120 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "VenusLike";
+				textureSize.position = sf::Vector2i{ 120,120 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
 		}
-	}
-	{
-		std::string textureName{ "RingsTexture" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/Rings.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			std::string name = "Ring0";
-			sf::IntRect textureSize{ {0,0},{100,100} };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+			std::string textureName{ "RingsTexture" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/Rings.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "Ring0";
+				sf::IntRect textureSize{ {0,0},{100,100} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring1";
-			textureSize.position = sf::Vector2i{ 100,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring1";
+				textureSize.position = sf::Vector2i{ 100,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring2";
-			textureSize.position = sf::Vector2i{ 200,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring2";
+				textureSize.position = sf::Vector2i{ 200,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring3";
-			textureSize.position = sf::Vector2i{ 0,100 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring3";
+				textureSize.position = sf::Vector2i{ 0,100 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring4";
-			textureSize.position = sf::Vector2i{ 100,100 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring4";
+				textureSize.position = sf::Vector2i{ 100,100 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring5";
-			textureSize.position = sf::Vector2i{ 200,100 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring5";
+				textureSize.position = sf::Vector2i{ 200,100 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring6";
-			textureSize.position = sf::Vector2i{ 0,200 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring6";
+				textureSize.position = sf::Vector2i{ 0,200 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring7";
-			textureSize.position = sf::Vector2i{ 100,200 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring7";
+				textureSize.position = sf::Vector2i{ 100,200 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "Ring8";
-			textureSize.position = sf::Vector2i{ 200,200 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "Ring8";
+				textureSize.position = sf::Vector2i{ 200,200 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
 		}
-	}
-	{
-		std::string textureName{ "RingsIcons" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/ringsIcons.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			std::string name = "RingIconSmallRocky";
-			sf::IntRect textureSize{ {0,0},{32,32} };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+			std::string textureName{ "RingsIcons" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/ringsIcons.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "RingIconSmallRocky";
+				sf::IntRect textureSize{ {0,0},{32,32} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "RingIconMediumRocky";
-			textureSize.position = sf::Vector2i{ 32,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "RingIconMediumRocky";
+				textureSize.position = sf::Vector2i{ 32,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "RingIconLargeRocky";
-			textureSize.position = sf::Vector2i{ 64,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "RingIconLargeRocky";
+				textureSize.position = sf::Vector2i{ 64,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "RingIconSmallGas";
-			textureSize.position = sf::Vector2i{ 96,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "RingIconSmallGas";
+				textureSize.position = sf::Vector2i{ 96,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 
-			name = "RingIconLargeGas";
-			textureSize.position = sf::Vector2i{ 128,0 };
-			textures.emplace(name, texture);
-			texturesIntRects.emplace(name, textureSize);
+				name = "RingIconLargeGas";
+				textureSize.position = sf::Vector2i{ 128,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
 		}
-	}
-	{
-		std::string textureName{ "UIPartSide" };
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile("media/textures/UIPart2.png"))
-			std::cout << "No texture found: " + textureName + "\n";
-		else
 		{
-			textures.emplace(textureName, texture);
-			sf::IntRect textureSizes{ {0,0},{100,100} };
-			texturesIntRects.emplace(textureName, textureSizes);
+			std::string textureName{ "UIPartSide" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/UIPart2.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace(textureName, texture);
+				sf::IntRect textureSizes{ {0,0},{100,100} };
+				texturesIntRects.emplace(textureName, textureSizes);
+			}
 		}
-	}
 
 
-	//LOAD FONTS
-	{
-		std::string fontName{ "Pixel" };
-		std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
-		if (!font->openFromFile("media/fonts/PixelOperator8.ttf"))
-			std::cout << "No font found: " + fontName + "\n";
-		else
-			fonts.emplace(fontName, font);
-	}
-	{
-		std::string fontName{ "PixelBold" };
-		std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
-		if (!font->openFromFile("media/fonts/PixelOperator8-Bold.ttf"))
-			std::cout << "No font found: " + fontName + "\n";
-		else
-			fonts.emplace(fontName, font);
-	}
-	
-	
-	//LOAD MUSIC
-	{
-		std::string musicName{ "Ambient1" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/alexgrohl-horror.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	{
-		std::string musicName{ "Ambient2" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/everything_is_dead-dark-mysterious-dreamscape.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	{
-		std::string musicName{ "Ambient3" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/leberch-cinematic-space.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	{
-		std::string musicName{ "Ambient4" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/playstarz_music-space-ambient.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	{
-		std::string musicName{ "Ambient5" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/solarflex-space.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	{
-		std::string musicName{ "Ambient6" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/tunetank-dark-space-ambient.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	{
-		std::string musicName{ "Ambient7" };
-		std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-		if (!music->openFromFile("media/music/Ambient/welbornworks-abandonedbase.ogg"))
-			std::cout << "No music found: " + musicName + "\n";
-		else
-			musics.emplace(musicName, music);
-	}
-	
+		//LOAD FONTS
+		{
+			std::string fontName{ "Pixel" };
+			std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
+			if (!font->openFromFile("media/fonts/PixelOperator8.ttf"))
+				std::cout << "No font found: " + fontName + "\n";
+			else
+				fonts.emplace(fontName, font);
+		}
+		{
+			std::string fontName{ "PixelBold" };
+			std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
+			if (!font->openFromFile("media/fonts/PixelOperator8-Bold.ttf"))
+				std::cout << "No font found: " + fontName + "\n";
+			else
+				fonts.emplace(fontName, font);
+		}
 
 
-	//LOAD SOUNDS
-	{
-		std::string sfxName{ "EnterSFX" };
-		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
-		if (!soundBuf->loadFromFile("media/sfx/Enter_sfx.mp3"))
-			std::cout << "No sfx found: " + sfxName + "\n";
-		else
-			soundBuffers.emplace(sfxName, soundBuf);
-	}
-	{
-		std::string sfxName{ "ExitSFX" };
-		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
-		if (!soundBuf->loadFromFile("media/sfx/Exit_sfx.mp3"))
-			std::cout << "No sfx found: " + sfxName + "\n";
-		else
-			soundBuffers.emplace(sfxName, soundBuf);
-	}
-	{
-		std::string sfxName{ "ResumeSFX" };
-		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
-		if (!soundBuf->loadFromFile("media/sfx/Resume_sfx.mp3"))
-			std::cout << "No sfx found: " + sfxName + "\n";
-		else
-			soundBuffers.emplace(sfxName, soundBuf);
-	}
-	{
-		std::string sfxName{ "PauseSFX" };
-		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
-		if (!soundBuf->loadFromFile("media/sfx/Pause_sfx.mp3"))
-			std::cout << "No sfx found: " + sfxName + "\n";
-		else
-			soundBuffers.emplace(sfxName, soundBuf);
-	}
-	{
-		std::string sfxName{ "LockCameraSFX" };
-		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
-		if (!soundBuf->loadFromFile("media/sfx/LockCamera_sfx.mp3"))
-			std::cout << "No sfx found: " + sfxName + "\n";
-		else
-			soundBuffers.emplace(sfxName, soundBuf);
-	}
-	{
-		std::string sfxName{ "UnlockCameraSFX" };
-		std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
-		if (!soundBuf->loadFromFile("media/sfx/UnlockCamera_sfx.mp3"))
-			std::cout << "No sfx found: " + sfxName + "\n";
-		else
-			soundBuffers.emplace(sfxName, soundBuf);
+		//LOAD MUSIC
+		{
+			std::string musicName{ "Ambient1" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/alexgrohl-horror.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient2" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/everything_is_dead-dark-mysterious-dreamscape.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient3" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/leberch-cinematic-space.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient4" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/playstarz_music-space-ambient.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient5" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/solarflex-space.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient6" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/tunetank-dark-space-ambient.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient7" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/welbornworks-abandonedbase.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "A Class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Aclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Dark Barren Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/BarrenDark_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Grey Barren Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/BarrenGrey_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "B Class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Bclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Black Hole Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/BlackHole_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Brown Dwarf Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/BrownDwarf_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Desert Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Desert_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Earth Like Close Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/EarthLikeClose_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Earth Like Far Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/EarthLikeFar_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Earth Like Medium Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/EarthLikeMedium_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "F Class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Fclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "G class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Gclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Hot Gas Planet Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/HotJupiterAndNeptune_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Icy Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Icy_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Jupiter Like Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/JupiterLike_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "K Class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Kclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "M Class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Mclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Molten Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Molten_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Neptune Like Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/NeptuneLike_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Oceanic Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Oceanic_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "O Class Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Oclass_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Pulsar1 Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar1_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Pulsar2 Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar2_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Pulsar3 Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar3_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Pulsar4 Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar4_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Pulsar5 Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar5_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Red Barren Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/RedBarren_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Red Giant Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/RedGiant_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Red Supergiant Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/RedSupergiant_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Saturn Like Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/SaturnLike_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Titan Like Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/TitanLike_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Uranus Like Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/UranusLike_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Venus Like Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/VenusLike_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Voulcanic Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Voulcanic_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "White Dwarf Sound" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/WhiteDwarf_sound.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+
+
+
+		//LOAD SOUNDS
+		{
+			std::string sfxName{ "EnterSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/Enter_sfx.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "ExitSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/Exit_sfx.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "ResumeSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/Resume_sfx.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "PauseSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/Pause_sfx.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "LockCameraSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/LockCamera_sfx.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "UnlockCameraSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/UnlockCamera_sfx.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+
+		resourcesLoaded = true;
 	}
 }

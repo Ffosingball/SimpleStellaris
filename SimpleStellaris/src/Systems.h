@@ -151,6 +151,9 @@ public:
 	void PlayLockCameraSFX();
 	void PlayUnlockCameraSFX();
 
+	void PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity);
+	void StopSelectedObjectSound();
+
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
@@ -165,6 +168,8 @@ private:
 	std::shared_ptr<sf::Sound> spUnlockCameraSound;
 
 	std::vector<std::weak_ptr<sf::Music>> listOfMusicToPlay;
+
+	std::weak_ptr<sf::Music> wpSelectedObjectSound;
 
 	//Volume is in range from 0 to 1
 	float sfxVolume{ 0.7f };

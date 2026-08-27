@@ -93,13 +93,6 @@ void SceneNodeVisitorMovement::ProcessNode(SceneNode& node)
                     moveCamera = false;
                 }
 
-                if (movementSystem.direction != sf::Vector2f{ 0,0 } && spCameraCom->cameraLocked)
-                {
-                    spCameraCom->cameraLocked = false;
-                    spCameraCom->wpNodeLockedOn = {};
-                    moveCamera = true;
-                }
-
                 if (spCameraCom->moveCamera && moveCamera)
                 {
                     //Check if we can move camera or not
