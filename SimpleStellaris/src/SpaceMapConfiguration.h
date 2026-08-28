@@ -249,10 +249,9 @@ struct SpaceMapConfigurations
 	float barrenPlanetMountainsDistrictChance = 25.f;
 	float barrenPlanetDesertDistrictChance = 25.f;
 
-	float venusLikePlanetToxicOceanDistrictChance = 40.f;
-	float venusLikePlanetVoulcanoDistrictChance = 5.f;
-	float venusLikePlanetMountainsDistrictChance = 15.f;
-	float venusLikePlanetToxicLandDistrictChance = 40.f;
+	float venusLikePlanetVoulcanoDistrictChance = 10.f;
+	float venusLikePlanetMountainsDistrictChance = 30.f;
+	float venusLikePlanetToxicLandDistrictChance = 60.f;
 
 	float oceanicPlanetOceanDistrictChance = 80.f;
 	float oceanicPlanetIslandsDistrictChance = 20.f;

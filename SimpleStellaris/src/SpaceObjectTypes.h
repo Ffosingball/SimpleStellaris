@@ -82,7 +82,6 @@ enum class DistanceToStar
 enum class PlanetDistrictType 
 {
 	None,
-	ToxicOcean,
 	Voulcano,
 	ToxicLand,
 	Ocean,
