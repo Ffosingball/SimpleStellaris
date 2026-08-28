@@ -19,6 +19,9 @@ public:
 	virtual ~InputSystem() = default;
 
 	std::shared_ptr<MusicSystem> musicSystem;
+
+	//Check if left mouse button or A on joystick is presed which controls button 
+	bool lmbPressed{ false };
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
@@ -28,6 +31,7 @@ private:
 	void OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw);
 	void OnMouseMoved(sf::Event::MouseMoved mouseMovement);
 	void OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed);
+	void OnMouseButtonReleased(sf::Event::MouseButtonReleased mouseButReleased);
 	void OnJoystickMoved(sf::Event::JoystickMoved joystickMoved);
 	void OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button);
 	void OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button);
@@ -220,6 +224,7 @@ namespace signals
 	inline sigslot::signal<sf::Event::MouseWheelScrolled> onMouseWheelScrolled;
 	inline sigslot::signal<sf::Event::MouseMoved> onMouseMoved;
 	inline sigslot::signal<sf::Event::MouseButtonPressed> onMouseButtonPressed;
+	inline sigslot::signal<sf::Event::MouseButtonReleased> onMouseButtonReleased;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onSystemOverviewSet;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onPlanetOverviewSet;

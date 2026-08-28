@@ -46,6 +46,8 @@ std::string PrintComponentName(std::shared_ptr<Component> spComponent)
 		return "NebulaTextComponent";
 	else if (std::dynamic_pointer_cast<NeutronStarComponent>(spComponent))
 		return "NeutronStarComponent";
+	else if (std::dynamic_pointer_cast<ButtonComponent>(spComponent))
+		return "ButtonComponent";
 	else
 		return "---";
 }

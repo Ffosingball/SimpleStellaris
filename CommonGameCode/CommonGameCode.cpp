@@ -146,4 +146,19 @@ namespace gel
 	{
 		return roundNumberForOutput((double)n, digitsAfterSeparator);
 	}
+
+	//Check if point within the provided area or not
+	//Worst case: O(1)
+	bool IsPointInTheArea(sf::Vector2f point, sf::Vector2f areaPosition, sf::Vector2f areaSize) 
+	{
+		if (point.x > areaPosition.x - (areaSize.x / 2.f) && point.x < areaPosition.x + (areaSize.x / 2.f)) 
+		{
+			if (point.y > areaPosition.y - (areaSize.y / 2.f) && point.y < areaPosition.y + (areaSize.y / 2.f))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

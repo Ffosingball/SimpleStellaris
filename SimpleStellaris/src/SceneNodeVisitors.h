@@ -23,6 +23,21 @@ private:
 };
 
 
+//Processes entities with button components
+class SceneNodeVisitorButton : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorButton(InputSystem& inputSystem, sf::Vector2f mousePos) : inputSystem{ inputSystem }, mousePosition{mousePos} {}
+
+    void ProcessNode(SceneNode& node) override;
+
+private:
+    //References to input system
+    InputSystem& inputSystem;
+    sf::Vector2f mousePosition;
+};
+
+
 
 //To render entities with rectangleShape, tileMap and particles components
 //I assume that entity has only one component for rendering!

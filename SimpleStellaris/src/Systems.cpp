@@ -21,6 +21,7 @@ void InputSystem::Initialize()
 	signals::onMouseWheelScrolled.connect(&InputSystem::OnMouseWheelScrolled, this);
 	signals::onMouseMoved.connect(&InputSystem::OnMouseMoved, this);
 	signals::onMouseButtonPressed.connect(&InputSystem::OnMouseButtonPressed, this);
+	signals::onMouseButtonReleased.connect(&InputSystem::OnMouseButtonReleased, this);
 	signals::onJoystickMoved.connect(&InputSystem::OnJoystickMoved, this);
 	signals::onJoystickButtonPressed.connect(&InputSystem::OnJoystickButtonPressed, this);
 	signals::onJoystickButtonReleased.connect(&InputSystem::OnJoystickButtonReleased, this);
@@ -396,6 +397,8 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
 				EnterPlanetFromSystemOverview();
 		}
+
+		lmbPressed = true;
 		break;
 	case 1:
 		if(ECSGame::Instance().GetOverviewType() == OverviewType::System)
@@ -447,7 +450,12 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 
 void InputSystem::OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button)
 {
-
+	switch (button.button)
+	{
+	case 0:
+		lmbPressed = false;
+		break;
+	}
 }
 
 
@@ -538,6 +546,8 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
 				EnterPlanetFromSystemOverview();
 		}
+
+		lmbPressed = true;
 	}
 	else if (mouseButPressed.button == sf::Mouse::Button::Right)
 	{
@@ -558,6 +568,15 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 	}
 
 	lastInputByJoystick = false;
+}
+
+
+void InputSystem::OnMouseButtonReleased(sf::Event::MouseButtonReleased mouseButReleased)
+{
+	if (mouseButReleased.button == sf::Mouse::Button::Left)
+	{
+		lmbPressed = false;
+	}
 }
 
 
@@ -763,6 +782,10 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 
 	//Signal the direction to the movement system
 	signals::onMoveCamera(direction);
+
+	//Now process all buttons
+	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition));
+	ECSGame::Instance().GetUIRoot()->AcceptVisitor(visitor);
 
 	previousFrameOverview = ECSGame::Instance().GetOverviewType();
 }

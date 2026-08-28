@@ -242,4 +242,79 @@ struct SpaceMapConfigurations
 	float gasPlanetRingChance = 0.2f;
 	int numOfAvailableRingTextures = 9;
 	float ringSizeComparedToPlanet = 2.5f;
+
+	//Districts config
+	float barrenPlanetBarrenDistrictChance = 25.f;
+	float barrenPlanetCratorDistrictChance = 25.f;
+	float barrenPlanetMountainsDistrictChance = 25.f;
+	float barrenPlanetDesertDistrictChance = 25.f;
+
+	float venusLikePlanetToxicOceanDistrictChance = 40.f;
+	float venusLikePlanetVoulcanoDistrictChance = 5.f;
+	float venusLikePlanetMountainsDistrictChance = 15.f;
+	float venusLikePlanetToxicLandDistrictChance = 40.f;
+
+	float oceanicPlanetOceanDistrictChance = 80.f;
+	float oceanicPlanetIslandsDistrictChance = 20.f;
+
+	float earthLikeMediumPlanetMountainsDistrictChance = 9.f;
+	float earthLikeMediumPlanetOceanDistrictChance = 50.f;
+	float earthLikeMediumPlanetVoulcanoDistrictChance = 4.f;
+	float earthLikeMediumPlanetDesertDistrictChance = 9.f;
+	float earthLikeMediumPlanetForestDistrictChance = 10.f;
+	float earthLikeMediumPlanetRainforestDistrictChance = 9.f;
+	float earthLikeMediumPlanetSteppeDistrictChance = 9.f;
+	float earthLikeMediumPlanetIceSheetAtThePolesChance = 0.6f;
+
+	float earthLikeClosePlanetMountainsDistrictChance = 8.f;
+	float earthLikeClosePlanetOceanDistrictChance = 35.f;
+	float earthLikeClosePlanetVoulcanoDistrictChance = 4.f;
+	float earthLikeClosePlanetDesertDistrictChance = 8.f;
+	float earthLikeClosePlanetForestDistrictChance = 15.f;
+	float earthLikeClosePlanetRainforestDistrictChance = 15.f;
+	float earthLikeClosePlanetSteppeDistrictChance = 15.f;
+	float earthLikeClosePlanetIceSheetAtThePolesChance = 0.2f;
+
+	float earthLikeFarPlanetMountainsDistrictChance = 7.f;
+	float earthLikeFarPlanetOceanDistrictChance = 60.f;
+	float earthLikeFarPlanetVoulcanoDistrictChance = 3.f;
+	float earthLikeFarPlanetDesertDistrictChance = 5.f;
+	float earthLikeFarPlanetForestDistrictChance = 10.f;
+	float earthLikeFarPlanetRainforestDistrictChance = 5.f;
+	float earthLikeFarPlanetSteppeDistrictChance = 10.f;
+	float earthLikeFarPlanetIceSheetAtThePolesChance = 1.f;
+
+	float titanLikePlanetBarrenDistrictChance = 40.f;
+	float titanLikePlanetMountainsDistrictChance = 15.f;
+	float titanLikePlanetMethanOceanDistrictChance = 40.f;
+	float titanLikePlanetVoulcanoDistrictChance = 5.f;
+
+	float icyPlanetIceSheetDistrictChance = 60.f;
+	float icyPlanetBarrenDistrictChance = 20.f;
+	float icyPlanetMountainsDistrictChance = 15.f;
+	float icyPlanetVoulcanoDistrictChance = 5.f;
+
+	float voulcanicPlanetVoulcanoDistrictChance = 85.f;
+	float voulcanicPlanetBarrenDistrictChance = 15.f;
+
+	float desertPlanetMediumDesertDistrictChance = 40.f;
+	float desertPlanetMediumBarrenDistrictChance = 20.f;
+	float desertPlanetMediumSteppeDistrictChance = 20.f;
+	float desertPlanetMediumMountainsDistrictChance = 15.f;
+	float desertPlanetMediumVoulcanoDistrictChance = 5.f;
+	float desertPlanetMediumIceSheetAtThePolesChance = 0.4f;
+
+	float desertPlanetCloseDesertDistrictChance = 45.f;
+	float desertPlanetCloseBarrenDistrictChance = 25.f;
+	float desertPlanetCloseSteppeDistrictChance = 5.f;
+	float desertPlanetCloseMountainsDistrictChance = 18.f;
+	float desertPlanetCloseVoulcanoDistrictChance = 7.f;
+	float desertPlanetCloseIceSheetAtThePolesChance = 0.f;
+
+	float desertPlanetFarDesertDistrictChance = 35.f;
+	float desertPlanetFarBarrenDistrictChance = 15.f;
+	float desertPlanetFarSteppeDistrictChance = 30.f;
+	float desertPlanetFarMountainsDistrictChance = 15.f;
+	float desertPlanetFarVoulcanoDistrictChance = 5.f;
+	float desertPlanetFarIceSheetAtThePolesChance = 0.8f;
 };

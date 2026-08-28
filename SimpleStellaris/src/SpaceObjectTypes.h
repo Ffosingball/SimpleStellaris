@@ -78,3 +78,19 @@ enum class DistanceToStar
 	Far,
 	None
 };
+
+enum class PlanetDistrictType 
+{
+	None,
+	ToxicOcean,
+	Voulcano,
+	ToxicLand,
+	Ocean,
+	Islands,
+	Forest,
+	Rainforest,
+	Steppe,
+	IceSheet,
+	MethanOcean,
+	MoltenLand
+};

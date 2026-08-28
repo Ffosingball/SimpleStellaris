@@ -240,3 +240,24 @@ public:
 	bool destroyAtTarget{ false };
 	sf::Vector2f targetPosition{ 0.f,0.f };
 };
+
+
+//Button component
+class ButtonComponent : public Component
+{
+public:
+	sf::Vector2f buttonSize{ 0.f, 0.f };
+	bool enabled{ true };
+	//Called if mouse is over the button and it pressed lmb or A(joystick)
+	void (*onButtonPressed)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	//Called if mouse enters button area
+	void (*onButtonHovered)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	//Called if mouse leaves button area
+	void (*onButtonUnhovered)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	//Called when button is released
+	void (*onButtonReleased)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	//Called when button is released and mouse is over the button
+	void (*onButtonClicked)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	bool isPressed{ false };
+	bool isHovered{ false };
+};

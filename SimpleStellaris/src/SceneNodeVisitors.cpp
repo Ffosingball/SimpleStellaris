@@ -358,3 +358,60 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
 
     //sf::Vect
 }
+
+
+//Buttons processing function
+void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has Button component
+        if (spEntity->HasComponent<ButtonComponent>())
+        {
+            //Get Button component
+            std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
+
+            if (spButton->enabled)
+            {
+                if (gel::IsPointInTheArea(mousePosition, spButton->buttonSize, spEntity->GetPosition()))
+                {
+                    if (!spButton->isHovered)
+                    {
+                        spButton->isHovered = true;
+                        spButton->onButtonHovered(spEntity);
+                    }
+                }
+                else
+                {
+                    if (spButton->isHovered) 
+                    {
+                        spButton->isHovered = false;
+                        spButton->onButtonUnhovered(spEntity);
+                    }
+                }
+
+                if (inputSystem.lmbPressed) 
+                {
+                    if (spButton->isHovered && !spButton->isPressed) 
+                    {
+                        spButton->isPressed= true;
+                        spButton->onButtonPressed(spEntity);
+                    }
+                }
+                else 
+                {
+                    if (spButton->isPressed)
+                    {
+                        spButton->isPressed = false;
+                        spButton->onButtonReleased(spEntity);
+
+                        if (spButton->isHovered)
+                            spButton->onButtonClicked(spEntity);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -164,16 +164,22 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 		signals::onMouseWheelScrolled(*mouseWheelScrolled);
 	}
 
-	//Check if mouse wheel scrolled
+	//Check if mouse moved
 	if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
 	{
 		signals::onMouseMoved(*mouseMoved);
 	}
 
-	//Check if mouse wheel scrolled
+	//Check if mouse button pressed
 	if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
 	{
 		signals::onMouseButtonPressed(*mouseButtonPressed);
+	}
+
+	//Check if mouse button released
+	if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
+	{
+		signals::onMouseButtonReleased(*mouseButtonReleased);
 	}
 
 	//Check if joysticks were moved
