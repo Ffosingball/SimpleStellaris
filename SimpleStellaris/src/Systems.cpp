@@ -1138,6 +1138,20 @@ void UISystem::OnHideInfoPanel()
 //MUSIC SYSTEM
 void MusicSystem::MixMusicList() 
 {
+	/*std::vector<int> nums(8);
+	for (int i = 0; i < 10000; i++) 
+	{
+		int n = gel::RandInt(0, listOfMusicToPlay.size());
+		//std::cout << n <<"; ";
+		nums[n]++;
+	}
+	std::cout << '\n';
+
+	for (int i = 0; i < nums.size(); i++) 
+	{
+		std::cout << i << ") " << nums[i] << '\n';
+	}*/
+
 	std::vector<std::weak_ptr<sf::Music>> newListToPlay;
 	while (listOfMusicToPlay.size() > 0) 
 	{
@@ -1149,6 +1163,11 @@ void MusicSystem::MixMusicList()
 
 	listOfMusicToPlay = newListToPlay;
 	currentMusicPlaying = 0;
+
+	/*for (int i = 0; i < listOfMusicToPlay.size(); i++)
+	{
+		std::cout << i << ") " << listOfMusicToPlay[i].lock()->getDuration().asSeconds() << '\n';
+	}*/
 }
 
 void MusicSystem::Initialize()
@@ -1181,6 +1200,8 @@ void MusicSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	{
 		currentlyPlayingMusic->setVolume(overallVolume * musicVolume * 100);
 		currentlyPlayingMusic->play();
+		//std::cout << "Duration: " << currentlyPlayingMusic->getDuration().asSeconds()<<'\n';
+		//std::cout << "Num of music in list: " << listOfMusicToPlay.size() << '\n';
 	}
 	else if(!playMusic && currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Playing)
 		currentlyPlayingMusic->pause();
@@ -1244,7 +1265,7 @@ std::weak_ptr<sf::Music> GetSoundNameForSpaceObject(std::shared_ptr<Entity> spSe
 			soundName =  "Black Hole Sound";
 			break;
 		case StarType::NeutronStar:
-			soundName = "Pulsar1 Sound";
+			soundName = "Pulsar"+ std::to_string(spSelectedEntity->FindComponent<NeutronStarComponent>().lock()->pulsarNum) +" Sound";
 			break;
 		case StarType::WhiteDwarf:
 			soundName = "White Dwarf Sound";
@@ -1354,6 +1375,8 @@ void MusicSystem::PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEnti
 	wpSelectedObjectSound = GetSoundNameForSpaceObject(spSelectedEntity);
 	wpSelectedObjectSound.lock()->setLooping(true);
 	wpSelectedObjectSound.lock()->setVolume(overallVolume*musicVolume*100);
+	sf::Time playAt = sf::seconds(gel::Randf(0.f, wpSelectedObjectSound.lock()->getDuration().asSeconds()));
+	wpSelectedObjectSound.lock()->setPlayingOffset(playAt);
 	wpSelectedObjectSound.lock()->play();
 	playMusic = false;
 }

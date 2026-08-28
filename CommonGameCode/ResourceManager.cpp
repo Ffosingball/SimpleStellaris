@@ -909,7 +909,7 @@ const void ResourceManager::LoadAllResources()
 				musics.emplace(musicName, music);
 		}
 		{
-			std::string musicName{ "G class Sound" };
+			std::string musicName{ "G Class Sound" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Gclass_sound.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
@@ -989,7 +989,7 @@ const void ResourceManager::LoadAllResources()
 				musics.emplace(musicName, music);
 		}
 		{
-			std::string musicName{ "Pulsar1 Sound" };
+			std::string musicName{ "Pulsar0 Sound" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar1_sound.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
@@ -997,7 +997,7 @@ const void ResourceManager::LoadAllResources()
 				musics.emplace(musicName, music);
 		}
 		{
-			std::string musicName{ "Pulsar2 Sound" };
+			std::string musicName{ "Pulsar1 Sound" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar2_sound.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
@@ -1005,7 +1005,7 @@ const void ResourceManager::LoadAllResources()
 				musics.emplace(musicName, music);
 		}
 		{
-			std::string musicName{ "Pulsar3 Sound" };
+			std::string musicName{ "Pulsar2 Sound" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar3_sound.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
@@ -1013,7 +1013,7 @@ const void ResourceManager::LoadAllResources()
 				musics.emplace(musicName, music);
 		}
 		{
-			std::string musicName{ "Pulsar4 Sound" };
+			std::string musicName{ "Pulsar3 Sound" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar4_sound.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
@@ -1021,7 +1021,7 @@ const void ResourceManager::LoadAllResources()
 				musics.emplace(musicName, music);
 		}
 		{
-			std::string musicName{ "Pulsar5 Sound" };
+			std::string musicName{ "Pulsar4 Sound" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 			if (!music->openFromFile("media/music/StarsAndPlanetsSounds/Pulsar5_sound.ogg"))
 				std::cout << "No music found: " + musicName + "\n";

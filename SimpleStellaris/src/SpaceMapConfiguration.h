@@ -53,6 +53,7 @@ struct SpaceMapConfigurations
 	double sunDiameter{ 0.009346 };//0.009346
 
 	float starMassPower{ 1.5f };
+	int numOfPulsarMusic{5};
 
 	//Star sizes
 	sf::Vector2f starSizeRedSupergiant{ 400.f,1200.f };

@@ -110,6 +110,14 @@ public:
 };
 
 
+//Component of the neutron star
+class NeutronStarComponent : public Component
+{
+public:
+	int pulsarNum{ 0 };
+};
+
+
 
 //Component of the nebula
 class NebulaComponent : public Component

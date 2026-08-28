@@ -139,9 +139,11 @@ std::vector<int> WorldGenerator::GenerateGridOfRandomNumbers(sf::Vector2i gridSi
 }
 
 
-void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, SpaceMapConfigurations& mapConfig) 
+void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, SpaceMapConfigurations& mapConfig, std::weak_ptr<Entity> wpEntity) 
 {
 	std::shared_ptr<StarComponent> spStarCom = wpStarCom.lock();
+	std::weak_ptr<NeutronStarComponent> wpNS;
+
 	switch ((*starDistribution)(*randomizer))
 	{
 	case 0:
@@ -203,6 +205,9 @@ void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarC
 		spStarCom->starType = StarType::NeutronStar;
 		spStarCom->starSize = 0.001f;
 		spStarCom->starMass = gel::linearInterpolation(mapConfig.starMassNeutronStar.x, mapConfig.starMassNeutronStar.y, (*from0to1Dist)(*randomizer));
+		
+		wpNS = wpEntity.lock()->AddComponent<NeutronStarComponent>().lock();
+		wpNS.lock()->pulsarNum = gel::RandInt(0, mapConfig.numOfPulsarMusic);
 		break;
 	case 12:
 		spStarCom->starType = StarType::BlackHole;
@@ -1052,7 +1057,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 	{
 		//Create star in that system
 		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-		GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig);
+		GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig, spStar2);
 		spStar2->inheritParentPosition = false;
 
 		//Determine binary system type
@@ -1095,11 +1100,11 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			//Create 2 stars in the inside system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(spInsideSysNode, "Star2").lock();
-			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig);
+			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig, spStar2);
 			//spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(spInsideSysNode, "Star3").lock();
-			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig);
+			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig, spStar3);
 			//spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
@@ -1121,11 +1126,11 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			//Create 2 stars in that system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig);
+			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig, spStar2);
 			spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(ptrSystemNode, "Star3").lock();
-			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig);
+			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig, spStar3);
 			spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
@@ -1317,7 +1322,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		std::shared_ptr<StarComponent> spStar1Com = spStar1->AddComponent<StarComponent>().lock();
 		spStar1->inheritParentPosition = false;
 
-		GenerateStarProperties(spStar1Com, mapConfig);
+		GenerateStarProperties(spStar1Com, mapConfig, spStar1);
 		switch (spStar1Com->starType)
 		{
 		case StarType::RedSupergiant:
