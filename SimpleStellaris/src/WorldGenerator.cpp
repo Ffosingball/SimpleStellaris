@@ -90,6 +90,19 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closeOrbitMoonD
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::habitableZoneMoonDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::farOrbitMoonDist = nullptr;
 std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::RingTypeDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::barrenPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::venusLikePlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::oceanicPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::earthLikeClosePlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::earthLikeMediumPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::earthLikeFarPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::titanLikePlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::moltenPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::icyPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::voulcanicPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertClosePlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertMediumPlanetDistrictsDist = nullptr;
+std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertFarPlanetDistrictsDist = nullptr;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -136,6 +149,532 @@ std::vector<int> WorldGenerator::GenerateGridOfRandomNumbers(sf::Vector2i gridSi
 	}
 
 	return randomNumbers;
+}
+
+
+PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, SpaceMapConfigurations& mapConfig, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier)
+{
+	switch (planetType)
+	{
+	case PlanetType::BarrenGrey:
+		int val = (*barrenPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "BarrenGreyBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "BarrenGreyCratorDistrict";
+			return PlanetDistrictType::Crator;
+		}
+		else if (val == 2)
+		{
+			districtTextureName = "BarrenGreyMountainsDistrict";
+			return PlanetDistrictType::Mountains;
+		}
+		else if (val == 3)
+		{
+			districtTextureName = "BarrenGreyDesertDistrict";
+			return PlanetDistrictType::Desert;
+		}
+	case PlanetType::BarrenDark:
+		int val = (*barrenPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "BarrenDarkBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "BarrenDarkCratorDistrict";
+			return PlanetDistrictType::Crator;
+		}
+		else if (val == 2)
+		{
+			districtTextureName = "BarrenDarkMountainsDistrict";
+			return PlanetDistrictType::Mountains;
+		}
+		else if (val == 3)
+		{
+			districtTextureName = "BarrenDarkDesertDistrict";
+			return PlanetDistrictType::Desert;
+		}
+	case PlanetType::BarrenMarsLike:
+		int val = (*barrenPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "BarrenRedBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "BarrenRedCratorDistrict";
+			return PlanetDistrictType::Crator;
+		}
+		else if (val == 2)
+		{
+			districtTextureName = "BarrenRedMountainsDistrict";
+			return PlanetDistrictType::Mountains;
+		}
+		else if (val == 3)
+		{
+			districtTextureName = "BarrenRedDesertDistrict";
+			return PlanetDistrictType::Desert;
+		}
+	case PlanetType::VenusLike:
+		int val = (*venusLikePlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "VenusLikeVoulcanoDistrict";
+			return PlanetDistrictType::Voulcano;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "VenusLikeMountainsDistrict";
+			return PlanetDistrictType::Mountains;
+		}
+		else if (val == 2)
+		{
+			districtTextureName = "VenusLikeBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+	case PlanetType::Oceanic:
+		if (generateIceCaps)
+		{
+			if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Close)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.oceanicClosePlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+			else if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Medium)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.oceanicMediumPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+			else
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.oceanicFarPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+		}
+
+		int val = (*oceanicPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "OceanDistrict";
+			return PlanetDistrictType::Ocean;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "IslandsDistrict";
+			return PlanetDistrictType::Islands;
+		}
+	case PlanetType::EarthLike:
+		if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Close)
+		{
+			if (generateIceCaps) 
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.earthLikeClosePlanetIceSheetAtThePolesChance * iceCapChanceMultiplier) 
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+
+			int val = (*earthLikeClosePlanetDistrictsDist)(*randomizer);
+			if (val == 0)
+			{
+				districtTextureName = "EarthLikeMountainsDistrict";
+				return PlanetDistrictType::Mountains;
+			}
+			else if (val == 1)
+			{
+				districtTextureName = "OceanDistrict";
+				return PlanetDistrictType::Ocean;
+			}
+			else if (val == 2)
+			{
+				districtTextureName = "EarthLikeVoulcanoDistrict";
+				return PlanetDistrictType::Voulcano;
+			}
+			else if (val == 3)
+			{
+				districtTextureName = "EarthLikeDesertDistrict";
+				return PlanetDistrictType::Desert;
+			}
+			else if (val == 4)
+			{
+				districtTextureName = "CloseRainforestDistrict";
+				return PlanetDistrictType::Rainforest;
+			}
+			else if (val == 5)
+			{
+				districtTextureName = "SteppeDistrict";
+				return PlanetDistrictType::Steppe;
+			}
+		}
+		else if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Medium)
+		{
+			if (generateIceCaps)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.earthLikeMediumPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+
+			int val = (*earthLikeMediumPlanetDistrictsDist)(*randomizer);
+			if (val == 0)
+			{
+				districtTextureName = "EarthLikeMountainsDistrict";
+				return PlanetDistrictType::Mountains;
+			}
+			else if (val == 1)
+			{
+				districtTextureName = "OceanDistrict";
+				return PlanetDistrictType::Ocean;
+			}
+			else if (val == 2)
+			{
+				districtTextureName = "EarthLikeVoulcanoDistrict";
+				return PlanetDistrictType::Voulcano;
+			}
+			else if (val == 3)
+			{
+				districtTextureName = "EarthLikeDesertDistrict";
+				return PlanetDistrictType::Desert;
+			}
+			else if (val == 4)
+			{
+				districtTextureName = "MediumForestDistrict";
+				return PlanetDistrictType::Forest;
+			}
+			else if (val == 5)
+			{
+				districtTextureName = "MediumRainforestDistrict";
+				return PlanetDistrictType::Rainforest;
+			}
+			else if (val == 6)
+			{
+				districtTextureName = "SteppeDistrict";
+				return PlanetDistrictType::Steppe;
+			}
+		}
+		else
+		{
+			if (generateIceCaps)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.earthLikeFarPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+
+			int val = (*earthLikeFarPlanetDistrictsDist)(*randomizer);
+			if (val == 0)
+			{
+				districtTextureName = "EarthLikeMountainsDistrict";
+				return PlanetDistrictType::Mountains;
+			}
+			else if (val == 1)
+			{
+				districtTextureName = "OceanDistrict";
+				return PlanetDistrictType::Ocean;
+			}
+			else if (val == 2)
+			{
+				districtTextureName = "EarthLikeVoulcanoDistrict";
+				return PlanetDistrictType::Voulcano;
+			}
+			else if (val == 3)
+			{
+				districtTextureName = "EarthLikeDesertDistrict";
+				return PlanetDistrictType::Desert;
+			}
+			else if (val == 4)
+			{
+				districtTextureName = "FarForestDistrict";
+				return PlanetDistrictType::Forest;
+			}
+			else if (val == 5)
+			{
+				districtTextureName = "SteppeDistrict";
+				return PlanetDistrictType::Steppe;
+			}
+		}
+	case PlanetType::TitanLike:
+		int val = (*titanLikePlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "TitanLikeBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "TitanLikeMountainsDistrict";
+			return PlanetDistrictType::Mountains;
+		}
+		else if (val == 2)
+		{
+			districtTextureName = "TitanLikeMethanOceanDistrict";
+			return PlanetDistrictType::MethanOcean;
+		}
+		else if (val == 3)
+		{
+			districtTextureName = "TitanLikeVoulcanoDistrict";
+			return PlanetDistrictType::Voulcano;
+		}
+	case PlanetType::Molten:
+		int val = (*moltenPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "MoltenVoulcanoDistrict";
+			return PlanetDistrictType::Voulcano;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "MoltenLandDistrict";
+			return PlanetDistrictType::MoltenLand;
+		}
+	case PlanetType::Icy:
+		int val = (*icyPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "IceSheetDistrict";
+			return PlanetDistrictType::IceSheet;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "IcyBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+		else if (val == 2)
+		{
+			districtTextureName = "IcyMountainsDistrict";
+			return PlanetDistrictType::Mountains;
+		}
+		else if (val == 3)
+		{
+			districtTextureName = "IcyVoulcanoDistrict";
+			return PlanetDistrictType::Voulcano;
+		}
+	case PlanetType::Voulcanic:
+		int val = (*voulcanicPlanetDistrictsDist)(*randomizer);
+		if (val == 0)
+		{
+			districtTextureName = "VoulcanicVoulcanoDistrict";
+			return PlanetDistrictType::Voulcano;
+		}
+		else if (val == 1)
+		{
+			districtTextureName = "VoulcanicBarrenDistrict";
+			return PlanetDistrictType::Barren;
+		}
+	case PlanetType::Desert:
+		if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Close)
+		{
+			if (generateIceCaps)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.desertPlanetCloseIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+
+			int val = (*desertClosePlanetDistrictsDist)(*randomizer);
+			if (val == 0)
+			{
+				districtTextureName = "DesertDistrict";
+				return PlanetDistrictType::Desert;
+			}
+			else if (val == 1)
+			{
+				districtTextureName = "DesertBarrenDistrict";
+				return PlanetDistrictType::Barren;
+			}
+			else if (val == 2)
+			{
+				districtTextureName = "SteppeDistrict";
+				return PlanetDistrictType::Steppe;
+			}
+			else if (val == 3)
+			{
+				districtTextureName = "DesertMountainsDistrict";
+				return PlanetDistrictType::Mountains;
+			}
+			else if (val == 4)
+			{
+				districtTextureName = "DesertVoulcanoDistrict";
+				return PlanetDistrictType::Voulcano;
+			}
+		}
+		else if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Medium)
+		{
+			if (generateIceCaps)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.desertPlanetMediumIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+
+			int val = (*desertMediumPlanetDistrictsDist)(*randomizer);
+			if (val == 0)
+			{
+				districtTextureName = "DesertDistrict";
+				return PlanetDistrictType::Desert;
+			}
+			else if (val == 1)
+			{
+				districtTextureName = "DesertBarrenDistrict";
+				return PlanetDistrictType::Barren;
+			}
+			else if (val == 2)
+			{
+				districtTextureName = "SteppeDistrict";
+				return PlanetDistrictType::Steppe;
+			}
+			else if (val == 3)
+			{
+				districtTextureName = "DesertMountainsDistrict";
+				return PlanetDistrictType::Mountains;
+			}
+			else if (val == 4)
+			{
+				districtTextureName = "DesertVoulcanoDistrict";
+				return PlanetDistrictType::Voulcano;
+			}
+		}
+		else
+		{
+			if (generateIceCaps)
+			{
+				if ((*from0to1Dist)(*randomizer) < mapConfig.desertPlanetFarIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				{
+					districtTextureName = "IceSheetDistrict";
+					return PlanetDistrictType::IceSheet;
+				}
+			}
+
+			int val = (*desertFarPlanetDistrictsDist)(*randomizer);
+			if (val == 0)
+			{
+				districtTextureName = "DesertDistrict";
+				return PlanetDistrictType::Desert;
+			}
+			else if (val == 1)
+			{
+				districtTextureName = "DesertBarrenDistrict";
+				return PlanetDistrictType::Barren;
+			}
+			else if (val == 2)
+			{
+				districtTextureName = "SteppeDistrict";
+				return PlanetDistrictType::Steppe;
+			}
+			else if (val == 3)
+			{
+				districtTextureName = "DesertMountainsDistrict";
+				return PlanetDistrictType::Mountains;
+			}
+			else if (val == 4)
+			{
+				districtTextureName = "DesertVoulcanoDistrict";
+				return PlanetDistrictType::Voulcano;
+			}
+		}
+	}
+}
+
+
+
+void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanetCom, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::shared_ptr<SceneNode> spPlanetNode, SpaceMapConfigurations& mapConfig)
+{
+	//Calculate how many districts a planet will have
+	int numOfDistricts = (int)(spPlanetCom->planetSize * mapConfig.districtsAmount);
+
+	//Calculate number of rows
+	int numOfRows = 1;
+	while (numOfRows * ((numOfRows * 2) - 1) < numOfDistricts)
+	{
+		numOfRows++;
+	}
+	int numOfColumns = numOfDistricts / numOfRows;
+
+	//Create node which will store all districts nodes
+	std::shared_ptr<Entity> spNewEn = CreateNewEntityAt(spPlanetNode, "Node").lock();
+	spNewEn->SetPosition(mapConfig.districtPosOffset);
+	std::shared_ptr<SceneNode> spNewNode = spPlanetNode->FindChild(*spNewEn).lock();
+	spPlanetCom->spPlanetDistrictsNode = spNewNode;
+	spPlanetNode->RemoveByEntity(spNewEn);
+
+	//Create districts
+	int extraDistricts = numOfDistricts % numOfRows;
+	int currentRow = 0;
+	bool generateIceCaps{false};
+	float iceCapChanceMul = 0.f;
+	while (currentRow < numOfRows) 
+	{
+		//Check if ice cap should be generated on this row or not
+		if (wpHabitPlanet.lock() != nullptr)
+		{
+			if (currentRow == 0 || currentRow == numOfRows - 1)
+			{
+				if (numOfRows > 3) 
+				{
+					generateIceCaps = true;
+					iceCapChanceMul = 1.f;
+				}
+				else if (numOfRows > 2) 
+				{
+					generateIceCaps = true;
+					iceCapChanceMul = 0.5f;
+				}
+				else
+					generateIceCaps = false;
+			}
+			else
+				generateIceCaps = false;
+		}
+		else
+			generateIceCaps = false;
+
+		int currentColumn = 0;
+		while ((currentColumn < numOfColumns) || (currentColumn==numOfColumns && extraDistricts>currentRow)) 
+		{
+			//Create star in that system
+			std::shared_ptr<Entity> spDistrict = CreateNewEntityAt(spNewNode, "District"+std::to_string(currentRow*numOfColumns+currentColumn)).lock();
+			spDistrict->SetPosition(sf::Vector2f(mapConfig.distanceBetweenDistricts.x*currentColumn, mapConfig.distanceBetweenDistricts.y * currentRow));
+			
+			std::string districtTextureName;
+			std::shared_ptr<DistrictComponent> spDistrictCom = spDistrict->AddComponent<DistrictComponent>().lock();
+			spDistrictCom->districtType = GetDistrictType(spPlanetCom->planetType, wpHabitPlanet, mapConfig, districtTextureName, generateIceCaps, iceCapChanceMul);
+
+			std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spDistrict->AddComponent<RectangleShapeComponent>().lock();
+			SetupRectangleShape(spRectShapeCom, mapConfig.districtSize, districtTextureName);
+			
+			spDistrict->AddComponent<UIPartComponent>().lock();
+			std::shared_ptr<ButtonComponent> spButtonCom = spDistrict->AddComponent<ButtonComponent>().lock();
+			//SUBSCRIBE BUTTON FUNCTIONS!
+			//spButtonCom->;
+			currentColumn++;
+		}
+		currentRow++;
+	}
 }
 
 
@@ -435,6 +974,8 @@ void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<f
 
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * gel::PI;
 	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743 * (std::pow(10, -11) * 1.194 * std::pow(10, 25) * gel::sphereVolume(mainPlanetSize/2.0)) / (spPlanetCom->orbitRadius * std::pow(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::pow(10, 4));
+
+	GenerateDistricts(spPlanetCom, spMoon->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spMoon).lock(), mapConfig);
 }
 
 
@@ -833,6 +1374,9 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 
 	GenerateRings(spNode->FindChild("Planet" + std::to_string(num)).lock(), spPlanetCom->planetSize, spPlanetCom->planetType, mapConfig);
 	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
+
+	if(rockyPlanet)
+		GenerateDistricts(spPlanetCom, spPlanet->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spPlanet).lock(), mapConfig);
 }
 
 
@@ -1232,6 +1776,87 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	habitableZoneOrbitMoonWeights[4] = mapConfig.habitZoneDesertMoonChance;
 	habitableZoneOrbitMoonWeights[5] = mapConfig.habitZoneVoulcanicMoonChance;
 
+	std::vector<float> barrenPlanetDistrictsWeights(4);
+	barrenPlanetDistrictsWeights[0] = mapConfig.barrenPlanetBarrenDistrictChance;
+	barrenPlanetDistrictsWeights[1] = mapConfig.barrenPlanetCratorDistrictChance;
+	barrenPlanetDistrictsWeights[2] = mapConfig.barrenPlanetMountainsDistrictChance;
+	barrenPlanetDistrictsWeights[3] = mapConfig.barrenPlanetDesertDistrictChance;
+
+	std::vector<float> venusLikePlanetDistrictsWeights(3);
+	venusLikePlanetDistrictsWeights[0] = mapConfig.venusLikePlanetVoulcanoDistrictChance;
+	venusLikePlanetDistrictsWeights[1] = mapConfig.venusLikePlanetMountainsDistrictChance;
+	venusLikePlanetDistrictsWeights[2] = mapConfig.venusLikePlanetToxicLandDistrictChance;
+
+	std::vector<float> oceanicPlanetDistrictsWeights(2);
+	oceanicPlanetDistrictsWeights[0] = mapConfig.oceanicPlanetOceanDistrictChance;
+	oceanicPlanetDistrictsWeights[1] = mapConfig.oceanicPlanetIslandsDistrictChance;
+
+	std::vector<float> earthLikeClosePlanetDistrictsWeights(6);
+	earthLikeClosePlanetDistrictsWeights[0] = mapConfig.earthLikeClosePlanetMountainsDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[1] = mapConfig.earthLikeClosePlanetOceanDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[2] = mapConfig.earthLikeClosePlanetVoulcanoDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[3] = mapConfig.earthLikeClosePlanetDesertDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[4] = mapConfig.earthLikeClosePlanetRainforestDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[5] = mapConfig.earthLikeClosePlanetSteppeDistrictChance;
+
+	std::vector<float> earthLikeMediumPlanetDistrictsWeights(7);
+	earthLikeMediumPlanetDistrictsWeights[0] = mapConfig.earthLikeMediumPlanetMountainsDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[1] = mapConfig.earthLikeMediumPlanetOceanDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[2] = mapConfig.earthLikeMediumPlanetVoulcanoDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[3] = mapConfig.earthLikeMediumPlanetDesertDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[4] = mapConfig.earthLikeMediumPlanetForestDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[5] = mapConfig.earthLikeMediumPlanetRainforestDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[6] = mapConfig.earthLikeMediumPlanetSteppeDistrictChance;
+
+	std::vector<float> earthLikeFarPlanetDistrictsWeights(6);
+	earthLikeFarPlanetDistrictsWeights[0] = mapConfig.earthLikeFarPlanetMountainsDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[1] = mapConfig.earthLikeFarPlanetOceanDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[2] = mapConfig.earthLikeFarPlanetVoulcanoDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[3] = mapConfig.earthLikeFarPlanetDesertDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[4] = mapConfig.earthLikeFarPlanetForestDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[5] = mapConfig.earthLikeFarPlanetSteppeDistrictChance;
+
+	std::vector<float> titanLikePlanetDistrictsWeights(4);
+	titanLikePlanetDistrictsWeights[0] = mapConfig.titanLikePlanetBarrenDistrictChance;
+	titanLikePlanetDistrictsWeights[1] = mapConfig.titanLikePlanetMountainsDistrictChance;
+	titanLikePlanetDistrictsWeights[2] = mapConfig.titanLikePlanetMethanOceanDistrictChance;
+	titanLikePlanetDistrictsWeights[3] = mapConfig.titanLikePlanetVoulcanoDistrictChance;
+
+	std::vector<float> icyPlanetDistrictsWeights(4);
+	icyPlanetDistrictsWeights[0] = mapConfig.icyPlanetIceSheetDistrictChance;
+	icyPlanetDistrictsWeights[1] = mapConfig.icyPlanetBarrenDistrictChance;
+	icyPlanetDistrictsWeights[2] = mapConfig.icyPlanetMountainsDistrictChance;
+	icyPlanetDistrictsWeights[3] = mapConfig.icyPlanetVoulcanoDistrictChance;
+
+	std::vector<float> voulcanicPlanetDistrictsWeights(2);
+	voulcanicPlanetDistrictsWeights[0] = mapConfig.voulcanicPlanetVoulcanoDistrictChance;
+	voulcanicPlanetDistrictsWeights[1] = mapConfig.voulcanicPlanetBarrenDistrictChance;
+
+	std::vector<float> moltenPlanetDistrictsWeights(2);
+	moltenPlanetDistrictsWeights[0] = mapConfig.moltenPlanetVoulcanoDistrictChance;
+	moltenPlanetDistrictsWeights[1] = mapConfig.moltenPlanetBarrenDistrictChance;
+
+	std::vector<float> desertClosePlanetDistrictsWeights(5);
+	desertClosePlanetDistrictsWeights[0] = mapConfig.desertPlanetCloseDesertDistrictChance;
+	desertClosePlanetDistrictsWeights[1] = mapConfig.desertPlanetCloseBarrenDistrictChance;
+	desertClosePlanetDistrictsWeights[2] = mapConfig.desertPlanetCloseSteppeDistrictChance;
+	desertClosePlanetDistrictsWeights[3] = mapConfig.desertPlanetCloseMountainsDistrictChance;
+	desertClosePlanetDistrictsWeights[4] = mapConfig.desertPlanetCloseVoulcanoDistrictChance;
+
+	std::vector<float> desertMediumPlanetDistrictsWeights(5);
+	desertMediumPlanetDistrictsWeights[0] = mapConfig.desertPlanetMediumDesertDistrictChance;
+	desertMediumPlanetDistrictsWeights[1] = mapConfig.desertPlanetMediumBarrenDistrictChance;
+	desertMediumPlanetDistrictsWeights[2] = mapConfig.desertPlanetMediumSteppeDistrictChance;
+	desertMediumPlanetDistrictsWeights[3] = mapConfig.desertPlanetMediumMountainsDistrictChance;
+	desertMediumPlanetDistrictsWeights[4] = mapConfig.desertPlanetMediumVoulcanoDistrictChance;
+
+	std::vector<float> desertFarPlanetDistrictsWeights(5);
+	desertFarPlanetDistrictsWeights[0] = mapConfig.desertPlanetFarDesertDistrictChance;
+	desertFarPlanetDistrictsWeights[1] = mapConfig.desertPlanetFarBarrenDistrictChance;
+	desertFarPlanetDistrictsWeights[2] = mapConfig.desertPlanetFarSteppeDistrictChance;
+	desertFarPlanetDistrictsWeights[3] = mapConfig.desertPlanetFarMountainsDistrictChance;
+	desertFarPlanetDistrictsWeights[4] = mapConfig.desertPlanetFarVoulcanoDistrictChance;
+
 	//Create all distributions
 	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
 	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>(giantSystemWeights.begin(), giantSystemWeights.end());
@@ -1270,6 +1895,19 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 	habitableZoneMoonDist = std::make_shared<std::discrete_distribution<int>>(habitableZoneOrbitMoonWeights.begin(), habitableZoneOrbitMoonWeights.end());
 	farOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(farOrbitMoonWeights.begin(), farOrbitMoonWeights.end());
 	RingTypeDist = std::make_shared<std::uniform_int_distribution<int>>(0, mapConfig.numOfAvailableRingTextures-1);
+	barrenPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(barrenPlanetDistrictsWeights.begin(), barrenPlanetDistrictsWeights.end());
+	venusLikePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(venusLikePlanetDistrictsWeights.begin(), venusLikePlanetDistrictsWeights.end());
+	oceanicPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(oceanicPlanetDistrictsWeights.begin(), oceanicPlanetDistrictsWeights.end());
+	earthLikeClosePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeClosePlanetDistrictsWeights.begin(), earthLikeClosePlanetDistrictsWeights.end());
+	earthLikeMediumPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeMediumPlanetDistrictsWeights.begin(), earthLikeMediumPlanetDistrictsWeights.end());
+	earthLikeFarPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeFarPlanetDistrictsWeights.begin(), earthLikeFarPlanetDistrictsWeights.end());
+	titanLikePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(titanLikePlanetDistrictsWeights.begin(), titanLikePlanetDistrictsWeights.end());
+	moltenPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(moltenPlanetDistrictsWeights.begin(), moltenPlanetDistrictsWeights.end());
+	icyPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(icyPlanetDistrictsWeights.begin(), icyPlanetDistrictsWeights.end());
+	voulcanicPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(voulcanicPlanetDistrictsWeights.begin(), voulcanicPlanetDistrictsWeights.end());
+	desertClosePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertClosePlanetDistrictsWeights.begin(), desertClosePlanetDistrictsWeights.end());
+	desertMediumPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertMediumPlanetDistrictsWeights.begin(), desertMediumPlanetDistrictsWeights.end());
+	desertFarPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertFarPlanetDistrictsWeights.begin(), desertFarPlanetDistrictsWeights.end());
 
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = ptrSpaceMapNode->GetEntity().lock()->FindComponent<SystemPropertiesComponent>().lock();

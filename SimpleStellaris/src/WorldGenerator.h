@@ -72,6 +72,19 @@ private:
 	static std::shared_ptr<std::discrete_distribution<int>> habitableZoneMoonDist;
 	static std::shared_ptr<std::discrete_distribution<int>> farOrbitMoonDist;
 	static std::shared_ptr<std::uniform_int_distribution<int>> RingTypeDist;
+	static std::shared_ptr<std::discrete_distribution<int>> barrenPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> venusLikePlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> oceanicPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> earthLikeClosePlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> earthLikeMediumPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> earthLikeFarPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> titanLikePlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> moltenPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> icyPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> voulcanicPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> desertClosePlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> desertMediumPlanetDistrictsDist;
+	static std::shared_ptr<std::discrete_distribution<int>> desertFarPlanetDistrictsDist;
 
 	WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
@@ -84,6 +97,8 @@ private:
 	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
 	static void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar);
 	static void GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType, SpaceMapConfigurations& mapConfig);
+	static void GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanetCom, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::shared_ptr<SceneNode> spPlanetNode, SpaceMapConfigurations& mapConfig);
+	static PlanetDistrictType GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, SpaceMapConfigurations& mapConfig, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier);
 
 public:
 

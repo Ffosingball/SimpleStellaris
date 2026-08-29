@@ -244,17 +244,26 @@ struct SpaceMapConfigurations
 	float ringSizeComparedToPlanet = 2.5f;
 
 	//Districts config
+	//For planet with size 1.f
+	int districtsAmount = 20;
+	sf::Vector2f districtPosOffset{ 30.f, 30.f };
+	sf::Vector2f districtSize{ 40.f, 40.f };
+	sf::Vector2f distanceBetweenDistricts{ 45.f, 45.f };
+
 	float barrenPlanetBarrenDistrictChance = 25.f;
 	float barrenPlanetCratorDistrictChance = 25.f;
 	float barrenPlanetMountainsDistrictChance = 25.f;
 	float barrenPlanetDesertDistrictChance = 25.f;
 
-	float venusLikePlanetVoulcanoDistrictChance = 10.f;
+	float venusLikePlanetVoulcanoDistrictChance = 20.f;
 	float venusLikePlanetMountainsDistrictChance = 30.f;
-	float venusLikePlanetToxicLandDistrictChance = 60.f;
+	float venusLikePlanetToxicLandDistrictChance = 50.f;
 
 	float oceanicPlanetOceanDistrictChance = 80.f;
 	float oceanicPlanetIslandsDistrictChance = 20.f;
+	float oceanicClosePlanetIceSheetAtThePolesChance = 0.f;
+	float oceanicMediumPlanetIceSheetAtThePolesChance = 0.5f;
+	float oceanicFarPlanetIceSheetAtThePolesChance = 1.f;
 
 	float earthLikeMediumPlanetMountainsDistrictChance = 9.f;
 	float earthLikeMediumPlanetOceanDistrictChance = 50.f;
@@ -269,8 +278,7 @@ struct SpaceMapConfigurations
 	float earthLikeClosePlanetOceanDistrictChance = 35.f;
 	float earthLikeClosePlanetVoulcanoDistrictChance = 4.f;
 	float earthLikeClosePlanetDesertDistrictChance = 8.f;
-	float earthLikeClosePlanetForestDistrictChance = 15.f;
-	float earthLikeClosePlanetRainforestDistrictChance = 15.f;
+	float earthLikeClosePlanetRainforestDistrictChance = 30.f;
 	float earthLikeClosePlanetSteppeDistrictChance = 15.f;
 	float earthLikeClosePlanetIceSheetAtThePolesChance = 0.2f;
 
@@ -278,8 +286,7 @@ struct SpaceMapConfigurations
 	float earthLikeFarPlanetOceanDistrictChance = 60.f;
 	float earthLikeFarPlanetVoulcanoDistrictChance = 3.f;
 	float earthLikeFarPlanetDesertDistrictChance = 5.f;
-	float earthLikeFarPlanetForestDistrictChance = 10.f;
-	float earthLikeFarPlanetRainforestDistrictChance = 5.f;
+	float earthLikeFarPlanetForestDistrictChance = 15.f;
 	float earthLikeFarPlanetSteppeDistrictChance = 10.f;
 	float earthLikeFarPlanetIceSheetAtThePolesChance = 1.f;
 
@@ -295,6 +302,9 @@ struct SpaceMapConfigurations
 
 	float voulcanicPlanetVoulcanoDistrictChance = 85.f;
 	float voulcanicPlanetBarrenDistrictChance = 15.f;
+
+	float moltenPlanetVoulcanoDistrictChance = 50.f;
+	float moltenPlanetBarrenDistrictChance = 50.f;
 
 	float desertPlanetMediumDesertDistrictChance = 40.f;
 	float desertPlanetMediumBarrenDistrictChance = 20.f;

@@ -83,7 +83,10 @@ enum class PlanetDistrictType
 {
 	None,
 	Voulcano,
-	ToxicLand,
+	Barren,
+	Crator,
+	Mountains,
+	Desert,
 	Ocean,
 	Islands,
 	Forest,

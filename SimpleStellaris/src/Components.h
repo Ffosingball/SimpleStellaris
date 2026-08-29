@@ -148,6 +148,8 @@ public:
 	double rotationalVelocity{ 0.0 };
 	std::string planetIconTextureName;
 	bool isMoon{ false };
+
+	std::shared_ptr<SceneNode> spPlanetDistrictsNode;
 };
 
 
@@ -260,4 +262,12 @@ public:
 	void (*onButtonClicked)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
 	bool isPressed{ false };
 	bool isHovered{ false };
+};
+
+
+//District component
+class DistrictComponent : public Component 
+{
+public:
+	PlanetDistrictType districtType;
 };

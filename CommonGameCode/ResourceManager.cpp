@@ -742,6 +742,224 @@ const void ResourceManager::LoadAllResources()
 				texturesIntRects.emplace(textureName, textureSizes);
 			}
 		}
+		{
+			std::string textureName{ "Districts Textures" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/Districts_textures.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "BarrenGreyBarrenDistrict";
+				sf::IntRect textureSize{ {0,0},{16,16} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenBlackBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 16,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenRedBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 32,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "TitanLikeBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 48,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "IcyBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 64,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "DesertBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 80,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "VenusLikeBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 96,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "VoulcanicBarrenDistrict";
+				textureSize.position = sf::Vector2i{ 0,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenGreyCratorDistrict";
+				textureSize.position = sf::Vector2i{ 16,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenDarkCratorDistrict";
+				textureSize.position = sf::Vector2i{ 32,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenRedCratorDistrict";
+				textureSize.position = sf::Vector2i{ 48,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenGreyMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 64,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenDarkMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 80,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenRedMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 96,16 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "VenusLikeMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 0,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "EarthLikeMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 16,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "TitanLikeMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 32,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "IcyMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 48,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "DesertMountainsDistrict";
+				textureSize.position = sf::Vector2i{ 64,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenGreyDesertDistrict";
+				textureSize.position = sf::Vector2i{ 80,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenDarkDesertDistrict";
+				textureSize.position = sf::Vector2i{ 96,32 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "BarrenRedDesertDistrict";
+				textureSize.position = sf::Vector2i{ 0,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "DesertDistrict";
+				textureSize.position = sf::Vector2i{ 16,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "OceanDistrict";
+				textureSize.position = sf::Vector2i{ 32,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "IslandsDistrict";
+				textureSize.position = sf::Vector2i{ 48,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MethanOceanDistrict";
+				textureSize.position = sf::Vector2i{ 64,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "VenusLikeVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 80,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "EarthLikeVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 96,48 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "TitanLikeVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 0,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MoltenVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 16,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "IcyVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 32,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "VoulcanicVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 48,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "DesertVoulcanoDistrict";
+				textureSize.position = sf::Vector2i{ 64,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "SteppeDistrict";
+				textureSize.position = sf::Vector2i{ 80,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "IceSheetDistrict";
+				textureSize.position = sf::Vector2i{ 96,64 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MoltenLandDistrict";
+				textureSize.position = sf::Vector2i{ 0,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MediumRainforestDistrict";
+				textureSize.position = sf::Vector2i{ 16,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MediumForestDistrict";
+				textureSize.position = sf::Vector2i{ 32,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "FarRainforestDistrict";
+				textureSize.position = sf::Vector2i{ 48,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "FarForestDistrict";
+				textureSize.position = sf::Vector2i{ 64,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "CloseRainforestDistrict";
+				textureSize.position = sf::Vector2i{ 80,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "CloseForestDistrict";
+				textureSize.position = sf::Vector2i{ 96,80 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
+		}
 
 
 		//LOAD FONTS
