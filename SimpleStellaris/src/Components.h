@@ -92,7 +92,7 @@ public:
 class StarComponent : public Component
 {
 public:
-	StarType starType;
+	StarType starType = StarType::None;
 	std::string starName;
 
 	//Relative to sun size and mass
@@ -136,7 +136,7 @@ public:
 class PlanetComponent : public Component
 {
 public:
-	PlanetType planetType;
+	PlanetType planetType = PlanetType::None;
 	//Earth radiuses
 	//For gas giants this is not applied
 	float planetSize{ 0.f };
@@ -169,7 +169,7 @@ public:
 class HabitablePlanetComponent : public Component
 {
 public:
-	DistanceToStar distanceToStar;
+	DistanceToStar distanceToStar = DistanceToStar::None;
 };
 
 
@@ -270,6 +270,6 @@ public:
 class DistrictComponent : public Component 
 {
 public:
-	PlanetDistrictType districtType;
+	PlanetDistrictType districtType = PlanetDistrictType::None;
 	int districtID{-1};
 };

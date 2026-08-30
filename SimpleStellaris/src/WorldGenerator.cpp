@@ -182,6 +182,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "BarrenGreyDesertDistrict";
 			return PlanetDistrictType::Desert;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::BarrenDark:
 		val = (*barrenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -204,6 +206,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "BarrenDarkDesertDistrict";
 			return PlanetDistrictType::Desert;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::BarrenMarsLike:
 		val = (*barrenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -226,6 +230,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "BarrenRedDesertDistrict";
 			return PlanetDistrictType::Desert;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::VenusLike:
 		val = (*venusLikePlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -243,6 +249,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "VenusLikeBarrenDistrict";
 			return PlanetDistrictType::Barren;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::Oceanic:
 		if (generateIceCaps)
 		{
@@ -283,6 +291,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "IslandsDistrict";
 			return PlanetDistrictType::Islands;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::EarthLike:
 		if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Close)
 		{
@@ -418,6 +428,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				return PlanetDistrictType::Steppe;
 			}
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::TitanLike:
 		val = (*titanLikePlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -440,6 +452,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "TitanLikeVoulcanoDistrict";
 			return PlanetDistrictType::Voulcano;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::Molten:
 		val = (*moltenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -452,6 +466,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "MoltenLandDistrict";
 			return PlanetDistrictType::MoltenLand;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::Icy:
 		val = (*icyPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -474,6 +490,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "IcyVoulcanoDistrict";
 			return PlanetDistrictType::Voulcano;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::Voulcanic:
 		val = (*voulcanicPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
@@ -486,6 +504,8 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			districtTextureName = "VoulcanicBarrenDistrict";
 			return PlanetDistrictType::Barren;
 		}
+
+		return PlanetDistrictType::None;
 	case PlanetType::Desert:
 		if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Close)
 		{
@@ -601,7 +621,11 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				return PlanetDistrictType::Voulcano;
 			}
 		}
+
+		return PlanetDistrictType::None;
 	}
+
+	return PlanetDistrictType::None;
 }
 
 
@@ -673,7 +697,7 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 			std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spDistrict->AddComponent<RectangleShapeComponent>().lock();
 			SetupRectangleShape(spRectShapeCom, mapConfig.districtSize, districtTextureName);
 			
-			spDistrict->AddComponent<UIPartComponent>().lock();
+			spDistrict->AddComponent<UIPartComponent>();
 			std::shared_ptr<ButtonComponent> spButtonCom = spDistrict->AddComponent<ButtonComponent>().lock();
 			spButtonCom->buttonSize = mapConfig.districtSize;
 			spButtonCom->onButtonHovered = [spInputSys](std::shared_ptr<Entity> entity)

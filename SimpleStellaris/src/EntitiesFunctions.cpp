@@ -647,4 +647,10 @@ void CreateSpaceObjects()
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 	visitor.OutputAllData();
 #endif
+
+#ifdef OUTPUT_WORLD_MEMORY_USAGE
+	SceneNodeSpaceObjectsMemorySize visitor;
+	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
+	visitor.OutputAllData();
+#endif
 }

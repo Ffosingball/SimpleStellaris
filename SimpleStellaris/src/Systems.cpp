@@ -1261,7 +1261,7 @@ void MusicSystem::MixMusicList()
 	std::vector<std::weak_ptr<sf::Music>> newListToPlay;
 	while (listOfMusicToPlay.size() > 0) 
 	{
-		int musicSelected = gel::RandInt(0, listOfMusicToPlay.size());
+		int musicSelected = gel::RandInt(0, (int)listOfMusicToPlay.size());
 		newListToPlay.push_back(listOfMusicToPlay[musicSelected]);
 		listOfMusicToPlay[musicSelected] = listOfMusicToPlay.back();
 		listOfMusicToPlay.pop_back();

@@ -50,3 +50,8 @@ sf::Vector2f Entity::GetPosition()
 {
 	return transformable.getPosition();
 }
+
+int Entity::GetComponentsSize()
+{
+	return components.capacity() * sizeof(Component);
+}

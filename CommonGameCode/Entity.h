@@ -124,6 +124,8 @@ public:
 	//Get new entity position
 	//Worst case: O(1)
 	sf::Vector2f GetPosition();
+	//Worst case: O(1)
+	int GetComponentsSize();
 
 	//Flag to tell if entity should be drawn or not
 	bool hidden = false;

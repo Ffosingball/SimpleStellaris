@@ -288,10 +288,22 @@ void SceneNodeSpaceObjectsCounter::ProcessNode(SceneNode& node)
                     break;
                 }
             }
+
+            if (spComPlanet->spPlanetDistrictsNode != nullptr)
+            {
+                spComPlanet->spPlanetDistrictsNode->AcceptVisitor(*this);
+                planetsWithDistrictsAmount++;
+            }
+            else
+                planetsWithoutDistrictsAmount++;
         }
         else if (spEntity->HasComponent<RingComponent>())
         {
             ringsAmount++;
+        }
+        else if (spEntity->HasComponent<DistrictComponent>())
+        {
+            districtsAmount++;
         }
     }
 }
@@ -442,7 +454,14 @@ void SceneNodeSpaceObjectsCounter::OutputAllData()
     }
 
     std::cout << "\n";
+    std::cout << " - Rings statistics - \n";
     std::cout << " - Number of planets with rings: " << ringsAmount << '\n';
+
+    std::cout << "\n";
+    std::cout << " - Districts statistics - \n";
+    std::cout << " - Number of planets with districts: " << planetsWithDistrictsAmount << '\n';
+    std::cout << " - Number of planets without districts: " << planetsWithoutDistrictsAmount << '\n';
+    std::cout << " - Number of districts: " << districtsAmount << '\n';
 }
 
 
@@ -888,4 +907,92 @@ void ChangeAllNodesVisibilityExceptNebulaTexts::ProcessNode(SceneNode& node)
             }
         }
     }
+}
+
+
+void SceneNodeSpaceObjectsMemorySize::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Check if pointer is valid
+    if (spEntity != nullptr)
+    {
+        memoryUsageByEntities += sizeof(*spEntity) + spEntity->GetComponentsSize() + (spEntity->GetName().size() * sizeof(char));
+
+        //Check if entity has system component
+        if (spEntity->HasComponent<ObjectSystemComponent>())
+        {
+            std::shared_ptr<ObjectSystemComponent> spComSys = spEntity->FindComponent<ObjectSystemComponent>().lock();
+            memoryUsageByObjectSystemComponent += sizeof(*spComSys) + (spComSys->systemName.size() * sizeof(char));
+            if(spComSys->spAllSystemObjectsNode !=nullptr)
+                spComSys->spAllSystemObjectsNode->AcceptVisitor(*this);
+        }
+        
+        if (spEntity->HasComponent<StarComponent>())
+        {
+            std::shared_ptr<StarComponent> spComStar = spEntity->FindComponent<StarComponent>().lock();
+            memoryUsageByStarComponent += sizeof(*spComStar) + (spComStar->starName.size() * sizeof(char));
+        }
+        
+        if (spEntity->HasComponent<PlanetComponent>())
+        {
+            std::shared_ptr<PlanetComponent> spComPlanet = spEntity->FindComponent<PlanetComponent>().lock();
+            memoryUsageByPlanetComponent += sizeof(*spComPlanet) + (spComPlanet->planetName.size() * sizeof(char)) + (spComPlanet->planetIconTextureName.size() * sizeof(char));
+
+            if (spComPlanet->spPlanetDistrictsNode !=nullptr)
+                spComPlanet->spPlanetDistrictsNode->AcceptVisitor(*this);
+        }
+
+        if (spEntity->HasComponent<HabitablePlanetComponent>())
+        {
+            std::shared_ptr<HabitablePlanetComponent> spComHabPlanet = spEntity->FindComponent<HabitablePlanetComponent>().lock();
+            memoryUsageByHabitablePlanetComponent += sizeof(*spComHabPlanet);
+        }
+        
+        if (spEntity->HasComponent<RingComponent>())
+        {
+            std::shared_ptr<RingComponent> spComRing = spEntity->FindComponent<RingComponent>().lock();
+            memoryUsageByRingComponent += sizeof(*spComRing) + (spComRing->ringIconTextureName.size() * sizeof(char));
+        }
+        
+        if (spEntity->HasComponent<DistrictComponent>())
+        {
+            std::shared_ptr<DistrictComponent> spComDistrict = spEntity->FindComponent<DistrictComponent>().lock();
+            memoryUsageByDistrictComponent += sizeof(*spComDistrict);
+        }
+
+        if (spEntity->HasComponent<RectangleShapeComponent>())
+        {
+            std::shared_ptr<RectangleShapeComponent> spComDistrict = spEntity->FindComponent<RectangleShapeComponent>().lock();
+            memoryUsageByRectangleShapeComponent += sizeof(*spComDistrict);
+        }
+
+        if (spEntity->HasComponent<ButtonComponent>())
+        {
+            std::shared_ptr<ButtonComponent> spComDistrict = spEntity->FindComponent<ButtonComponent>().lock();
+            memoryUsageByButtonComponent += sizeof(*spComDistrict);
+        }
+
+        if (spEntity->HasComponent<UIPartComponent>())
+        {
+            std::shared_ptr<UIPartComponent> spComDistrict = spEntity->FindComponent<UIPartComponent>().lock();
+            memoryUsageByUIPartComponent += sizeof(*spComDistrict);
+        }
+    }
+}
+
+
+
+void SceneNodeSpaceObjectsMemorySize::OutputAllData()
+{
+    std::cout << " -- Space Map Memory Statistics -- \n";
+    std::cout << "Entity: "<<memoryUsageByEntities<<" B; "<<memoryUsageByEntities/1024<<" KB; "<< memoryUsageByEntities / 1024/1024<<" MB\n";
+    std::cout << "Planet Component: " << memoryUsageByPlanetComponent << " B; " << memoryUsageByPlanetComponent / 1024 << " KB; " << memoryUsageByPlanetComponent / 1024 / 1024 << " MB\n";
+    std::cout << "Star Component: " << memoryUsageByStarComponent << " B; " << memoryUsageByStarComponent / 1024 << " KB; " << memoryUsageByStarComponent / 1024 / 1024 << " MB\n";
+    std::cout << "Object System Component: " << memoryUsageByObjectSystemComponent << " B; " << memoryUsageByObjectSystemComponent / 1024 << " KB; " << memoryUsageByObjectSystemComponent / 1024 / 1024 << " MB\n";
+    std::cout << "Button Component: " << memoryUsageByButtonComponent << " B; " << memoryUsageByButtonComponent / 1024 << " KB; " << memoryUsageByButtonComponent / 1024 / 1024 << " MB\n";
+    std::cout << "UI Part Component: " << memoryUsageByUIPartComponent << " B; " << memoryUsageByUIPartComponent / 1024 << " KB; " << memoryUsageByUIPartComponent / 1024 / 1024 << " MB\n";
+    std::cout << "Rectangle Shape Component: " << memoryUsageByRectangleShapeComponent << " B; " << memoryUsageByRectangleShapeComponent / 1024 << " KB; " << memoryUsageByRectangleShapeComponent / 1024 / 1024 << " MB\n";
+    std::cout << "Ring Component: " << memoryUsageByRingComponent << " B; " << memoryUsageByRingComponent / 1024 << " KB; " << memoryUsageByRingComponent / 1024 / 1024 << " MB\n";
+    std::cout << "District Component: " << memoryUsageByDistrictComponent << " B; " << memoryUsageByDistrictComponent / 1024 << " KB; " << memoryUsageByDistrictComponent / 1024 / 1024 << " MB\n";
+    std::cout << "Habitable Planet Component: " << memoryUsageByHabitablePlanetComponent << " B; " << memoryUsageByHabitablePlanetComponent / 1024 << " KB; " << memoryUsageByHabitablePlanetComponent / 1024 / 1024 << " MB\n";
 }

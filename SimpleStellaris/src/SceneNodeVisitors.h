@@ -129,11 +129,39 @@ private:
     std::vector<int> moonTypesAmount;
     std::vector<int> numberOfMoonsAmount;
 
+    int planetsWithDistrictsAmount{ 0 };
+    int planetsWithoutDistrictsAmount{ 0 };
+    int districtsAmount{ 0 };
+
     SpaceMapConfigurations& mapConfig;
 
     sf::Vector2f blackHolePos;
 
     int ringsAmount{0};
+};
+
+
+
+class SceneNodeSpaceObjectsMemorySize : public SceneNodeVisitor
+{
+public:
+    SceneNodeSpaceObjectsMemorySize() {};
+
+    void ProcessNode(SceneNode& node) override;
+
+    void OutputAllData();
+
+private:
+    int memoryUsageByEntities{ 0 };
+    int memoryUsageByPlanetComponent{ 0 };
+    int memoryUsageByStarComponent{ 0 };
+    int memoryUsageByObjectSystemComponent{ 0 };
+    int memoryUsageByButtonComponent{ 0 };
+    int memoryUsageByUIPartComponent{ 0 };
+    int memoryUsageByRectangleShapeComponent{ 0 };
+    int memoryUsageByRingComponent{ 0 };
+    int memoryUsageByDistrictComponent{ 0 };
+    int memoryUsageByHabitablePlanetComponent{ 0 };
 };
 
 
