@@ -738,7 +738,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
 
                     spPlanetPicNode = node.FindChild(*spPlanPic).lock();
                     //Create text name entity for star
-                    std::string name{ "PlanetText"+spPlanet->planetName};
+                    std::string name{ spPlanet->planetName};
                     CreateSystemText(spSystemIconsNode, spPlanetPicNode, name, false);
                     //Create icon
                     CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spPlanet->planetIconTextureName, "PlanetIcon" + spPlanet->planetName, false, planetIconSize, true);
@@ -766,7 +766,7 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                 {
                     std::weak_ptr<Entity> wpE3 = node.FindChild("PlanetPicture").lock()->GetEntity();
                     signals::onDeleteEntity(wpE3, node.GetSharedPtrToItself());
-                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("PlanetText" + spPlanet->planetName).lock()->GetEntity();
+                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild(spPlanet->planetName).lock()->GetEntity();
                     signals::onDeleteEntity(wpE, spSystemIconsNode);
                     std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName).lock()->GetEntity();
                     signals::onDeleteEntity(wpE2, spSystemIconsNode);

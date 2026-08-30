@@ -8,7 +8,7 @@
 #include <SFML/Audio.hpp>
 #include "ResourceManager.h"
 #include "SpaceObjectTypes.h"
-#include "WorldGenerator.h"
+//#include "WorldGenerator.h"
 //#include "CommonGameCode.h"
 
 
@@ -59,6 +59,14 @@ void InputSystem::Initialize()
 	std::shared_ptr<SceneNode> s4Ptr = ECSGame::Instance().GetUIRoot()->FindChild("RenderText").lock();
 	debugTextes.push_back(s4Ptr->GetEntity());
 
+	planetDistrictsPanel = ECSGame::Instance().GetUIRoot()->FindChild("PlanetDistrictsPart").lock();
+
+	std::shared_ptr<SceneNode> spText = planetDistrictsPanel->FindChild("DistrictTypeText").lock();
+	districtTypeText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
+
+	spText = planetDistrictsPanel->FindChild("PlanetNameText").lock();
+	planetNameText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
+
 	for (std::weak_ptr<Entity> e : debugTextes) 
 	{
 		e.lock()->hidden = true;
@@ -94,6 +102,36 @@ void InputSystem::CancelCameraLock()
 
 	musicSystem->StopSelectedObjectSound();
 	musicSystem->PlayUnlockCameraSFX();
+}
+
+
+void InputSystem::OpenPlanetDistrictsView() 
+{
+	std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
+	std::shared_ptr<SceneNode> spDistrictsNode = spPlanetCom->spPlanetDistrictsNode;
+	if (spDistrictsNode != nullptr)
+		planetDistrictsPanel->AddChild(spDistrictsNode);
+	planetDistrictsPanel->GetEntity().lock()->hidden = false;
+	districtViewOpened = true;
+
+	ChangeAllNodesVisibility visitor(false);
+	planetDistrictsPanel->AcceptVisitor(visitor);
+
+	planetNameText->text->setString(spPlanetCom->planetName);
+	gel::CentreText(*planetNameText->text, sf::Vector2f{0.f,0.f});
+}
+
+
+void InputSystem::ClosePlanetDistrictsView()
+{
+	std::shared_ptr<SceneNode> spDistrictsNode = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock()->spPlanetDistrictsNode;
+	if(spDistrictsNode!=nullptr)
+		planetDistrictsPanel->RemoveByEntity(spDistrictsNode->GetEntity().lock());
+	planetDistrictsPanel->GetEntity().lock()->hidden = true;
+	districtViewOpened = false;
+
+	ChangeAllNodesVisibility visitor(true);
+	planetDistrictsPanel->AcceptVisitor(visitor);
 }
 
 
@@ -281,13 +319,11 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	else if (key.code == sf::Keyboard::Key::Escape)
 	{
 		if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
-		{
 			ExitSystemOverview();
-		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && districtViewOpened)
+			ClosePlanetDistrictsView();
 		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
-		{
 			ExitPlanetToSystemOverview();
-		}
 		else if(ECSGame::Instance().GetOverviewType() == OverviewType::Space)
 			ECSGame::Instance().CloseGame();
 	}
@@ -397,12 +433,19 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
 				EnterPlanetFromSystemOverview();
 		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+		{
+			if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+				OpenPlanetDistrictsView();
+		}
 
 		lmbPressed = true;
 		break;
 	case 1:
 		if(ECSGame::Instance().GetOverviewType() == OverviewType::System)
 			ExitSystemOverview();
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && districtViewOpened)
+			ClosePlanetDistrictsView();
 		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 			ExitPlanetToSystemOverview();
 		break;
@@ -546,6 +589,11 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
 				EnterPlanetFromSystemOverview();
 		}
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+		{
+			if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+				OpenPlanetDistrictsView();
+		}
 
 		lmbPressed = true;
 	}
@@ -673,7 +721,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
 	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
 
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && !districtViewOpened)
 	{
 		std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
 
@@ -708,7 +756,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 
 		systemsNearByText->text->setString(message);
 	}
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+	else if ((ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet) && !districtViewOpened)
 	{
 		bool selectPlanets = true;
 		if ((spCamCom->currentZoom > zoomAtWhichStartSelectPlanets || UIHidden) && ECSGame::Instance().GetOverviewType() == OverviewType::System)
@@ -789,6 +837,41 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 
 	previousFrameOverview = ECSGame::Instance().GetOverviewType();
 }
+
+
+void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity) 
+{
+	float outlineThikness = 4.f;
+	sf::Color outlineColor = sf::Color{ 255,255,255 };
+
+	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
+	districtTypeText->text->setString("Type: "+GetPlanetDistrictName(spDistrict->districtType));
+	gel::AlignTextToLeftSide(*districtTypeText->text, sf::Vector2{ 0.f, 0.f });
+
+	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+	spRectShape->shape.setOutlineThickness(outlineThikness);
+	spRectShape->shape.setOutlineColor(outlineColor);
+
+	//std::cout << "District is hovered\n";
+
+	currentDistrictShown = spDistrict->districtID;
+}
+
+
+void InputSystem::DistrictUnhovered(std::shared_ptr<Entity> spEntity)
+{
+	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
+	if (currentDistrictShown == spDistrict->districtID)
+	{
+		districtTypeText->text->setString("Type: ");
+		gel::AlignTextToLeftSide(*districtTypeText->text, sf::Vector2{ 0.f, 0.f });
+		currentDistrictShown = -1;
+	}
+
+	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+	spRectShape->shape.setOutlineThickness(0.f);
+}
+
 
 
 //MOVEMENT SYSTEM

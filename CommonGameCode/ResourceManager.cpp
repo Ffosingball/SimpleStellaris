@@ -754,7 +754,7 @@ const void ResourceManager::LoadAllResources()
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
 
-				name = "BarrenBlackBarrenDistrict";
+				name = "BarrenDarkBarrenDistrict";
 				textureSize.position = sf::Vector2i{ 16,0 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
@@ -958,6 +958,18 @@ const void ResourceManager::LoadAllResources()
 				textureSize.position = sf::Vector2i{ 96,80 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
+			}
+		}
+		{
+			std::string textureName{ "UIPartPlanetDistricts" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/UIPart3.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				textures.emplace(textureName, texture);
+				sf::IntRect textureSizes{ {0,0},{200,140} };
+				texturesIntRects.emplace(textureName, textureSizes);
 			}
 		}
 

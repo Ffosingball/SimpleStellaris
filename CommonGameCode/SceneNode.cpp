@@ -90,8 +90,11 @@ std::string SceneNode::GetAllChildrenNames() const
 //Worst case: O(1)
 void SceneNode::AddChild(const std::shared_ptr<SceneNode> child)
 {
-	children.emplace_back(child);
-	child->parent = weak_from_this();
+	if (child != nullptr)
+	{
+		children.emplace_back(child);
+		child->parent = weak_from_this();
+	}
 }
 
 //Worst case: O(N+1) where N is number of children

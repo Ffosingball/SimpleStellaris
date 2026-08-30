@@ -241,14 +241,15 @@ struct SpaceMapConfigurations
 	float rockyPlanetRingChance = 0.02f;
 	float gasPlanetRingChance = 0.2f;
 	int numOfAvailableRingTextures = 9;
-	float ringSizeComparedToPlanet = 2.5f;
+	float ringSizeComparedToPlanet = 4.f;//2.5
 
 	//Districts config
 	//For planet with size 1.f
 	int districtsAmount = 20;
-	sf::Vector2f districtPosOffset{ 30.f, 30.f };
-	sf::Vector2f districtSize{ 40.f, 40.f };
-	sf::Vector2f distanceBetweenDistricts{ 45.f, 45.f };
+	//Where districts should be centered at
+	sf::Vector2f districtPosOffset{ -400.f, 50.f };
+	sf::Vector2f districtSize{ 62.f, 62.f };//65
+	sf::Vector2f distanceBetweenDistricts{ 70.f, 70.f };//70
 
 	float barrenPlanetBarrenDistrictChance = 25.f;
 	float barrenPlanetCratorDistrictChance = 25.f;

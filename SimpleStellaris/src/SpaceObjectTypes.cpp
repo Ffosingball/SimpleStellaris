@@ -159,3 +159,39 @@ std::string GetSystemTypeName(SpaceSystemType systemType)
 
 	return "UNKNOWN";
 }
+
+
+std::string GetPlanetDistrictName(PlanetDistrictType districtType) 
+{
+	switch (districtType) 
+	{
+	case PlanetDistrictType::Voulcano:
+		return "Voulcano";
+	case PlanetDistrictType::Barren:
+		return "Barren Land";
+	case PlanetDistrictType::Crator:
+		return "Giant Crator";
+	case PlanetDistrictType::Mountains:
+		return "Mountains";
+	case PlanetDistrictType::Desert:
+		return "Desert";
+	case PlanetDistrictType::Ocean:
+		return "Ocean";
+	case PlanetDistrictType::Islands:
+		return "Islands";
+	case PlanetDistrictType::Forest:
+		return "Forest";
+	case PlanetDistrictType::Rainforest:
+		return "Rainforest";
+	case PlanetDistrictType::Steppe:
+		return "Steppe";
+	case PlanetDistrictType::IceSheet:
+		return "Ice Sheets";
+	case PlanetDistrictType::MethanOcean:
+		return "Methan Ocean";
+	case PlanetDistrictType::MoltenLand:
+		return "Molten Land";
+	}
+
+	return "UNKNOWN";
+}

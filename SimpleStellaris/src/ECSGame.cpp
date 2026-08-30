@@ -48,6 +48,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	spInputSystem->musicSystem = spMusicSystem;
 
 	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
+	WorldGenerator::spInputSystem = spInputSystem;
 
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpPlay = entityManager.NewEntity("SpaceMap");

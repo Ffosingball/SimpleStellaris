@@ -151,6 +151,7 @@ namespace gel
 	//Worst case: O(1)
 	bool IsPointInTheArea(sf::Vector2f point, sf::Vector2f areaPosition, sf::Vector2f areaSize) 
 	{
+		//std::cout << "Point: "<<point.x<<", "<<point.y<<"; Position: "<<areaPosition.x<<", "<<areaPosition.y<<"; Size"<<areaSize.x<<", "<<areaSize.y<<'\n';
 		if (point.x > areaPosition.x - (areaSize.x / 2.f) && point.x < areaPosition.x + (areaSize.x / 2.f)) 
 		{
 			if (point.y > areaPosition.y - (areaSize.y / 2.f) && point.y < areaPosition.y + (areaSize.y / 2.f))

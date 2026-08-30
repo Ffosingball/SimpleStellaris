@@ -8,19 +8,16 @@
 #include "ECSGame.h"
 #include "Entity.h"
 #include "EntityManager.h"
-//#include <memory>
 #include "Components.h"
 #include "Component.h"
-//#include <SFML/Graphics.hpp>
 #include <iostream>
-//#include <random>
 #include "ResourceManager.h"
 #include "CommonGameCode.h"
 #include "GameState.h"
-//#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
 #include "SpaceMapConfiguration.h"
 #include "CompilerInstructions.h"
+#include "Systems.h"
 
 
 class WorldGenerator 
@@ -101,6 +98,8 @@ private:
 	static PlanetDistrictType GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, SpaceMapConfigurations& mapConfig, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier);
 
 public:
+
+	static std::shared_ptr<InputSystem> spInputSystem;
 
 	static int const getSeed() { return seed; }
 	static void Initialize(unsigned int seed);

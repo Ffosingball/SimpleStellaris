@@ -17,6 +17,8 @@
 #include <unordered_map>
 #include <rapidcsv.h>
 #include "CompilerInstructions.h"
+#include "Systems.h"
+#include <functional>
 
 
 //Read data from the file
@@ -103,6 +105,7 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::voulcanicPlanet
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertClosePlanetDistrictsDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertMediumPlanetDistrictsDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertFarPlanetDistrictsDist = nullptr;
+std::shared_ptr<InputSystem> WorldGenerator::spInputSystem = nullptr;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -154,10 +157,11 @@ std::vector<int> WorldGenerator::GenerateGridOfRandomNumbers(sf::Vector2i gridSi
 
 PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, SpaceMapConfigurations& mapConfig, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier)
 {
+	int val{ -1 };
 	switch (planetType)
 	{
 	case PlanetType::BarrenGrey:
-		int val = (*barrenPlanetDistrictsDist)(*randomizer);
+		val = (*barrenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "BarrenGreyBarrenDistrict";
@@ -179,7 +183,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			return PlanetDistrictType::Desert;
 		}
 	case PlanetType::BarrenDark:
-		int val = (*barrenPlanetDistrictsDist)(*randomizer);
+		val = (*barrenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "BarrenDarkBarrenDistrict";
@@ -201,7 +205,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			return PlanetDistrictType::Desert;
 		}
 	case PlanetType::BarrenMarsLike:
-		int val = (*barrenPlanetDistrictsDist)(*randomizer);
+		val = (*barrenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "BarrenRedBarrenDistrict";
@@ -223,7 +227,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			return PlanetDistrictType::Desert;
 		}
 	case PlanetType::VenusLike:
-		int val = (*venusLikePlanetDistrictsDist)(*randomizer);
+		val = (*venusLikePlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "VenusLikeVoulcanoDistrict";
@@ -268,7 +272,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 		}
 
-		int val = (*oceanicPlanetDistrictsDist)(*randomizer);
+		val = (*oceanicPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "OceanDistrict";
@@ -291,7 +295,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				}
 			}
 
-			int val = (*earthLikeClosePlanetDistrictsDist)(*randomizer);
+			val = (*earthLikeClosePlanetDistrictsDist)(*randomizer);
 			if (val == 0)
 			{
 				districtTextureName = "EarthLikeMountainsDistrict";
@@ -309,7 +313,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 3)
 			{
-				districtTextureName = "EarthLikeDesertDistrict";
+				districtTextureName = "DesertDistrict";
 				return PlanetDistrictType::Desert;
 			}
 			else if (val == 4)
@@ -334,7 +338,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				}
 			}
 
-			int val = (*earthLikeMediumPlanetDistrictsDist)(*randomizer);
+			val = (*earthLikeMediumPlanetDistrictsDist)(*randomizer);
 			if (val == 0)
 			{
 				districtTextureName = "EarthLikeMountainsDistrict";
@@ -352,7 +356,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 3)
 			{
-				districtTextureName = "EarthLikeDesertDistrict";
+				districtTextureName = "DesertDistrict";
 				return PlanetDistrictType::Desert;
 			}
 			else if (val == 4)
@@ -382,7 +386,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				}
 			}
 
-			int val = (*earthLikeFarPlanetDistrictsDist)(*randomizer);
+			val = (*earthLikeFarPlanetDistrictsDist)(*randomizer);
 			if (val == 0)
 			{
 				districtTextureName = "EarthLikeMountainsDistrict";
@@ -400,7 +404,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 3)
 			{
-				districtTextureName = "EarthLikeDesertDistrict";
+				districtTextureName = "DesertDistrict";
 				return PlanetDistrictType::Desert;
 			}
 			else if (val == 4)
@@ -415,7 +419,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 		}
 	case PlanetType::TitanLike:
-		int val = (*titanLikePlanetDistrictsDist)(*randomizer);
+		val = (*titanLikePlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "TitanLikeBarrenDistrict";
@@ -428,7 +432,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		}
 		else if (val == 2)
 		{
-			districtTextureName = "TitanLikeMethanOceanDistrict";
+			districtTextureName = "MethanOceanDistrict";
 			return PlanetDistrictType::MethanOcean;
 		}
 		else if (val == 3)
@@ -437,7 +441,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			return PlanetDistrictType::Voulcano;
 		}
 	case PlanetType::Molten:
-		int val = (*moltenPlanetDistrictsDist)(*randomizer);
+		val = (*moltenPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "MoltenVoulcanoDistrict";
@@ -449,7 +453,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			return PlanetDistrictType::MoltenLand;
 		}
 	case PlanetType::Icy:
-		int val = (*icyPlanetDistrictsDist)(*randomizer);
+		val = (*icyPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "IceSheetDistrict";
@@ -471,7 +475,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			return PlanetDistrictType::Voulcano;
 		}
 	case PlanetType::Voulcanic:
-		int val = (*voulcanicPlanetDistrictsDist)(*randomizer);
+		val = (*voulcanicPlanetDistrictsDist)(*randomizer);
 		if (val == 0)
 		{
 			districtTextureName = "VoulcanicVoulcanoDistrict";
@@ -494,7 +498,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				}
 			}
 
-			int val = (*desertClosePlanetDistrictsDist)(*randomizer);
+			val = (*desertClosePlanetDistrictsDist)(*randomizer);
 			if (val == 0)
 			{
 				districtTextureName = "DesertDistrict";
@@ -532,7 +536,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				}
 			}
 
-			int val = (*desertMediumPlanetDistrictsDist)(*randomizer);
+			val = (*desertMediumPlanetDistrictsDist)(*randomizer);
 			if (val == 0)
 			{
 				districtTextureName = "DesertDistrict";
@@ -570,7 +574,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 				}
 			}
 
-			int val = (*desertFarPlanetDistrictsDist)(*randomizer);
+			val = (*desertFarPlanetDistrictsDist)(*randomizer);
 			if (val == 0)
 			{
 				districtTextureName = "DesertDistrict";
@@ -617,7 +621,7 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 
 	//Create node which will store all districts nodes
 	std::shared_ptr<Entity> spNewEn = CreateNewEntityAt(spPlanetNode, "Node").lock();
-	spNewEn->SetPosition(mapConfig.districtPosOffset);
+	spNewEn->SetPosition(sf::Vector2f{ mapConfig.districtPosOffset.x -(numOfColumns*mapConfig.distanceBetweenDistricts.x/2), mapConfig.districtPosOffset.y - (numOfRows * mapConfig.distanceBetweenDistricts.y / 2) });
 	std::shared_ptr<SceneNode> spNewNode = spPlanetNode->FindChild(*spNewEn).lock();
 	spPlanetCom->spPlanetDistrictsNode = spNewNode;
 	spPlanetNode->RemoveByEntity(spNewEn);
@@ -627,6 +631,7 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 	int currentRow = 0;
 	bool generateIceCaps{false};
 	float iceCapChanceMul = 0.f;
+	std::shared_ptr<InputSystem> spInputSys = spInputSystem;
 	while (currentRow < numOfRows) 
 	{
 		//Check if ice cap should be generated on this row or not
@@ -663,14 +668,22 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 			std::string districtTextureName;
 			std::shared_ptr<DistrictComponent> spDistrictCom = spDistrict->AddComponent<DistrictComponent>().lock();
 			spDistrictCom->districtType = GetDistrictType(spPlanetCom->planetType, wpHabitPlanet, mapConfig, districtTextureName, generateIceCaps, iceCapChanceMul);
+			spDistrictCom->districtID = currentRow * numOfColumns + currentColumn;
 
 			std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spDistrict->AddComponent<RectangleShapeComponent>().lock();
 			SetupRectangleShape(spRectShapeCom, mapConfig.districtSize, districtTextureName);
 			
 			spDistrict->AddComponent<UIPartComponent>().lock();
 			std::shared_ptr<ButtonComponent> spButtonCom = spDistrict->AddComponent<ButtonComponent>().lock();
-			//SUBSCRIBE BUTTON FUNCTIONS!
-			//spButtonCom->;
+			spButtonCom->buttonSize = mapConfig.districtSize;
+			spButtonCom->onButtonHovered = [spInputSys](std::shared_ptr<Entity> entity)
+				{
+					spInputSys->DistrictHovered(entity);
+				};
+			spButtonCom->onButtonUnhovered = [spInputSys](std::shared_ptr<Entity> entity)
+				{
+					spInputSys->DistrictUnhovered(entity);
+				};
 			currentColumn++;
 		}
 		currentRow++;
@@ -1375,7 +1388,7 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	GenerateRings(spNode->FindChild("Planet" + std::to_string(num)).lock(), spPlanetCom->planetSize, spPlanetCom->planetType, mapConfig);
 	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
 
-	if(rockyPlanet)
+	if(rockyPlanet || icyPlanet)
 		GenerateDistricts(spPlanetCom, spPlanet->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spPlanet).lock(), mapConfig);
 }
 

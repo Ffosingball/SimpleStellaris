@@ -164,6 +164,7 @@ void CreateUI()
 	sf::Vector2f uiTopPartSize{ 1000.f, 120.f };
 	sf::Vector2f uiBottomPartSize{ 1200.f, 200.f };
 	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
+	sf::Vector2f planetDisPartSize{ 1600.f, 900.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
@@ -234,6 +235,36 @@ void CreateUI()
 	spTextEn = InitializeText("InfoText5", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText6", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+	spTextEn->hidden = true;
+
+	//CREATE PLANET DISTRICTS panel
+	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAtUIRoot("PlanetDistrictsPart").lock();
+	spPlDisPart->hidden = true;
+	//Add component
+	spPlDisPart->AddComponent<UIPartComponent>();
+	std::shared_ptr<RectangleShapeComponent> spRectShape5 = spPlDisPart->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShape5, planetDisPartSize * uiSize, "UIPartPlanetDistricts");
+	spPlDisPart->SetPosition(sf::Vector2f{ 1280.f, 800.f } * uiSize);
+
+	std::shared_ptr<SceneNode> spPlDisNode = spUIRootNode->FindChild(*spPlDisPart).lock();
+	//CREATE Planet Districts textes
+	spTextEn = InitializeText("PlanetNameText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 0.f, -380.f } * uiSize, fontName, true, importantColor, spPlDisNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("DistrictsText", "Planet Districts:", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, -300.f } * uiSize, fontName, false, usualColor, spPlDisNode);
+	spTextEn->hidden = true;
+	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f{0.f,0.f});
+	spTextEn = InitializeText("DistrictTypeText", "Type: ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 310.f } * uiSize, fontName, false, usualColor, spPlDisNode);
+	spTextEn->hidden = true;
+	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
+	spTextEn = InitializeText("DistrictPopulationText", "Population ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 340.f } * uiSize, fontName, false, usualColor, spPlDisNode);
+	spTextEn->hidden = true;
+	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
+	spTextEn = InitializeText("DistrictIndustryText", "Industry ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 370.f } * uiSize, fontName, false, usualColor, spPlDisNode);
+	spTextEn->hidden = true;
+	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
+	spTextEn = InitializeText("CountriesText", "Countries list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 200.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
+	spTextEn->hidden = true;
+	spTextEn = InitializeText("BuildingsText", "Buildings list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 600.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
 	spTextEn->hidden = true;
 }
 

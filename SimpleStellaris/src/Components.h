@@ -11,6 +11,7 @@
 #include "SpaceMapConfiguration.h"
 #include "SceneNode.h"
 #include "GameState.h"
+#include <functional>
 
 
 
@@ -251,15 +252,15 @@ public:
 	sf::Vector2f buttonSize{ 0.f, 0.f };
 	bool enabled{ true };
 	//Called if mouse is over the button and it pressed lmb or A(joystick)
-	void (*onButtonPressed)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	std::function<void(std::shared_ptr<Entity>)> onButtonPressed;
 	//Called if mouse enters button area
-	void (*onButtonHovered)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	std::function<void(std::shared_ptr<Entity>)> onButtonHovered;
 	//Called if mouse leaves button area
-	void (*onButtonUnhovered)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	std::function<void(std::shared_ptr<Entity>)> onButtonUnhovered;
 	//Called when button is released
-	void (*onButtonReleased)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	std::function<void(std::shared_ptr<Entity>)> onButtonReleased;
 	//Called when button is released and mouse is over the button
-	void (*onButtonClicked)(std::shared_ptr<Entity> spEntityOfButton) = nullptr;
+	std::function<void(std::shared_ptr<Entity>)> onButtonClicked;
 	bool isPressed{ false };
 	bool isHovered{ false };
 };
@@ -270,4 +271,5 @@ class DistrictComponent : public Component
 {
 public:
 	PlanetDistrictType districtType;
+	int districtID{-1};
 };

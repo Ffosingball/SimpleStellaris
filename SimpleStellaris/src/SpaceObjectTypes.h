@@ -96,3 +96,5 @@ enum class PlanetDistrictType
 	MethanOcean,
 	MoltenLand
 };
+
+std::string GetPlanetDistrictName(PlanetDistrictType districtType);

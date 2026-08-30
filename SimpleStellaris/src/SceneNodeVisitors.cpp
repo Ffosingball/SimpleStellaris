@@ -370,15 +370,17 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
         //Check if entity has Button component
         if (spEntity->HasComponent<ButtonComponent>())
         {
+            //std::cout << "Check if button is hovered!\n";
             //Get Button component
             std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 
             if (spButton->enabled)
             {
-                if (gel::IsPointInTheArea(mousePosition, spButton->buttonSize, spEntity->GetPosition()))
+                if (gel::IsPointInTheArea(mousePosition, node.GetCombinedPosition(), spButton->buttonSize))
                 {
                     if (!spButton->isHovered)
                     {
+                        //std::cout << "Call button hovered!\n";
                         spButton->isHovered = true;
                         spButton->onButtonHovered(spEntity);
                     }

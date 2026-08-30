@@ -18,6 +18,9 @@ class InputSystem :public System
 public:
 	virtual ~InputSystem() = default;
 
+	void DistrictHovered(std::shared_ptr<Entity> spEntity);
+	void DistrictUnhovered(std::shared_ptr<Entity> spEntity);
+
 	std::shared_ptr<MusicSystem> musicSystem;
 
 	//Check if left mouse button or A on joystick is presed which controls button 
@@ -45,18 +48,24 @@ private:
 	void CancelCameraLock();
 	void PauseSimulation();
 	void ResumeSimulation();
+	void OpenPlanetDistrictsView();
+	void ClosePlanetDistrictsView();
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
 	std::shared_ptr<TextComponent> fpsText{ nullptr };
 	std::vector<std::weak_ptr<Entity>> debugTextes;
+	std::shared_ptr<TextComponent> districtTypeText{ nullptr };
+	std::shared_ptr<TextComponent> planetNameText{ nullptr };
 
 	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
 	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
 	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
+	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 	std::weak_ptr<SceneNode> wpPlanetOrStarSelected;
 	std::weak_ptr<SceneNode> wpMoonOrPlanetSelected;
+	std::shared_ptr<SceneNode> planetDistrictsPanel;
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };
@@ -74,10 +83,10 @@ private:
 	int distanceFromMouseToIconToBeSelected{60};
 	bool infoPanelIsShown{ false };
 	bool UIHidden{ false };
+	bool districtViewOpened{ false };
+	int currentDistrictShown = -1;
 
 	OverviewType previousFrameOverview = OverviewType::None;
-
-	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 };
 
 //Processes all movement
