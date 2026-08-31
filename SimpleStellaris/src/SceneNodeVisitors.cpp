@@ -376,7 +376,7 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
 
             if (spButton->enabled)
             {
-                if (gel::IsPointInTheArea(mousePosition, node.GetCombinedPosition(), spButton->buttonSize))
+                if (spEntity==wpFrontmostEntity.lock())
                 {
                     if (!spButton->isHovered)
                     {
@@ -411,6 +411,55 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
 
                         if (spButton->isHovered)
                             spButton->onButtonClicked(spEntity);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+//Finding frontmost ui entity under the mouse position
+void SceneNodeVisitorFrontmostMouseHit::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if frontmost part is found or not
+        //And if it hidden or not
+        if (wpFrontmostNode.lock() == nullptr && !spEntity->hidden)
+        {
+            //Check that entity does not have uiFollower and it is not a mouse
+            if (!spEntity->HasComponent<UIFollowerComponent>() && spEntity->GetName() != "MouseIcon")
+            {
+                //std::cout << "Check: " << spEntity->GetName()<<'\n';
+                if (spEntity->HasComponent<ButtonComponent>())
+                {
+                    std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
+                    if (gel::IsPointInTheArea(mousePosition, node.GetCombinedPosition(), spButton->buttonSize))
+                    {
+                        //std::cout << "Mouse over button \n";
+                        wpFrontmostNode = node.GetSharedPtrToItself();
+                    }
+                }
+                else if (spEntity->HasComponent<RectangleShapeComponent>())
+                {
+                    std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+                    if (gel::IsPointInTheArea(mousePosition, node.GetCombinedPosition(), spRecShape->shape.getSize()))
+                    {
+                        //std::cout << "Mouse over rectangleShape \n";
+                        wpFrontmostNode = node.GetSharedPtrToItself();
+                    }
+                }
+                else if (spEntity->HasComponent<TextComponent>())
+                {
+                    std::shared_ptr<TextComponent> spText = spEntity->FindComponent<TextComponent>().lock();
+                    if (gel::IsPointInTheArea(mousePosition, node.GetCombinedPosition(), spText->text->getGlobalBounds().size))
+                    {
+                        //std::cout << "Mouse over text \n";
+                        wpFrontmostNode = node.GetSharedPtrToItself();
                     }
                 }
             }

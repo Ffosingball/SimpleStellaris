@@ -50,11 +50,13 @@ private:
 	void ResumeSimulation();
 	void OpenPlanetDistrictsView();
 	void ClosePlanetDistrictsView();
+	void ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition);
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
 	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
 	std::shared_ptr<TextComponent> fpsText{ nullptr };
+	std::shared_ptr<TextComponent> mouseOverUIText{ nullptr };
 	std::vector<std::weak_ptr<Entity>> debugTextes;
 	std::shared_ptr<TextComponent> districtTypeText{ nullptr };
 	std::shared_ptr<TextComponent> planetNameText{ nullptr };

@@ -152,6 +152,7 @@ void CreateDebugText()
 	InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false);
 	InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false);
 	InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false);
+	InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 175.f } * uiSize, fontName, false);
 }
 
 

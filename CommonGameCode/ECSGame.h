@@ -54,6 +54,8 @@ public:
 	float GetSimulationSpeed() const { return simulationSpeed; }
 	//Worst case: O(1)
 	float GetSimulationDeltaTime() const;
+	//Worst case: O(1)
+	bool IsMouseOverUI() const { return isMouseOverUI; }
 
 	//Setter
 	//Worst case: O(1)
@@ -66,6 +68,8 @@ public:
 	void SetSimulationSpeed(float simSpeed);
 	//Worst case: O(1)
 	void SetMousePosition(sf::Vector2i newMousePos) const;
+	//Worst case: O(1)
+	void SetIsMouseOverUI(bool mouseOverUI) { isMouseOverUI = mouseOverUI; }
 
 	//Override all methods from the parent
 	void Init(sf::RenderWindow& renderWindow) override;
@@ -109,4 +113,6 @@ private:
 	float windowRelationToDefault{ 1.f };
 	//Pointer to the window
 	sf::RenderWindow* renderWindowPtr = nullptr;
+	//Flag if mouse over ui part or not!
+	bool isMouseOverUI{false};
 };

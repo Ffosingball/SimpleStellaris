@@ -43,7 +43,27 @@ public:
 	//Worst case: O(N) where N is number of children
 	void ChangeChildOrder(const std::shared_ptr<Entity> entity, int position);
 
+	//Parent
+	// | - Child 1
+	// |    | - Child 1.1
+	// |    | - Child 1.2
+	// | - Child 2
+	// | - Child 3
+	//Processes every node in the order:
+	//Parent -> Child 1 -> Child 1.1 -> Child 1.2 -> Child 2 -> Child 3
+	//Worst case: O(N+1) where N is number of children
 	void AcceptVisitor(SceneNodeVisitor& visitor);
+
+	//Parent
+	// | - Child 1
+	// |    | - Child 1.1
+	// |    | - Child 1.2
+	// | - Child 2
+	// | - Child 3
+	//Processes every node in reverse order:
+	//Child 3 -> Child 2 -> Child 1.2 -> Child 1.1 -> Child 1 -> Parent
+	//Worst case: O(N+1) where N is number of children
+	void AcceptReverseVisitor(SceneNodeVisitor& visitor);
 
 	//Remove child
 	//Worst case: O(N) where N is number nodes in the game

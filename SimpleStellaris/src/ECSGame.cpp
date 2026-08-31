@@ -101,6 +101,8 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 {
+	//std::cout << "UPDATE\n";
+
 	//Change deltatime
 	this->deltaTime = deltaTime;
 	timeSinceStart += deltaTime;

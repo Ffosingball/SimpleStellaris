@@ -108,6 +108,20 @@ void SceneNode::AcceptVisitor(SceneNodeVisitor& visitor)
 		node->AcceptVisitor(visitor);
 }
 
+//Worst case: O(N+1) where N is number of children
+void SceneNode::AcceptReverseVisitor(SceneNodeVisitor& visitor)
+{
+	//Send visitors to all children
+	for (int i = (int)children.size() - 1; i >= 0; i--)
+	{
+		children[i]->AcceptReverseVisitor(visitor);
+	}
+
+	//std::cout << GetCombinedParentsNames()<<'\n';
+	//Allow visitor to process this node
+	visitor.ProcessNode(*this);
+}
+
 //Remove child
 //Worst case: O(N) where N is number nodes in the game
 void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e) 

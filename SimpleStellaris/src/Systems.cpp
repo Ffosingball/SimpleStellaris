@@ -42,6 +42,10 @@ void InputSystem::Initialize()
 	fpsText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
 	debugTextes.push_back(wfpsPtr->GetEntity());
 
+	wfpsPtr = ECSGame::Instance().GetUIRoot()->FindChild("MouseOverUIText").lock();
+	mouseOverUIText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+	debugTextes.push_back(wfpsPtr->GetEntity());
+
 	std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUIRoot()->FindChild("SelectedSystemIcon").lock();
 	selectedSystemIcon = wsiPtr->GetEntity().lock()->FindComponent<UIFollowerComponent>().lock();
 	selectedSystemEntity = wsiPtr->GetEntity().lock();
@@ -107,6 +111,9 @@ void InputSystem::CancelCameraLock()
 
 void InputSystem::OpenPlanetDistrictsView() 
 {
+	if (wpDistrictsShown.lock() != nullptr)
+		planetDistrictsPanel->RemoveByEntity(wpDistrictsShown.lock());
+
 	std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
 	if (spPlanetCom->planetDistrictsSeed != -1)
 	{
@@ -127,8 +134,11 @@ void InputSystem::OpenPlanetDistrictsView()
 
 void InputSystem::ClosePlanetDistrictsView()
 {
-	if(wpDistrictsShown.lock() !=nullptr)
+	if (wpDistrictsShown.lock() != nullptr)
+	{
 		planetDistrictsPanel->RemoveByEntity(wpDistrictsShown.lock());
+		wpDistrictsShown = {};
+	}
 	planetDistrictsPanel->GetEntity().lock()->hidden = true;
 	districtViewOpened = false;
 
@@ -630,6 +640,19 @@ void InputSystem::OnMouseButtonReleased(sf::Event::MouseButtonReleased mouseButR
 }
 
 
+void InputSystem::ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition)
+{
+	//Check that pointer is valid
+	if (wpFrontmostNode.lock() != nullptr)
+	{
+		//std::cout <<"Frontmost entity is: "<< wpFrontmostNode.lock()->GetEntity().lock()->GetName()<<"\n";
+		ECSGame::Instance().SetIsMouseOverUI(true);
+	}
+	else
+		ECSGame::Instance().SetIsMouseOverUI(false);
+}
+
+
 //I process movement and fire keys in every frame, because game reacts to the key press
 //on the same frame as it was pressed, and it will react every fram until the key
 //is released. If I would use events, they are not called every frame, which is bad
@@ -723,103 +746,138 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
 	worldPosText->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
 
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && !districtViewOpened)
+	//Now get the frontmost ui part over which mouse is 
+	SceneNodeVisitorFrontmostMouseHit frontVisitor(sf::Vector2f{ mousePosition });
+	ECSGame::Instance().GetUIRoot()->AcceptReverseVisitor(frontVisitor);
+	ProcessFrontmostUIPart(frontVisitor.wpFrontmostNode, sf::Vector2f{ mousePosition });
+
+	if(ECSGame::Instance().IsMouseOverUI())
+		mouseOverUIText->text->setString("Mouse over UI: TRUE");
+	else
+		mouseOverUIText->text->setString("Mouse over UI: FALSE");
+
+	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
 	{
-		std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
-
-		std::string message{ "Systems nearby: " };
-		float closestDistance = 999999.f;
-		int closestSystemIndex = -1;
-		int counter{ 0 };
-		for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
+		if (!ECSGame::Instance().IsMouseOverUI())
 		{
-			std::shared_ptr<ObjectSystemComponent> spSysCom = spNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-			message += spSysCom->systemName + " (" + spNode->GetEntity().lock()->GetName() + ") "+GetSpaceSystemTypeName(spSysCom->systemType);
-			if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
-			{
-				closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
-				closestSystemIndex = counter;
-				wpSelectedSystemNode = spNode;
-			}
-			counter++;
-		}
+			std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
 
-		if (closestSystemIndex == -1)
+			std::string message{ "Systems nearby: " };
+			float closestDistance = 999999.f;
+			int closestSystemIndex = -1;
+			int counter{ 0 };
+			for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
+			{
+				std::shared_ptr<ObjectSystemComponent> spSysCom = spNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
+				message += spSysCom->systemName + " (" + spNode->GetEntity().lock()->GetName() + ") " + GetSpaceSystemTypeName(spSysCom->systemType);
+				if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
+				{
+					closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
+					closestSystemIndex = counter;
+					wpSelectedSystemNode = spNode;
+				}
+				counter++;
+			}
+
+			if (closestSystemIndex == -1)
+			{
+				selectedSystemIcon->nodeToFollow = {};
+				wpSelectedSystemNode = {};
+				signals::onClearInfoPanel();
+			}
+			else
+			{
+				selectedSystemIcon->nodeToFollow = systemsNearBy[closestSystemIndex];
+				signals::onUpdateInfoPanel(wpSelectedSystemNode);
+			}
+
+			systemsNearByText->text->setString(message);
+		}
+		else
 		{
 			selectedSystemIcon->nodeToFollow = {};
 			wpSelectedSystemNode = {};
 			signals::onClearInfoPanel();
 		}
-		else
-		{
-			selectedSystemIcon->nodeToFollow = systemsNearBy[closestSystemIndex];
-			signals::onUpdateInfoPanel(wpSelectedSystemNode);
-		}
-
-		systemsNearByText->text->setString(message);
 	}
-	else if ((ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet) && !districtViewOpened)
+	else if ((ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet))
 	{
-		bool selectPlanets = true;
-		if ((spCamCom->currentZoom > zoomAtWhichStartSelectPlanets || UIHidden) && ECSGame::Instance().GetOverviewType() == OverviewType::System)
-			selectPlanets = false;
-
-		float maxDistance = ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ distanceFromMouseToIconToBeSelected, 0 }).x - ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ 0,0 }).x;
-		//std::cout << "MaxDist: "<<maxDistance<<;
-
-		SceneNodeVisitorGetClosestNodeToPosition visitor(positionInWorld, maxDistance, selectPlanets);
-		if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+		if (!ECSGame::Instance().IsMouseOverUI())
 		{
-			visitor.currentOverview = OverviewType::System;
-			wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
-		}
-		else
-		{
-			visitor.currentOverview = OverviewType::Planet;
-			wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor);
-		}
+			bool selectPlanets = true;
+			if ((spCamCom->currentZoom > zoomAtWhichStartSelectPlanets || UIHidden) && ECSGame::Instance().GetOverviewType() == OverviewType::System)
+				selectPlanets = false;
 
-		if (visitor.wpClosestNode.lock() != nullptr)
-		{
-			std::shared_ptr<Entity> spE;
+			float maxDistance = ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ distanceFromMouseToIconToBeSelected, 0 }).x - ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ 0,0 }).x;
+			//std::cout << "MaxDist: "<<maxDistance<<;
+
+			SceneNodeVisitorGetClosestNodeToPosition visitor(positionInWorld, maxDistance, selectPlanets);
 			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 			{
-				wpPlanetOrStarSelected = visitor.wpClosestNode;
-				selectedSystemIcon->nodeToFollow = wpPlanetOrStarSelected;
-				spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
-				signals::onUpdateInfoPanel(wpPlanetOrStarSelected);
+				visitor.currentOverview = OverviewType::System;
+				wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
 			}
-			else 
+			else
 			{
-				wpMoonOrPlanetSelected = visitor.wpClosestNode;
-				spE = wpMoonOrPlanetSelected.lock()->GetEntity().lock();
-				std::shared_ptr<PlanetComponent> spPlanetCom = spE->FindComponent<PlanetComponent>().lock();
-				if(spPlanetCom->isMoon)
-					selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected;
-				else
-					selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected.lock()->FindChild("PlanetPicture");
-				
-				signals::onUpdateInfoPanel(wpMoonOrPlanetSelected);
+				visitor.currentOverview = OverviewType::Planet;
+				wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor);
 			}
 
-			if (spE->HasComponent<StarComponent>())
-				systemsNearByText->text->setString(spE->GetName() + " (" + spE->FindComponent<StarComponent>().lock()->starName + ")");
-			else if (spE->HasComponent<PlanetComponent>())
+			if (visitor.wpClosestNode.lock() != nullptr)
 			{
-				std::shared_ptr<PlanetComponent> spPlanet = spE->FindComponent<PlanetComponent>().lock();
-				systemsNearByText->text->setString(spE->GetName() + " (" + spPlanet->planetName + "; " + spPlanet->planetIconTextureName + "); size: " + std::to_string(spPlanet->planetSize));
+				std::shared_ptr<Entity> spE;
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+				{
+					wpPlanetOrStarSelected = visitor.wpClosestNode;
+					selectedSystemIcon->nodeToFollow = wpPlanetOrStarSelected;
+					spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
+					signals::onUpdateInfoPanel(wpPlanetOrStarSelected);
+				}
+				else
+				{
+					wpMoonOrPlanetSelected = visitor.wpClosestNode;
+					spE = wpMoonOrPlanetSelected.lock()->GetEntity().lock();
+					std::shared_ptr<PlanetComponent> spPlanetCom = spE->FindComponent<PlanetComponent>().lock();
+					if (spPlanetCom->isMoon)
+						selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected;
+					else
+						selectedSystemIcon->nodeToFollow = wpMoonOrPlanetSelected.lock()->FindChild("PlanetPicture");
+
+					signals::onUpdateInfoPanel(wpMoonOrPlanetSelected);
+				}
+
+				if (spE->HasComponent<StarComponent>())
+					systemsNearByText->text->setString(spE->GetName() + " (" + spE->FindComponent<StarComponent>().lock()->starName + ")");
+				else if (spE->HasComponent<PlanetComponent>())
+				{
+					std::shared_ptr<PlanetComponent> spPlanet = spE->FindComponent<PlanetComponent>().lock();
+					systemsNearByText->text->setString(spE->GetName() + " (" + spPlanet->planetName + "; " + spPlanet->planetIconTextureName + "); size: " + std::to_string(spPlanet->planetSize));
+				}
+			}
+			else
+			{
+				selectedSystemIcon->nodeToFollow = {};
+				systemsNearByText->text->setString(" ");
+				signals::onClearInfoPanel();
+
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+					wpPlanetOrStarSelected = {};
+				else
+					wpMoonOrPlanetSelected = {};
 			}
 		}
 		else 
 		{
 			selectedSystemIcon->nodeToFollow = {};
 			systemsNearByText->text->setString(" ");
-			signals::onClearInfoPanel();
 
 			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+			{
 				wpPlanetOrStarSelected = {};
-			else
-				wpMoonOrPlanetSelected = {};
+				signals::onClearInfoPanel();
+			}
+			//else
+			//	wpMoonOrPlanetSelected = {};
 		}
 	}
 	else
@@ -834,7 +892,11 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	signals::onMoveCamera(direction);
 
 	//Now process all buttons
-	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition));
+	std::weak_ptr<Entity> wpFrontEntity;
+	if (frontVisitor.wpFrontmostNode.lock() != nullptr)
+		wpFrontEntity = frontVisitor.wpFrontmostNode.lock()->GetEntity();
+
+	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition), wpFrontEntity);
 	ECSGame::Instance().GetUIRoot()->AcceptVisitor(visitor);
 
 	previousFrameOverview = ECSGame::Instance().GetOverviewType();
