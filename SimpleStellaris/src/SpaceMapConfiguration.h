@@ -245,11 +245,11 @@ struct SpaceMapConfigurations
 
 	//Districts config
 	//For planet with size 1.f
-	int districtsAmount = 20;
+	int districtsAmount = 26;
 	//Where districts should be centered at
 	sf::Vector2f districtPosOffset{ -390.f, 50.f };
-	sf::Vector2f districtSize{ 62.f, 62.f };//65
-	sf::Vector2f distanceBetweenDistricts{ 70.f, 70.f };//70
+	sf::Vector2f districtSize{ 56.f, 56.f };//65
+	sf::Vector2f distanceBetweenDistricts{ 64.f, 64.f };//70
 
 	float barrenPlanetBarrenDistrictChance = 25.f;
 	float barrenPlanetCratorDistrictChance = 25.f;

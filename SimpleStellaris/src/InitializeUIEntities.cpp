@@ -167,6 +167,7 @@ void CreateUI()
 	sf::Vector2f uiBottomPartSize{ 1200.f, 200.f };
 	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
 	sf::Vector2f planetDisPartSize{ 1650.f, 900.f };
+	sf::Vector2f escapeMenuSize{ 2560.f, 1600.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
@@ -175,6 +176,7 @@ void CreateUI()
 	std::string fontName = "PixelBold";
 	sf::Color importantColor = sf::Color{ 235, 175, 38 };
 	sf::Color usualColor = sf::Color{ 255,255,255 };
+	sf::Color escapeMenuPanelColor = sf::Color{0,0,0,230};
 
 	float uiSize = ECSGame::Instance().GetUISize();
 	std::shared_ptr<SceneNode> spUIRootNode = ECSGame::Instance().GetUIRoot();
@@ -268,6 +270,21 @@ void CreateUI()
 	spTextEn->hidden = true;
 	spTextEn = InitializeText("BuildingsText", "Buildings list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 600.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
 	spTextEn->hidden = true;
+
+	//CREATE Loading screen
+	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAtUIRoot("LoadingScreen").lock();
+	spLoadScreen->hidden = false;
+	//Add component
+	spRectShape = spLoadScreen->AddComponent<RectangleShapeComponent>().lock();
+	spRectShape->shape.setSize(escapeMenuSize*uiSize);
+	spRectShape->shape.setOrigin(spRectShape->shape.getSize()/2.f);
+	spRectShape->shape.setFillColor(escapeMenuPanelColor);
+	spLoadScreen->SetPosition(sf::Vector2f{ 1280.f, 800.f }* uiSize);
+
+	std::shared_ptr<SceneNode> spLoadSNode = spUIRootNode->FindChild(*spLoadScreen).lock();
+	//CREATE Loading screen textes
+	spTextEn = InitializeText("LoadingText", "Generating...", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spLoadSNode);
+	spTextEn->hidden = false;
 }
 
 

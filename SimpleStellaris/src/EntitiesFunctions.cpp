@@ -367,9 +367,12 @@ bool IsWorldPosInsideOfCamera(std::shared_ptr<CameraComponent> spCamCom, sf::Vec
 
 
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
-std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position) 
+std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position, std::weak_ptr<SystemPropertiesComponent> wpSysPropCom)
 {
-	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = GetSystemPropertiesFromSpaceMap();
+	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = wpSysPropCom.lock();
+	if (spSysPropCom == nullptr)
+		spSysPropCom = GetSystemPropertiesFromSpaceMap();
+
 	int yPos = (int)((position.y - WorldGenerator::mapConfig.verticalPosBoundaries.x) / WorldGenerator::mapConfig.minDistanceBetweenSystems);
 	int xPos = (int)((position.x - WorldGenerator::mapConfig.horizontalPosBoundaries.x) / WorldGenerator::mapConfig.minDistanceBetweenSystems);
 
@@ -571,14 +574,11 @@ void outputChildrens(std::vector<std::shared_ptr<SceneNode>> v)
 
 
 //Worst case: O(4N) where N is number of tiles to generate
-std::shared_ptr<TileMapComponent> GenerateBackgroundTiles()
+std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(std::shared_ptr<Entity> spTileMap)
 {
 	sf::Vector2i tilesInTileset{ 4,5 };
 	sf::Vector2i tilesSize{ 64,64 };
 
-	//Create tileMap
-	std::shared_ptr<Entity> spTileMap = CreateNewEntityAtRoot("Background").lock();
-	// Add components
 	//Get component
 	std::shared_ptr<TileMapComponent> spTileMapCom = spTileMap->AddComponent<TileMapComponent>().lock();
 	//set tilemap properties
@@ -594,10 +594,6 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles()
 	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(WorldGenerator::mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::GenerateGridOfRandomNumbers(WorldGenerator::mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
 	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x* WorldGenerator::mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * WorldGenerator::mapConfig.backgroundSize.y / (-2.f)) });
 
-	ECSGame::Instance().GetSceneRoot()->ChangeChildOrder(spTileMap,0);
-	std::weak_ptr<Entity> wpNebul = ECSGame::Instance().GetEntityManager().NewEntity("Nebulas");
-	ECSGame::Instance().GetSceneRoot()->FindChild("Background").lock()->AddChild(std::make_shared<SceneNode>(wpNebul));
-
 	return spTileMapCom;
 }
 
@@ -607,18 +603,26 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles()
 void CreateSpaceObjects() 
 {
 	float additionalSpaceForCameraBoundaries = 30.f;
+	std::weak_ptr<Entity> wpPlay = ECSGame::Instance().GetEntityManager().NewEntity("SpaceMap");
+	std::shared_ptr<SceneNode> spNode = std::make_shared<SceneNode>(wpPlay);
+	wpPlay.lock()->AddComponent<SystemPropertiesComponent>();
 
-	//Get spaceMap node
-	std::weak_ptr<SceneNode> wpNode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
-	std::shared_ptr<SceneNode> spNode = wpNode.lock();
+	std::weak_ptr<Entity> wpSysN = ECSGame::Instance().GetEntityManager().NewEntity("SystemNames");
+	std::shared_ptr<SceneNode> spSysNamesNode = std::make_shared<SceneNode>(wpSysN);
+
+	std::weak_ptr<Entity> wpBackgroundE = ECSGame::Instance().GetEntityManager().NewEntity("Background");
+	std::shared_ptr<SceneNode> spBackgroundNode = std::make_shared<SceneNode>(wpBackgroundE);
+	std::weak_ptr<Entity> wpNebul = ECSGame::Instance().GetEntityManager().NewEntity("Nebulas");
+	spBackgroundNode->AddChild(std::make_shared<SceneNode>(wpNebul));
+
 	//Firstly generate background
-	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles();
+	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(wpBackgroundE.lock());
 	//Secondly generate nebulas
-	WorldGenerator::GenerateNebulas(ECSGame::Instance().GetSceneRoot()->FindChild("Background").lock()->FindChild("Nebulas").lock(), ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock());
+	WorldGenerator::GenerateNebulas(spBackgroundNode->FindChild("Nebulas").lock(), spSysNamesNode);
 	//Thirdly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode);
 	//After put rectangleShape components for all objects
-	TextureSetter txSetter(WorldGenerator::getSeed());
+	TextureSetter txSetter(WorldGenerator::getSeed(), spSysNamesNode);
 	txSetter.wpSpaceMapNode = spNode;
 	spNode->AcceptVisitor(txSetter);
 	//Lastly set camera boundaries
@@ -638,8 +642,6 @@ void CreateSpaceObjects()
 	spCameraCom3->verticalBorders = { -WorldGenerator::mapConfig.planetCameraMaxBoundary, WorldGenerator::mapConfig.planetCameraMaxBoundary };
 	spCameraCom3->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
-	//WorldGenerator::checkRandomDistribution();
-
 #ifdef OUTPUT_WORLD_STATISTICS
 	SceneNodeSpaceObjectsCounter visitor(mapConfig);
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
@@ -651,4 +653,16 @@ void CreateSpaceObjects()
 	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
 	visitor.OutputAllData();
 #endif
+
+	ECSGame::Instance().GetSceneRoot()->AddChild(spNode);
+	ECSGame::Instance().GetSceneRoot()->AddChild(spBackgroundNode);
+	ECSGame::Instance().GetUIRoot()->AddChild(spSysNamesNode);
+
+	ECSGame::Instance().GetSceneRoot()->ChangeChildOrder(wpBackgroundE.lock(), 0);
+	ECSGame::Instance().GetUIRoot()->ChangeChildOrder(wpSysN.lock(), 0);
+
+	ECSGame::Instance().GetUIRoot()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
+	ECSGame::Instance().GetUIRoot()->FindChild("LoadingScreen").lock()->FindChild("LoadingText").lock()->GetEntity().lock()->hidden = true;
+
+	WorldGenerator::worldGenerated = true;
 }

@@ -51,21 +51,14 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	WorldGenerator::spInputSystem = spInputSystem;
 
 	//Create nodes, in which i will sort new entities which will be created during the game
-	std::weak_ptr<Entity> wpPlay = entityManager.NewEntity("SpaceMap");
-	sceneRoot->AddChild(std::make_shared<SceneNode>(wpPlay));
-	wpPlay.lock()->AddComponent<SystemPropertiesComponent>();
-
-	std::weak_ptr<Entity> wpCameras = entityManager.NewEntity("Cameras");
-	sceneRoot->AddChild(std::make_shared<SceneNode>(wpCameras));
-
-	std::weak_ptr<Entity> wpSysN = entityManager.NewEntity("SystemNames");
-	uiRoot->AddChild(std::make_shared<SceneNode>(wpSysN));
-
 	std::weak_ptr<Entity> wpObjOrb = entityManager.NewEntity("ObjectOrbits");
 	uiRoot->AddChild(std::make_shared<SceneNode>(wpObjOrb));
 
 	std::weak_ptr<Entity> wpSysIc = entityManager.NewEntity("SystemIcons");
 	uiRoot->AddChild(std::make_shared<SceneNode>(wpSysIc));
+
+	std::weak_ptr<Entity> wpCameras = entityManager.NewEntity("Cameras");
+	sceneRoot->AddChild(std::make_shared<SceneNode>(wpCameras));
 	
 	//Initialize all cameras
 	InitializeAllCameras(windowSize);
@@ -83,19 +76,15 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	//Initialize object removal system
 	deleteSystem.Initialize();
 
-	//Create initial entities
-	CreateSpaceObjects();
-
 	//Set gameState
 	gameState = GameState::Pause;
 	overviewType = OverviewType::Space;
 
 	uiRoot->ChangeChildOrder(uiRoot->FindChild("MouseIcon").lock(), (int)uiRoot->GetAllChildren().size()-1);
 
-	//std::cout << "Int: "<<sizeof(int)<<'\n';
-	//std::cout << "Float: " << sizeof(float) << '\n';
-	//std::cout << "Double: " << sizeof(double) << '\n';
-	std::cout << std::setprecision(15);
+	//Generate world in a separate thread
+	std::thread generateWorldAsync(CreateSpaceObjects);
+	generateWorldAsync.detach();
 }
 
 

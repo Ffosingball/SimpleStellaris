@@ -107,6 +107,7 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertMediumPla
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertFarPlanetDistrictsDist = nullptr;
 std::shared_ptr<InputSystem> WorldGenerator::spInputSystem = nullptr;
 SpaceMapConfigurations WorldGenerator::mapConfig;
+bool WorldGenerator::worldGenerated = false;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -637,6 +638,7 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 	std::shared_ptr<PlanetComponent> spPlanetCom = spEntity->FindComponent<PlanetComponent>().lock();
 	std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet = spEntity->FindComponent<HabitablePlanetComponent>();
 	std::mt19937 planetRandomizer(planetSeed);
+	float uiSize = ECSGame::Instance().GetUISize();
 
 	//Calculate how many districts a planet will have
 	int numOfDistricts = (int)(spPlanetCom->planetSize * mapConfig.districtsAmount);
@@ -651,7 +653,7 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 
 	//Create node which will store all districts nodes
 	std::shared_ptr<Entity> spNewEn = CreateNewEntityAt(spPlanetNode, "Node").lock();
-	spNewEn->SetPosition(sf::Vector2f{ mapConfig.districtPosOffset.x -(numOfColumns*mapConfig.distanceBetweenDistricts.x/2), mapConfig.districtPosOffset.y - (numOfRows * mapConfig.distanceBetweenDistricts.y / 2) });
+	spNewEn->SetPosition(sf::Vector2f{ mapConfig.districtPosOffset.x -(numOfColumns*mapConfig.distanceBetweenDistricts.x/2), mapConfig.districtPosOffset.y - (numOfRows * mapConfig.distanceBetweenDistricts.y / 2) } * uiSize);
 	std::shared_ptr<SceneNode> spNewNode = spPlanetNode->FindChild(*spNewEn).lock();
 	spPlanetNode->RemoveByEntity(spNewEn);
 
@@ -692,7 +694,7 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 		{
 			//Create star in that system
 			std::shared_ptr<Entity> spDistrict = CreateNewEntityAt(spNewNode, "District"+std::to_string(currentRow*numOfColumns+currentColumn)).lock();
-			spDistrict->SetPosition(sf::Vector2f(mapConfig.distanceBetweenDistricts.x*currentColumn, mapConfig.distanceBetweenDistricts.y * currentRow));
+			spDistrict->SetPosition(sf::Vector2f(mapConfig.distanceBetweenDistricts.x*currentColumn, mapConfig.distanceBetweenDistricts.y * currentRow) * uiSize);
 			
 			std::string districtTextureName;
 			std::shared_ptr<DistrictComponent> spDistrictCom = spDistrict->AddComponent<DistrictComponent>().lock();
@@ -700,10 +702,10 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 			spDistrictCom->districtID = currentRow * numOfColumns + currentColumn;
 
 			std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spDistrict->AddComponent<RectangleShapeComponent>().lock();
-			SetupRectangleShape(spRectShapeCom, mapConfig.districtSize, districtTextureName);
+			SetupRectangleShape(spRectShapeCom, mapConfig.districtSize*uiSize, districtTextureName);
 			
 			std::shared_ptr<ButtonComponent> spButtonCom = spDistrict->AddComponent<ButtonComponent>().lock();
-			spButtonCom->buttonSize = mapConfig.districtSize;
+			spButtonCom->buttonSize = mapConfig.districtSize*uiSize;
 			spButtonCom->onButtonHovered = [spInputSys](std::shared_ptr<Entity> entity)
 				{
 					spInputSys->DistrictHovered(entity);
@@ -1973,7 +1975,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 			newPos = sf::Vector2f{ XpositionDist(*randomizer),YpositionDist(*randomizer) };
 
 			regeneratePos = false;
-			if (GetAllSystemsNearPosition(newPos).size()>0)
+			if (GetAllSystemsNearPosition(newPos, ptrSpaceMapNode->GetEntity().lock()->FindComponent<SystemPropertiesComponent>()).size()>0)
 				regeneratePos = true;
 
 			regenCounter++;
@@ -2521,7 +2523,7 @@ void TextureSetter::SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpace
 }
 
 
-TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
+TextureSetter::TextureSetter(unsigned int seedOut, std::weak_ptr<SceneNode> wpSystemNamesNode) : seed{ seedOut }, wpSystemNamesNode{wpSystemNamesNode}
 {
 	seed = seedOut;
 	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
@@ -2529,8 +2531,6 @@ TextureSetter::TextureSetter(unsigned int seedOut) : seed{seedOut}
 	listOfBrightStarNames = ReadStarNamesFromCSV("media/other/big_stars_names_1240.csv");
 	listOfMediumStarNames = ReadStarNamesFromCSV("media/other/star_names_5000.csv");
 	listOfDimStarNames = ReadStarNamesFromCSV("media/other/small_stars_names_1000.csv");
-
-	wpSystemNamesNode = ECSGame::Instance().GetUIRoot()->FindChild("SystemNames").lock();
 }
 
 

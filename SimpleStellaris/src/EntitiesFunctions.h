@@ -40,7 +40,7 @@ sf::Vector2i ConvertWorldPositionToWindow(sf::View& cameraView, sf::Vector2f pos
 //Worst case: O(1)
 int GetKeyForSystemsPosition(sf::Vector2i gridPosition);
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
-std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position);
+std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f position, std::weak_ptr<SystemPropertiesComponent> wpSysPropCom = {});
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap();
 //Worst case: O(1)

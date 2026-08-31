@@ -911,6 +911,7 @@ void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity)
 {
 	float outlineThikness = 4.f;
 	sf::Color outlineColor = sf::Color{ 255,255,255 };
+	sf::Color fillColor = sf::Color{ 200,200,200 };
 
 	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
 	districtTypeText->text->setString("Type: "+GetPlanetDistrictName(spDistrict->districtType));
@@ -919,6 +920,7 @@ void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity)
 	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
 	spRectShape->shape.setOutlineThickness(outlineThikness);
 	spRectShape->shape.setOutlineColor(outlineColor);
+	spRectShape->shape.setFillColor(fillColor);
 
 	//std::cout << "District is hovered\n";
 
@@ -938,6 +940,7 @@ void InputSystem::DistrictUnhovered(std::shared_ptr<Entity> spEntity)
 
 	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
 	spRectShape->shape.setOutlineThickness(0.f);
+	spRectShape->shape.setFillColor(sf::Color::White);
 }
 
 

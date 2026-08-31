@@ -100,6 +100,7 @@ public:
 
 	static std::shared_ptr<InputSystem> spInputSystem;
 	static SpaceMapConfigurations mapConfig;
+	static bool worldGenerated;
 
 	static int const getSeed() { return seed; }
 	static void Initialize(unsigned int seed);
@@ -116,7 +117,7 @@ public:
 class TextureSetter : public SceneNodeVisitor
 {
 public:
-	TextureSetter(unsigned int seed);
+	TextureSetter(unsigned int seed, std::weak_ptr<SceneNode> wpSystemNamesNode);
 
 	void ProcessNode(SceneNode& node) override;
 
