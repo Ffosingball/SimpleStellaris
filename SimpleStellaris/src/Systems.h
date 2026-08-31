@@ -169,6 +169,7 @@ public:
 
 	void PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity);
 	void StopSelectedObjectSound();
+	void PlayNextMusic();
 
 private:
 	void Initialize() override;
@@ -193,6 +194,7 @@ private:
 	float overallVolume{ 1.f };
 	int currentMusicPlaying{ 0 };
 	bool playMusic{ true };
+	sf::Time goToNextMusicBefore = sf::seconds(1.f);
 };
 
 

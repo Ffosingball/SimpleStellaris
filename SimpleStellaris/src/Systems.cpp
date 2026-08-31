@@ -386,6 +386,10 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 		UIHidden = !UIHidden;
 		ChangeUIVisibility(UIHidden);
 	}
+	else if (key.code == sf::Keyboard::Key::Enter) 
+	{
+		musicSystem->PlayNextMusic();
+	}
 
 	lastInputByJoystick = false;
 }
@@ -1323,9 +1327,15 @@ void MusicSystem::MixMusicList()
 	}*/
 
 	std::vector<std::weak_ptr<sf::Music>> newListToPlay;
+
+	int musicSelected = gel::RandInt(0, (int)listOfMusicToPlay.size()-1);
+	newListToPlay.push_back(listOfMusicToPlay[musicSelected]);
+	listOfMusicToPlay[musicSelected] = listOfMusicToPlay.back();
+	listOfMusicToPlay.pop_back();
+
 	while (listOfMusicToPlay.size() > 0) 
 	{
-		int musicSelected = gel::RandInt(0, (int)listOfMusicToPlay.size());
+		musicSelected = gel::RandInt(0, (int)listOfMusicToPlay.size());
 		newListToPlay.push_back(listOfMusicToPlay[musicSelected]);
 		listOfMusicToPlay[musicSelected] = listOfMusicToPlay.back();
 		listOfMusicToPlay.pop_back();
@@ -1334,10 +1344,15 @@ void MusicSystem::MixMusicList()
 	listOfMusicToPlay = newListToPlay;
 	currentMusicPlaying = 0;
 
-	/*for (int i = 0; i < listOfMusicToPlay.size(); i++)
-	{
-		std::cout << i << ") " << listOfMusicToPlay[i].lock()->getDuration().asSeconds() << '\n';
-	}*/
+	//for (int i = 0; i < listOfMusicToPlay.size(); i++)
+	//{
+	//	std::cout << i << ")) " << listOfMusicToPlay[i].lock()->getDuration().asSeconds() << '\n';
+	//}
+}
+
+void MusicSystem::PlayNextMusic()
+{
+	listOfMusicToPlay[currentMusicPlaying].lock()->setPlayingOffset(listOfMusicToPlay[currentMusicPlaying].lock()->getDuration()- goToNextMusicBefore);
 }
 
 void MusicSystem::Initialize()
@@ -1376,11 +1391,13 @@ void MusicSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	else if(!playMusic && currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Playing)
 		currentlyPlayingMusic->pause();
 
-	if (currentlyPlayingMusic->getDuration() <= currentlyPlayingMusic->getPlayingOffset()) 
+	if (currentlyPlayingMusic->getDuration()-goToNextMusicBefore <= currentlyPlayingMusic->getPlayingOffset()) 
 	{
 		currentMusicPlaying++;
 		if (currentMusicPlaying >= listOfMusicToPlay.size())
 			MixMusicList();
+		//else
+		//	std::cout <<currentMusicPlaying<<") " << listOfMusicToPlay[currentMusicPlaying].lock()->getDuration().asSeconds() << '\n';
 	}
 }
 
