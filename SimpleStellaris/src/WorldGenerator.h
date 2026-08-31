@@ -87,27 +87,28 @@ private:
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
 	WorldGenerator& operator=(const WorldGenerator&) = delete;
 
-	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty, SpaceMapConfigurations& mapConfig);
-	static void GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, SpaceMapConfigurations& mapConfig, std::weak_ptr<Entity> wpEntity);
-	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
-	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition);
-	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
-	static void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar);
-	static void GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType, SpaceMapConfigurations& mapConfig);
-	static void GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanetCom, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::shared_ptr<SceneNode> spPlanetNode, SpaceMapConfigurations& mapConfig);
-	static PlanetDistrictType GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, SpaceMapConfigurations& mapConfig, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier);
+	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty);
+	static void GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, std::weak_ptr<Entity> wpEntity);
+	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
+	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, float starMass, bool inheritPosition);
+	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
+	static void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, float mainPlanetSize, DistanceToStar habitDistToStar);
+	static void GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType);
+	static PlanetDistrictType GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier, std::mt19937& planetRandomizer);
 
 public:
 
 	static std::shared_ptr<InputSystem> spInputSystem;
+	static SpaceMapConfigurations mapConfig;
 
 	static int const getSeed() { return seed; }
 	static void Initialize(unsigned int seed);
 	//Min and max value are used so vector 0,3 all values 0,1,2,3 will be generated
 	static std::vector<int> GenerateGridOfRandomNumbers(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
 	static std::vector<int> GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
-	static void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode, SpaceMapConfigurations& mapConfig);
-	static void GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, SpaceMapConfigurations& mapConfig, std::shared_ptr<SceneNode> spSystemNamesNode);
+	static void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode);
+	static void GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, std::shared_ptr<SceneNode> spSystemNamesNode);
+	static std::shared_ptr<SceneNode> GenerateDistricts(int planetSeed, std::shared_ptr<SceneNode> spPlanetNode);
 };
 
 
@@ -119,7 +120,6 @@ public:
 
 	void ProcessNode(SceneNode& node) override;
 
-	SpaceMapConfigurations mapConfig;
 	std::weak_ptr<SceneNode> wpSpaceMapNode;
 
 private:

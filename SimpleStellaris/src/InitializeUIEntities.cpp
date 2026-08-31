@@ -57,7 +57,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 	else
 		spUI = CreateNewEntityAtUIRoot(textName).lock();
 	//Add component
-	spUI->AddComponent<UIPartComponent>();
+	//spUI->AddComponent<UIPartComponent>();
 	std::shared_ptr<TextComponent> spUICom = spUI->AddComponent<TextComponent>().lock();
 	//Get font from the resource manager
 	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont(fontName).lock();
@@ -82,7 +82,7 @@ std::shared_ptr<Entity> InitializeText(const std::string name, const std::string
 	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, fontName, color, spCreateAt);
 	spUI->AddComponent<MovementComponent>();
 	//Get component
-	std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
+	//std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
 	std::shared_ptr<TextComponent> spTextCom = spUI->FindComponent<TextComponent>().lock();
 	//set text
 	spTextCom->text->setString(text);
@@ -105,7 +105,7 @@ void InitializeMovingText(const std::string name, const std::string text, const 
 	//Create new text
 	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, "wakaeueu", sf::Color{255,255,255});
 	//Get component
-	std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
+	//std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
 	std::shared_ptr<TextComponent> spTextCom = spUI->FindComponent<TextComponent>().lock();
 	//Add component
 	std::shared_ptr<MovementComponent> spMovCom = spUI->AddComponent<MovementComponent>().lock();
@@ -117,6 +117,7 @@ void InitializeMovingText(const std::string name, const std::string text, const 
 	if (isBlinking)
 	{
 		//Set blinking properties
+		std::shared_ptr<UIPartComponent> spUICom = spUI->AddComponent<UIPartComponent>().lock();
 		spUICom->isBlinking = true;
 		spUICom->decreasingVisibility = false;
 		spUICom->blinkTime = spUICom->blinkingPeriod;
@@ -164,7 +165,7 @@ void CreateUI()
 	sf::Vector2f uiTopPartSize{ 1000.f, 120.f };
 	sf::Vector2f uiBottomPartSize{ 1200.f, 200.f };
 	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
-	sf::Vector2f planetDisPartSize{ 1600.f, 900.f };
+	sf::Vector2f planetDisPartSize{ 1650.f, 900.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
@@ -179,7 +180,7 @@ void CreateUI()
 	//CREATE SELECTION ICON
 	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("SelectedSystemIcon").lock();
 	//Add component
-	spSSIcon->AddComponent<UIPartComponent>();
+	//spSSIcon->AddComponent<UIPartComponent>();
 	spSSIcon->AddComponent<UIFollowerComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape = spSSIcon->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape, iconSize * uiSize, "SelectionIcon");
@@ -188,14 +189,14 @@ void CreateUI()
 	//CREATE Upper and lower parts of ui
 	std::shared_ptr<Entity> spToPart = CreateNewEntityAtUIRoot("UpperPart").lock();
 	//Add component
-	spToPart->AddComponent<UIPartComponent>();
+	//spToPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape2 = spToPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape2, uiTopPartSize * uiSize, "TopUIPart");
 	spToPart->SetPosition(sf::Vector2f{1280.f,uiTopPartSize.y/2.f}*uiSize);
 
 	std::shared_ptr<Entity> spLoPart = CreateNewEntityAtUIRoot("LowerPart").lock();
 	//Add component
-	spLoPart->AddComponent<UIPartComponent>();
+	//spLoPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape3 = spLoPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape3, uiBottomPartSize * uiSize, "BottomUIPart");
 	spLoPart->SetPosition(sf::Vector2f{ 1280.f,1600.f-(uiBottomPartSize.y / 2.f) } * uiSize);
@@ -215,7 +216,7 @@ void CreateUI()
 	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUIRoot("InfoPart").lock();
 	spInfoPart->hidden = true;
 	//Add component
-	spInfoPart->AddComponent<UIPartComponent>();
+	//spInfoPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape4 = spInfoPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape4, uiInfoPartSize * uiSize, "UIPartSide");
 	spInfoPart->SetPosition(sf::Vector2f{ 390.f, 800.f } * uiSize);
@@ -241,7 +242,7 @@ void CreateUI()
 	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAtUIRoot("PlanetDistrictsPart").lock();
 	spPlDisPart->hidden = true;
 	//Add component
-	spPlDisPart->AddComponent<UIPartComponent>();
+	//spPlDisPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape5 = spPlDisPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape5, planetDisPartSize * uiSize, "UIPartPlanetDistricts");
 	spPlDisPart->SetPosition(sf::Vector2f{ 1280.f, 800.f } * uiSize);
@@ -325,7 +326,7 @@ void InitializeMouseIcon()
 	std::weak_ptr<Entity> wpMouseIcon = ECSGame::Instance().GetEntityManager().NewEntity("MouseIcon");
 	ECSGame::Instance().GetUIRoot()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
 	//Add components
-	wpMouseIcon.lock()->AddComponent<UIPartComponent>();
+	//wpMouseIcon.lock()->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape = wpMouseIcon.lock()->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape, mouseSize * uiSize, "MouseIcon");
 	spRectShape->shape.setPosition({32,32});
@@ -344,7 +345,7 @@ std::shared_ptr<Entity> CreateIconForSystemOverview(std::shared_ptr<SceneNode> n
 	//Create selection icon
 	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt(createIconIn, name).lock();
 	//Add component
-	spSSIcon->AddComponent<UIPartComponent>();
+	//spSSIcon->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape = spSSIcon->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape, iconSize * uiSize, iconTexture);
 	std::shared_ptr<UIFollowerComponent> spUIFollower = spSSIcon->AddComponent<UIFollowerComponent>().lock();
@@ -363,7 +364,7 @@ void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, b
 	//Create orbit
 	std::shared_ptr<Entity> spOrbitE = CreateNewEntityAt(spParentNode, name).lock();
 	//Add component
-	spOrbitE->AddComponent<UIPartComponent>();
+	//spOrbitE->AddComponent<UIPartComponent>();
 	spOrbitE->inheritParentPosition = inheritParentPosition;
 
 	std::shared_ptr<OrbitVisualizerComponent> spOrbitVis = spOrbitE->AddComponent<OrbitVisualizerComponent>().lock();

@@ -66,6 +66,7 @@ private:
 	std::weak_ptr<SceneNode> wpPlanetOrStarSelected;
 	std::weak_ptr<SceneNode> wpMoonOrPlanetSelected;
 	std::shared_ptr<SceneNode> planetDistrictsPanel;
+	std::weak_ptr<Entity> wpDistrictsShown;
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };

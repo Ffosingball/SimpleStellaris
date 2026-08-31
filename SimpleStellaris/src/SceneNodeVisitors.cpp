@@ -194,12 +194,12 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             std::shared_ptr<UIPartComponent> spEntityText = spEntity->FindComponent<UIPartComponent>().lock();
 
             //Check if this text blinks or not
-            if (spEntityText->isBlinking) 
+            if (spEntityText->isBlinking)
             {
                 //Process blink time
                 spEntityText->blinkTime += dt;
                 //Check if it is flatline or not
-                if(spEntityText->flatLine)
+                if (spEntityText->flatLine)
                 {
                     if (spEntityText->blinkTime > spEntityText->flatLinePeriod)
                     {
@@ -224,7 +224,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     //Get color values
                     sf::Color color = spEntityTextCom->text->getFillColor();
                     sf::Color outlineColor = spEntityTextCom->text->getOutlineColor();
-                    uint8_t alphaValue{255};
+                    uint8_t alphaValue{ 255 };
                     //Check which state the text is and get correct alpha value
                     if (spEntityText->decreasingVisibility)
                         alphaValue = (uint8_t)gel::linearInterpolation(255, 90, spEntityText->blinkTime / spEntityText->blinkingPeriod);
@@ -238,58 +238,58 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     spEntityTextCom->text->setOutlineColor(outlineColor);
                 }
             }
+        }
 
-            //Check if entity has UIFollower component
-            if (spEntity->HasComponent<UIFollowerComponent>())
+        //Check if entity has UIFollower component
+        if (spEntity->HasComponent<UIFollowerComponent>())
+        {
+            std::shared_ptr<UIFollowerComponent> spEntityFollower = spEntity->FindComponent<UIFollowerComponent>().lock();
+
+            bool hide = false;
+            if (spEntityFollower->nodeToFollow.lock() == nullptr)
+                hide = true;
+            else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock() == nullptr)
+                hide = true;
+            else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock()->hidden)
+                hide = true;
+            else if (spEntityFollower->hideAnyway)
+                hide = true;
+            else if (spEntityFollower->hideIfZoomLargeEnough) 
             {
-                std::shared_ptr<UIFollowerComponent> spEntityFollower = spEntity->FindComponent<UIFollowerComponent>().lock();
-
-                bool hide = false;
-                if (spEntityFollower->nodeToFollow.lock() == nullptr)
+                if (spCamCom->currentZoom > spEntityFollower->zoomLevelsAtWhichHideEntity.y)
                     hide = true;
-                else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock() == nullptr)
+                else 
+                    hide = false;
+            }
+            else if (spEntityFollower->hideIfZoomSmallEnough)
+            {
+                if (spCamCom->currentZoom < spEntityFollower->zoomLevelsAtWhichHideEntity.x)
                     hide = true;
-                else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock()->hidden)
-                    hide = true;
-                else if (spEntityFollower->hideAnyway)
-                    hide = true;
-                else if (spEntityFollower->hideIfZoomLargeEnough) 
-                {
-                    if (spCamCom->currentZoom > spEntityFollower->zoomLevelsAtWhichHideEntity.y)
-                        hide = true;
-                    else 
-                        hide = false;
-                }
-                else if (spEntityFollower->hideIfZoomSmallEnough)
-                {
-                    if (spCamCom->currentZoom < spEntityFollower->zoomLevelsAtWhichHideEntity.x)
-                        hide = true;
-                    else
-                        hide = false;
-                }
-
-                if (hide)
-                    spEntity->hidden = true;
-                else if(spEntityFollower->hideIfOutsideOfCamera && !IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
-                    spEntity->hidden = true;
                 else
-                {
-                    spEntity->hidden = false;
-                    sf::Vector2f positionToFollow = spEntityFollower->nodeToFollow.lock()->GetCombinedPosition();
-                    sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
-                    spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
-                }
+                    hide = false;
             }
 
-            //Check if entity has OrbitVisualizer component
-            if (spEntity->HasComponent<OrbitVisualizerComponent>())
+            if (hide)
+                spEntity->hidden = true;
+            else if(spEntityFollower->hideIfOutsideOfCamera && !IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
+                spEntity->hidden = true;
+            else
             {
-                std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = spEntity->FindComponent<OrbitVisualizerComponent>().lock();
-                spOrbitVisualizer->orbitShape.setRadius(static_cast<float>(spOrbitVisualizer->orbitSize*(static_cast<double>(spUICamCom->view.getSize().y) / static_cast<double>(spCamCom->view.getSize().y))));
-                //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
-                spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
+                spEntity->hidden = false;
+                sf::Vector2f positionToFollow = spEntityFollower->nodeToFollow.lock()->GetCombinedPosition();
+                sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
+                spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
             }
         }
+
+        //Check if entity has OrbitVisualizer component
+        if (spEntity->HasComponent<OrbitVisualizerComponent>())
+        {
+            std::shared_ptr<OrbitVisualizerComponent> spOrbitVisualizer = spEntity->FindComponent<OrbitVisualizerComponent>().lock();
+            spOrbitVisualizer->orbitShape.setRadius(static_cast<float>(spOrbitVisualizer->orbitSize*(static_cast<double>(spUICamCom->view.getSize().y) / static_cast<double>(spCamCom->view.getSize().y))));
+            //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
+            spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
+        } 
     }
 }
 

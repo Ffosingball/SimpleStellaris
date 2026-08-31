@@ -8,7 +8,7 @@
 #include <SFML/Audio.hpp>
 #include "ResourceManager.h"
 #include "SpaceObjectTypes.h"
-//#include "WorldGenerator.h"
+#include "WorldGenerator.h"
 //#include "CommonGameCode.h"
 
 
@@ -108,9 +108,12 @@ void InputSystem::CancelCameraLock()
 void InputSystem::OpenPlanetDistrictsView() 
 {
 	std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
-	std::shared_ptr<SceneNode> spDistrictsNode = spPlanetCom->spPlanetDistrictsNode;
-	if (spDistrictsNode != nullptr)
+	if (spPlanetCom->planetDistrictsSeed != -1)
+	{
+		std::shared_ptr<SceneNode> spDistrictsNode = WorldGenerator::GenerateDistricts(spPlanetCom->planetDistrictsSeed, wpMoonOrPlanetSelected.lock());
 		planetDistrictsPanel->AddChild(spDistrictsNode);
+		wpDistrictsShown = spDistrictsNode->GetEntity();
+	}
 	planetDistrictsPanel->GetEntity().lock()->hidden = false;
 	districtViewOpened = true;
 
@@ -124,9 +127,8 @@ void InputSystem::OpenPlanetDistrictsView()
 
 void InputSystem::ClosePlanetDistrictsView()
 {
-	std::shared_ptr<SceneNode> spDistrictsNode = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock()->spPlanetDistrictsNode;
-	if(spDistrictsNode!=nullptr)
-		planetDistrictsPanel->RemoveByEntity(spDistrictsNode->GetEntity().lock());
+	if(wpDistrictsShown.lock() !=nullptr)
+		planetDistrictsPanel->RemoveByEntity(wpDistrictsShown.lock());
 	planetDistrictsPanel->GetEntity().lock()->hidden = true;
 	districtViewOpened = false;
 
@@ -183,7 +185,7 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock());
 	wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
 
-	float earthDiameter = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap").lock()->GetEntity().lock()->FindComponent<SystemPropertiesComponent>().lock()->mapConfig.earthDiameter;
+	float earthDiameter = WorldGenerator::mapConfig.earthDiameter;
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
@@ -235,7 +237,7 @@ void InputSystem::ExitPlanetToSystemOverview()
 
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
 
-	float earthDiameter = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap").lock()->GetEntity().lock()->FindComponent<SystemPropertiesComponent>().lock()->mapConfig.earthDiameter;
+	float earthDiameter = WorldGenerator::mapConfig.earthDiameter;
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUIRoot()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUIRoot()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
@@ -1171,7 +1173,7 @@ void UISystem::OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period,1) + " days");
 		else
 			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period / 365,1) + " years");
-		spText4->setString("Radius: " + std::to_string((int)(spPlanetCom->planetSize * 500.f * spProp->mapConfig.earthDiameter)) + " km");
+		spText4->setString("Radius: " + std::to_string((int)(spPlanetCom->planetSize * 500.f * WorldGenerator::mapConfig.earthDiameter)) + " km");
 		spText5->setString("Mass: " + gel::roundNumberForOutput(gel::sphereVolume(spPlanetCom->planetSize / 2.f) * 2.f, 2) + " earth masses");
 
 		if (!spPlanetCom->isMoon)

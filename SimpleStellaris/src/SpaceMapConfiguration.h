@@ -247,7 +247,7 @@ struct SpaceMapConfigurations
 	//For planet with size 1.f
 	int districtsAmount = 20;
 	//Where districts should be centered at
-	sf::Vector2f districtPosOffset{ -400.f, 50.f };
+	sf::Vector2f districtPosOffset{ -390.f, 50.f };
 	sf::Vector2f districtSize{ 62.f, 62.f };//65
 	sf::Vector2f distanceBetweenDistricts{ 70.f, 70.f };//70
 

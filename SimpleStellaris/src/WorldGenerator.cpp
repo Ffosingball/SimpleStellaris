@@ -106,6 +106,7 @@ std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertClosePlan
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertMediumPlanetDistrictsDist = nullptr;
 std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertFarPlanetDistrictsDist = nullptr;
 std::shared_ptr<InputSystem> WorldGenerator::spInputSystem = nullptr;
+SpaceMapConfigurations WorldGenerator::mapConfig;
 
 
 void WorldGenerator::Initialize(unsigned int seedOut)
@@ -155,13 +156,13 @@ std::vector<int> WorldGenerator::GenerateGridOfRandomNumbers(sf::Vector2i gridSi
 }
 
 
-PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, SpaceMapConfigurations& mapConfig, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier)
+PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier, std::mt19937& planetRandomizer)
 {
 	int val{ -1 };
 	switch (planetType)
 	{
 	case PlanetType::BarrenGrey:
-		val = (*barrenPlanetDistrictsDist)(*randomizer);
+		val = (*barrenPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "BarrenGreyBarrenDistrict";
@@ -185,7 +186,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::BarrenDark:
-		val = (*barrenPlanetDistrictsDist)(*randomizer);
+		val = (*barrenPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "BarrenDarkBarrenDistrict";
@@ -209,7 +210,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::BarrenMarsLike:
-		val = (*barrenPlanetDistrictsDist)(*randomizer);
+		val = (*barrenPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "BarrenRedBarrenDistrict";
@@ -233,7 +234,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::VenusLike:
-		val = (*venusLikePlanetDistrictsDist)(*randomizer);
+		val = (*venusLikePlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "VenusLikeVoulcanoDistrict";
@@ -256,7 +257,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Close)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.oceanicClosePlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.oceanicClosePlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
@@ -264,7 +265,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (wpHabitPlanet.lock()->distanceToStar == DistanceToStar::Medium)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.oceanicMediumPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.oceanicMediumPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
@@ -272,7 +273,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.oceanicFarPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.oceanicFarPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
@@ -280,7 +281,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 		}
 
-		val = (*oceanicPlanetDistrictsDist)(*randomizer);
+		val = (*oceanicPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "OceanDistrict";
@@ -298,14 +299,14 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (generateIceCaps) 
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.earthLikeClosePlanetIceSheetAtThePolesChance * iceCapChanceMultiplier) 
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.earthLikeClosePlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
 				}
 			}
 
-			val = (*earthLikeClosePlanetDistrictsDist)(*randomizer);
+			val = (*earthLikeClosePlanetDistrictsDist)(planetRandomizer);
 			if (val == 0)
 			{
 				districtTextureName = "EarthLikeMountainsDistrict";
@@ -341,14 +342,14 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (generateIceCaps)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.earthLikeMediumPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.earthLikeMediumPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
 				}
 			}
 
-			val = (*earthLikeMediumPlanetDistrictsDist)(*randomizer);
+			val = (*earthLikeMediumPlanetDistrictsDist)(planetRandomizer);
 			if (val == 0)
 			{
 				districtTextureName = "EarthLikeMountainsDistrict";
@@ -389,14 +390,14 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (generateIceCaps)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.earthLikeFarPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.earthLikeFarPlanetIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
 				}
 			}
 
-			val = (*earthLikeFarPlanetDistrictsDist)(*randomizer);
+			val = (*earthLikeFarPlanetDistrictsDist)(planetRandomizer);
 			if (val == 0)
 			{
 				districtTextureName = "EarthLikeMountainsDistrict";
@@ -431,7 +432,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::TitanLike:
-		val = (*titanLikePlanetDistrictsDist)(*randomizer);
+		val = (*titanLikePlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "TitanLikeBarrenDistrict";
@@ -455,7 +456,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::Molten:
-		val = (*moltenPlanetDistrictsDist)(*randomizer);
+		val = (*moltenPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "MoltenVoulcanoDistrict";
@@ -469,7 +470,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::Icy:
-		val = (*icyPlanetDistrictsDist)(*randomizer);
+		val = (*icyPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "IceSheetDistrict";
@@ -493,7 +494,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 		return PlanetDistrictType::None;
 	case PlanetType::Voulcanic:
-		val = (*voulcanicPlanetDistrictsDist)(*randomizer);
+		val = (*voulcanicPlanetDistrictsDist)(planetRandomizer);
 		if (val == 0)
 		{
 			districtTextureName = "VoulcanicVoulcanoDistrict";
@@ -511,14 +512,14 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (generateIceCaps)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.desertPlanetCloseIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.desertPlanetCloseIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
 				}
 			}
 
-			val = (*desertClosePlanetDistrictsDist)(*randomizer);
+			val = (*desertClosePlanetDistrictsDist)(planetRandomizer);
 			if (val == 0)
 			{
 				districtTextureName = "DesertDistrict";
@@ -549,14 +550,14 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (generateIceCaps)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.desertPlanetMediumIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.desertPlanetMediumIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
 				}
 			}
 
-			val = (*desertMediumPlanetDistrictsDist)(*randomizer);
+			val = (*desertMediumPlanetDistrictsDist)(planetRandomizer);
 			if (val == 0)
 			{
 				districtTextureName = "DesertDistrict";
@@ -587,14 +588,14 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 		{
 			if (generateIceCaps)
 			{
-				if ((*from0to1Dist)(*randomizer) < mapConfig.desertPlanetFarIceSheetAtThePolesChance * iceCapChanceMultiplier)
+				if ((*from0to1Dist)(planetRandomizer) < mapConfig.desertPlanetFarIceSheetAtThePolesChance * iceCapChanceMultiplier)
 				{
 					districtTextureName = "IceSheetDistrict";
 					return PlanetDistrictType::IceSheet;
 				}
 			}
 
-			val = (*desertFarPlanetDistrictsDist)(*randomizer);
+			val = (*desertFarPlanetDistrictsDist)(planetRandomizer);
 			if (val == 0)
 			{
 				districtTextureName = "DesertDistrict";
@@ -630,8 +631,13 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 
 
 
-void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanetCom, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::shared_ptr<SceneNode> spPlanetNode, SpaceMapConfigurations& mapConfig)
+std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std::shared_ptr<SceneNode> spPlanetNode)
 {
+	std::shared_ptr<Entity> spEntity = spPlanetNode->GetEntity().lock();
+	std::shared_ptr<PlanetComponent> spPlanetCom = spEntity->FindComponent<PlanetComponent>().lock();
+	std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet = spEntity->FindComponent<HabitablePlanetComponent>();
+	std::mt19937 planetRandomizer(planetSeed);
+
 	//Calculate how many districts a planet will have
 	int numOfDistricts = (int)(spPlanetCom->planetSize * mapConfig.districtsAmount);
 
@@ -647,7 +653,6 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 	std::shared_ptr<Entity> spNewEn = CreateNewEntityAt(spPlanetNode, "Node").lock();
 	spNewEn->SetPosition(sf::Vector2f{ mapConfig.districtPosOffset.x -(numOfColumns*mapConfig.distanceBetweenDistricts.x/2), mapConfig.districtPosOffset.y - (numOfRows * mapConfig.distanceBetweenDistricts.y / 2) });
 	std::shared_ptr<SceneNode> spNewNode = spPlanetNode->FindChild(*spNewEn).lock();
-	spPlanetCom->spPlanetDistrictsNode = spNewNode;
 	spPlanetNode->RemoveByEntity(spNewEn);
 
 	//Create districts
@@ -691,13 +696,12 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 			
 			std::string districtTextureName;
 			std::shared_ptr<DistrictComponent> spDistrictCom = spDistrict->AddComponent<DistrictComponent>().lock();
-			spDistrictCom->districtType = GetDistrictType(spPlanetCom->planetType, wpHabitPlanet, mapConfig, districtTextureName, generateIceCaps, iceCapChanceMul);
+			spDistrictCom->districtType = GetDistrictType(spPlanetCom->planetType, wpHabitPlanet, districtTextureName, generateIceCaps, iceCapChanceMul, planetRandomizer);
 			spDistrictCom->districtID = currentRow * numOfColumns + currentColumn;
 
 			std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spDistrict->AddComponent<RectangleShapeComponent>().lock();
 			SetupRectangleShape(spRectShapeCom, mapConfig.districtSize, districtTextureName);
 			
-			spDistrict->AddComponent<UIPartComponent>();
 			std::shared_ptr<ButtonComponent> spButtonCom = spDistrict->AddComponent<ButtonComponent>().lock();
 			spButtonCom->buttonSize = mapConfig.districtSize;
 			spButtonCom->onButtonHovered = [spInputSys](std::shared_ptr<Entity> entity)
@@ -712,10 +716,12 @@ void WorldGenerator::GenerateDistricts(std::shared_ptr<PlanetComponent> spPlanet
 		}
 		currentRow++;
 	}
+
+	return spNewNode;
 }
 
 
-void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, SpaceMapConfigurations& mapConfig, std::weak_ptr<Entity> wpEntity) 
+void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, std::weak_ptr<Entity> wpEntity) 
 {
 	std::shared_ptr<StarComponent> spStarCom = wpStarCom.lock();
 	std::weak_ptr<NeutronStarComponent> wpNS;
@@ -875,7 +881,7 @@ void CalculateTernaryAfarSystemProperties(std::shared_ptr<Entity> star1Sp, std::
 
 
 //Orbit type: 0 - close, 1 - within habitable, 2 - far
-void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, SpaceMapConfigurations& mapConfig, float mainPlanetSize, DistanceToStar habitDistToStar)
+void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, float mainPlanetSize, DistanceToStar habitDistToStar)
 {
 	std::shared_ptr<Entity> spMoon = CreateNewEntityAt(spNode, "Moon"+std::to_string(num)).lock();
 	std::shared_ptr<PlanetComponent> spPlanetCom = spMoon->AddComponent<PlanetComponent>().lock();
@@ -1012,12 +1018,13 @@ void WorldGenerator::CreateMoon(std::shared_ptr<std::uniform_real_distribution<f
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * gel::PI;
 	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743 * (std::pow(10, -11) * 1.194 * std::pow(10, 25) * gel::sphereVolume(mainPlanetSize/2.0)) / (spPlanetCom->orbitRadius * std::pow(10, 6))) * 86.4) / (spPlanetCom->orbitRadius * std::pow(10, 4));
 
-	GenerateDistricts(spPlanetCom, spMoon->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spMoon).lock(), mapConfig);
+	spPlanetCom->planetDistrictsSeed = (*randomizer)() / 2;
+	//GenerateDistricts(spPlanetCom, spMoon->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spMoon).lock());
 }
 
 
 
-void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, SpaceMapConfigurations& mapConfig, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode)
+void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode)
 {
 	float chanceOfNoMoon{ 0.f };
 	int orbitType = 0;
@@ -1177,9 +1184,9 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 		for (int i = 0; i < numberOfMoons; i++) 
 		{
 			if ((*from0to1Dist)(*randomizer) < mapConfig.closeMoonOrbitChance)
-				CreateMoon(closeMoonOrbitDist, mapConfig.maxMoonSizeRelativeToPlanetSize*spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
+				CreateMoon(closeMoonOrbitDist, mapConfig.maxMoonSizeRelativeToPlanetSize*spPlanet->planetSize, orbitType, spNode, i, spPlanet->planetSize, habitDistToStar);
 			else
-				CreateMoon(moonOrbitRangeDist, mapConfig.maxMoonSizeRelativeToPlanetSize* spPlanet->planetSize, orbitType, spNode, i, mapConfig, spPlanet->planetSize, habitDistToStar);
+				CreateMoon(moonOrbitRangeDist, mapConfig.maxMoonSizeRelativeToPlanetSize* spPlanet->planetSize, orbitType, spNode, i, spPlanet->planetSize, habitDistToStar);
 		}
 	}
 	else
@@ -1189,7 +1196,7 @@ void WorldGenerator::GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, Sp
 
 
 //Planet type: 0 - rocky/icy, 1 - gas
-void WorldGenerator::GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType, SpaceMapConfigurations& mapConfig)
+void WorldGenerator::GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType)
 {
 	float ringChance = (*from0to1Dist)(*randomizer);
 
@@ -1213,7 +1220,7 @@ void WorldGenerator::GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, floa
 
 
 
-void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, SpaceMapConfigurations& mapConfig, float starMass, bool inheritPosition)
+void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, float starMass, bool inheritPosition)
 {
 	std::uniform_real_distribution<double> orbitDist(static_cast<double>(orbitBoundaries.x), static_cast<double>(orbitBoundaries.y));
 	double orbit = orbitDist(*randomizer);
@@ -1409,16 +1416,17 @@ void WorldGenerator::GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vect
 	spPlanetCom->rotationalVelocity = (std::sqrt(6.6743*(std::pow(10,-11)*starMass*2* std::pow(10, 30)) / (spPlanetCom->orbitRadius*1.5 * std::pow(10, 11))) * 86.4)/ (spPlanetCom->orbitRadius*1.5*std::pow(10,8));
 	spPlanetCom->initialRotationPosition = (*from0to1Dist)(*randomizer) * 2 * gel::PI;
 
-	GenerateRings(spNode->FindChild("Planet" + std::to_string(num)).lock(), spPlanetCom->planetSize, spPlanetCom->planetType, mapConfig);
-	GenerateMoons(spPlanetCom, mapConfig, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
+	GenerateRings(spNode->FindChild("Planet" + std::to_string(num)).lock(), spPlanetCom->planetSize, spPlanetCom->planetType);
+	GenerateMoons(spPlanetCom, habitableZoneBoundaries, spNode->FindChild("Planet" + std::to_string(num)).lock());
 
 	if(rockyPlanet || icyPlanet)
-		GenerateDistricts(spPlanetCom, spPlanet->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spPlanet).lock(), mapConfig);
+		spPlanetCom->planetDistrictsSeed = (*randomizer)() / 2;
+		//GenerateDistricts(spPlanetCom, spPlanet->FindComponent<HabitablePlanetComponent>(), spNode->FindChild(*spPlanet).lock());
 }
 
 
 
-void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, SpaceMapConfigurations& mapConfig, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition)
+void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition)
 {
 	std::shared_ptr<StarComponent> spStarCom;
 	std::shared_ptr<Entity> spEntity = spSystemOrStarNode->GetEntity().lock();
@@ -1613,32 +1621,32 @@ void WorldGenerator::GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNo
 		if (orbitBoundaries.x < habitableBoundaries.y)
 		{
 			if((*from0to1Dist)(*randomizer) < mapConfig.chanceOfTheClosePlanet)
-				GenerateSinglePlanet(sf::Vector2f{ orbitBoundaries.x, habitableBoundaries.y }, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass, inheritPosition);
+				GenerateSinglePlanet(sf::Vector2f{ orbitBoundaries.x, habitableBoundaries.y }, habitableBoundaries, i, spSystemOrStarNode, starMass, inheritPosition);
 			else if (habitableBoundaries.y < orbitBoundaries.y)
-				GenerateSinglePlanet(sf::Vector2f{ habitableBoundaries.y, orbitBoundaries.y }, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass, inheritPosition);
+				GenerateSinglePlanet(sf::Vector2f{ habitableBoundaries.y, orbitBoundaries.y }, habitableBoundaries, i, spSystemOrStarNode, starMass, inheritPosition);
 		}
 		else
-			GenerateSinglePlanet(orbitBoundaries, habitableBoundaries, i, spSystemOrStarNode, mapConfig, starMass, inheritPosition);
+			GenerateSinglePlanet(orbitBoundaries, habitableBoundaries, i, spSystemOrStarNode, starMass, inheritPosition);
 	}
 }
 
 
 
-void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> ptrSystemNode, std::shared_ptr<Entity> spStar1Entity, SpaceMapConfigurations& mapConfig)
+void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> ptrSystemNode, std::shared_ptr<Entity> spStar1Entity)
 {
 	switch ((*systemTypeDist)(*randomizer)) 
 	{
 	case 0:
 	{
 		spSystemCom->systemType = SpaceSystemType::Single;
-		GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
+		GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), -1.0, true, false);
 		return;
 	}
 	case 1:
 	{
 		//Create star in that system
 		std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-		GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig, spStar2);
+		GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), spStar2);
 		spStar2->inheritParentPosition = false;
 
 		//Determine binary system type
@@ -1651,15 +1659,15 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 				distBetStars = 1.5;
 
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
-			GeneratePlanets(ptrSystemNode, mapConfig, distBetStars, false, false);
+			GeneratePlanets(ptrSystemNode, distBetStars, false, false);
 		}
 		else
 		{
 			spSystemCom->systemType = SpaceSystemType::BinaryAfar;
 			double distBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateBinarySystemProperties(spStar1Entity, spStar2, distBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
-			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, false, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), distBetStars, false, true);
 		}
 		return;
 	}
@@ -1681,11 +1689,11 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			//Create 2 stars in the inside system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(spInsideSysNode, "Star2").lock();
-			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig, spStar2);
+			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), spStar2);
 			//spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(spInsideSysNode, "Star3").lock();
-			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig, spStar3);
+			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), spStar3);
 			//spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryTwoCloseThirdAfar;
@@ -1698,8 +1706,8 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 			CalculateBinarySystemProperties(spStar3, spStar2, closeDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			CalculateBinarySystemProperties(spStar1Entity, spInsideSys, afarDistBetStars, (*from0to1Dist)(*randomizer), ptrSystemNode);
 			
-			GeneratePlanets(ptrSystemNode->FindChild("InsideSystem").lock(), mapConfig, afarDistBetStars, false, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, afarDistBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("InsideSystem").lock(), afarDistBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), afarDistBetStars, false, true);
 		}
 		else
 		{
@@ -1707,19 +1715,19 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 			//Create 2 stars in that system
 			std::shared_ptr<Entity> spStar2 = CreateNewEntityAt(ptrSystemNode, "Star2").lock();
-			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), mapConfig, spStar2);
+			GenerateStarProperties(spStar2->AddComponent<StarComponent>().lock(), spStar2);
 			spStar2->inheritParentPosition = false;
 
 			std::shared_ptr<Entity> spStar3 = CreateNewEntityAt(ptrSystemNode, "Star3").lock();
-			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), mapConfig, spStar3);
+			GenerateStarProperties(spStar3->AddComponent<StarComponent>().lock(), spStar3);
 			spStar3->inheritParentPosition = false;
 
 			spSystemCom->systemType = SpaceSystemType::TernaryAfar;
 			double distBetStars = (*afarStarsDistances)(*randomizer);
 			CalculateTernaryAfarSystemProperties(spStar1Entity, spStar2, spStar3, distBetStars, (*from0to2_3Dist)(*randomizer));
-			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), mapConfig, distBetStars, false, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), mapConfig, distBetStars, false, true);
-			GeneratePlanets(ptrSystemNode->FindChild("Star3").lock(), mapConfig, distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star1").lock(), distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star2").lock(), distBetStars, false, true);
+			GeneratePlanets(ptrSystemNode->FindChild("Star3").lock(), distBetStars, false, true);
 		}
 
 		return;
@@ -1728,7 +1736,7 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 }
 
 
-void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode, SpaceMapConfigurations& mapConfig)
+void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode)
 {
 	if (ptrSpaceMapNode == nullptr)
 		std::cout << "Why spaceNode is nullptr?\n";
@@ -1997,32 +2005,32 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		std::shared_ptr<StarComponent> spStar1Com = spStar1->AddComponent<StarComponent>().lock();
 		spStar1->inheritParentPosition = false;
 
-		GenerateStarProperties(spStar1Com, mapConfig, spStar1);
+		GenerateStarProperties(spStar1Com, spStar1);
 		switch (spStar1Com->starType)
 		{
 		case StarType::RedSupergiant:
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
+			GeneratePlanets(spNewNode->FindChild("Star1").lock(), -1.0, true, false);
 			break;
 		case StarType::RedGiant:
 		case StarType::Otype:
 		case StarType::Btype:
 		case StarType::Atype:
-			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
+			GenerateSystemType(giantSysDistribution, spSystemCom, spNewNode, spStar1);
 			break;
 		case StarType::Ftype:
 		case StarType::GsunLike:
 		case StarType::KorangeDwarf:
-			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
+			GenerateSystemType(mediumSysDistribution, spSystemCom, spNewNode, spStar1);
 			break;
 		case StarType::MredDwarf:
 		case StarType::BrownDwarf:
 		case StarType::WhiteDwarf:
-			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1, mapConfig);
+			GenerateSystemType(dwarfSysDistribution, spSystemCom, spNewNode, spStar1);
 			break;
 		case StarType::NeutronStar:
 			spSystemCom->systemType = SpaceSystemType::Single;
-			GeneratePlanets(spNewNode->FindChild("Star1").lock(), mapConfig, -1.0, true, false);
+			GeneratePlanets(spNewNode->FindChild("Star1").lock(), -1.0, true, false);
 			break;
 		case StarType::BlackHole:
 			spSystemCom->systemType = SpaceSystemType::Single;
@@ -2039,7 +2047,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 
 
 
-void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, SpaceMapConfigurations& mapConfig, std::shared_ptr<SceneNode> spSystemNamesNode)
+void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, std::shared_ptr<SceneNode> spSystemNamesNode)
 {
 	std::uniform_int_distribution<int> numOfNebulasDist(mapConfig.numOfNebulasInWorld.x, mapConfig.numOfNebulasInWorld.y);
 	std::uniform_real_distribution<float> sizeOfNebulasDist(mapConfig.nebulaSizeRange.x, mapConfig.nebulaSizeRange.y);
@@ -2327,7 +2335,7 @@ std::string GetPlanetTextureName(PlanetType planetType, std::weak_ptr<HabitableP
 
 void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
 {
-	SetupRectangleShape(spRectShape, mapConfig.systemEntitySize, GetSystemTextureName(starType));
+	SetupRectangleShape(spRectShape, WorldGenerator::mapConfig.systemEntitySize, GetSystemTextureName(starType));
 }
 
 
@@ -2381,7 +2389,7 @@ void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRe
 	}
 
 	float starSizeMultiplier = 1.34f;
-	SetupRectangleShape(spRectShape, sf::Vector2f{ static_cast<float>(mapConfig.sunDiameter), static_cast<float>(mapConfig.sunDiameter) } * starSize * starSizeMultiplier, textureName);
+	SetupRectangleShape(spRectShape, sf::Vector2f{ static_cast<float>(WorldGenerator::mapConfig.sunDiameter), static_cast<float>(WorldGenerator::mapConfig.sunDiameter) } * starSize * starSizeMultiplier, textureName);
 }
 
 
@@ -2796,13 +2804,13 @@ void TextureSetter::ProcessNode(SceneNode& node)
 		else if (spEntity->HasComponent<PlanetComponent>())
 		{
 			std::shared_ptr<PlanetComponent> spPlanet = spEntity->FindComponent<PlanetComponent>().lock();
-			spPlanet->planetIconTextureName = GetPlanetIconTextureName(spPlanet->planetType, spPlanet->planetSize, mapConfig, spEntity->FindComponent<HabitablePlanetComponent>().lock());
+			spPlanet->planetIconTextureName = GetPlanetIconTextureName(spPlanet->planetType, spPlanet->planetSize, WorldGenerator::mapConfig, spEntity->FindComponent<HabitablePlanetComponent>().lock());
 			spEntity->hidden = true;
 
 			if (spPlanet->isMoon) 
 			{
 				std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
-				SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spPlanet->planetSize* mapConfig.earthDiameter, GetPlanetTextureName(spPlanet->planetType, spEntity->FindComponent<HabitablePlanetComponent>().lock()));
+				SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spPlanet->planetSize* WorldGenerator::mapConfig.earthDiameter, GetPlanetTextureName(spPlanet->planetType, spEntity->FindComponent<HabitablePlanetComponent>().lock()));
 			}
 			else 
 			{
@@ -2832,10 +2840,10 @@ void TextureSetter::ProcessNode(SceneNode& node)
 			std::shared_ptr<RingComponent> spRingCom = spEntity->FindComponent<RingComponent>().lock();
 
 			std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
-			SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spRingCom->ringSize* mapConfig.earthDiameter, "Ring"+std::to_string(spRingCom->ringNumber));
+			SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spRingCom->ringSize* WorldGenerator::mapConfig.earthDiameter, "Ring"+std::to_string(spRingCom->ringNumber));
 
 			std::shared_ptr<PlanetComponent> spPlanetCom = node.GetParent().lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
-			spRingCom->ringIconTextureName = GetRingIconTextureName(spPlanetCom->planetType,spPlanetCom->planetSize,mapConfig);
+			spRingCom->ringIconTextureName = GetRingIconTextureName(spPlanetCom->planetType,spPlanetCom->planetSize, WorldGenerator::mapConfig);
 		}
 	}
 }

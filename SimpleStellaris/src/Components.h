@@ -45,7 +45,6 @@ class SystemPropertiesComponent : public Component
 {
 public:
 
-	SpaceMapConfigurations mapConfig;
 	std::unordered_map<int, std::weak_ptr<SceneNode>> systemsPositions;
 };
 
@@ -150,7 +149,8 @@ public:
 	std::string planetIconTextureName;
 	bool isMoon{ false };
 
-	std::shared_ptr<SceneNode> spPlanetDistrictsNode;
+	int planetDistrictsSeed{-1};
+	//std::shared_ptr<SceneNode> spPlanetDistrictsNode;
 };
 
 
