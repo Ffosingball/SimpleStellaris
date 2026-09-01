@@ -99,6 +99,7 @@ private:
 	int currentDistrictShown = -1;
 
 	OverviewType previousFrameOverview = OverviewType::None;
+	GameState lastGameState = GameState::None;
 };
 
 //Processes all movement
