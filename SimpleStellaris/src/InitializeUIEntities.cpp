@@ -14,6 +14,7 @@
 #include "GameState.h"
 //#include "ParticlesConfigurations.h"
 #include "SpaceObjectTypes.h"
+#include "Systems.h"
 
 
 
@@ -160,7 +161,7 @@ void CreateDebugText()
 //Creates UI of the game
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateUI() 
+void CreateUI(std::shared_ptr<InputSystem> inputSys) 
 {
 	sf::Vector2f iconSize{100.f, 100.f};
 	sf::Vector2f uiTopPartSize{ 1000.f, 120.f };
@@ -168,10 +169,12 @@ void CreateUI()
 	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
 	sf::Vector2f planetDisPartSize{ 1650.f, 900.f };
 	sf::Vector2f escapeMenuSize{ 2560.f, 1600.f };
+	sf::Vector2f buttonSize{ 800.f, 80.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
 	float mainFontSize = 40;
+	float mainMenuMainFontSize = 120;
 	float infoFontSize = 21;
 	std::string fontName = "PixelBold";
 	sf::Color importantColor = sf::Color{ 235, 175, 38 };
@@ -297,9 +300,85 @@ void CreateUI()
 	spEscScreen->SetPosition(sf::Vector2f{ 1280.f, 800.f }* uiSize);
 
 	std::shared_ptr<SceneNode> spEscapeNode = spUIRootNode->FindChild(*spEscScreen).lock();
-	//CREATE Loading screen textes
-	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spEscapeNode);
+	//CREATE escape menu textes
+	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainMenuMainFontSize * uiSize), sf::Vector2f{ 0.f, -160.f } * uiSize, fontName, true, importantColor, spEscapeNode);
 	spTextEn->hidden = true;
+
+	//CREATE RESUME button
+	std::shared_ptr<Entity> spButton = CreateNewEntityAt(spEscapeNode, "ResumeButton").lock();
+	spButton->SetPosition(sf::Vector2f{0.f,0.f}* uiSize);
+	spButton->hidden = true;
+
+	std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ResumeButton");
+
+	std::shared_ptr<ButtonComponent> spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{buttonSize.x*0.5f,buttonSize.y} * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("ResumeButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("ResumeHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("ResumeHoveredPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("ResumePressedButton", spButtonCom->pressedIntRect).lock();
+	
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonHovered(entity);
+		};
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonUnhovered(entity);
+		};
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ResumeButtonPressed(entity);
+		};
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonReleased(entity);
+
+		};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonClicked(entity);
+		};
+
+	//CREATE EXIT GAME button
+	std::shared_ptr<Entity> spButton2 = CreateNewEntityAt(spEscapeNode, "ExitGameButton").lock();
+	spButton2->SetPosition(sf::Vector2f{ 0.f,100.f }* uiSize);
+	spButton2->hidden = true;
+
+	spRectShapeCom = spButton2->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ExitGameButton");
+
+	spButtonCom = spButton2->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ buttonSize.x * 0.65f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("ExitGameButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("ExitGameHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("ExitGameHoveredPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("ExitGamePressedButton", spButtonCom->pressedIntRect).lock();
+	
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonHovered(entity);
+		};
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonUnhovered(entity);
+		};
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ExitButtonButtonPressed(entity);
+		};
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonReleased(entity);
+
+		};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{
+			inputSys->ButtonClicked(entity);
+		};
 }
 
 

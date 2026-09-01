@@ -8,6 +8,7 @@
 #include "Component.h"
 #include <SFML/Graphics.hpp>
 #include "GameState.h"
+#include "Systems.h"
 
 //Put here functions for creation and managing entities!
 
@@ -60,7 +61,7 @@ void CreateSpaceObjects();
 void CreateDebugText();
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateUI();
+void CreateUI(std::shared_ptr<InputSystem> inputSys);
 //Worst case: O(12N+4M) where N is number of components available in game and M number of components
 //available in game
 void InitializeAllCameras(const sf::Vector2u& windowSize);

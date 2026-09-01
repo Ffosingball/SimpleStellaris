@@ -382,7 +382,8 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     {
                         //std::cout << "Call button hovered!\n";
                         spButton->isHovered = true;
-                        spButton->onButtonHovered(spEntity);
+                        if(spButton->onButtonHovered)
+                            spButton->onButtonHovered(spEntity);
                     }
                 }
                 else
@@ -390,7 +391,8 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     if (spButton->isHovered) 
                     {
                         spButton->isHovered = false;
-                        spButton->onButtonUnhovered(spEntity);
+                        if (spButton->onButtonUnhovered)
+                            spButton->onButtonUnhovered(spEntity);
                     }
                 }
 
@@ -399,7 +401,10 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     if (spButton->isHovered && !spButton->isPressed) 
                     {
                         spButton->isPressed= true;
-                        spButton->onButtonPressed(spEntity);
+                        if (spButton->onButtonPressed)
+                            spButton->onButtonPressed(spEntity);
+
+                        inputSystem.lmbPressed = false;
                     }
                 }
                 else 
@@ -407,10 +412,14 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     if (spButton->isPressed)
                     {
                         spButton->isPressed = false;
-                        spButton->onButtonReleased(spEntity);
+                        if (spButton->onButtonReleased)
+                            spButton->onButtonReleased(spEntity);
 
                         if (spButton->isHovered)
-                            spButton->onButtonClicked(spEntity);
+                        {
+                            if (spButton->onButtonClicked)
+                                spButton->onButtonClicked(spEntity);
+                        }
                     }
                 }
             }

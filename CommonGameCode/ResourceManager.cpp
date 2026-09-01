@@ -982,6 +982,54 @@ const void ResourceManager::LoadAllResources()
 				texturesIntRects.emplace(textureName, textureSizes);
 			}
 		}
+		{
+			std::string textureName{ "Buttons Textures" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/Buttons_texture.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "ResumeButton";
+				sf::IntRect textureSize{ {0,0},{179,17} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ResumeHoveredButton";
+				textureSize.position = sf::Vector2i{ 0,17 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ResumeHoveredPressedButton";
+				textureSize.position = sf::Vector2i{ 0,34 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ResumePressedButton";
+				textureSize.position = sf::Vector2i{ 0,51 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitGameButton";
+				textureSize.position = sf::Vector2i{ 0,68 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitGameHoveredButton";
+				textureSize.position = sf::Vector2i{ 0,85 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitGameHoveredPressedButton";
+				textureSize.position = sf::Vector2i{ 0,102 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitGamePressedButton";
+				textureSize.position = sf::Vector2i{ 0,119 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
+		}
 
 
 		//LOAD FONTS

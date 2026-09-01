@@ -71,6 +71,8 @@ void InputSystem::Initialize()
 	spText = planetDistrictsPanel->FindChild("PlanetNameText").lock();
 	planetNameText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
 
+	wpEscapeScreenNode = ECSGame::Instance().GetUIRoot()->FindChild("EscapeMenuScreen");
+
 	for (std::weak_ptr<Entity> e : debugTextes) 
 	{
 		e.lock()->hidden = true;
@@ -317,6 +319,27 @@ void InputSystem::ResumeSimulation()
 }
 
 
+void InputSystem::ChangeEscapeScreen() 
+{
+	if (!wpEscapeScreenNode.lock()->GetEntity().lock()->hidden)
+	{
+		wpEscapeScreenNode.lock()->GetEntity().lock()->hidden = true;
+		ChangeAllNodesVisibility visitor(true);
+		wpEscapeScreenNode.lock()->AcceptVisitor(visitor);
+
+		ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
+	}
+	else 
+	{
+		wpEscapeScreenNode.lock()->GetEntity().lock()->hidden = false;
+		ChangeAllNodesVisibility visitor(false);
+		wpEscapeScreenNode.lock()->AcceptVisitor(visitor);
+
+		ECSGame::Instance().SetDeltaTimeMultiplier(0.f);
+	}
+}
+
+
 
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
@@ -339,7 +362,7 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 	}
 	else if (key.code == sf::Keyboard::Key::Escape)
 	{
-		ECSGame::Instance().CloseGame();
+		ChangeEscapeScreen();
 	}
 	else if (key.code == sf::Keyboard::Key::Up)
 	{
@@ -501,7 +524,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			ResumeSimulation();
 		break;
 	case 6:
-		ECSGame::Instance().CloseGame();
+		ChangeEscapeScreen();
 		break;
 	}
 
@@ -905,44 +928,8 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<Scene
 	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition), wpFrontEntity);
 	ECSGame::Instance().GetUIRoot()->AcceptVisitor(visitor);
 
+	lmbPressed = false;
 	previousFrameOverview = ECSGame::Instance().GetOverviewType();
-}
-
-
-void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity) 
-{
-	float outlineThikness = 4.f;
-	sf::Color outlineColor = sf::Color{ 255,255,255 };
-	sf::Color fillColor = sf::Color{ 200,200,200 };
-
-	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
-	districtTypeText->text->setString("Type: "+GetPlanetDistrictName(spDistrict->districtType));
-	gel::AlignTextToLeftSide(*districtTypeText->text, sf::Vector2{ 0.f, 0.f });
-
-	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-	spRectShape->shape.setOutlineThickness(outlineThikness);
-	spRectShape->shape.setOutlineColor(outlineColor);
-	spRectShape->shape.setFillColor(fillColor);
-
-	//std::cout << "District is hovered\n";
-
-	currentDistrictShown = spDistrict->districtID;
-}
-
-
-void InputSystem::DistrictUnhovered(std::shared_ptr<Entity> spEntity)
-{
-	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
-	if (currentDistrictShown == spDistrict->districtID)
-	{
-		districtTypeText->text->setString("Type: ");
-		gel::AlignTextToLeftSide(*districtTypeText->text, sf::Vector2{ 0.f, 0.f });
-		currentDistrictShown = -1;
-	}
-
-	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-	spRectShape->shape.setOutlineThickness(0.f);
-	spRectShape->shape.setFillColor(sf::Color::White);
 }
 
 

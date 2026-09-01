@@ -65,7 +65,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	//Setup mouseIcon
 	InitializeMouseIcon();
 	//Initialize game ui
-	CreateUI();
+	CreateUI(spInputSystem);
 	//Create debug text
 	CreateDebugText();
 

@@ -18,8 +18,15 @@ class InputSystem :public System
 public:
 	virtual ~InputSystem() = default;
 
+	//Buttons functions
 	void DistrictHovered(std::shared_ptr<Entity> spEntity);
 	void DistrictUnhovered(std::shared_ptr<Entity> spEntity);
+	void ButtonHovered(std::shared_ptr<Entity> spEntity);
+	void ButtonUnhovered(std::shared_ptr<Entity> spEntity);
+	void ButtonReleased(std::shared_ptr<Entity> spEntity);
+	void ButtonClicked(std::shared_ptr<Entity> spEntity);
+	void ResumeButtonPressed(std::shared_ptr<Entity> spEntity);
+	void ExitButtonButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	std::shared_ptr<MusicSystem> musicSystem;
 
@@ -51,6 +58,7 @@ private:
 	void OpenPlanetDistrictsView();
 	void ClosePlanetDistrictsView();
 	void ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition);
+	void ChangeEscapeScreen();
 
 	std::shared_ptr<TextComponent> mousePosText{nullptr};
 	std::shared_ptr<TextComponent> worldPosText{ nullptr };
@@ -69,6 +77,7 @@ private:
 	std::weak_ptr<SceneNode> wpMoonOrPlanetSelected;
 	std::shared_ptr<SceneNode> planetDistrictsPanel;
 	std::weak_ptr<Entity> wpDistrictsShown;
+	std::weak_ptr<SceneNode> wpEscapeScreenNode;
 
 	bool ctrlHold{ false };
 	bool shiftHold{ false };

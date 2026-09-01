@@ -692,7 +692,7 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 		int currentColumn = 0;
 		while ((currentColumn < numOfColumns) || (currentColumn==numOfColumns && extraDistricts>currentRow)) 
 		{
-			//Create star in that system
+			//Create district at this planet
 			std::shared_ptr<Entity> spDistrict = CreateNewEntityAt(spNewNode, "District"+std::to_string(currentRow*numOfColumns+currentColumn)).lock();
 			spDistrict->SetPosition(sf::Vector2f(mapConfig.distanceBetweenDistricts.x*currentColumn, mapConfig.distanceBetweenDistricts.y * currentRow) * uiSize);
 			
