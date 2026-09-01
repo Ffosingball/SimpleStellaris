@@ -20,6 +20,10 @@ namespace gel
 		void Run(const std::string& title);
 		virtual ~SFMLApplication() = default;
 
+		//Getter and setter
+		float GetDeltaTimeMultiplier() { return deltaTimeMultiplier; }
+		void SetDeltaTimeMultiplier(float dtMultiplier) { deltaTimeMultiplier = dtMultiplier; }
+
 	protected:
 		//Init to initialize the game
 		virtual void Init(sf::RenderWindow& renderWindow) {}
@@ -29,5 +33,7 @@ namespace gel
 		virtual void Render(sf::RenderWindow& renderWindow) {}
 		//It is called when some event is happened
 		virtual void HandleEvent(const std::optional<sf::Event>& event) {}
+
+		float deltaTimeMultiplier{ 1.f };
 	};
 }

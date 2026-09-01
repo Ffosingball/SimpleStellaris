@@ -958,6 +958,16 @@ const void ResourceManager::LoadAllResources()
 				textureSize.position = sf::Vector2i{ 96,80 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
+
+				name = "EarthLikeFarSteppeDistrict";
+				textureSize.position = sf::Vector2i{ 0,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "EarthLikeCloseSteppeDistrict";
+				textureSize.position = sf::Vector2i{ 16,96 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 			}
 		}
 		{

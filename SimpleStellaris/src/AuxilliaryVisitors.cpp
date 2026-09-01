@@ -693,18 +693,30 @@ void SceneNodeVisitorGetClosestNodeToPosition::ProcessNode(SceneNode& node)
             setParentAsTarget = true;
         }
 
+        bool foundCloser = false;
         if (checkDistance) 
         {
             //If yes then check if this is the closest one and if its within the provided area
             float newDistance = gel::distanceBetween2Points(position, node.GetCombinedPosition());
-            if (newDistance < gel::distanceBetween2Points(closestPosition, position) && newDistance < maxDistance) 
+            if (newDistance < gel::distanceBetween2Points(closestPosition, position))
             {
-                closestPosition = node.GetCombinedPosition();
-                if(!setParentAsTarget)
-                    wpClosestNode = node.GetSharedPtrToItself();
-                else
-                    wpClosestNode = node.GetParent();
+                if (newDistance < maxDistance)
+                    foundCloser = true;
+                else if (spEntity->HasComponent<RectangleShapeComponent>())
+                {
+                    if (gel::IsPointInTheArea(position, node.GetCombinedPosition(), spEntity->FindComponent<RectangleShapeComponent>().lock()->shape.getSize()))
+                        foundCloser = true;
+                }
             }
+        }
+
+        if (foundCloser) 
+        {
+            closestPosition = node.GetCombinedPosition();
+            if (!setParentAsTarget)
+                wpClosestNode = node.GetSharedPtrToItself();
+            else
+                wpClosestNode = node.GetParent();
         }
     }
 }

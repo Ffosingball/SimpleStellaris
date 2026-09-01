@@ -285,6 +285,21 @@ void CreateUI()
 	//CREATE Loading screen textes
 	spTextEn = InitializeText("LoadingText", "Generating...", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spLoadSNode);
 	spTextEn->hidden = false;
+
+	//CREATE escape menu screen
+	std::shared_ptr<Entity> spEscScreen = CreateNewEntityAtUIRoot("EscapeMenuScreen").lock();
+	spEscScreen->hidden = true;
+	//Add component
+	spRectShape = spEscScreen->AddComponent<RectangleShapeComponent>().lock();
+	spRectShape->shape.setSize(escapeMenuSize* uiSize);
+	spRectShape->shape.setOrigin(spRectShape->shape.getSize() / 2.f);
+	spRectShape->shape.setFillColor(escapeMenuPanelColor);
+	spEscScreen->SetPosition(sf::Vector2f{ 1280.f, 800.f }* uiSize);
+
+	std::shared_ptr<SceneNode> spEscapeNode = spUIRootNode->FindChild(*spEscScreen).lock();
+	//CREATE Loading screen textes
+	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spEscapeNode);
+	spTextEn->hidden = true;
 }
 
 

@@ -138,8 +138,8 @@ struct SpaceMapConfigurations
 	//Chances of planet type within of habitable zone
 	float mediumOrbitVenusLikeChance = 32.f;
 	float mediumOrbitOceanicChance = 10.f;
-	float mediumOrbitEarthLikeChance = 5.f;
-	float mediumOrbitDesertChance = 5.f;
+	float mediumOrbitEarthLikeChance = 5.f;//5.f
+	float mediumOrbitDesertChance = 5.f;//5.f
 	float mediumOrbitBarrenChance = 43.f;
 	float mediumOrbitHotJupiterChance = 2.5f;
 	float mediumOrbitHotNeptuneChance = 2.5f;

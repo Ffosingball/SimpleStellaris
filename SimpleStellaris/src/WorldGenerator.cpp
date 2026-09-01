@@ -335,7 +335,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 5)
 			{
-				districtTextureName = "SteppeDistrict";
+				districtTextureName = "EarthLikeCloseSteppeDistrict";
 				return PlanetDistrictType::Steppe;
 			}
 		}
@@ -426,7 +426,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 5)
 			{
-				districtTextureName = "SteppeDistrict";
+				districtTextureName = "EarthLikeFarSteppeDistrict";
 				return PlanetDistrictType::Steppe;
 			}
 		}
@@ -533,7 +533,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 2)
 			{
-				districtTextureName = "SteppeDistrict";
+				districtTextureName = "EarthLikeCloseSteppeDistrict";
 				return PlanetDistrictType::Steppe;
 			}
 			else if (val == 3)
@@ -609,7 +609,7 @@ PlanetDistrictType WorldGenerator::GetDistrictType(PlanetType planetType, std::w
 			}
 			else if (val == 2)
 			{
-				districtTextureName = "SteppeDistrict";
+				districtTextureName = "EarthLikeFarSteppeDistrict";
 				return PlanetDistrictType::Steppe;
 			}
 			else if (val == 3)

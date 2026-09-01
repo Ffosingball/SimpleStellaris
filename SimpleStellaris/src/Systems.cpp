@@ -328,7 +328,7 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 		else if (ECSGame::Instance().GetGameState() == GameState::Pause)
 			ResumeSimulation();
 	}
-	else if (key.code == sf::Keyboard::Key::Escape)
+	else if (key.code == sf::Keyboard::Key::Q)
 	{
 		if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 			ExitSystemOverview();
@@ -336,8 +336,10 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 			ClosePlanetDistrictsView();
 		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 			ExitPlanetToSystemOverview();
-		else if(ECSGame::Instance().GetOverviewType() == OverviewType::Space)
-			ECSGame::Instance().CloseGame();
+	}
+	else if (key.code == sf::Keyboard::Key::Escape)
+	{
+		ECSGame::Instance().CloseGame();
 	}
 	else if (key.code == sf::Keyboard::Key::Up)
 	{
@@ -381,7 +383,7 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 			signals::onShowInfoPanel();
 		infoPanelIsShown = !infoPanelIsShown;
 	}
-	else if (key.code == sf::Keyboard::Key::Q)
+	else if (key.code == sf::Keyboard::Key::Z)
 	{
 		UIHidden = !UIHidden;
 		ChangeUIVisibility(UIHidden);
