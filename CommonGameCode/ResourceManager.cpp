@@ -1030,6 +1030,134 @@ const void ResourceManager::LoadAllResources()
 				texturesIntRects.emplace(name, textureSize);
 			}
 		}
+		{
+			std::string textureName{ "Players Texture" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/playerParts.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "Slower3Button";
+				sf::IntRect textureSize{ {0,0},{23,10} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower3HoveredButton";
+				textureSize.position = sf::Vector2i{ 0,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower3PressedButton";
+				textureSize.position = sf::Vector2i{ 0,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower2Button";
+				textureSize.position = sf::Vector2i{ 23,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower2HoveredButton";
+				textureSize.position = sf::Vector2i{ 23,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower2PressedButton";
+				textureSize.position = sf::Vector2i{ 23,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower1Button";
+				textureSize.position = sf::Vector2i{ 46,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower1HoveredButton";
+				textureSize.position = sf::Vector2i{ 46,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Slower1PressedButton";
+				textureSize.position = sf::Vector2i{ 46,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StoppedButton";
+				textureSize.position = sf::Vector2i{ 69,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StoppedHoveredButton";
+				textureSize.position = sf::Vector2i{ 69,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StoppedPressedButton";
+				textureSize.position = sf::Vector2i{ 69,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "PlayingButton";
+				textureSize.position = sf::Vector2i{ 92,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "PlayingHoveredButton";
+				textureSize.position = sf::Vector2i{ 92,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "PlayingPressedButton";
+				textureSize.position = sf::Vector2i{ 92,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster1Button";
+				textureSize.position = sf::Vector2i{ 115,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster1HoveredButton";
+				textureSize.position = sf::Vector2i{ 115,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster1PressedButton";
+				textureSize.position = sf::Vector2i{ 115,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster2Button";
+				textureSize.position = sf::Vector2i{ 138,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster2HoveredButton";
+				textureSize.position = sf::Vector2i{ 138,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster2PressedButton";
+				textureSize.position = sf::Vector2i{ 138,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster3Button";
+				textureSize.position = sf::Vector2i{ 161,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster3HoveredButton";
+				textureSize.position = sf::Vector2i{ 161,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "Faster3PressedButton";
+				textureSize.position = sf::Vector2i{ 161,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
+		}
 
 
 		//LOAD FONTS

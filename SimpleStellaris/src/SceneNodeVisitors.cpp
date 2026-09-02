@@ -367,8 +367,8 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
     //Check that pointer is valid
     if (spEntity != nullptr)
     {
-        //Check if entity has Button component
-        if (spEntity->HasComponent<ButtonComponent>())
+        //Check if entity has Button component and it is not hidden
+        if (spEntity->HasComponent<ButtonComponent>() && !spEntity->hidden)
         {
             //std::cout << "Check if button is hovered!\n";
             //Get Button component
@@ -407,7 +407,7 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                         inputSystem.lmbPressed = false;
                     }
                 }
-                else 
+                else if(!inputSystem.buttonPressed)
                 {
                     if (spButton->isPressed)
                     {

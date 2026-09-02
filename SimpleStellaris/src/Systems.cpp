@@ -72,6 +72,8 @@ void InputSystem::Initialize()
 	planetNameText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
 
 	wpEscapeScreenNode = ECSGame::Instance().GetUIRoot()->FindChild("EscapeMenuScreen");
+	wpStoppedButton = ECSGame::Instance().GetUIRoot()->FindChild("LowerPart").lock()->FindChild("StoppedButton").lock()->GetEntity();
+	wpPlayingButton = ECSGame::Instance().GetUIRoot()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
 
 	for (std::weak_ptr<Entity> e : debugTextes) 
 	{
@@ -309,6 +311,8 @@ void InputSystem::PauseSimulation()
 {
 	ECSGame::Instance().SetGameState(GameState::Pause);
 	musicSystem->PlayPauseSimulationSFX();
+	wpPlayingButton.lock()->hidden = true;
+	wpStoppedButton.lock()->hidden = false;
 }
 
 
@@ -316,6 +320,8 @@ void InputSystem::ResumeSimulation()
 {
 	ECSGame::Instance().SetGameState(GameState::Game);
 	musicSystem->PlayResumeSimulationSFX();
+	wpPlayingButton.lock()->hidden = false;
+	wpStoppedButton.lock()->hidden = true;
 }
 
 
@@ -369,32 +375,6 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 		{
 			ChangeEscapeScreen();
 		}
-		else if (key.code == sf::Keyboard::Key::Up)
-		{
-			if (shiftHold)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 100);
-			else if (ctrlHold)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
-			else
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
-		}
-		else if (key.code == sf::Keyboard::Key::Down)
-		{
-			if (shiftHold)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 100);
-			else if (ctrlHold)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
-			else
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
-		}
-		else if (key.code == sf::Keyboard::Key::LControl)
-		{
-			ctrlHold = true;
-		}
-		else if (key.code == sf::Keyboard::Key::LShift)
-		{
-			shiftHold = true;
-		}
 		else if (key.code == sf::Keyboard::Key::F3)
 		{
 			showDebugText = !showDebugText;
@@ -435,49 +415,13 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 
 void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped)
-	{
-		//If key released then reset bool values
-		if (key.code == sf::Keyboard::Key::LControl)
-		{
-			ctrlHold = false;
-		}
-		else if (key.code == sf::Keyboard::Key::LShift)
-		{
-			shiftHold = false;
-		}
-	}
-
 	lastInputByJoystick = false;
 }
 
 
 void InputSystem::OnJoystickMoved(sf::Event::JoystickMoved joystickMoved)
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped)
-	{
-		if (joystickMoved.axis == sf::Joystick::Axis::PovX)
-		{
-			//std::cout << "PovX: " << joystickMoved.position << '\n';
-			if (joystickMoved.position > minValForJoystick)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
-			else if (joystickMoved.position < -minValForJoystick)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
-
-			lastInputByJoystick = true;
-		}
-
-		if (joystickMoved.axis == sf::Joystick::Axis::PovY)
-		{
-			//std::cout << "PovY: " << joystickMoved.position << '\n';
-			if (joystickMoved.position > minValForJoystick)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
-			else if (joystickMoved.position < -minValForJoystick)
-				ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
-
-			lastInputByJoystick = true;
-		}
-	}
+	
 }
 
 
@@ -502,6 +446,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			}
 
 			lmbPressed = true;
+			buttonPressed = true;
 			break;
 		case 1:
 			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
@@ -555,6 +500,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 		{
 		case 0:
 			lmbPressed = true;
+			buttonPressed = true;
 			break;
 		case 6:
 			ChangeEscapeScreen();
@@ -568,7 +514,12 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 
 void InputSystem::OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button)
 {
-	
+	switch (button.button)
+	{
+	case 0:
+		buttonPressed = false;
+		break;
+	}
 }
 
 
@@ -668,6 +619,7 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			}
 
 			lmbPressed = true;
+			buttonPressed = true;
 		}
 		else if (mouseButPressed.button == sf::Mouse::Button::Right)
 		{
@@ -690,7 +642,10 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 	else 
 	{
 		if (mouseButPressed.button == sf::Mouse::Button::Left)
+		{
 			lmbPressed = true;
+			buttonPressed = true;
+		}
 	}
 
 	lastInputByJoystick = false;
@@ -699,7 +654,10 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 
 void InputSystem::OnMouseButtonReleased(sf::Event::MouseButtonReleased mouseButReleased)
 {
-
+	if (mouseButReleased.button == sf::Mouse::Button::Left)
+	{
+		buttonPressed = false;
+	}
 }
 
 
@@ -1037,7 +995,7 @@ void UISystem::Initialize()
 	simStateText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
 	spNode = ECSGame::Instance().GetUIRoot()->FindChild("LowerPart").lock()->FindChild("SimulationSpeedText").lock();
 	simSpeedText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUIRoot()->FindChild("LowerPart").lock()->FindChild("ViewSizeText").lock();
+	spNode = ECSGame::Instance().GetUIRoot()->FindChild("UpperPart").lock()->FindChild("ViewSizeText").lock();
 	viewSizeText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
 	spNode = ECSGame::Instance().GetUIRoot()->FindChild("UpperPart").lock()->FindChild("OverviewText").lock();
 	overviewText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();

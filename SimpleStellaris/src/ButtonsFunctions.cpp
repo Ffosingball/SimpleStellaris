@@ -103,13 +103,18 @@ void InputSystem::ButtonClicked(std::shared_ptr<Entity> spEntity)
 }
 
 
-void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity) 
+void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
 	spRecShape->shape.setTexture(spButton->hoveredPressedTexture.get());
 	spRecShape->shape.setTextureRect(spButton->hoveredPressedIntRect);
+}
 
+
+void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	SetupPressedButtonTexture(spEntity);
 	ChangeEscapeScreen();
 }
 
@@ -117,4 +122,60 @@ void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity)
 void InputSystem::ExitButtonButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	ECSGame::Instance().CloseGame();
+}
+
+
+void InputSystem::Slower3ButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	SetupPressedButtonTexture(spEntity);
+	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 100);
+}
+
+
+void InputSystem::Slower2ButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	SetupPressedButtonTexture(spEntity);
+	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
+}
+
+
+void InputSystem::Slower1ButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
+}
+
+
+void InputSystem::PlayingButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	SetupPressedButtonTexture(spEntity);
+	PauseSimulation();
+}
+
+
+void InputSystem::StoppedButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	ResumeSimulation();
+}
+
+
+void InputSystem::Faster3ButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 100);
+}
+
+
+void InputSystem::Faster2ButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
+}
+
+
+void InputSystem::Faster1ButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
 }

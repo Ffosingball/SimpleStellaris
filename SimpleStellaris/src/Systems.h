@@ -27,11 +27,21 @@ public:
 	void ButtonClicked(std::shared_ptr<Entity> spEntity);
 	void ResumeButtonPressed(std::shared_ptr<Entity> spEntity);
 	void ExitButtonButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower3ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower2ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower1ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void PlayingButtonPressed(std::shared_ptr<Entity> spEntity);
+	void StoppedButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster3ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster2ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster1ButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	std::shared_ptr<MusicSystem> musicSystem;
 
 	//Check if left mouse button or A on joystick is presed which controls button 
 	bool lmbPressed{ false };
+	bool buttonPressed{ false };
+
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
@@ -78,9 +88,8 @@ private:
 	std::shared_ptr<SceneNode> planetDistrictsPanel;
 	std::weak_ptr<Entity> wpDistrictsShown;
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
-
-	bool ctrlHold{ false };
-	bool shiftHold{ false };
+	std::weak_ptr<Entity> wpStoppedButton;
+	std::weak_ptr<Entity> wpPlayingButton;
 
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;

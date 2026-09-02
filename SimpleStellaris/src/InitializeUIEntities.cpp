@@ -164,12 +164,13 @@ void CreateDebugText()
 void CreateUI(std::shared_ptr<InputSystem> inputSys) 
 {
 	sf::Vector2f iconSize{100.f, 100.f};
-	sf::Vector2f uiTopPartSize{ 1000.f, 120.f };
+	sf::Vector2f uiTopPartSize{ 1000.f, 140.f };
 	sf::Vector2f uiBottomPartSize{ 1200.f, 200.f };
 	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
 	sf::Vector2f planetDisPartSize{ 1650.f, 900.f };
 	sf::Vector2f escapeMenuSize{ 2560.f, 1600.f };
 	sf::Vector2f buttonSize{ 800.f, 80.f };
+	sf::Vector2f playerButtonSize{ 80.f, 30.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
@@ -215,8 +216,8 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	InitializeText("YearText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 380.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
 	InitializeText("SimulationStateText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -300.f, 0.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
 	InitializeText("SimulationSpeedText", " ", (int)(simulationFontSize * uiSize), sf::Vector2f{ 0.f, -60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-	InitializeText("ViewSizeText", " ", (int)(metricsFontSize * uiSize), sf::Vector2f{ 0.f, 60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-	InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
+	InitializeText("ViewSizeText", " ", (int)(metricsFontSize * uiSize), sf::Vector2f{ 0.f, 30.f } * uiSize, fontName, true, usualColor, spUpperPartNode);
+	InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, -20.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
 
 	//CREATE SIDE part of ui
 	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUIRoot("InfoPart").lock();
@@ -321,26 +322,15 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("ResumePressedButton", spButtonCom->pressedIntRect).lock();
 	
 	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonHovered(entity);
-		};
+		{ inputSys->ButtonHovered(entity); };
 	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonUnhovered(entity);
-		};
+		{ inputSys->ButtonUnhovered(entity); };
 	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ResumeButtonPressed(entity);
-		};
+		{ inputSys->ResumeButtonPressed(entity); };
 	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonReleased(entity);
-
-		};
+		{ inputSys->ButtonReleased(entity);	};
 	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonClicked(entity);
-		};
+		{ inputSys->ButtonClicked(entity); };
 
 	//CREATE EXIT GAME button
 	std::shared_ptr<Entity> spButton2 = CreateNewEntityAt(spEscapeNode, "ExitGameButton").lock();
@@ -359,26 +349,232 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("ExitGamePressedButton", spButtonCom->pressedIntRect).lock();
 	
 	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonHovered(entity);
-		};
+		{ inputSys->ButtonHovered(entity); };
 	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonUnhovered(entity);
-		};
+		{ inputSys->ButtonUnhovered(entity); };
 	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ExitButtonButtonPressed(entity);
-		};
+		{ inputSys->ExitButtonButtonPressed(entity); };
 	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonReleased(entity);
-
-		};
+		{ inputSys->ButtonReleased(entity);	};
 	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
-		{
-			inputSys->ButtonClicked(entity);
-		};
+		{ inputSys->ButtonClicked(entity); };
+
+
+	//CREATE SIMULATION PLAYING button
+	spButton = CreateNewEntityAt(spLowerPartNode, "PlayingButton").lock();
+	spButton->SetPosition(sf::Vector2f{ 0.f,50.f }* uiSize);
+	spButton->hidden = true;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "PlayingButton");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x*0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("PlayingButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("PlayingHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("PlayingPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("PlayingPressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->PlayingButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION STOPPED button
+	spButton = CreateNewEntityAt(spLowerPartNode, "StoppedButton").lock();
+	spButton->SetPosition(sf::Vector2f{ 0.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "StoppedButton");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("StoppedButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("StoppedHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("StoppedPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("StoppedPressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->StoppedButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION SLOWER 3 button
+	spButton = CreateNewEntityAt(spLowerPartNode, "Slower3Button").lock();
+	spButton->SetPosition(sf::Vector2f{ -240.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Slower3Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Slower3Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Slower3HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Slower3PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Slower3PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->Slower3ButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION SLOWER 2 button
+	spButton = CreateNewEntityAt(spLowerPartNode, "Slower2Button").lock();
+	spButton->SetPosition(sf::Vector2f{ -130.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Slower2Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.8f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Slower2Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Slower2HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Slower2PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Slower2PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->Slower2ButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION SLOWER 1 button
+	spButton = CreateNewEntityAt(spLowerPartNode, "Slower1Button").lock();
+	spButton->SetPosition(sf::Vector2f{ -60.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Slower1Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Slower1Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Slower1HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Slower1PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Slower1PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->Slower1ButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION FASTER 3 button
+	spButton = CreateNewEntityAt(spLowerPartNode, "Faster3Button").lock();
+	spButton->SetPosition(sf::Vector2f{ 240.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Faster3Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Faster3Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Faster3HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Faster3PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Faster3PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->Faster3ButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION FASTER 2 button
+	spButton = CreateNewEntityAt(spLowerPartNode, "Faster2Button").lock();
+	spButton->SetPosition(sf::Vector2f{ 130.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Faster2Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.8f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Faster2Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Faster2HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Faster2PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Faster2PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->Faster2ButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SIMULATION FASTER 1 button
+	spButton = CreateNewEntityAt(spLowerPartNode, "Faster1Button").lock();
+	spButton->SetPosition(sf::Vector2f{ 60.f,50.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Faster1Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Faster1Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Faster1HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Faster1PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Faster1PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->Faster1ButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
 }
 
 
