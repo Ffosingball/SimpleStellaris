@@ -10,6 +10,9 @@ struct SpaceMapConfigurations
 	//System configs
 	int systemAmount{ 1000 };
 	sf::Vector2f systemEntitySize{ 20.f, 20.f };
+	sf::Vector2f habitablePlanetIconSize{ 50.f, 50.f };
+	sf::Vector2f habitablePlanetIconSystemViewSize{ 35.f, 35.f };
+	sf::Vector2f habitablePlanetIconOffset{ 20.f, -20.f };
 	float minDistanceBetweenSystems{ 5.f };
 	int maxAmountOfSystemPosRegen{ 10 };
 	//Distance in light years

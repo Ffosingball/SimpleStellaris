@@ -61,6 +61,7 @@ public:
 	bool hideIfOutsideOfCamera = true;
 	bool hideAnyway = false;
 	bool hideIfZoomSmallEnough = false;
+	sf::Vector2f offset{ 0.f,0.f };
 };
 
 

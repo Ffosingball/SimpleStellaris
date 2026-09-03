@@ -1173,6 +1173,74 @@ const void ResourceManager::LoadAllResources()
 				texturesIntRects.emplace(name, textureSize);
 			}
 		}
+		{
+			std::string textureName{ "Habitable Planet Icon" };
+			std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+			if (!texture->loadFromFile("media/textures/HabitablePlanetIcons.png"))
+				std::cout << "No texture found: " + textureName + "\n";
+			else
+			{
+				std::string name = "1HabitablePlanetIcon";
+				sf::IntRect textureSize{ {0,0},{20,20} };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "2HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 20,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "3HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 40,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "4HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 60,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "5HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "6HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 20,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "7HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 40,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "8HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 60,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "9HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 0,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "10HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 20,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "11HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 40,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "12HabitablePlanetIcon";
+				textureSize.position = sf::Vector2i{ 60,40 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+			}
+		}
 
 
 		//LOAD FONTS

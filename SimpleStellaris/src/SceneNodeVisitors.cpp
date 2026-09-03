@@ -278,7 +278,7 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                 spEntity->hidden = false;
                 sf::Vector2f positionToFollow = spEntityFollower->nodeToFollow.lock()->GetCombinedPosition();
                 sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
-                spEntity->SetPosition({ (float)convertedPosition.x, (float)convertedPosition.y });
+                spEntity->SetPosition({ (float)convertedPosition.x+spEntityFollower->offset.x, (float)convertedPosition.y + spEntityFollower->offset.y });
             }
         }
 

@@ -19,6 +19,7 @@
 #include "CompilerInstructions.h"
 #include "Systems.h"
 #include <functional>
+#include "SceneNodeVisitors.h"
 
 
 //Read data from the file
@@ -2794,6 +2795,15 @@ void TextureSetter::ProcessNode(SceneNode& node)
 				//Create text name entity for system
 				std::string name{ "SystemNameText" };
 				CreateSystemText(wpSystemNamesNode.lock(), node.GetSharedPtrToItself(), name, true);
+				
+				//Create habitable planet icon
+				VisitorCountHabitablePlanets visitor;
+				spComSys->spAllSystemObjectsNode->AcceptVisitor(visitor);
+				if (visitor.counter > 0)
+				{
+					std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), wpSystemNamesNode.lock(), std::to_string(visitor.counter) + "HabitablePlanetIcon", spComSys->systemName + "HabitableIcon", true, WorldGenerator::mapConfig.habitablePlanetIconSize);
+					spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
+				}
 
 				spComSys->spAllSystemObjectsNode->AcceptVisitor(*this);
 			}

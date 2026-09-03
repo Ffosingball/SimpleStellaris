@@ -581,6 +581,14 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                         std::shared_ptr<RingComponent> spRingCom = node.FindChild("Rings").lock()->GetEntity().lock()->FindComponent<RingComponent>().lock();
                         CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spRingCom->ringIconTextureName, "RingIcon" + spPlanet->planetName, true, planetIconSize);
                     }
+                    //Create habitable planet icon
+                    VisitorCountHabitablePlanets visitor;
+                    node.AcceptVisitor(visitor);
+                    if (visitor.counter > 0)
+                    {
+                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, std::to_string(visitor.counter) + "HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", true, WorldGenerator::mapConfig.habitablePlanetIconSystemViewSize);
+                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
+                    }
                 }
                 else
                 {
@@ -597,6 +605,9 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                         std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName);
                         signals::onDeleteSceneNode(wpE);
                     }
+
+                    std::weak_ptr<SceneNode> wpE4 = spSystemIconsNode->FindChild(spPlanet->planetName + "HabitableIcon");
+                    signals::onDeleteSceneNode(wpE4);
                 }
             }
         }
@@ -694,6 +705,12 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, spPlanet->planetIconTextureName, "MoonIcon" + spPlanet->planetName, false, moonIconSize, true);
                     //Create orbit
                     CreateOrbitFor(spObjectOrbitsNode, "MoonOrbit" + spPlanet->planetName, spEntity->inheritParentPosition, spPlanet->orbitRadius, spPlanetPicNode, 2.f, sf::Color(200, 200, 200, 255), false);
+                    //Create habitable planet icon
+                    if (spEntity->HasComponent<HabitablePlanetComponent>())
+                    {
+                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, "1HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", false, WorldGenerator::mapConfig.habitablePlanetIconSystemViewSize, true);
+                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
+                    }
                 }
                 else 
                 {
@@ -713,6 +730,12 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     {
                         std::shared_ptr<RingComponent> spRingCom = node.FindChild("Rings").lock()->GetEntity().lock()->FindComponent<RingComponent>().lock();
                         CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, spRingCom->ringIconTextureName, "RingIcon" + spPlanet->planetName, false, planetIconSize, true);
+                    }
+                    //Create habitable planet icon
+                    if (spEntity->HasComponent<HabitablePlanetComponent>())
+                    {
+                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, "1HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", false, WorldGenerator::mapConfig.habitablePlanetIconSystemViewSize, true);
+                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
                     }
                 }
             }
@@ -743,6 +766,9 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                         signals::onDeleteSceneNode(wpE);
                     }
                 }
+
+                std::weak_ptr<SceneNode> wpE4 = spSystemIconsNode->FindChild(spPlanet->planetName + "HabitableIcon");
+                signals::onDeleteSceneNode(wpE4);
             }
         }
         else if (spEntity->HasComponent<RingComponent>())
