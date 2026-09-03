@@ -1156,6 +1156,21 @@ const void ResourceManager::LoadAllResources()
 				textureSize.position = sf::Vector2i{ 161,20 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
+
+				name = "MixButton";
+				textureSize.position = sf::Vector2i{ 184,0 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MixHoveredButton";
+				textureSize.position = sf::Vector2i{ 184,10 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "MixPressedButton";
+				textureSize.position = sf::Vector2i{ 184,20 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 			}
 		}
 
@@ -1215,7 +1230,7 @@ const void ResourceManager::LoadAllResources()
 		{
 			std::string musicName{ "Ambient5" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-			if (!music->openFromFile("media/music/Ambient/solarflex-space.ogg"))
+			if (!music->openFromFile("media/music/Ambient/solarflex-space-1.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
 			else
 				musics.emplace(musicName, music);
@@ -1231,7 +1246,47 @@ const void ResourceManager::LoadAllResources()
 		{
 			std::string musicName{ "Ambient7" };
 			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-			if (!music->openFromFile("media/music/Ambient/welbornworks-abandonedbase.ogg"))
+			if (!music->openFromFile("media/music/Ambient/geoffharvey-future-worlds-space-theme.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient8" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/juliush-universe-space-sounds.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient9" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/konstantinpazuzustudio-blind-fear-horror-piano-ambience.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient10" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/solarflex-space-ambient.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient11" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/solarflex-space-2.ogg"))
+				std::cout << "No music found: " + musicName + "\n";
+			else
+				musics.emplace(musicName, music);
+		}
+		{
+			std::string musicName{ "Ambient12" };
+			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
+			if (!music->openFromFile("media/music/Ambient/the_mountain-space-study.ogg"))
 				std::cout << "No music found: " + musicName + "\n";
 			else
 				musics.emplace(musicName, music);

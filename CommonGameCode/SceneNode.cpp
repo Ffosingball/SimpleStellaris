@@ -118,8 +118,14 @@ void SceneNode::AcceptVisitor(SceneNodeVisitor& visitor)
 	visitor.ProcessNode(*this);
 
 	//Send visitors to all children
-	for (std::shared_ptr<SceneNode> node : children)
+	for (int i = 0; i < children.size();)
+	{
+		std::shared_ptr<SceneNode> node = children[i];
 		node->AcceptVisitor(visitor);
+
+		if (i < children.size() && children[i] == node)
+			++i;
+	}
 }
 
 //Nodes with hidden entities and all their children will not be processed
@@ -134,9 +140,13 @@ void SceneNode::AcceptReverseVisitor(SceneNodeVisitor& visitor)
 	}
 
 	//Send visitors to all children
-	for (int i = (int)children.size() - 1; i >= 0; i--)
+	for (int i = children.size()-1; i >= 0;)
 	{
-		children[i]->AcceptReverseVisitor(visitor);
+		std::shared_ptr<SceneNode> node = children[i];
+		node->AcceptReverseVisitor(visitor);
+
+		if (i >= 0 && children[i] == node)
+			--i;
 	}
 
 	//std::cout << GetCombinedParentsNames()<<'\n';

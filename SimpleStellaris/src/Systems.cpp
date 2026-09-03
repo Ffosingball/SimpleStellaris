@@ -74,6 +74,8 @@ void InputSystem::Initialize()
 	wpEscapeScreenNode = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen");
 	wpStoppedButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("StoppedButton").lock()->GetEntity();
 	wpPlayingButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
+	wpStopMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("StopButton").lock()->GetEntity();
+	wpResumeMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("ResumeButton").lock()->GetEntity();
 
 	for (std::weak_ptr<Entity> e : debugTextes) 
 	{
@@ -1312,20 +1314,7 @@ void UISystem::OnHideInfoPanel()
 //MUSIC SYSTEM
 void MusicSystem::MixMusicList() 
 {
-	/*std::vector<int> nums(8);
-	for (int i = 0; i < 10000; i++) 
-	{
-		int n = gel::RandInt(0, listOfMusicToPlay.size());
-		//std::cout << n <<"; ";
-		nums[n]++;
-	}
-	std::cout << '\n';
-
-	for (int i = 0; i < nums.size(); i++) 
-	{
-		std::cout << i << ") " << nums[i] << '\n';
-	}*/
-
+	listOfMusicToPlay[currentMusicPlaying].lock()->pause();
 	std::vector<std::weak_ptr<sf::Music>> newListToPlay;
 
 	int musicSelected = gel::RandInt(0, (int)listOfMusicToPlay.size()-1);
@@ -1343,16 +1332,29 @@ void MusicSystem::MixMusicList()
 
 	listOfMusicToPlay = newListToPlay;
 	currentMusicPlaying = 0;
+	SetupMusic(listOfMusicToPlay[currentMusicPlaying].lock());
+}
 
-	//for (int i = 0; i < listOfMusicToPlay.size(); i++)
-	//{
-	//	std::cout << i << ")) " << listOfMusicToPlay[i].lock()->getDuration().asSeconds() << '\n';
-	//}
+void MusicSystem::SetupMusic(std::shared_ptr<sf::Music> currentlyPlayingMusic)
+{
+	currentlyPlayingMusic->setVolume(overallVolume * musicVolume * 100);
+	sf::Time offset = sf::seconds(0.f);
+	currentlyPlayingMusic->setPlayingOffset(offset);
 }
 
 void MusicSystem::PlayNextMusic()
 {
 	listOfMusicToPlay[currentMusicPlaying].lock()->setPlayingOffset(listOfMusicToPlay[currentMusicPlaying].lock()->getDuration()- goToNextMusicBefore);
+}
+
+void MusicSystem::PlayPreviousMusic()
+{
+	listOfMusicToPlay[currentMusicPlaying].lock()->pause();
+	currentMusicPlaying--;
+	if (currentMusicPlaying < 0)
+		currentMusicPlaying = listOfMusicToPlay.size() - 1;
+
+	SetupMusic(listOfMusicToPlay[currentMusicPlaying].lock());
 }
 
 void MusicSystem::Initialize()
@@ -1373,6 +1375,11 @@ void MusicSystem::Initialize()
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient5"));
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient6"));
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient7"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient8"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient9"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient10"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient11"));
+	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient12"));
 
 	MixMusicList();
 }
@@ -1381,21 +1388,21 @@ void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	std::shared_ptr<sf::Music> currentlyPlayingMusic = listOfMusicToPlay[currentMusicPlaying].lock();
 
-	if (playMusic && (currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Paused || listOfMusicToPlay[currentMusicPlaying].lock()->getStatus() == sf::SoundSource::Status::Stopped))
+	if (playMusic && !musicStopped && (currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Paused || listOfMusicToPlay[currentMusicPlaying].lock()->getStatus() == sf::SoundSource::Status::Stopped))
 	{
-		currentlyPlayingMusic->setVolume(overallVolume * musicVolume * 100);
 		currentlyPlayingMusic->play();
-		//std::cout << "Duration: " << currentlyPlayingMusic->getDuration().asSeconds()<<'\n';
-		//std::cout << "Num of music in list: " << listOfMusicToPlay.size() << '\n';
 	}
-	else if(!playMusic && currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Playing)
+	else if((!playMusic || musicStopped) && currentlyPlayingMusic->getStatus() == sf::SoundSource::Status::Playing)
 		currentlyPlayingMusic->pause();
 
 	if (currentlyPlayingMusic->getDuration()-goToNextMusicBefore <= currentlyPlayingMusic->getPlayingOffset()) 
 	{
+		currentlyPlayingMusic->pause();
 		currentMusicPlaying++;
 		if (currentMusicPlaying >= listOfMusicToPlay.size())
-			MixMusicList();
+			currentMusicPlaying = 0;
+
+		SetupMusic(listOfMusicToPlay[currentMusicPlaying].lock());
 		//else
 		//	std::cout <<currentMusicPlaying<<") " << listOfMusicToPlay[currentMusicPlaying].lock()->getDuration().asSeconds() << '\n';
 	}
@@ -1574,6 +1581,16 @@ void MusicSystem::StopSelectedObjectSound()
 	if(wpSelectedObjectSound.lock()!=nullptr)
 		wpSelectedObjectSound.lock()->stop();
 	playMusic = true;
+}
+
+void MusicSystem::StopMusic() 
+{
+	musicStopped = true;
+}
+
+void MusicSystem::ResumeMusic()
+{
+	musicStopped = false;
 }
 
 

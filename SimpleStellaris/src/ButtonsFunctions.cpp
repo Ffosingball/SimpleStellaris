@@ -179,3 +179,42 @@ void InputSystem::Faster1ButtonPressed(std::shared_ptr<Entity> spEntity)
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
 }
+
+
+void InputSystem::PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	musicSystem->PlayPreviousMusic();
+}
+
+
+void InputSystem::NextMusicButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	musicSystem->PlayNextMusic();
+}
+
+
+void InputSystem::StopMusicButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	SetupPressedButtonTexture(spEntity);
+	musicSystem->StopMusic();
+	wpStopMusicButton.lock()->hidden = true;
+	wpResumeMusicButton.lock()->hidden = false;
+}
+
+
+void InputSystem::ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	SetupPressedButtonTexture(spEntity);
+	musicSystem->ResumeMusic();
+	wpStopMusicButton.lock()->hidden = false;
+	wpResumeMusicButton.lock()->hidden = true;
+}
+
+
+void InputSystem::MixMusicButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	SetupPressedButtonTexture(spEntity);
+	musicSystem->MixMusicList();
+}

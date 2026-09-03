@@ -35,6 +35,11 @@ public:
 	void Faster3ButtonPressed(std::shared_ptr<Entity> spEntity);
 	void Faster2ButtonPressed(std::shared_ptr<Entity> spEntity);
 	void Faster1ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void NextMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void StopMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void MixMusicButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	std::shared_ptr<MusicSystem> musicSystem;
 
@@ -88,8 +93,11 @@ private:
 	std::weak_ptr<SceneNode> planetDistrictsPanel;
 	std::weak_ptr<SceneNode> wpDistrictsShown;
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
+
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
+	std::weak_ptr<Entity> wpStopMusicButton;
+	std::weak_ptr<Entity> wpResumeMusicButton;
 
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;
@@ -189,12 +197,16 @@ public:
 	void PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity);
 	void StopSelectedObjectSound();
 	void PlayNextMusic();
+	void PlayPreviousMusic();
+	void MixMusicList();
+	void StopMusic();
+	void ResumeMusic();
 
 private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
-	void MixMusicList();
+	void SetupMusic(std::shared_ptr<sf::Music> currentlyPlayingMusic);
 
 	std::shared_ptr<sf::Sound> spEnterSelectedSystemSound;
 	std::shared_ptr<sf::Sound> spExitSelectedSystemSound;
@@ -213,6 +225,7 @@ private:
 	float overallVolume{ 1.f };
 	int currentMusicPlaying{ 0 };
 	bool playMusic{ true };
+	bool musicStopped{ false };
 	sf::Time goToNextMusicBefore = sf::seconds(1.f);
 };
 

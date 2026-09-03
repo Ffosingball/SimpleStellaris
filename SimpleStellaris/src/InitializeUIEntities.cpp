@@ -261,6 +261,154 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spTextEn = InitializeText("CountriesText", "Countries list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 200.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
 	spTextEn = InitializeText("BuildingsText", "Buildings list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 600.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
 
+	//CREATE MUSIC PLAYER panel
+	std::shared_ptr<Entity> spMusPart = CreateNewEntityAtUINode("MusicPlayerPart").lock();
+	//Add component
+	//spPlDisPart->AddComponent<UIPartComponent>();
+	spRectShape = spMusPart->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShape, uiInfoPartSize* uiSize, "UIPartSide");
+	spRectShape->shape.rotate(sf::Angle(sf::degrees(180)));
+	spMusPart->SetPosition(sf::Vector2f{ 2450.f, -130.f }* uiSize);
+
+	std::shared_ptr<SceneNode> spMusNode = spUIRootNode->FindChild(*spMusPart).lock();
+	//CREATE MUSIC PLAYER text
+	spTextEn = InitializeText("MusicPlayerText", "Music Player", (int)(metricsFontSize * uiSize), sf::Vector2f{ -40.f, 150.f } * uiSize, fontName, true, usualColor, spMusNode);
+
+	//CREATE SELECT PREVIOUS MUSIC button
+	std::shared_ptr<Entity> spButton = CreateNewEntityAt(spMusNode, "PreviousButton").lock();
+	spButton->SetPosition(sf::Vector2f{ -100.f, 200.f }* uiSize);
+	spButton->hidden = false;
+
+	std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Slower1Button");
+
+	std::shared_ptr<ButtonComponent> spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Slower1Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Slower1HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Slower1PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Slower1PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->PreviousMusicButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE STOP MUSIC button
+	spButton = CreateNewEntityAt(spMusNode, "StopButton").lock();
+	spButton->SetPosition(sf::Vector2f{ -50.f, 200.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "PlayingButton");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("PlayingButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("PlayingHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("PlayingPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("PlayingPressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->StopMusicButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE RESUME MUSIC button
+	spButton = CreateNewEntityAt(spMusNode, "ResumeButton").lock();
+	spButton->SetPosition(sf::Vector2f{ -50.f, 200.f }* uiSize);
+	spButton->hidden = true;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "StoppedButton");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("StoppedButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("StoppedHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("StoppedPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("StoppedPressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ResumeMusicButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE SELECT NEXT MUSIC button
+	spButton = CreateNewEntityAt(spMusNode, "NextButton").lock();
+	spButton->SetPosition(sf::Vector2f{ 0.f, 200.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "Faster1Button");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("Faster1Button", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("Faster1HoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("Faster1PressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("Faster1PressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->NextMusicButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
+	//CREATE MIX MUSIC LIST button
+	spButton = CreateNewEntityAt(spMusNode, "MixButton").lock();
+	spButton->SetPosition(sf::Vector2f{ 50.f, 200.f }* uiSize);
+	spButton->hidden = false;
+
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, playerButtonSize* uiSize, "MixButton");
+
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("MixButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("MixHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("MixPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("MixPressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->MixMusicButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonReleased(entity);	};
+	spButtonCom->onButtonClicked = [inputSys](std::shared_ptr<Entity> entity)
+		{ inputSys->ButtonClicked(entity); };
+
 	//CREATE Loading screen
 	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAtUINode("LoadingScreen").lock();
 	spLoadScreen->hidden = false;
@@ -290,13 +438,13 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainMenuMainFontSize * uiSize), sf::Vector2f{ 0.f, -160.f } * uiSize, fontName, true, importantColor, spEscapeNode);
 
 	//CREATE RESUME button
-	std::shared_ptr<Entity> spButton = CreateNewEntityAt(spEscapeNode, "ResumeButton").lock();
+	spButton = CreateNewEntityAt(spEscapeNode, "ResumeButton").lock();
 	spButton->SetPosition(sf::Vector2f{0.f,0.f}* uiSize);
 
-	std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ResumeButton");
 
-	std::shared_ptr<ButtonComponent> spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+	spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
 	spButtonCom->buttonSize = sf::Vector2{buttonSize.x*0.5f,buttonSize.y} * uiSize;
 
 	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("ResumeButton", spButtonCom->unhoveredIntRect).lock();
