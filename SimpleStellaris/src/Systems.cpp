@@ -193,8 +193,17 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(true, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock());
 	spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
+
 	wpPlanetOrStarSelected.lock()->GetEntity().lock()->hidden = false;
-	wpPlanetOrStarSelected.lock()->GetParent().lock()->GetEntity().lock()->hidden = false;
+	std::shared_ptr<Entity> spParentEntity = wpPlanetOrStarSelected.lock()->GetParent().lock()->GetEntity().lock();
+	spParentEntity->hidden = false;
+	if (spParentEntity->HasComponent<RectangleShapeComponent>())
+	{
+		std::shared_ptr<RectangleShapeComponent> spRectShape = spParentEntity->FindComponent<RectangleShapeComponent>().lock();
+		sf::Color color = spRectShape->shape.getFillColor();
+		color.a = 0;
+		spRectShape->shape.setFillColor(color);
+	}
 
 	float earthDiameter = WorldGenerator::mapConfig.earthDiameter;
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock(), earthDiameter);

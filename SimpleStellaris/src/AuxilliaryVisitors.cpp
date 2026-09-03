@@ -600,6 +600,14 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 }
             }
         }
+
+        if (spEntity->HasComponent<RectangleShapeComponent>()) 
+        {
+            std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+            sf::Color color = spRectShape->shape.getFillColor();
+            color.a = 255;
+            spRectShape->shape.setFillColor(color);
+        }
     }
 }
 
