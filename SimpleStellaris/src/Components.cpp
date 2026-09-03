@@ -42,8 +42,6 @@ std::string PrintComponentName(std::shared_ptr<Component> spComponent)
 		return "Ring";
 	else if (std::dynamic_pointer_cast<StarIconComponent>(spComponent))
 		return "StarIconComponent";
-	else if (std::dynamic_pointer_cast<NebulaTextComponent>(spComponent))
-		return "NebulaTextComponent";
 	else if (std::dynamic_pointer_cast<NeutronStarComponent>(spComponent))
 		return "NeutronStarComponent";
 	else if (std::dynamic_pointer_cast<ButtonComponent>(spComponent))

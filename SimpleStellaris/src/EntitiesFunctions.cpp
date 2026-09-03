@@ -609,6 +609,8 @@ void CreateSpaceObjects()
 
 	std::weak_ptr<Entity> wpSysN = ECSGame::Instance().GetEntityManager().NewEntity("SystemNames");
 	std::shared_ptr<SceneNode> spSysNamesNode = std::make_shared<SceneNode>(wpSysN);
+	std::weak_ptr<Entity> wpNebN = ECSGame::Instance().GetEntityManager().NewEntity("NebulasNames");
+	std::shared_ptr<SceneNode> spNebNamesNode = std::make_shared<SceneNode>(wpNebN);
 
 	std::weak_ptr<Entity> wpBackgroundE = ECSGame::Instance().GetEntityManager().NewEntity("Background");
 	std::shared_ptr<SceneNode> spBackgroundNode = std::make_shared<SceneNode>(wpBackgroundE);
@@ -618,7 +620,7 @@ void CreateSpaceObjects()
 	//Firstly generate background
 	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(wpBackgroundE.lock());
 	//Secondly generate nebulas
-	WorldGenerator::GenerateNebulas(spBackgroundNode->FindChild("Nebulas").lock(), spSysNamesNode);
+	WorldGenerator::GenerateNebulas(spBackgroundNode->FindChild("Nebulas").lock(), spNebNamesNode);
 	//Thirdly generate systems and stars in it
 	WorldGenerator::GenerateSpaceMap(spNode);
 	//After put rectangleShape components for all objects
@@ -657,9 +659,11 @@ void CreateSpaceObjects()
 	ECSGame::Instance().GetSceneNode()->AddChild(spNode);
 	ECSGame::Instance().GetSceneNode()->AddChild(spBackgroundNode);
 	ECSGame::Instance().GetUINode()->AddChild(spSysNamesNode);
+	ECSGame::Instance().GetUINode()->AddChild(spNebNamesNode);
 
 	ECSGame::Instance().GetSceneNode()->ChangeChildOrder(wpBackgroundE.lock(), 0);
 	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpSysN.lock(), 0);
+	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpNebN.lock(), 1);
 
 	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
 	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->FindChild("LoadingText").lock()->GetEntity().lock()->hidden = true;

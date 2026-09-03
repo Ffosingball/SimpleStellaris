@@ -212,7 +212,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
 #endif
 
-	int numOfNodes{ 0 }, renderedNodes{ 0 };
+	int renderedNodes{ 0 };
 	std::shared_ptr<SceneNode> spBackgroundNode;
 	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
 	{
@@ -227,8 +227,6 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 		spBackgroundNode->AcceptVisitor(visitor);
 
 		spBackgroundNode->GetEntity().lock()->hidden = true;
-		SceneNodeVisitorChangeNebulasVisibility visitor2(true);
-		spBackgroundNode->AcceptVisitor(visitor2);
 
 		renderedNodes += visitor.renderedEntities;
 	}
@@ -241,7 +239,6 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRender visitor(renderWindow);
 	sceneNode->AcceptVisitor(visitor);
 
-	numOfNodes += visitor.didNotRenderedEntities + visitor.renderedEntities;
 	renderedNodes += visitor.renderedEntities;
 	//DEB: visitor.OutputRenderStatistics();
 #ifdef OUTPUT_FRAME_TIMING
@@ -256,19 +253,19 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
 	uiNode->AcceptVisitor(visitor2);
 
-	numOfNodes += visitor2.didNotRenderedEntities + visitor2.renderedEntities;
 	renderedNodes += visitor2.renderedEntities;
 	//DEB: visitor2.OutputRenderStatistics();
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
 #endif
 
-	signals::onRenderingComplete(numOfNodes, renderedNodes);
+	VisitorCountAllNodes visitor3;
+	root->AcceptVisitor(visitor3);
+
+	signals::onRenderingComplete(visitor3.counter, renderedNodes);
 	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
 	{
 		spBackgroundNode->GetEntity().lock()->hidden = false;
-		SceneNodeVisitorChangeNebulasVisibility visitor(false);
-		spBackgroundNode->AcceptVisitor(visitor);
 	}
 }
 

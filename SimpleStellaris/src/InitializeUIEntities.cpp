@@ -231,19 +231,12 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	std::shared_ptr<SceneNode> spInfoPartNode = spUIRootNode->FindChild(*spInfoPart).lock();
 	//CREATE INFO textes
 	std::shared_ptr<Entity> spTextEn = InitializeText("InfoText0", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText1", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText2", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText3", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText4", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText5", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("InfoText6", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
-	spTextEn->hidden = true;
 
 	//CREATE PLANET DISTRICTS panel
 	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAtUINode("PlanetDistrictsPart").lock();
@@ -257,23 +250,16 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	std::shared_ptr<SceneNode> spPlDisNode = spUIRootNode->FindChild(*spPlDisPart).lock();
 	//CREATE Planet Districts textes
 	spTextEn = InitializeText("PlanetNameText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 0.f, -380.f } * uiSize, fontName, true, importantColor, spPlDisNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("DistrictsText", "Planet Districts:", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, -300.f } * uiSize, fontName, false, usualColor, spPlDisNode);
-	spTextEn->hidden = true;
 	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f{0.f,0.f});
 	spTextEn = InitializeText("DistrictTypeText", "Type: ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 310.f } * uiSize, fontName, false, usualColor, spPlDisNode);
-	spTextEn->hidden = true;
 	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
 	spTextEn = InitializeText("DistrictPopulationText", "Population ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 340.f } * uiSize, fontName, false, usualColor, spPlDisNode);
-	spTextEn->hidden = true;
 	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
 	spTextEn = InitializeText("DistrictIndustryText", "Industry ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 370.f } * uiSize, fontName, false, usualColor, spPlDisNode);
-	spTextEn->hidden = true;
 	gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
 	spTextEn = InitializeText("CountriesText", "Countries list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 200.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
-	spTextEn->hidden = true;
 	spTextEn = InitializeText("BuildingsText", "Buildings list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 600.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
-	spTextEn->hidden = true;
 
 	//CREATE Loading screen
 	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAtUINode("LoadingScreen").lock();
@@ -288,7 +274,6 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	std::shared_ptr<SceneNode> spLoadSNode = spUIRootNode->FindChild(*spLoadScreen).lock();
 	//CREATE Loading screen textes
 	spTextEn = InitializeText("LoadingText", "Generating...", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spLoadSNode);
-	spTextEn->hidden = false;
 
 	//CREATE escape menu screen
 	std::shared_ptr<Entity> spEscScreen = CreateNewEntityAtUINode("EscapeMenuScreen").lock();
@@ -303,12 +288,10 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	std::shared_ptr<SceneNode> spEscapeNode = spUIRootNode->FindChild(*spEscScreen).lock();
 	//CREATE escape menu textes
 	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainMenuMainFontSize * uiSize), sf::Vector2f{ 0.f, -160.f } * uiSize, fontName, true, importantColor, spEscapeNode);
-	spTextEn->hidden = true;
 
 	//CREATE RESUME button
 	std::shared_ptr<Entity> spButton = CreateNewEntityAt(spEscapeNode, "ResumeButton").lock();
 	spButton->SetPosition(sf::Vector2f{0.f,0.f}* uiSize);
-	spButton->hidden = true;
 
 	std::shared_ptr<RectangleShapeComponent> spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ResumeButton");
@@ -335,7 +318,6 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	//CREATE EXIT GAME button
 	std::shared_ptr<Entity> spButton2 = CreateNewEntityAt(spEscapeNode, "ExitGameButton").lock();
 	spButton2->SetPosition(sf::Vector2f{ 0.f,100.f }* uiSize);
-	spButton2->hidden = true;
 
 	spRectShapeCom = spButton2->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ExitGameButton");

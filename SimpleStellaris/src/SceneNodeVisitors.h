@@ -81,7 +81,7 @@ private:
 class SceneNodeVisitorUI : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom, std::shared_ptr<CameraComponent> uiCameraCom) : uiSystem(system), spCamCom(activeCameraCom), spUICamCom(uiCameraCom) {}
+    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom, std::shared_ptr<CameraComponent> uiCameraCom) : uiSystem(system), spCamCom(activeCameraCom), spUICamCom(uiCameraCom) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 private:
@@ -163,7 +163,7 @@ private:
 class SceneNodeSpaceObjectsMemorySize : public SceneNodeVisitor
 {
 public:
-    SceneNodeSpaceObjectsMemorySize() {};
+    SceneNodeSpaceObjectsMemorySize() { processHiddenNode = true; };
 
     void ProcessNode(SceneNode& node) override;
 
@@ -188,7 +188,7 @@ private:
 class SceneNodeVisitorSystemVisibility : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorSystemVisibility(std::shared_ptr<CameraComponent> activeCameraCom) : spCamCom(activeCameraCom) {}
+    SceneNodeVisitorSystemVisibility(std::shared_ptr<CameraComponent> activeCameraCom) : spCamCom(activeCameraCom) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 
@@ -198,25 +198,11 @@ private:
 
 
 
-//To change all systems visibility 
-class SceneNodeVisitorChangeAllSystemVisibility : public SceneNodeVisitor
-{
-public:
-    SceneNodeVisitorChangeAllSystemVisibility(bool hidden) : hidden(hidden) {}
-
-    void ProcessNode(SceneNode& node) override;
-
-private:
-    bool hidden;
-};
-
-
-
 //To change visibility of the planet node which accepted this visitor
 class SceneNodeVisitorChangeSingleSystemVisibility: public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode) {}
+    SceneNodeVisitorChangeSingleSystemVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 
@@ -235,7 +221,7 @@ private:
 class SceneNodeVisitorChangeSinglePlanetVisibility : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorChangeSinglePlanetVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode, float earthDiameter) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode), earthDiameter(earthDiameter) {}
+    SceneNodeVisitorChangeSinglePlanetVisibility(bool hidden, std::shared_ptr<SceneNode> spSystemIconsNode, std::shared_ptr<SceneNode> spObjectOrbitsNode, float earthDiameter) : hidden(hidden), spSystemIconsNode(spSystemIconsNode), spObjectOrbitsNode(spObjectOrbitsNode), earthDiameter(earthDiameter) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 
@@ -255,24 +241,12 @@ private:
 class SceneNodeVisitorMoveObjectsInSystem : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorMoveObjectsInSystem(bool simOnlyMoons) : simulateOnlyMoons(simOnlyMoons) {}
+    SceneNodeVisitorMoveObjectsInSystem() { processHiddenNode = true; }// : simulateOnlyMoons(simOnlyMoons) {}
 
     void ProcessNode(SceneNode& node) override;
 
-private:
-    bool simulateOnlyMoons{ false };
-};
-
-
-
-class SceneNodeVisitorChangeNebulasVisibility : public SceneNodeVisitor
-{
-public:
-    SceneNodeVisitorChangeNebulasVisibility(bool hidden) : hidden(hidden) {}
-
-    void ProcessNode(SceneNode& node) override;
-private:
-    bool hidden;
+//private:
+//   bool simulateOnlyMoons{ false };
 };
 
 
@@ -301,7 +275,7 @@ private:
 class VisitorCountPlanets : public SceneNodeVisitor
 {
 public:
-    VisitorCountPlanets(bool countMoons) : countMoons(countMoons) {}
+    VisitorCountPlanets(bool countMoons) : countMoons(countMoons) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 
@@ -315,7 +289,7 @@ private:
 class VisitorCountHabitablePlanets : public SceneNodeVisitor
 {
 public:
-    VisitorCountHabitablePlanets() {}
+    VisitorCountHabitablePlanets() { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 
@@ -324,15 +298,14 @@ public:
 
 
 
-class ChangeAllNodesVisibility : public SceneNodeVisitor
+class VisitorCountAllNodes : public SceneNodeVisitor
 {
 public:
-    ChangeAllNodesVisibility(bool hidden) : hidden(hidden) {}
+    VisitorCountAllNodes() { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 
-private:
-    bool hidden;
+    int counter{ 0 };
 };
 
 
@@ -340,20 +313,7 @@ private:
 class ChangeAllNodesVisibilityExceptStarIcons : public SceneNodeVisitor
 {
 public:
-    ChangeAllNodesVisibilityExceptStarIcons(bool hidden) : hidden(hidden) {}
-
-    void ProcessNode(SceneNode& node) override;
-
-private:
-    bool hidden;
-};
-
-
-
-class ChangeAllNodesVisibilityExceptNebulaTexts : public SceneNodeVisitor
-{
-public:
-    ChangeAllNodesVisibilityExceptNebulaTexts(bool hidden) : hidden(hidden) {}
+    ChangeAllNodesVisibilityExceptStarIcons(bool hidden) : hidden(hidden) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 

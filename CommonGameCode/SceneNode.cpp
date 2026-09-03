@@ -64,14 +64,19 @@ std::string SceneNode::GetCombinedParentsNames() const
 
 	//If node does not have an entity then, return nothing
 	if (ePtr == nullptr)
-		return "--None--";
+	{
+		if (parent.lock() != nullptr)
+			return parent.lock()->GetCombinedParentsNames() + " -> --None--";
+		else
+			return "--None--";
+	}
 
 	//Check if this node has a parent, then get transform from them and add to
 	//the transform of this node, else just return transform of this node
 	if (parent.lock() != nullptr)
-		return parent.lock()->GetCombinedParentsNames() + " -> " + ePtr->GetName();
+		return parent.lock()->GetCombinedParentsNames() + " -> " + ePtr->GetName()+"("+std::to_string(ePtr->hidden)+")";
 	else
-		return ePtr->GetName();
+		return ePtr->GetName() + "(" + std::to_string(ePtr->hidden) + ")";
 }
 
 //Get list of all children names
@@ -98,9 +103,17 @@ void SceneNode::AddChild(const std::shared_ptr<SceneNode> child)
 	}
 }
 
+//Nodes with hidden entities and all their children will not be processed
 //Worst case: O(N+1) where N is number of children
 void SceneNode::AcceptVisitor(SceneNodeVisitor& visitor) 
 {
+	//Check that entity not hidden
+	if (entity.lock() != nullptr)
+	{
+		if (entity.lock()->hidden && !visitor.GetProcessHiddenNode())
+			return;
+	}
+
 	//Allow visitor to process this node
 	visitor.ProcessNode(*this);
 
@@ -109,9 +122,17 @@ void SceneNode::AcceptVisitor(SceneNodeVisitor& visitor)
 		node->AcceptVisitor(visitor);
 }
 
+//Nodes with hidden entities and all their children will not be processed
 //Worst case: O(N+1) where N is number of children
 void SceneNode::AcceptReverseVisitor(SceneNodeVisitor& visitor)
 {
+	//Check that entity not hidden
+	if (entity.lock() != nullptr)
+	{
+		if (entity.lock()->hidden && !visitor.GetProcessHiddenNode())
+			return;
+	}
+
 	//Send visitors to all children
 	for (int i = (int)children.size() - 1; i >= 0; i--)
 	{

@@ -20,32 +20,26 @@ void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
     //Check if pointer is valid
     if (spEntity != nullptr)
     {
-        //Draw entity if not hidden
-        if (!spEntity->hidden)
+        //Now check which type of components entity has, because
+        //different components will be displayed differently
+        if (spEntity->HasComponent<RectangleShapeComponent>())
         {
-            //Now check which type of components entity has, because
-            //different components will be displayed differently
-            if (spEntity->HasComponent<RectangleShapeComponent>())
-            {
-                //Get component
-                std::shared_ptr<RectangleShapeComponent> spEntityRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-                //Get absolute position of the entity in the world
-                sf::RenderStates states;
-                states.transform = node.GetCombinedTransform();
-                //Draw entity if not hidden
-                renderWindow.draw(spEntityRecShape->shape, states);
-                renderedEntities++;
-            }
-            else if (spEntity->HasComponent<TileMapComponent>())
-            {
-                //Get component
-                std::shared_ptr<TileMapComponent> spEntityTileMap = spEntity->FindComponent<TileMapComponent>().lock();
+            //Get component
+            std::shared_ptr<RectangleShapeComponent> spEntityRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+            //Get absolute position of the entity in the world
+            sf::RenderStates states;
+            states.transform = node.GetCombinedTransform();
+            //Draw entity if not hidden
+            renderWindow.draw(spEntityRecShape->shape, states);
+            renderedEntities++;
+        }
+        else if (spEntity->HasComponent<TileMapComponent>())
+        {
+            //Get component
+            std::shared_ptr<TileMapComponent> spEntityTileMap = spEntity->FindComponent<TileMapComponent>().lock();
 
-                renderedEntities++;
-                spEntityTileMap->tileMap.Render(renderWindow, node.GetCombinedTransform());
-            }
-            else
-                didNotRenderedEntities++;
+            renderedEntities++;
+            spEntityTileMap->tileMap.Render(renderWindow, node.GetCombinedTransform());
         }
         else
             didNotRenderedEntities++;
@@ -69,50 +63,46 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
     //Check if pointer is valid
     if (spEntity != nullptr)
     {
-        //Draw entity if not hidden
-        if (!spEntity->hidden)
+        //And now draw entities differently, depending on which other components they have
+        if (spEntity->HasComponent<RectangleShapeComponent>())
         {
-            //And now draw entities differently, depending on which other components they have
-            if (spEntity->HasComponent<RectangleShapeComponent>())
-            {
-                //std::cout << "UI rec shape: "<<spEntity->GetName()<<'\n';
-                //Get component
-                std::shared_ptr<RectangleShapeComponent> spEntityRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-                //Get absolute position of the entity in the world
-                sf::RenderStates states;
-                states.transform = node.GetCombinedTransform();
-                //Draw entity
-                renderWindow.draw(spEntityRecShape->shape, states);
-                renderedEntities++;
-            }
-            else if (spEntity->HasComponent<TextComponent>())
-            {
-                //Get component
-                std::shared_ptr<TextComponent> spEntityUI = spEntity->FindComponent<TextComponent>().lock();
-                //Get absolute position of the entity in the world
-                sf::RenderStates states;
-                states.transform = node.GetCombinedTransform();
-                //Draw entity
-                renderWindow.draw(*(spEntityUI->text), states);
-                renderedEntities++;
-            }
-            else if (spEntity->HasComponent<OrbitVisualizerComponent>())
-            {
-                //Get component
-                std::shared_ptr<OrbitVisualizerComponent> spEntityUI = spEntity->FindComponent<OrbitVisualizerComponent>().lock();
-                //Get absolute position of the entity in the world
-                sf::RenderStates states;
-                states.transform = node.GetCombinedTransform();
-                //Draw entity
-                renderWindow.draw(spEntityUI->orbitShape, states);
-                renderedEntities++;
-            }
-            else
-                didNotRenderedEntities++;
+            //std::cout << "UI rec shape: "<<spEntity->GetName()<<'\n';
+            //Get component
+            std::shared_ptr<RectangleShapeComponent> spEntityRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+            //Get absolute position of the entity in the world
+            sf::RenderStates states;
+            states.transform = node.GetCombinedTransform();
+            //Draw entity
+            renderWindow.draw(spEntityRecShape->shape, states);
+            renderedEntities++;
+        }
+        else if (spEntity->HasComponent<TextComponent>())
+        {
+            //Get component
+            std::shared_ptr<TextComponent> spEntityUI = spEntity->FindComponent<TextComponent>().lock();
+            //Get absolute position of the entity in the world
+            sf::RenderStates states;
+            states.transform = node.GetCombinedTransform();
+            //Draw entity
+            renderWindow.draw(*(spEntityUI->text), states);
+            renderedEntities++;
+        }
+        else if (spEntity->HasComponent<OrbitVisualizerComponent>())
+        {
+            //Get component
+            std::shared_ptr<OrbitVisualizerComponent> spEntityUI = spEntity->FindComponent<OrbitVisualizerComponent>().lock();
+            //Get absolute position of the entity in the world
+            sf::RenderStates states;
+            states.transform = node.GetCombinedTransform();
+            //Draw entity
+            renderWindow.draw(spEntityUI->orbitShape, states);
+            renderedEntities++;
         }
         else
             didNotRenderedEntities++;
     }
+    else
+        didNotRenderedEntities++;
 }
 
 

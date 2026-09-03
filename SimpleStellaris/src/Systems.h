@@ -239,13 +239,14 @@ private:
 	void Initialize() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
-	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
+	void OnAddNodeToSimulate(std::shared_ptr<SceneNode> nodeToSimulate);
+	void OnRemoveNodeToSimulate(std::shared_ptr<SceneNode> nodeToNotSimulate);
 	//void OnPlanetOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 
 	std::weak_ptr<TextComponent> daysPastText;
 	std::weak_ptr<TextComponent> dateText;
 
-	std::weak_ptr<SceneNode> wpNodeToSimulate;
+	std::weak_ptr<SceneNode> wpSimulationNode;
 };
 
 
@@ -259,8 +260,8 @@ namespace signals
 	inline sigslot::signal<sf::Event::MouseButtonPressed> onMouseButtonPressed;
 	inline sigslot::signal<sf::Event::MouseButtonReleased> onMouseButtonReleased;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
-	inline sigslot::signal<std::shared_ptr<SceneNode>> onSystemOverviewSet;
-	inline sigslot::signal<std::shared_ptr<SceneNode>> onPlanetOverviewSet;
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onAddNodeToSimulate;
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onRemoveNodeToSimulate;
 	inline sigslot::signal<int, int> onRenderingComplete;
 	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;

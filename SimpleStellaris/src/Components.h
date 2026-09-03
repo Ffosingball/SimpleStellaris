@@ -174,7 +174,6 @@ public:
 
 
 class StarIconComponent : public Component {};
-class NebulaTextComponent : public Component {};
 
 
 

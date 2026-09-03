@@ -125,11 +125,9 @@ void InputSystem::OpenPlanetDistrictsView()
 		planetDistrictsPanel.lock()->AddChild(spDistrictsNode);
 		wpDistrictsShown = spDistrictsNode;
 	}
+
 	planetDistrictsPanel.lock()->GetEntity().lock()->hidden = false;
 	districtViewOpened = true;
-
-	ChangeAllNodesVisibility visitor(false);
-	planetDistrictsPanel.lock()->AcceptVisitor(visitor);
 
 	planetNameText.lock()->text->setString(spPlanetCom->planetName);
 	gel::CentreText(*planetNameText.lock()->text, sf::Vector2f { 0.f, 0.f });
@@ -143,11 +141,9 @@ void InputSystem::ClosePlanetDistrictsView()
 		signals::onDeleteSceneNode(wpDistrictsShown);
 		wpDistrictsShown = {};
 	}
+
 	planetDistrictsPanel.lock()->GetEntity().lock()->hidden = true;
 	districtViewOpened = false;
-
-	ChangeAllNodesVisibility visitor(true);
-	planetDistrictsPanel.lock()->AcceptVisitor(visitor);
 }
 
 
@@ -157,18 +153,15 @@ void InputSystem::EnterSystemOverview()
 	CancelCameraLock();
 
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
-
-	SceneNodeVisitorChangeAllSystemVisibility visitor(true);
-	ECSGame::Instance().GetSceneNode()->AcceptVisitor(visitor);
+	ECSGame::Instance().GetSceneNode()->FindChild("SpaceMap").lock()->GetEntity().lock()->hidden = true;
+	ECSGame::Instance().GetUINode()->FindChild("SystemNames").lock()->GetEntity().lock()->hidden = true;
+	ECSGame::Instance().GetUINode()->FindChild("NebulasNames").lock()->GetEntity().lock()->hidden = true;
 
 	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
 	std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-	spSelectedSystemNode->AddChild(spSysCom->spAllSystemObjectsNode);
 
-	//std::cout << "-- Entering system view: "<<'\n';
-	//wpSelectedSystemNode.lock()->OutputTree("  ");
 	SceneNodeVisitorChangeSingleSystemVisibility visitor2(false, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock());
-	spSelectedSystemNode->AcceptVisitor(visitor2);
+	spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor2);
 
 	//Setup background camera
 	std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
@@ -184,7 +177,7 @@ void InputSystem::EnterSystemOverview()
 	sSystemCameraCom->currentZoom = 1.f;
 	sSystemCameraCom->moveCamera = true;
 
-	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
+	signals::onAddNodeToSimulate(spSysCom->spAllSystemObjectsNode);
 	musicSystem->PlayEnterSelectedSystemSFX();
 }
 
@@ -196,8 +189,12 @@ void InputSystem::EnterPlanetFromSystemOverview()
 
 	ECSGame::Instance().SetOverviewType(OverviewType::Planet);
 
+	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
+	std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(true, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock());
-	wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
+	spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
+	wpPlanetOrStarSelected.lock()->GetEntity().lock()->hidden = false;
+	wpPlanetOrStarSelected.lock()->GetParent().lock()->GetEntity().lock()->hidden = false;
 
 	float earthDiameter = WorldGenerator::mapConfig.earthDiameter;
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock(), earthDiameter);
@@ -213,7 +210,6 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
 	sSystemCameraCom->moveCamera = false;
 
-	signals::onPlanetOverviewSet(wpPlanetOrStarSelected.lock());
 	musicSystem->PlayEnterSelectedSystemSFX();
 }
 
@@ -224,22 +220,21 @@ void InputSystem::ExitSystemOverview()
 	CancelCameraLock();
 
 	ECSGame::Instance().SetOverviewType(OverviewType::Space);
-
-	SceneNodeVisitorChangeAllSystemVisibility visitor(false);
-	ECSGame::Instance().GetSceneNode()->AcceptVisitor(visitor);
-
-	SceneNodeVisitorChangeSingleSystemVisibility visitor2(true, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock());
-	wpSelectedSystemNode.lock()->AcceptVisitor(visitor2);
+	ECSGame::Instance().GetSceneNode()->FindChild("SpaceMap").lock()->GetEntity().lock()->hidden = false;
+	ECSGame::Instance().GetUINode()->FindChild("SystemNames").lock()->GetEntity().lock()->hidden = false;
+	ECSGame::Instance().GetUINode()->FindChild("NebulasNames").lock()->GetEntity().lock()->hidden = false;
 
 	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
 	std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-	spSelectedSystemNode->RemoveNode(spSysCom->spAllSystemObjectsNode);
+	SceneNodeVisitorChangeSingleSystemVisibility visitor(true, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock());
+	spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
 
 	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
 	sSystemCameraCom->moveCamera = false;
 	std::shared_ptr<CameraComponent> sSpaceCameraCom = GetCameraFromSpaceCameraEntity();
 	sSpaceCameraCom->moveCamera = true;
 
+	signals::onRemoveNodeToSimulate(spSysCom->spAllSystemObjectsNode);
 	musicSystem->PlayExitSelectedSystemSFX();
 }
 
@@ -255,55 +250,46 @@ void InputSystem::ExitPlanetToSystemOverview()
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
+	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
+	std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
 	SceneNodeVisitorChangeSingleSystemVisibility visitor(false, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock());
-	wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
+	spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
 
 	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
 	sSystemCameraCom->moveCamera = true;
 	std::shared_ptr<CameraComponent> sPlanetCameraCom = GetCameraFromPlanetCameraEntity();
 	sPlanetCameraCom->moveCamera = false;
 
-	signals::onSystemOverviewSet(wpSelectedSystemNode.lock());
 	musicSystem->PlayExitSelectedSystemSFX();
 }
 
 
 void ChangeUIVisibility(bool hide) 
 {
-	ChangeAllNodesVisibility visitor(hide);
 	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
 	{
-		std::shared_ptr<SceneNode> spSystemNamesNode = ECSGame::Instance().GetUINode()->FindChild("SystemNames").lock();
-		spSystemNamesNode->AcceptVisitor(visitor);
+		ECSGame::Instance().GetUINode()->FindChild("SystemNames").lock()->GetEntity().lock()->hidden = hide;
+		ECSGame::Instance().GetUINode()->FindChild("NebulasNames").lock()->GetEntity().lock()->hidden = hide;
 	}
 	else if (hide == false) 
-	{
-		ChangeAllNodesVisibilityExceptNebulaTexts visitor2(hide);
-		std::shared_ptr<SceneNode> spSystemNamesNode = ECSGame::Instance().GetUINode()->FindChild("SystemNames").lock();
-		spSystemNamesNode->AcceptVisitor(visitor2);
-	}
+		ECSGame::Instance().GetUINode()->FindChild("SystemNames").lock()->GetEntity().lock()->hidden = true;
 	
 	if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 	{
-		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock();
-		spNode->AcceptVisitor(visitor);
-		spNode = ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock();
-		spNode->AcceptVisitor(visitor);
+		ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock()->GetEntity().lock()->hidden = hide;
+		ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock()->GetEntity().lock()->hidden = hide;
 	}
 	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 	{
-		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock();
-		spNode->AcceptVisitor(visitor);
-
-		spNode = ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock();
+		ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock()->GetEntity().lock()->hidden = hide;
+		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock();
 		ChangeAllNodesVisibilityExceptStarIcons visitor2(hide);
 		spNode->AcceptVisitor(visitor2);
+		ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock()->GetEntity().lock()->hidden = false;
 	}
 
-	std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock();
-	spNode->AcceptVisitor(visitor);
-	spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock();
-	spNode->AcceptVisitor(visitor);
+	ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->GetEntity().lock()->hidden = hide;;
+	ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->GetEntity().lock()->hidden = hide;;
 }
 
 
@@ -330,8 +316,6 @@ void InputSystem::ChangeEscapeScreen()
 	if (!wpEscapeScreenNode.lock()->GetEntity().lock()->hidden)
 	{
 		wpEscapeScreenNode.lock()->GetEntity().lock()->hidden = true;
-		ChangeAllNodesVisibility visitor(true);
-		wpEscapeScreenNode.lock()->AcceptVisitor(visitor);
 
 		ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
 		ECSGame::Instance().SetGameState(lastGameState);
@@ -339,8 +323,6 @@ void InputSystem::ChangeEscapeScreen()
 	else 
 	{
 		wpEscapeScreenNode.lock()->GetEntity().lock()->hidden = false;
-		ChangeAllNodesVisibility visitor(false);
-		wpEscapeScreenNode.lock()->AcceptVisitor(visitor);
 
 		ECSGame::Instance().SetDeltaTimeMultiplier(0.f);
 		lastGameState = ECSGame::Instance().GetGameState();
@@ -859,8 +841,10 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 			SceneNodeVisitorGetClosestNodeToPosition visitor(positionInWorld, maxDistance, selectPlanets);
 			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 			{
+				std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
+				std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
 				visitor.currentOverview = OverviewType::System;
-				wpSelectedSystemNode.lock()->AcceptVisitor(visitor);
+				spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
 			}
 			else
 			{
@@ -930,8 +914,8 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 
 	fpsText.lock()->text->setString(std::to_string(ECSGame::Instance().GetFPS())+" fps");
 
-	if (previousFrameOverview != ECSGame::Instance().GetOverviewType() && UIHidden)
-		ChangeUIVisibility(true);
+	if (previousFrameOverview != ECSGame::Instance().GetOverviewType())
+		ChangeUIVisibility(UIHidden);
 
 	//Signal the direction to the movement system
 	signals::onMoveCamera(direction);
@@ -975,8 +959,8 @@ void UISystem::Initialize()
 {
 	//Subscribe to some signals
 	signals::onRenderingComplete.connect(&UISystem::OnRenderingComplete, this);
-	signals::onSystemOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
-	signals::onPlanetOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
+	signals::onAddNodeToSimulate.connect(&UISystem::OnSystemOverviewSet, this);
+	//signals::onPlanetOverviewSet.connect(&UISystem::OnSystemOverviewSet, this);
 	signals::onUpdateInfoPanel.connect(&UISystem::OnUpdateInfoPanel, this);
 	signals::onHideInfoPanel.connect(&UISystem::OnHideInfoPanel, this);
 	signals::onShowInfoPanel.connect(&UISystem::OnShowInfoPanel, this);
@@ -1610,14 +1594,18 @@ void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 void SimulationSystem::Initialize()
 {
 	systemName = "SimulationSystem";
-	signals::onSystemOverviewSet.connect(&SimulationSystem::OnSystemOverviewSet, this);
-	signals::onPlanetOverviewSet.connect(&SimulationSystem::OnSystemOverviewSet, this);
+	signals::onAddNodeToSimulate.connect(&SimulationSystem::OnAddNodeToSimulate, this);
+	signals::onRemoveNodeToSimulate.connect(&SimulationSystem::OnRemoveNodeToSimulate, this);
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
 	daysPastText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
 
 	std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
 	dateText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+
+	std::weak_ptr<Entity> wpObjOrb = ECSGame::Instance().GetEntityManager().NewEntity("SimulationNode");
+	ECSGame::Instance().GetSceneNode()->AddChild(std::make_shared<SceneNode>(wpObjOrb));
+	wpSimulationNode = ECSGame::Instance().GetSceneNode()->FindChild("SimulationNode");
 }
 
 void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
@@ -1629,19 +1617,16 @@ void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
 	dateText.lock()->text->setString("Proper Date: " + std::to_string(days)+" "+month+std::to_string(years));
 
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::System) 
-	{
-		SceneNodeVisitorMoveObjectsInSystem visitor(false);
-		wpNodeToSimulate.lock()->AcceptVisitor(visitor);
-	}
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
-	{
-		SceneNodeVisitorMoveObjectsInSystem visitor(true);
-		wpNodeToSimulate.lock()->AcceptVisitor(visitor);
-	}
+	SceneNodeVisitorMoveObjectsInSystem visitor;
+	wpSimulationNode.lock()->AcceptVisitor(visitor);
 }
 
-void SimulationSystem::OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate)
+void SimulationSystem::OnAddNodeToSimulate(std::shared_ptr<SceneNode> nodeToSimulate)
 {
-	wpNodeToSimulate = nodeToSimulate;
+	wpSimulationNode.lock()->AddChild(nodeToSimulate);
+}
+
+void SimulationSystem::OnRemoveNodeToSimulate(std::shared_ptr<SceneNode> nodeToNotSimulate)
+{
+	wpSimulationNode.lock()->RemoveNode(nodeToNotSimulate);
 }

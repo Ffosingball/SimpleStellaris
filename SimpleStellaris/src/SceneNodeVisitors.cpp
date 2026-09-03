@@ -341,18 +341,10 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             //Get planet component
             std::shared_ptr<PlanetComponent> spPlanetCom = spEntity->FindComponent<PlanetComponent>().lock();
 
-            if (spPlanetCom->isMoon || !simulateOnlyMoons)
-            {
-                //Move planet
-                //std::cout <<"Moved: " << spEntity->GetName() << '\n';
-                double rotation = (spPlanetCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spPlanetCom->initialRotationPosition;
-                spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spPlanetCom->orbitRadius), static_cast<float>(std::cos(rotation) * spPlanetCom->orbitRadius)));
-
-                //if(spPlanetCom->isMoon && ECSGame::Instance().GetOverviewType()==OverviewType::Planet)
-                //    std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spPlanetCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
-            }
-            //else
-                //std::cout <<"Did not moved: " << spEntity->GetName() << '\n';
+            double rotation = (spPlanetCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spPlanetCom->initialRotationPosition;
+            spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spPlanetCom->orbitRadius), static_cast<float>(std::cos(rotation) * spPlanetCom->orbitRadius)));
+        
+            //std::cout << node.GetCombinedParentsNames() << '\n';
         }
     }
 
@@ -368,7 +360,7 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
     if (spEntity != nullptr)
     {
         //Check if entity has Button component and it is not hidden
-        if (spEntity->HasComponent<ButtonComponent>() && !spEntity->hidden)
+        if (spEntity->HasComponent<ButtonComponent>())
         {
             //std::cout << "Check if button is hovered!\n";
             //Get Button component
@@ -438,7 +430,7 @@ void SceneNodeVisitorFrontmostMouseHit::ProcessNode(SceneNode& node)
     {
         //Check if frontmost part is found or not
         //And if it hidden or not
-        if (wpFrontmostNode.lock() == nullptr && !spEntity->hidden)
+        if (wpFrontmostNode.lock() == nullptr)
         {
             //Check that entity does not have uiFollower and it is not a mouse
             if (!spEntity->HasComponent<UIFollowerComponent>() && spEntity->GetName() != "MouseIcon")
