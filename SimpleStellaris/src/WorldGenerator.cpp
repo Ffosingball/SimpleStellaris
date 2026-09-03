@@ -652,10 +652,9 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 	int numOfColumns = numOfDistricts / numOfRows;
 
 	//Create node which will store all districts nodes
-	std::shared_ptr<Entity> spNewEn = CreateNewEntityAt(spPlanetNode, "Node").lock();
+	std::shared_ptr<Entity> spNewEn = ECSGame::Instance().GetEntityManager().NewEntity("Node").lock();
 	spNewEn->SetPosition(sf::Vector2f{ mapConfig.districtPosOffset.x -(numOfColumns*mapConfig.distanceBetweenDistricts.x/2), mapConfig.districtPosOffset.y - (numOfRows * mapConfig.distanceBetweenDistricts.y / 2) } * uiSize);
-	std::shared_ptr<SceneNode> spNewNode = spPlanetNode->FindChild(*spNewEn).lock();
-	spPlanetNode->RemoveByEntity(spNewEn);
+	std::shared_ptr<SceneNode> spNewNode = std::make_shared<SceneNode>(spNewEn);
 
 	//Create districts
 	int extraDistricts = numOfDistricts % numOfRows;
@@ -2040,7 +2039,7 @@ void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode
 		}
 
 		spSystemCom->spAllSystemObjectsNode = spNewNode;
-		ptrNewSysNode->RemoveByEntity(spNewEn);
+		ptrNewSysNode->RemoveNode(spNewNode);
 
 		//Calculate how far nebula is
 		//ADD THIS IN THE FUTURE IF NECESSARY!

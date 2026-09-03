@@ -67,7 +67,11 @@ public:
 
 	//Remove child
 	//Worst case: O(N) where N is number nodes in the game
-	void RemoveByEntity(std::weak_ptr<Entity> e);
+	void RemoveNode(std::weak_ptr<SceneNode> e);
+
+	//Delete all entities in the children and itself
+	//Worst case: O(N) where N is number nodes in the game
+	void DeleteAllEntities();
 
 	//Find and return child
 	//Worst case: O(N) where N is number nodes in the game

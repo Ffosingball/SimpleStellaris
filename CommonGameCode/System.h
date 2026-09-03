@@ -30,9 +30,8 @@ protected:
 class DeleteSystem :public System
 {
 public:
-	std::vector<std::weak_ptr<Entity>> entitiesToDelete;
 	//Nodes which contain child nodes which should be deleted!
-	std::vector<std::weak_ptr<SceneNode>> deleteEntityFrom;
+	std::vector<std::weak_ptr<SceneNode>> nodesToDelete;
 
 	virtual ~DeleteSystem() = default;
 	//Worst case: O(1)
@@ -44,7 +43,7 @@ private:
 	//they will ad name or entity to the vector, and then delete them at the end
 	//of the frame
 	//Worst case: O(1)
-	void OnEntityToDelete(std::weak_ptr<Entity> wEntity, std::weak_ptr<SceneNode> wNodeWithChildToDelete);
+	void OnSceneNodeToDelete(std::weak_ptr<SceneNode> wNodeWithChildToDelete);
 };
 
 //This namespace will store all signals
@@ -52,5 +51,5 @@ namespace signals
 {
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityCreated;
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityDestroyed;
-	inline sigslot::signal<std::weak_ptr<Entity>, std::weak_ptr<SceneNode>> onDeleteEntity;
+	inline sigslot::signal<std::weak_ptr<SceneNode>> onDeleteSceneNode;
 }

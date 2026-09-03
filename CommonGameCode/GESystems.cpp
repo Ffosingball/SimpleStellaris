@@ -12,7 +12,7 @@
 void DeleteSystem::Initialize()
 {
 	//Subscribe to some signals
-	signals::onDeleteEntity.connect(&DeleteSystem::OnEntityToDelete, this);
+	signals::onDeleteSceneNode.connect(&DeleteSystem::OnSceneNodeToDelete, this);
 
 	systemName = "DeleteSystem";
 }
@@ -21,28 +21,26 @@ void DeleteSystem::Initialize()
 void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
 {
 	//Check if vector is empty
-	while (entitiesToDelete.size()>0)
+	while (nodesToDelete.size()>0)
 	{
 		//For each entity in the list get it and node in which it exist
-		std::weak_ptr<Entity> entityToDelete = entitiesToDelete.back();
-		entitiesToDelete.pop_back();
-		std::weak_ptr<SceneNode> nodeToDeleteFrom = deleteEntityFrom.back();
-		deleteEntityFrom.pop_back();
+		std::weak_ptr<SceneNode> nodeToDelete = nodesToDelete.back();
+		nodesToDelete.pop_back();
 
-		if (entityToDelete.lock() != nullptr)
+		if (nodeToDelete.lock() != nullptr)
 		{
+			//Delete all entities in the child node, sceneNode themselves will be deleted automatically
+			nodeToDelete.lock()->DeleteAllEntities();
 			//Remove from scene
-			nodeToDeleteFrom.lock()->RemoveByEntity(entityToDelete);
-			//Remove from entity manager
-			ECSGame::Instance().GetEntityManager().DestroyEntity(entityToDelete);
+			if(nodeToDelete.lock()->GetParent().lock()!=nullptr)
+				nodeToDelete.lock()->GetParent().lock()->RemoveNode(nodeToDelete);
 		}
 	}
 }
 
 //Add entity to deletion vector
 //Worst case: O(1)
-void DeleteSystem::OnEntityToDelete(std::weak_ptr<Entity> wEntity, std::weak_ptr<SceneNode> wNodeWithChildToDelete)
+void DeleteSystem::OnSceneNodeToDelete(std::weak_ptr<SceneNode> wNodeWithChildToDelete)
 {
-	entitiesToDelete.emplace_back(wEntity);
-	deleteEntityFrom.emplace_back(wNodeWithChildToDelete);
+	nodesToDelete.emplace_back(wNodeWithChildToDelete);
 }

@@ -521,12 +521,12 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             else
             {
                 //If hide then delete all created nodes with entities
-                std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("ObjectIconInSys").lock()->GetEntity();
-                signals::onDeleteEntity(wpE, spSystemIconsNode);
-                std::weak_ptr<Entity> wpE2 = node.FindChild("CenterOfMass").lock()->GetEntity();
-                signals::onDeleteEntity(wpE2, node.GetSharedPtrToItself());
-                std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("OrbitInSys").lock()->GetEntity();
-                signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+                std::weak_ptr<SceneNode> wpN = spSystemIconsNode->FindChild("ObjectIconInSys");
+                signals::onDeleteSceneNode(wpN);
+                std::weak_ptr<SceneNode> wpE2 = node.FindChild("CenterOfMass");
+                signals::onDeleteSceneNode(wpE2);
+                std::weak_ptr<SceneNode> wpE3 = spObjectOrbitsNode->FindChild("OrbitInSys");
+                signals::onDeleteSceneNode(wpE3);
             }
         }
         else if (spEntity->HasComponent<ObjectSystemComponent>())
@@ -551,10 +551,10 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 //If hide then delete all created nodes with entities
                 if (spSysCom->systemType != SpaceSystemType::Single)
                 {
-                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("ObjectIcon" + spSysCom->systemName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE, spSystemIconsNode);
-                    std::weak_ptr<Entity> wpE2 = spNode->FindChild("CenterOfMass").lock()->GetEntity();
-                    signals::onDeleteEntity(wpE2, spNode);
+                    std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("ObjectIcon" + spSysCom->systemName);
+                    signals::onDeleteSceneNode(wpE);
+                    std::weak_ptr<SceneNode> wpE2 = spNode->FindChild("CenterOfMass");
+                    signals::onDeleteSceneNode(wpE2);
                 }
             }
         }
@@ -586,25 +586,25 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
             else 
             {
                 //If hide then delete all created nodes with entities
-                std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("StarNameText" + spStar->starName).lock()->GetEntity();
-                signals::onDeleteEntity(wpE, spSystemIconsNode);
-                std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("ObjectIcon" + spStar->starName).lock()->GetEntity();
-                signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("StarNameText" + spStar->starName);
+                signals::onDeleteSceneNode(wpE);
+                std::weak_ptr<SceneNode> wpE2 = spSystemIconsNode->FindChild("ObjectIcon" + spStar->starName);
+                signals::onDeleteSceneNode(wpE2);
                 //Delete orbit id system not single
                 if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->HasComponent<ObjectSystemComponent>())
                 {
                     if (node.GetParent().lock()->GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock()->systemType != SpaceSystemType::Single)
                     {
-                        std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spStar->starName).lock()->GetEntity();
-                        signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+                        std::weak_ptr<SceneNode> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spStar->starName);
+                        signals::onDeleteSceneNode(wpE3);
                     }
                 }
                 else 
                 {
                     if (node.GetParent().lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock()->systemType != SpaceSystemType::Single)
                     {
-                        std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spStar->starName).lock()->GetEntity();
-                        signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+                        std::weak_ptr<SceneNode> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spStar->starName);
+                        signals::onDeleteSceneNode(wpE3);
                     }
                 }
 
@@ -646,17 +646,17 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                 else
                 {
                     //If hide then delete all created nodes with entities
-                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("PlanetNameText" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE, spSystemIconsNode);
-                    std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE2, spSystemIconsNode);
-                    std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
+                    std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("PlanetNameText" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE);
+                    std::weak_ptr<SceneNode> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE2);
+                    std::weak_ptr<SceneNode> wpE3 = spObjectOrbitsNode->FindChild("Orbit" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE3);
 
                     if (node.FindChild("Rings").lock() != nullptr) 
                     {
-                        std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName).lock()->GetEntity();
-                        signals::onDeleteEntity(wpE, spSystemIconsNode);
+                        std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName);
+                        signals::onDeleteSceneNode(wpE);
                     }
                 }
             }
@@ -774,26 +774,26 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                 //If hide then delete all created nodes with entities
                 if (spPlanet->isMoon)
                 {
-                    std::weak_ptr<Entity> wpE3 = spObjectOrbitsNode->FindChild("MoonOrbit" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE3, spObjectOrbitsNode);
-                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("MoonNameText" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE, spSystemIconsNode);
-                    std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("MoonIcon" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                    std::weak_ptr<SceneNode> wpE3 = spObjectOrbitsNode->FindChild("MoonOrbit" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE3);
+                    std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("MoonNameText" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE);
+                    std::weak_ptr<SceneNode> wpE2 = spSystemIconsNode->FindChild("MoonIcon" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE2);
                 }
                 else 
                 {
-                    std::weak_ptr<Entity> wpE3 = node.FindChild("PlanetPicture").lock()->GetEntity();
-                    signals::onDeleteEntity(wpE3, node.GetSharedPtrToItself());
-                    std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild(spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE, spSystemIconsNode);
-                    std::weak_ptr<Entity> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName).lock()->GetEntity();
-                    signals::onDeleteEntity(wpE2, spSystemIconsNode);
+                    std::weak_ptr<SceneNode> wpE3 = node.FindChild("PlanetPicture");
+                    signals::onDeleteSceneNode(wpE3);
+                    std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild(spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE);
+                    std::weak_ptr<SceneNode> wpE2 = spSystemIconsNode->FindChild("PlanetIcon" + spPlanet->planetName);
+                    signals::onDeleteSceneNode(wpE2);
 
                     if (node.FindChild("Rings").lock() != nullptr)
                     {
-                        std::weak_ptr<Entity> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName).lock()->GetEntity();
-                        signals::onDeleteEntity(wpE, spSystemIconsNode);
+                        std::weak_ptr<SceneNode> wpE = spSystemIconsNode->FindChild("RingIcon" + spPlanet->planetName);
+                        signals::onDeleteSceneNode(wpE);
                     }
                 }
             }

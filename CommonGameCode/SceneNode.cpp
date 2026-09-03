@@ -4,6 +4,7 @@
 #include <memory>
 #include "SceneNodeVisitor.h"
 #include <iostream>
+#include "ECSGame.h"
 
 //Get sum of all transformations from the root to this node
 //Worst case: O(N) where N is number of parents to get to the rootNode
@@ -124,14 +125,14 @@ void SceneNode::AcceptReverseVisitor(SceneNodeVisitor& visitor)
 
 //Remove child
 //Worst case: O(N) where N is number nodes in the game
-void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e) 
+void SceneNode::RemoveNode(std::weak_ptr<SceneNode> n)
 {
-	auto pEntity = e.lock().get();
+	auto pNode = n.lock().get();
 	int iFound = -1;
 	//Find the child
 	for (int i = 0; i < children.size(); ++i)
 	{
-		if (children[i]->GetEntity().lock().get() == pEntity)
+		if (children[i].get() == pNode)
 		{
 			//If found, then update iFound
 			iFound = i;
@@ -149,8 +150,19 @@ void SceneNode::RemoveByEntity(std::weak_ptr<Entity> e)
 	{
 		//Else try to find and remove this entity in the children
 		for (auto& child : children)
-			child->RemoveByEntity(e);
+			child->RemoveNode(n);
 	}
+}
+
+
+//Delete all entities in the children and itself
+//Worst case: O(N) where N is number nodes in the game
+void SceneNode::DeleteAllEntities()
+{
+	for (auto child : children)
+		child->DeleteAllEntities();
+
+	ECSGame::Instance().GetEntityManager().DestroyEntity(entity);
 }
 
 //This function finds and returns scene node which contains this entity

@@ -116,14 +116,14 @@ void InputSystem::CancelCameraLock()
 void InputSystem::OpenPlanetDistrictsView() 
 {
 	if (wpDistrictsShown.lock() != nullptr)
-		planetDistrictsPanel->RemoveByEntity(wpDistrictsShown.lock());
+		signals::onDeleteSceneNode(wpDistrictsShown);
 
 	std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
 	if (spPlanetCom->planetDistrictsSeed != -1)
 	{
 		std::shared_ptr<SceneNode> spDistrictsNode = WorldGenerator::GenerateDistricts(spPlanetCom->planetDistrictsSeed, wpMoonOrPlanetSelected.lock());
 		planetDistrictsPanel->AddChild(spDistrictsNode);
-		wpDistrictsShown = spDistrictsNode->GetEntity();
+		wpDistrictsShown = spDistrictsNode;
 	}
 	planetDistrictsPanel->GetEntity().lock()->hidden = false;
 	districtViewOpened = true;
@@ -140,7 +140,7 @@ void InputSystem::ClosePlanetDistrictsView()
 {
 	if (wpDistrictsShown.lock() != nullptr)
 	{
-		planetDistrictsPanel->RemoveByEntity(wpDistrictsShown.lock());
+		signals::onDeleteSceneNode(wpDistrictsShown);
 		wpDistrictsShown = {};
 	}
 	planetDistrictsPanel->GetEntity().lock()->hidden = true;
@@ -233,7 +233,7 @@ void InputSystem::ExitSystemOverview()
 
 	std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
 	std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-	spSelectedSystemNode->RemoveByEntity(spSysCom->spAllSystemObjectsNode->GetEntity().lock());
+	spSelectedSystemNode->RemoveNode(spSysCom->spAllSystemObjectsNode);
 
 	std::shared_ptr<CameraComponent> sSystemCameraCom = GetCameraFromSystemCameraEntity();
 	sSystemCameraCom->moveCamera = false;
