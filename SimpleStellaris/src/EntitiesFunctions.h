@@ -14,9 +14,9 @@
 
 //Helper functions
 //Worst case: O(1)
-std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name);
+std::weak_ptr<Entity> CreateNewEntityAtSceneNode(const std::string name);
 //Worst case: O(1)
-std::weak_ptr<Entity> CreateNewEntityAtUIRoot(const std::string name);
+std::weak_ptr<Entity> CreateNewEntityAtUINode(const std::string name);
 //Worst case: O(2*N) where N is number of entities in game
 std::weak_ptr<Entity> CreateNewEntityAt(const std::string nodeName, const std::string newEntityName, const std::shared_ptr<SceneNode> rootNode);
 //Worst case: O(1)

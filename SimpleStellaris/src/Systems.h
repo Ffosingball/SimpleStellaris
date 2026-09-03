@@ -44,7 +44,7 @@ public:
 
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Signals functions
 	void OnKeyPressed(sf::Event::KeyPressed key);
 	void OnKeyReleased(sf::Event::KeyReleased key);
@@ -70,22 +70,22 @@ private:
 	void ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition);
 	void ChangeEscapeScreen();
 
-	std::shared_ptr<TextComponent> mousePosText{nullptr};
-	std::shared_ptr<TextComponent> worldPosText{ nullptr };
-	std::shared_ptr<TextComponent> systemsNearByText{ nullptr };
-	std::shared_ptr<TextComponent> fpsText{ nullptr };
-	std::shared_ptr<TextComponent> mouseOverUIText{ nullptr };
+	std::weak_ptr<TextComponent> mousePosText;
+	std::weak_ptr<TextComponent> worldPosText;
+	std::weak_ptr<TextComponent> systemsNearByText;
+	std::weak_ptr<TextComponent> fpsText;
+	std::weak_ptr<TextComponent> mouseOverUIText;
 	std::vector<std::weak_ptr<Entity>> debugTextes;
-	std::shared_ptr<TextComponent> districtTypeText{ nullptr };
-	std::shared_ptr<TextComponent> planetNameText{ nullptr };
+	std::weak_ptr<TextComponent> districtTypeText;
+	std::weak_ptr<TextComponent> planetNameText;
 
-	std::shared_ptr<UIFollowerComponent> selectedSystemIcon{ nullptr };
-	std::shared_ptr<Entity> selectedSystemEntity{ nullptr };
-	std::shared_ptr<Entity> mouseIconEntity{ nullptr };
+	std::weak_ptr<UIFollowerComponent> selectedSystemIcon;
+	std::weak_ptr<Entity> selectedSystemEntity;
+	std::weak_ptr<Entity> mouseIconEntity;
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 	std::weak_ptr<SceneNode> wpPlanetOrStarSelected;
 	std::weak_ptr<SceneNode> wpMoonOrPlanetSelected;
-	std::shared_ptr<SceneNode> planetDistrictsPanel;
+	std::weak_ptr<SceneNode> planetDistrictsPanel;
 	std::weak_ptr<SceneNode> wpDistrictsShown;
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
 	std::weak_ptr<Entity> wpStoppedButton;
@@ -121,7 +121,7 @@ public:
 	virtual ~MovementSystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Set direction to the new one
 	void OnMoveCamera(sf::Vector2f direction) { this->direction = direction; }
 };
@@ -136,7 +136,7 @@ public:
 	virtual ~UISystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 
@@ -192,7 +192,7 @@ public:
 
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void MixMusicList();
 
@@ -226,7 +226,7 @@ public:
 	virtual ~GameSystem() = default;
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 };
 
 
@@ -237,7 +237,7 @@ public:
 
 private:
 	void Initialize() override;
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 	//void OnPlanetOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);

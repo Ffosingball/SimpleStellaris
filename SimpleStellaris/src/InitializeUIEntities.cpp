@@ -56,7 +56,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 	if (spCreateAt.lock() != nullptr)
 		spUI = CreateNewEntityAt(spCreateAt.lock(), textName).lock();
 	else
-		spUI = CreateNewEntityAtUIRoot(textName).lock();
+		spUI = CreateNewEntityAtUINode(textName).lock();
 	//Add component
 	//spUI->AddComponent<UIPartComponent>();
 	std::shared_ptr<TextComponent> spUICom = spUI->AddComponent<TextComponent>().lock();
@@ -128,7 +128,7 @@ void InitializeMovingText(const std::string name, const std::string text, const 
 	if (isMoving)
 	{
 		//Set moving animation properties
-		SetupMoveTextProperties(name, ECSGame::Instance().GetUIRoot(), targetX, targetY, velocity, false);
+		SetupMoveTextProperties(name, ECSGame::Instance().GetUINode(), targetX, targetY, velocity, false);
 	}
 	//Reset text origin to center of the text if needed
 	if(!skipOriginReset)
@@ -183,9 +183,9 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	sf::Color escapeMenuPanelColor = sf::Color{0,0,0,230};
 
 	float uiSize = ECSGame::Instance().GetUISize();
-	std::shared_ptr<SceneNode> spUIRootNode = ECSGame::Instance().GetUIRoot();
+	std::shared_ptr<SceneNode> spUIRootNode = ECSGame::Instance().GetUINode();
 	//CREATE SELECTION ICON
-	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUIRoot("SelectedSystemIcon").lock();
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUINode("SelectedSystemIcon").lock();
 	//Add component
 	//spSSIcon->AddComponent<UIPartComponent>();
 	spSSIcon->AddComponent<UIFollowerComponent>();
@@ -194,14 +194,14 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spSSIcon->hidden = true;
 
 	//CREATE Upper and lower parts of ui
-	std::shared_ptr<Entity> spToPart = CreateNewEntityAtUIRoot("UpperPart").lock();
+	std::shared_ptr<Entity> spToPart = CreateNewEntityAtUINode("UpperPart").lock();
 	//Add component
 	//spToPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape2 = spToPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape2, uiTopPartSize * uiSize, "TopUIPart");
 	spToPart->SetPosition(sf::Vector2f{1280.f,uiTopPartSize.y/2.f}*uiSize);
 
-	std::shared_ptr<Entity> spLoPart = CreateNewEntityAtUIRoot("LowerPart").lock();
+	std::shared_ptr<Entity> spLoPart = CreateNewEntityAtUINode("LowerPart").lock();
 	//Add component
 	//spLoPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape3 = spLoPart->AddComponent<RectangleShapeComponent>().lock();
@@ -220,7 +220,7 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, -20.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
 
 	//CREATE SIDE part of ui
-	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUIRoot("InfoPart").lock();
+	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUINode("InfoPart").lock();
 	spInfoPart->hidden = true;
 	//Add component
 	//spInfoPart->AddComponent<UIPartComponent>();
@@ -246,7 +246,7 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spTextEn->hidden = true;
 
 	//CREATE PLANET DISTRICTS panel
-	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAtUIRoot("PlanetDistrictsPart").lock();
+	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAtUINode("PlanetDistrictsPart").lock();
 	spPlDisPart->hidden = true;
 	//Add component
 	//spPlDisPart->AddComponent<UIPartComponent>();
@@ -276,7 +276,7 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spTextEn->hidden = true;
 
 	//CREATE Loading screen
-	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAtUIRoot("LoadingScreen").lock();
+	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAtUINode("LoadingScreen").lock();
 	spLoadScreen->hidden = false;
 	//Add component
 	spRectShape = spLoadScreen->AddComponent<RectangleShapeComponent>().lock();
@@ -291,7 +291,7 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	spTextEn->hidden = false;
 
 	//CREATE escape menu screen
-	std::shared_ptr<Entity> spEscScreen = CreateNewEntityAtUIRoot("EscapeMenuScreen").lock();
+	std::shared_ptr<Entity> spEscScreen = CreateNewEntityAtUINode("EscapeMenuScreen").lock();
 	spEscScreen->hidden = true;
 	//Add component
 	spRectShape = spEscScreen->AddComponent<RectangleShapeComponent>().lock();
@@ -632,7 +632,7 @@ void InitializeMouseIcon()
 	float uiSize = ECSGame::Instance().GetUISize();
 
 	std::weak_ptr<Entity> wpMouseIcon = ECSGame::Instance().GetEntityManager().NewEntity("MouseIcon");
-	ECSGame::Instance().GetUIRoot()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
+	ECSGame::Instance().GetUINode()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
 	//Add components
 	//wpMouseIcon.lock()->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape = wpMouseIcon.lock()->AddComponent<RectangleShapeComponent>().lock();

@@ -11,6 +11,8 @@
 #include "CompilerInstructions.h"
 #include "GameState.h"
 
+//If you need to change a whole scene just call change scene method
+
 //This is a base of the main game loop
 class ECSGame : public gel::SFMLApplication
 {
@@ -33,9 +35,11 @@ public:
 	//Worst case: O(1)
 	EntityManager& GetEntityManager() { return entityManager; }
 	//Worst case: O(1)
-	std::shared_ptr<SceneNode> GetSceneRoot() { return sceneRoot; }
+	std::shared_ptr<SceneNode> GetRoot() { return root; }
 	//Worst case: O(1)
-	std::shared_ptr<SceneNode> GetUIRoot() { return uiRoot; }
+	std::shared_ptr<SceneNode> GetUINode() { return uiNode; }
+	//Worst case: O(1)
+	std::shared_ptr<SceneNode> GetSceneNode() { return sceneNode; }
 	//Worst case: O(1)
 	GameState GetGameState() const { return gameState; }
 	//Worst case: O(1)
@@ -70,6 +74,8 @@ public:
 	void SetMousePosition(sf::Vector2i newMousePos) const;
 	//Worst case: O(1)
 	void SetIsMouseOverUI(bool mouseOverUI) { isMouseOverUI = mouseOverUI; }
+	//Worst case: O(1)
+	void ChangeScene(std::shared_ptr<SceneNode> newSceneNode, std::shared_ptr<SceneNode> newUINode);
 
 	//Override all methods from the parent
 	void Init(sf::RenderWindow& renderWindow) override;
@@ -83,8 +89,9 @@ private:
 	ECSGame() = default;
 
 	EntityManager entityManager;
-	std::shared_ptr<SceneNode> sceneRoot;
-	std::shared_ptr<SceneNode> uiRoot;
+	std::shared_ptr<SceneNode> root;
+	std::shared_ptr<SceneNode> uiNode;
+	std::shared_ptr<SceneNode> sceneNode;
 	//List of all systems is here
 	std::vector<std::shared_ptr<System>> systems;
 

@@ -264,10 +264,10 @@ public:
 	bool isPressed{ false };
 	bool isHovered{ false };
 
-	std::shared_ptr<sf::Texture> unhoveredTexture;
-	std::shared_ptr<sf::Texture> hoveredTexture;
-	std::shared_ptr<sf::Texture> hoveredPressedTexture;
-	std::shared_ptr<sf::Texture> pressedTexture;
+	std::weak_ptr<sf::Texture> unhoveredTexture;
+	std::weak_ptr<sf::Texture> hoveredTexture;
+	std::weak_ptr<sf::Texture> hoveredPressedTexture;
+	std::weak_ptr<sf::Texture> pressedTexture;
 	sf::IntRect unhoveredIntRect;
 	sf::IntRect hoveredIntRect;
 	sf::IntRect hoveredPressedIntRect;

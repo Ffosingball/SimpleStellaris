@@ -21,9 +21,12 @@
 void ECSGame::Init(sf::RenderWindow& renderWindow) 
 {
 	renderWindowPtr = &renderWindow;
-	//Create scene root
-	sceneRoot = std::make_shared<SceneNode>();
-	uiRoot = std::make_shared<SceneNode>();
+	//Create scene root and ui
+	root = std::make_shared<SceneNode>();
+	sceneNode = std::make_shared<SceneNode>();
+	root->AddChild(sceneNode);
+	uiNode = std::make_shared<SceneNode>();
+	root->AddChild(uiNode);
 	//I noticed, that random function generates same random numbers every time when I start
 	//my game again, so to solve this issue I seed it with current time at the start of the
 	//game
@@ -51,14 +54,14 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	WorldGenerator::spInputSystem = spInputSystem;
 
 	//Create nodes, in which i will sort new entities which will be created during the game
+	std::weak_ptr<Entity> wpCameras = entityManager.NewEntity("Cameras");
+	sceneNode->AddChild(std::make_shared<SceneNode>(wpCameras));
+
 	std::weak_ptr<Entity> wpObjOrb = entityManager.NewEntity("ObjectOrbits");
-	uiRoot->AddChild(std::make_shared<SceneNode>(wpObjOrb));
+	uiNode->AddChild(std::make_shared<SceneNode>(wpObjOrb));
 
 	std::weak_ptr<Entity> wpSysIc = entityManager.NewEntity("SystemIcons");
-	uiRoot->AddChild(std::make_shared<SceneNode>(wpSysIc));
-
-	std::weak_ptr<Entity> wpCameras = entityManager.NewEntity("Cameras");
-	sceneRoot->AddChild(std::make_shared<SceneNode>(wpCameras));
+	uiNode->AddChild(std::make_shared<SceneNode>(wpSysIc));
 	
 	//Initialize all cameras
 	InitializeAllCameras(windowSize);
@@ -80,7 +83,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	gameState = GameState::Pause;
 	overviewType = OverviewType::Space;
 
-	uiRoot->ChangeChildOrder(uiRoot->FindChild("MouseIcon").lock(), (int)uiRoot->GetAllChildren().size()-1);
+	uiNode->ChangeChildOrder(uiNode->FindChild("MouseIcon").lock(), (int)uiNode->GetAllChildren().size()-1);
 
 	//Generate world in a separate thread
 	std::thread generateWorldAsync(CreateSpaceObjects);
@@ -122,14 +125,14 @@ void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
 	//Update all systems
 	for (std::shared_ptr<System> system : systems)
 	{
-		system->Update(sceneRoot, uiRoot, deltaTime);
+		system->Update(root, deltaTime);
 #ifdef OUTPUT_FRAME_TIMING
 		std::cout << "  --"<<system->GetSystemName()<<": " << timer.restart().asSeconds() << '\n';
 #endif
 	}
 
 	//Process entities removal
-	deleteSystem.Update(sceneRoot, uiRoot, deltaTime);
+	deleteSystem.Update(root, deltaTime);
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 #endif
@@ -213,7 +216,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	std::shared_ptr<SceneNode> spBackgroundNode;
 	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
 	{
-		spBackgroundNode = sceneRoot->FindChild("Background").lock();
+		spBackgroundNode = sceneNode->FindChild("Background").lock();
 
 		//Set renderWindow to render in the camera
 		std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
@@ -236,7 +239,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//Render all scene entities
 	SceneNodeVisitorRender visitor(renderWindow);
-	sceneRoot->AcceptVisitor(visitor);
+	sceneNode->AcceptVisitor(visitor);
 
 	numOfNodes += visitor.didNotRenderedEntities + visitor.renderedEntities;
 	renderedNodes += visitor.renderedEntities;
@@ -251,7 +254,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//Render all UI entities
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
-	uiRoot->AcceptVisitor(visitor2);
+	uiNode->AcceptVisitor(visitor2);
 
 	numOfNodes += visitor2.didNotRenderedEntities + visitor2.renderedEntities;
 	renderedNodes += visitor2.renderedEntities;
@@ -289,4 +292,17 @@ float ECSGame::GetSimulationDeltaTime() const
 void ECSGame::SetMousePosition(sf::Vector2i newMousePos) const 
 { 
 	sf::Mouse::setPosition(newMousePos, *renderWindowPtr); 
+}
+
+
+void ECSGame::ChangeScene(std::shared_ptr<SceneNode> newSceneNode, std::shared_ptr<SceneNode> newUINode)
+{
+	root->RemoveNode(uiNode);
+	root->RemoveNode(sceneNode);
+
+	root->AddChild(newSceneNode);
+	root->AddChild(newUINode);
+
+	uiNode = newUINode;
+	sceneNode = newSceneNode;
 }

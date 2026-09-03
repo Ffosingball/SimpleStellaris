@@ -18,7 +18,7 @@ public:
 	//To end the system
 	virtual void Destroy() {}
 	//To update entities every frame
-	virtual void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) {}
+	virtual void Update(std::shared_ptr<SceneNode> scene, float deltaTime) {}
 
 	const std::string& GetSystemName() { return systemName; }
 
@@ -37,7 +37,7 @@ public:
 	//Worst case: O(1)
 	void Initialize() override;
 	//Worst case: O(N*M) where N is number of nodes in provided node and M number of entities to delete
-	void Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime) override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 private:
 	//This functions will be called when appropriate signal will be signaled
 	//they will ad name or entity to the vector, and then delete them at the end

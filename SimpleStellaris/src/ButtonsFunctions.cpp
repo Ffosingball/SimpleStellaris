@@ -18,8 +18,8 @@ void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity)
 	sf::Color fillColor = sf::Color{ 200,200,200 };
 
 	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
-	districtTypeText->text->setString("Type: " + GetPlanetDistrictName(spDistrict->districtType));
-	gel::AlignTextToLeftSide(*districtTypeText->text, sf::Vector2{ 0.f, 0.f });
+	districtTypeText.lock()->text->setString("Type: " + GetPlanetDistrictName(spDistrict->districtType));
+	gel::AlignTextToLeftSide(*districtTypeText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
 	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
 	spRectShape->shape.setOutlineThickness(outlineThikness);
@@ -37,8 +37,8 @@ void InputSystem::DistrictUnhovered(std::shared_ptr<Entity> spEntity)
 	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
 	if (currentDistrictShown == spDistrict->districtID)
 	{
-		districtTypeText->text->setString("Type: ");
-		gel::AlignTextToLeftSide(*districtTypeText->text, sf::Vector2{ 0.f, 0.f });
+		districtTypeText.lock()->text->setString("Type: ");
+		gel::AlignTextToLeftSide(*districtTypeText.lock()->text, sf::Vector2 { 0.f, 0.f });
 		currentDistrictShown = -1;
 	}
 
@@ -56,12 +56,12 @@ void InputSystem::ButtonHovered(std::shared_ptr<Entity> spEntity)
 	
 	if (spButton->isPressed)
 	{
-		spRecShape->shape.setTexture(spButton->hoveredPressedTexture.get());
+		spRecShape->shape.setTexture(spButton->hoveredPressedTexture.lock().get());
 		spRecShape->shape.setTextureRect(spButton->hoveredPressedIntRect);
 	}
 	else
 	{
-		spRecShape->shape.setTexture(spButton->hoveredTexture.get());
+		spRecShape->shape.setTexture(spButton->hoveredTexture.lock().get());
 		spRecShape->shape.setTextureRect(spButton->hoveredIntRect);
 	}
 }
@@ -74,12 +74,12 @@ void InputSystem::ButtonUnhovered(std::shared_ptr<Entity> spEntity)
 
 	if (spButton->isPressed)
 	{
-		spRecShape->shape.setTexture(spButton->pressedTexture.get());
+		spRecShape->shape.setTexture(spButton->pressedTexture.lock().get());
 		spRecShape->shape.setTextureRect(spButton->pressedIntRect);
 	}
 	else
 	{
-		spRecShape->shape.setTexture(spButton->unhoveredTexture.get());
+		spRecShape->shape.setTexture(spButton->unhoveredTexture.lock().get());
 		spRecShape->shape.setTextureRect(spButton->unhoveredIntRect);
 	}
 }
@@ -89,7 +89,7 @@ void InputSystem::ButtonReleased(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-	spRecShape->shape.setTexture(spButton->unhoveredTexture.get());
+	spRecShape->shape.setTexture(spButton->unhoveredTexture.lock().get());
 	spRecShape->shape.setTextureRect(spButton->unhoveredIntRect);
 }
 
@@ -98,7 +98,7 @@ void InputSystem::ButtonClicked(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-	spRecShape->shape.setTexture(spButton->hoveredTexture.get());
+	spRecShape->shape.setTexture(spButton->hoveredTexture.lock().get());
 	spRecShape->shape.setTextureRect(spButton->hoveredIntRect);
 }
 
@@ -107,7 +107,7 @@ void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-	spRecShape->shape.setTexture(spButton->hoveredPressedTexture.get());
+	spRecShape->shape.setTexture(spButton->hoveredPressedTexture.lock().get());
 	spRecShape->shape.setTextureRect(spButton->hoveredPressedIntRect);
 }
 

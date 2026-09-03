@@ -18,7 +18,7 @@ void DeleteSystem::Initialize()
 }
 
 //Worst case: O(N*M) where N is number of nodes in game and M number of entities to delete
-void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, std::shared_ptr<SceneNode> ui, float deltaTime)
+void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	//Check if vector is empty
 	while (nodesToDelete.size()>0)

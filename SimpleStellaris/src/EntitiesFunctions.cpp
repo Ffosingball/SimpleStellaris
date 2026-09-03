@@ -24,24 +24,24 @@
 //This function creates an entity at the root node and return smart pointer to it
 //String is not reference, because rvalues cannot be referenced, I use them a lot
 //Worst case: O(1)
-std::weak_ptr<Entity> CreateNewEntityAtRoot(const std::string name) 
+std::weak_ptr<Entity> CreateNewEntityAtSceneNode(const std::string name) 
 {
 	// Create the entity in the entity manager
 	std::weak_ptr<Entity> wpEntity = ECSGame::Instance().GetEntityManager().NewEntity(name);
 	// Add it to the scene
-	ECSGame::Instance().GetSceneRoot()->AddChild(std::make_shared<SceneNode>(wpEntity));
+	ECSGame::Instance().GetSceneNode()->AddChild(std::make_shared<SceneNode>(wpEntity));
 	return wpEntity;
 }
 
 
 
 //Worst case: O(1)
-std::weak_ptr<Entity> CreateNewEntityAtUIRoot(const std::string name)
+std::weak_ptr<Entity> CreateNewEntityAtUINode(const std::string name)
 {
 	// Create the entity in the entity manager
 	std::weak_ptr<Entity> wpEntity = ECSGame::Instance().GetEntityManager().NewEntity(name);
 	// Add it to the scene
-	ECSGame::Instance().GetUIRoot()->AddChild(std::make_shared<SceneNode>(wpEntity));
+	ECSGame::Instance().GetUINode()->AddChild(std::make_shared<SceneNode>(wpEntity));
 	return wpEntity;
 }
 
@@ -109,7 +109,7 @@ void SetupRectangleShape(std::shared_ptr<RectangleShapeComponent> recShape, cons
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera() 
 {
-	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
+	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	
 	std::shared_ptr<Entity> sCamera;
 	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
@@ -128,7 +128,7 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 //Worst case: O(N+M) where N is number of entities in game and M number of components in spaceMap
 std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
 {
-	std::weak_ptr<SceneNode> wSnode = ECSGame::Instance().GetSceneRoot()->FindChild("SpaceMap");
+	std::weak_ptr<SceneNode> wSnode = ECSGame::Instance().GetSceneNode()->FindChild("SpaceMap");
 	std::shared_ptr<Entity> sSmap = wSnode.lock()->GetEntity().lock();
 	return sSmap->FindComponent<SystemPropertiesComponent>().lock();
 }
@@ -139,7 +139,7 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap()
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity()
 {
-	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
+	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("UICamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
 	return sCamera->FindComponent<CameraComponent>().lock();
@@ -150,7 +150,7 @@ std::shared_ptr<CameraComponent> GetCameraFromUICameraEntity()
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromBackgroundCameraEntity()
 {
-	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
+	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("BackgroundCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
 	return sCamera->FindComponent<CameraComponent>().lock();
@@ -161,7 +161,7 @@ std::shared_ptr<CameraComponent> GetCameraFromBackgroundCameraEntity()
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity()
 {
-	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
+	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("SystemCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
 	return sCamera->FindComponent<CameraComponent>().lock();
@@ -171,7 +171,7 @@ std::shared_ptr<CameraComponent> GetCameraFromSystemCameraEntity()
 
 std::shared_ptr<CameraComponent> GetCameraFromPlanetCameraEntity()
 {
-	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
+	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
 	return sCamera->FindComponent<CameraComponent>().lock();
@@ -182,7 +182,7 @@ std::shared_ptr<CameraComponent> GetCameraFromPlanetCameraEntity()
 //Worst case: O(N+M) where N is number of scene nodes in game and M number of components in camera
 std::shared_ptr<CameraComponent> GetCameraFromSpaceCameraEntity()
 {
-	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras");
+	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	std::weak_ptr<Entity> wCamera = wCamNode.lock()->FindChild("SpaceCamera").lock()->GetEntity().lock();
 	std::shared_ptr<Entity> sCamera = wCamera.lock();
 	return sCamera->FindComponent<CameraComponent>().lock();
@@ -551,7 +551,7 @@ void InitializeBackgroundCamera(std::shared_ptr<SceneNode> spCameraNode, const s
 //available in game
 void InitializeAllCameras(const sf::Vector2u& windowSize)
 {
-	std::shared_ptr<SceneNode> spAllCam = ECSGame::Instance().GetSceneRoot()->FindChild("Cameras").lock();
+	std::shared_ptr<SceneNode> spAllCam = ECSGame::Instance().GetSceneNode()->FindChild("Cameras").lock();
 	
 	InitializeSpaceCamera(spAllCam, windowSize);
 	InitializeUICamera(spAllCam, windowSize);
@@ -654,15 +654,15 @@ void CreateSpaceObjects()
 	visitor.OutputAllData();
 #endif
 
-	ECSGame::Instance().GetSceneRoot()->AddChild(spNode);
-	ECSGame::Instance().GetSceneRoot()->AddChild(spBackgroundNode);
-	ECSGame::Instance().GetUIRoot()->AddChild(spSysNamesNode);
+	ECSGame::Instance().GetSceneNode()->AddChild(spNode);
+	ECSGame::Instance().GetSceneNode()->AddChild(spBackgroundNode);
+	ECSGame::Instance().GetUINode()->AddChild(spSysNamesNode);
 
-	ECSGame::Instance().GetSceneRoot()->ChangeChildOrder(wpBackgroundE.lock(), 0);
-	ECSGame::Instance().GetUIRoot()->ChangeChildOrder(wpSysN.lock(), 0);
+	ECSGame::Instance().GetSceneNode()->ChangeChildOrder(wpBackgroundE.lock(), 0);
+	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpSysN.lock(), 0);
 
-	ECSGame::Instance().GetUIRoot()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
-	ECSGame::Instance().GetUIRoot()->FindChild("LoadingScreen").lock()->FindChild("LoadingText").lock()->GetEntity().lock()->hidden = true;
+	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
+	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->FindChild("LoadingText").lock()->GetEntity().lock()->hidden = true;
 
 	WorldGenerator::worldGenerated = true;
 }

@@ -9,6 +9,8 @@
 
 
 
+//I assume all visitors exist only a single frame, so this is why it is allowed to have a
+// //shared pointers for them
 //Processes entities with movement components
 class SceneNodeVisitorMovement : public SceneNodeVisitor
 {
