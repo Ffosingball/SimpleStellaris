@@ -12,6 +12,14 @@
 class MusicSystem;
 
 
+enum class InputType
+{
+	World,
+	Menu,
+	None
+};
+
+
 //Input system processes inputs
 class InputSystem :public System 
 {
@@ -60,6 +68,7 @@ private:
 	void OnJoystickMoved(sf::Event::JoystickMoved joystickMoved);
 	void OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button);
 	void OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button);
+	void OnChangeInputType(InputType inputType);
 
 	void ZoomCamera(int direction);
 	void EnterSystemOverview();
@@ -93,6 +102,7 @@ private:
 	std::weak_ptr<SceneNode> planetDistrictsPanel;
 	std::weak_ptr<SceneNode> wpDistrictsShown;
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
+	std::weak_ptr<SceneNode> wpInputRootNode;
 
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
@@ -115,8 +125,12 @@ private:
 	bool districtViewOpened{ false };
 	int currentDistrictShown = -1;
 
+	float selectNextButtonPeriod{ 0.15f };
+	float timePassedSinceSelectedButton{0.f};
+
 	OverviewType previousFrameOverview = OverviewType::None;
 	GameState lastGameState = GameState::None;
+	InputType inputType = InputType::Menu;
 };
 
 //Processes all movement
@@ -283,4 +297,5 @@ namespace signals
 	inline sigslot::signal<> onHideInfoPanel;
 	inline sigslot::signal<> onShowInfoPanel;
 	inline sigslot::signal<> onClearInfoPanel;
+	inline sigslot::signal<InputType> onChangeInputType;
 }

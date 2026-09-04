@@ -60,6 +60,12 @@ public:
 	float GetSimulationDeltaTime() const;
 	//Worst case: O(1)
 	bool IsMouseOverUI() const { return isMouseOverUI; }
+	//Worst case: O(1)
+	float GetUIDeltaTime() const { return uiDeltaTime; }
+
+	//Getter and setter
+	float GetDeltaTimeMultiplier() { return deltaTimeMultiplier; }
+	void SetDeltaTimeMultiplier(float dtMultiplier) { deltaTimeMultiplier = dtMultiplier; }
 
 	//Setter
 	//Worst case: O(1)
@@ -122,4 +128,7 @@ private:
 	sf::RenderWindow* renderWindowPtr = nullptr;
 	//Flag if mouse over ui part or not!
 	bool isMouseOverUI{false};
+
+	float deltaTimeMultiplier{ 1.f };
+	float uiDeltaTime{0.f};
 };

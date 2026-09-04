@@ -91,12 +91,13 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 }
 
 
-void ECSGame::Update(const float deltaTime, sf::RenderWindow& renderWindow)
+void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 {
 	//std::cout << "UPDATE\n";
 
 	//Change deltatime
-	this->deltaTime = deltaTime;
+	deltaTime = deltaT * deltaTimeMultiplier;
+	uiDeltaTime = deltaT;
 	timeSinceStart += deltaTime;
 
 	if (timeSinceStart > 1.f)

@@ -937,3 +937,51 @@ void VisitorCountAllNodes::ProcessNode(SceneNode& node)
 {
     counter++;
 }
+
+
+
+//Buttons processing function
+void VisitorGetClosestButtonAtDirection::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has Button component and it is not hidden
+        if (spEntity->HasComponent<ButtonComponent>())
+        {
+            sf::Vector2f entityPos = node.GetCombinedPosition() - currentPosition;
+            bool suitableButton{ false };
+            switch (direction) 
+            {
+            case 0:
+                if (entityPos.y > 0 && abs(entityPos.y) > abs(entityPos.x)) 
+                    suitableButton = true;
+                break;
+            case 1:
+                if (entityPos.x > 0 && abs(entityPos.x) > abs(entityPos.y))
+                    suitableButton = true;
+                break;
+            case 2:
+                if (entityPos.y < 0 && abs(entityPos.y) > abs(entityPos.x))
+                    suitableButton = true;
+                break;
+            case 3:
+                if (entityPos.x < 0 && abs(entityPos.x) > abs(entityPos.y))
+                    suitableButton = true;
+                break;
+            }
+
+            if (suitableButton) 
+            {
+                if (wpClosestButton.lock() != nullptr)
+                {
+                    if (gel::distanceBetween2Points(sf::Vector2f{ 0.f,0.f }, entityPos) < gel::distanceBetween2Points(sf::Vector2f{ 0.f,0.f }, wpClosestButton.lock()->GetCombinedPosition() - currentPosition))
+                        wpClosestButton = node.GetSharedPtrToItself();
+                }
+                else
+                    wpClosestButton = node.GetSharedPtrToItself();
+            }
+        }
+    }
+}

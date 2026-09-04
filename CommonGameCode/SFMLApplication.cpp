@@ -40,7 +40,7 @@ namespace gel
         while (renderWindow.isOpen())
         {
             //get deltaTime
-            float dt = clock.restart().asSeconds() * deltaTimeMultiplier;
+            float dt = clock.restart().asSeconds();
 
 #ifdef OUTPUT_FRAME_TIMING
             std::cout << " -Display: " << timer.restart().asSeconds() << '\n';

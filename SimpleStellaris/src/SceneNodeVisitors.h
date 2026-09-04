@@ -320,3 +320,17 @@ public:
 private:
     bool hidden;
 };
+
+
+class VisitorGetClosestButtonAtDirection : public SceneNodeVisitor
+{
+public:
+    VisitorGetClosestButtonAtDirection(int direction, sf::Vector2f curPos) : direction( direction ), currentPosition(curPos) {}
+
+    void ProcessNode(SceneNode& node) override;
+
+    std::weak_ptr<SceneNode> wpClosestButton;
+private:
+    int direction{ 0 };
+    sf::Vector2f currentPosition;
+};

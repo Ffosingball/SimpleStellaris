@@ -139,10 +139,10 @@ struct SpaceMapConfigurations
 	float closeOrbitHotNeptuneChance = 2.5f;
 
 	//Chances of planet type within of habitable zone
-	float mediumOrbitVenusLikeChance = 32.f;
+	float mediumOrbitVenusLikeChance = 28.f;
 	float mediumOrbitOceanicChance = 10.f;
-	float mediumOrbitEarthLikeChance = 5.f;//5.f
-	float mediumOrbitDesertChance = 5.f;//5.f
+	float mediumOrbitEarthLikeChance = 7.f;//5.f
+	float mediumOrbitDesertChance = 7.f;//5.f
 	float mediumOrbitBarrenChance = 43.f;
 	float mediumOrbitHotJupiterChance = 2.5f;
 	float mediumOrbitHotNeptuneChance = 2.5f;
@@ -177,8 +177,8 @@ struct SpaceMapConfigurations
 	sf::Vector2f largeGasSizes{ 7.5f,13.f };
 
 	//Planet orbits config
-	float chanceOfTheClosePlanet{ 0.4f };
-	float minDistanceBetweenPlanetOrbitsInPercentage{ 0.15f };
+	float chanceOfTheClosePlanet{ 0.3f };
+	float minDistanceBetweenPlanetOrbitsInPercentage{ 0.12f };
 
 	//Nebulas generation config
 	float minimalDistanceFromTheMapBorder{ 0.15f };

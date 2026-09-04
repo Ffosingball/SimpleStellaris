@@ -666,7 +666,7 @@ void CreateSpaceObjects()
 	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpNebN.lock(), 1);
 
 	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
-	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->FindChild("LoadingText").lock()->GetEntity().lock()->hidden = true;
 
 	WorldGenerator::worldGenerated = true;
+	signals::onChangeInputType(InputType::World);
 }

@@ -25,6 +25,7 @@ void InputSystem::Initialize()
 	signals::onJoystickMoved.connect(&InputSystem::OnJoystickMoved, this);
 	signals::onJoystickButtonPressed.connect(&InputSystem::OnJoystickButtonPressed, this);
 	signals::onJoystickButtonReleased.connect(&InputSystem::OnJoystickButtonReleased, this);
+	signals::onChangeInputType.connect(&InputSystem::OnChangeInputType, this);
 
 	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("MouseCoordsText").lock();
 	mousePosText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
@@ -76,6 +77,8 @@ void InputSystem::Initialize()
 	wpPlayingButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
 	wpStopMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("StopButton").lock()->GetEntity();
 	wpResumeMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("ResumeButton").lock()->GetEntity();
+
+	wpInputRootNode = ECSGame::Instance().GetUINode();
 
 	for (std::weak_ptr<Entity> e : debugTextes) 
 	{
@@ -299,8 +302,9 @@ void ChangeUIVisibility(bool hide)
 		ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock()->GetEntity().lock()->hidden = false;
 	}
 
-	ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->GetEntity().lock()->hidden = hide;;
-	ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->GetEntity().lock()->hidden = hide;;
+	ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->GetEntity().lock()->hidden = hide;
+	ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->GetEntity().lock()->hidden = hide;
+	ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->GetEntity().lock()->hidden = hide;
 }
 
 
@@ -327,17 +331,27 @@ void InputSystem::ChangeEscapeScreen()
 	if (!wpEscapeScreenNode.lock()->GetEntity().lock()->hidden)
 	{
 		wpEscapeScreenNode.lock()->GetEntity().lock()->hidden = true;
+		wpInputRootNode = ECSGame::Instance().GetUINode();
 
 		ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
+		OnChangeInputType(InputType::World);
 		ECSGame::Instance().SetGameState(lastGameState);
 	}
 	else 
 	{
 		wpEscapeScreenNode.lock()->GetEntity().lock()->hidden = false;
+		wpInputRootNode = wpEscapeScreenNode;
 
 		ECSGame::Instance().SetDeltaTimeMultiplier(0.f);
+		OnChangeInputType(InputType::Menu);
 		lastGameState = ECSGame::Instance().GetGameState();
 		ECSGame::Instance().SetGameState(GameState::Stopped);
+
+		if (lastInputByJoystick) 
+		{
+			sf::Vector2f pos = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen").lock()->FindChild("ResumeButton").lock()->GetCombinedPosition();
+			ECSGame::Instance().SetMousePosition(sf::Vector2i{(int)pos.x,(int)pos.y});
+		}
 	}
 }
 
@@ -346,7 +360,7 @@ void InputSystem::ChangeEscapeScreen()
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+	if (inputType==InputType::World)
 	{
 		if (key.code == sf::Keyboard::Key::Space)
 		{
@@ -389,10 +403,6 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 			UIHidden = !UIHidden;
 			ChangeUIVisibility(UIHidden);
 		}
-		else if (key.code == sf::Keyboard::Key::Enter)
-		{
-			musicSystem->PlayNextMusic();
-		}
 	}
 	else 
 	{
@@ -408,7 +418,7 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 
 void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 {
-	lastInputByJoystick = false;
+	//lastInputByJoystick = false;
 }
 
 
@@ -420,22 +430,27 @@ void InputSystem::OnJoystickMoved(sf::Event::JoystickMoved joystickMoved)
 
 void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button)
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+	if (inputType == InputType::World)
 	{
 		switch (button.button)
 		{
 		case 0:
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
-				EnterSystemOverview();
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+			if(ECSGame::Instance().IsMouseOverUI())
+				OnChangeInputType(InputType::Menu);
+			else
 			{
-				if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-					EnterPlanetFromSystemOverview();
-			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
-			{
-				if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-					OpenPlanetDistrictsView();
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+					EnterSystemOverview();
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+				{
+					if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+						EnterPlanetFromSystemOverview();
+				}
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+				{
+					if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+						OpenPlanetDistrictsView();
+				}
 			}
 
 			lmbPressed = true;
@@ -484,6 +499,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			break;
 		case 6:
 			ChangeEscapeScreen();
+			OnChangeInputType(InputType::Menu);
 			break;
 		}
 	}
@@ -495,7 +511,22 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			lmbPressed = true;
 			buttonPressed = true;
 			break;
+		case 1:
+			if(ECSGame::Instance().GetGameState()!=GameState::Stopped)
+				OnChangeInputType(InputType::World);
+			break;
+		case 2:
+			if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+				OnChangeInputType(InputType::World);
+			break;
+		case 5:
+			if (ECSGame::Instance().GetGameState() == GameState::Game)
+				PauseSimulation();
+			else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+				ResumeSimulation();
+			break;
 		case 6:
+			OnChangeInputType(InputType::World);
 			ChangeEscapeScreen();
 			break;
 		}
@@ -585,14 +616,35 @@ void InputSystem::OnMouseMoved(sf::Event::MouseMoved mouseMovement)
 {
 	//Move mouse
 	mouseIconEntity.lock()->SetPosition({ (float)mouseMovement.position.x, (float)mouseMovement.position.y});
+	//mouseIconEntity.lock()->hidden = false;
 	//lastInputByJoystick = false;
 }
 
 
+void InputSystem::OnChangeInputType(InputType inType) 
+{
+	if (inType != inputType)
+	{
+		if (lastInputByJoystick && inType == InputType::Menu) 
+		{
+			mouseIconEntity.lock()->hidden = true;
+		}
+		else 
+		{
+			mouseIconEntity.lock()->hidden = false;
+		}
+
+		inputType = inType;
+	}
+}
+
 
 void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed)
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+	if (ECSGame::Instance().GetGameState() != GameState::Stopped && inputType == InputType::Menu)
+		OnChangeInputType(InputType::World);
+
+	if (inputType == InputType::World)
 	{
 		if (mouseButPressed.button == sf::Mouse::Button::Left)
 		{
@@ -672,6 +724,8 @@ void InputSystem::ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNod
 //is released. If I would use events, they are not called every frame, which is bad
 void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
+	timePassedSinceSelectedButton += ECSGame::Instance().GetUIDeltaTime();
+
 	//Check if joystick connected or not
 	if (sf::Joystick::isConnected(0) != joystickConnected) 
 	{
@@ -687,7 +741,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	sf::Vector2f direction{ 0,0 };
 
 	//Get continuous input
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+	if (inputType == InputType::World)
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 		{
@@ -753,21 +807,63 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	}
 	else 
 	{
-		if (joystickConnected) 
+		if (joystickConnected && timePassedSinceSelectedButton>=selectNextButtonPeriod) 
 		{
-			//Get RIGHT joysticks position
-			float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::U);
-			float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+			//Get Crest joysticks position
+			float povX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovX);
+			float povY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovY);
+			//Get right joystick movement
+			float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+			float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
 
 			//std::cout << "V: " << v<<'\n';
-			if (abs(u) > minValForJoystick || abs(v) > minValForJoystick)
+			if (abs(u) > minValForJoystick || abs(v) > minValForJoystick || abs(povX) > minValForJoystick || abs(povY) > minValForJoystick)
 			{
-				sf::Vector2i previousMousePos = ECSGame::Instance().GetMousePosition();
-				float mouseSpeed = 100.f / mouseSpeedFromJoystick;
-				//std::cout <<"Move Y: " << (int)roundf(v / mouseSpeed) << '\n';
-				//lastMouseSpeed = sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) };
-				ECSGame::Instance().SetMousePosition(sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) });
+				//Get Direction
+				//Crest input has priority over right joystick
+				int direction = -1;//0 top, 1 left, 2 bottom, 3 right
+				if (abs(povX) > abs(povY)  && abs(povX) > minValForJoystick)
+				{
+					if (povX < 0)
+						direction = 3;
+					else
+						direction = 1;
+				}
+				else if (abs(povY) > minValForJoystick) 
+				{
+					if (povY > 0)
+						direction = 2;
+					else
+						direction = 0;
+				}
+				else if (abs(u) > abs(v) && abs(u) > minValForJoystick)
+				{
+					if (u < 0)
+						direction = 3;
+					else
+						direction = 1;
+				}
+				else if (abs(v) > minValForJoystick)
+				{
+					if (v < 0)
+						direction = 2;
+					else
+						direction = 0;
+				}
+
+				//Get Button to move to
+				sf::Vector2i tempPos = ECSGame::Instance().GetMousePosition();
+				VisitorGetClosestButtonAtDirection visitor(direction, sf::Vector2f{(float)tempPos.x,(float)tempPos.y});
+				wpInputRootNode.lock()->AcceptReverseVisitor(visitor);
+				if (visitor.wpClosestButton.lock() != nullptr)
+				{
+					//Set new mouse position
+					sf::Vector2f pos = visitor.wpClosestButton.lock()->GetCombinedPosition();
+					ECSGame::Instance().SetMousePosition(sf::Vector2i{(int)pos.x,(int)pos.y});
+				}
+
 				lastInputByJoystick = true;
+				timePassedSinceSelectedButton = 0.f;
 			}
 		}
 	}
