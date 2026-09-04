@@ -1,32 +1,37 @@
+WORLD INPUT:
 Keyboard and mouse:
 - W, A, S, D - move camera around; unlocks camera if it is locked
-- Q - show/hide all UI
+- Z - show/hide all UI
 - Tab - show/hide info panel about selected space object
-- LMB - go into selected system or planet
+- LMB - go into selected system or planet, or open district view; press buttons
 - RMB - lock camera on the selected object/unlock camera if no object is selected
 - Mouse Wheel - zoom in or out
-- Move mouse around to select space objects; selected object is indicated by white rhombus
+- Move mouse around to select space objects or buttons; selected object is indicated by white rhombus
 - Space - pause/resume simulation
-- Arrow Up - increase simulation speed by 1
-- Arrow Down - decrease simulation speed by 1
-- Ctrl - hold it while pressing arrow up or down to change simulation speed by 10
-- Shift - hold it while pressing arrow up or down to change simulation speed by 100
 - F3 - open/close debug text
-- Ecs - exit planet or system overview/exit game if in space overview
-
+- Q - exit planet or system overview or district view
+- ESC - open escape menu
 
 Logitech joystick:
 - Left Joystick - move camera around; unlocks camera if it is locked
 - LB - show/hide all UI
 - Y - show/hide info panel about selected space object
-- A - go into selected system or planet
+- A - go into selected system or planet or open district view; or press selected button
 - X - lock camera on the selected object/unlock camera if no object is selected
 - LT/RT - zoom in or out
 - Right Joystick - Move mouse around to select space objects; selected object is indicated by white rhombus
 - RB - pause/resume simulation
-- D-pad right - increase simulation speed by 10
-- D-pad left - decrease simulation speed by 10
-- D-pad up - increase simulation speed by 1
-- D-pad down - decrease simulation speed by 1
 - B - exit planet or system overview
 - Back - exit game
+
+
+MENU INPUT:
+Keyboard and mouse:
+- LMB - Press selected buttons
+- ESC - exit opened panels
+
+Logitech joystick:
+- Left joystick or D-pad - select another button (depends on the direction)
+- A - press selected button
+- X, B - cancel menu input if in the world overview
+- RB - pause/resume simulation if in world overview
