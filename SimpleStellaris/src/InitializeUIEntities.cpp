@@ -436,6 +436,7 @@ void CreateUI(std::shared_ptr<InputSystem> inputSys)
 	std::shared_ptr<SceneNode> spEscapeNode = spUIRootNode->FindChild(*spEscScreen).lock();
 	//CREATE escape menu textes
 	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainMenuMainFontSize * uiSize), sf::Vector2f{ 0.f, -160.f } * uiSize, fontName, true, importantColor, spEscapeNode);
+	spTextEn = InitializeText("SeedText", "Seed: ", (int)(infoFontSize * uiSize), sf::Vector2f{ 0.f, 750.f } * uiSize, fontName, true, usualColor, spEscapeNode);
 
 	//CREATE RESUME button
 	spButton = CreateNewEntityAt(spEscapeNode, "ResumeButton").lock();

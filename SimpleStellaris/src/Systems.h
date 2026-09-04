@@ -103,6 +103,7 @@ private:
 	std::weak_ptr<SceneNode> wpDistrictsShown;
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
 	std::weak_ptr<SceneNode> wpInputRootNode;
+	std::weak_ptr<SceneNode> wpDistrictsOfPlanetShown;
 
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
@@ -207,6 +208,10 @@ public:
 	void PlayResumeSimulationSFX();
 	void PlayLockCameraSFX();
 	void PlayUnlockCameraSFX();
+	void PlayOpenDistrictViewSFX();
+	void PlayCloseDistrictViewSFX();
+	void PlayPressedButtonSFX();
+	void PlayOpenEscapePanelSFX();
 
 	void PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity);
 	void StopSelectedObjectSound();
@@ -228,6 +233,10 @@ private:
 	std::shared_ptr<sf::Sound> spResumeSimulationSound;
 	std::shared_ptr<sf::Sound> spLockCameraSound;
 	std::shared_ptr<sf::Sound> spUnlockCameraSound;
+	std::shared_ptr<sf::Sound> spOpenEscapeScreenSound;
+	std::shared_ptr<sf::Sound> spButtonPressedSound;
+	std::shared_ptr<sf::Sound> spDistrictViewOpenedSound;
+	std::shared_ptr<sf::Sound> spDistrictViewClosedSound;
 
 	std::vector<std::weak_ptr<sf::Music>> listOfMusicToPlay;
 

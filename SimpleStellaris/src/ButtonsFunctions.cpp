@@ -116,12 +116,14 @@ void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ChangeEscapeScreen();
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::ExitButtonButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	ECSGame::Instance().CloseGame();
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -129,6 +131,7 @@ void InputSystem::Slower3ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 100);
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -136,6 +139,7 @@ void InputSystem::Slower2ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -143,6 +147,7 @@ void InputSystem::Slower1ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -164,6 +169,7 @@ void InputSystem::Faster3ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 100);
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -171,6 +177,7 @@ void InputSystem::Faster2ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -178,6 +185,7 @@ void InputSystem::Faster1ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -185,6 +193,7 @@ void InputSystem::PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	musicSystem->PlayPreviousMusic();
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -192,6 +201,7 @@ void InputSystem::NextMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	musicSystem->PlayNextMusic();
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -201,6 +211,7 @@ void InputSystem::StopMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 	musicSystem->StopMusic();
 	wpStopMusicButton.lock()->hidden = true;
 	wpResumeMusicButton.lock()->hidden = false;
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -210,6 +221,7 @@ void InputSystem::ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 	musicSystem->ResumeMusic();
 	wpStopMusicButton.lock()->hidden = false;
 	wpResumeMusicButton.lock()->hidden = true;
+	musicSystem->PlayPressedButtonSFX();
 }
 
 
@@ -217,4 +229,5 @@ void InputSystem::MixMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	SetupPressedButtonTexture(spEntity);
 	musicSystem->MixMusicList();
+	musicSystem->PlayPressedButtonSFX();
 }

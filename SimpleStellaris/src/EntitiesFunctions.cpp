@@ -666,6 +666,9 @@ void CreateSpaceObjects()
 	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpNebN.lock(), 1);
 
 	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
+	std::shared_ptr<sf::Text> spText = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen").lock()->FindChild("SeedText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock()->text;
+	spText->setString("Seed: "+std::to_string(WorldGenerator::getSeed()));
+	gel::CentreText(*spText, sf::Vector2f{0.f, 0.f});
 
 	WorldGenerator::worldGenerated = true;
 	signals::onChangeInputType(InputType::World);

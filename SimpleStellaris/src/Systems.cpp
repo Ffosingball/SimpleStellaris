@@ -120,22 +120,28 @@ void InputSystem::CancelCameraLock()
 
 void InputSystem::OpenPlanetDistrictsView() 
 {
-	if (wpDistrictsShown.lock() != nullptr)
-		signals::onDeleteSceneNode(wpDistrictsShown);
-
-	std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
-	if (spPlanetCom->planetDistrictsSeed != -1)
+	if (wpDistrictsOfPlanetShown.lock() != wpMoonOrPlanetSelected.lock())
 	{
-		std::shared_ptr<SceneNode> spDistrictsNode = WorldGenerator::GenerateDistricts(spPlanetCom->planetDistrictsSeed, wpMoonOrPlanetSelected.lock());
-		planetDistrictsPanel.lock()->AddChild(spDistrictsNode);
-		wpDistrictsShown = spDistrictsNode;
+		if (wpDistrictsShown.lock() != nullptr)
+			signals::onDeleteSceneNode(wpDistrictsShown);
+
+		wpDistrictsOfPlanetShown = wpMoonOrPlanetSelected;
+		std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
+		if (spPlanetCom->planetDistrictsSeed != -1)
+		{
+			std::shared_ptr<SceneNode> spDistrictsNode = WorldGenerator::GenerateDistricts(spPlanetCom->planetDistrictsSeed, wpMoonOrPlanetSelected.lock());
+			planetDistrictsPanel.lock()->AddChild(spDistrictsNode);
+			wpDistrictsShown = spDistrictsNode;
+		}
+
+		planetDistrictsPanel.lock()->GetEntity().lock()->hidden = false;
+		districtViewOpened = true;
+
+		planetNameText.lock()->text->setString(spPlanetCom->planetName);
+		gel::CentreText(*planetNameText.lock()->text, sf::Vector2f { 0.f, 0.f });
+
+		musicSystem->PlayOpenDistrictViewSFX();
 	}
-
-	planetDistrictsPanel.lock()->GetEntity().lock()->hidden = false;
-	districtViewOpened = true;
-
-	planetNameText.lock()->text->setString(spPlanetCom->planetName);
-	gel::CentreText(*planetNameText.lock()->text, sf::Vector2f { 0.f, 0.f });
 }
 
 
@@ -145,10 +151,13 @@ void InputSystem::ClosePlanetDistrictsView()
 	{
 		signals::onDeleteSceneNode(wpDistrictsShown);
 		wpDistrictsShown = {};
+		wpDistrictsOfPlanetShown = {};
 	}
 
 	planetDistrictsPanel.lock()->GetEntity().lock()->hidden = true;
 	districtViewOpened = false;
+
+	musicSystem->PlayCloseDistrictViewSFX();
 }
 
 
@@ -353,6 +362,8 @@ void InputSystem::ChangeEscapeScreen()
 			ECSGame::Instance().SetMousePosition(sf::Vector2i{(int)pos.x,(int)pos.y});
 		}
 	}
+
+	musicSystem->PlayOpenEscapePanelSFX();
 }
 
 
@@ -1463,6 +1474,10 @@ void MusicSystem::Initialize()
 	spPauseSimulationSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("PauseSFX").lock());
 	spLockCameraSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("LockCameraSFX").lock());
 	spUnlockCameraSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("UnlockCameraSFX").lock());
+	spOpenEscapeScreenSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("OpenEscapeScreenSFX").lock());
+	spButtonPressedSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("ButtonPressedSFX").lock());
+	spDistrictViewOpenedSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("DistrictViewOpenedSFX").lock());
+	spDistrictViewClosedSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("DistrictViewClosedSFX").lock());
 
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient1"));
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient2"));
@@ -1538,6 +1553,30 @@ void MusicSystem::PlayUnlockCameraSFX()
 {
 	spUnlockCameraSound->setVolume(overallVolume * sfxVolume * 100);
 	spUnlockCameraSound->play();
+}
+
+void MusicSystem::PlayOpenDistrictViewSFX()
+{
+	spDistrictViewOpenedSound->setVolume(overallVolume * sfxVolume * 100);
+	spDistrictViewOpenedSound->play();
+}
+
+void MusicSystem::PlayCloseDistrictViewSFX()
+{
+	spDistrictViewClosedSound->setVolume(overallVolume * sfxVolume * 100);
+	spDistrictViewClosedSound->play();
+}
+
+void MusicSystem::PlayPressedButtonSFX()
+{
+	spButtonPressedSound->setVolume(overallVolume * sfxVolume * 100);
+	spButtonPressedSound->play();
+}
+
+void MusicSystem::PlayOpenEscapePanelSFX()
+{
+	spOpenEscapeScreenSound->setVolume(overallVolume * sfxVolume * 100);
+	spOpenEscapeScreenSound->play();
 }
 
 

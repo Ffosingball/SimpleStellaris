@@ -1691,6 +1691,38 @@ const void ResourceManager::LoadAllResources()
 			else
 				soundBuffers.emplace(sfxName, soundBuf);
 		}
+		{
+			std::string sfxName{ "OpenEscapeScreenSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/escPressed.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "DistrictViewOpenedSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/districtOpen.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "ButtonPressedSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/buttonClick.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
+		{
+			std::string sfxName{ "DistrictViewClosedSFX" };
+			std::shared_ptr<sf::SoundBuffer> soundBuf = std::make_shared<sf::SoundBuffer>();
+			if (!soundBuf->loadFromFile("media/sfx/districtViewClosed.mp3"))
+				std::cout << "No sfx found: " + sfxName + "\n";
+			else
+				soundBuffers.emplace(sfxName, soundBuf);
+		}
 
 		resourcesLoaded = true;
 	}
