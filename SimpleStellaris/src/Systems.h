@@ -20,34 +20,17 @@ enum class InputType
 };
 
 
+void ButtonHovered(std::shared_ptr<Entity> spEntity);
+void ButtonUnhovered(std::shared_ptr<Entity> spEntity);
+void ButtonReleased(std::shared_ptr<Entity> spEntity);
+void ButtonClicked(std::shared_ptr<Entity> spEntity);
+
+
 //Input system processes inputs
 class InputSystem :public System 
 {
 public:
 	virtual ~InputSystem() = default;
-
-	//Buttons functions
-	void DistrictHovered(std::shared_ptr<Entity> spEntity);
-	void DistrictUnhovered(std::shared_ptr<Entity> spEntity);
-	void ButtonHovered(std::shared_ptr<Entity> spEntity);
-	void ButtonUnhovered(std::shared_ptr<Entity> spEntity);
-	void ButtonReleased(std::shared_ptr<Entity> spEntity);
-	void ButtonClicked(std::shared_ptr<Entity> spEntity);
-	void ResumeButtonPressed(std::shared_ptr<Entity> spEntity);
-	void ExitButtonButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Slower3ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Slower2ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Slower1ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void PlayingButtonPressed(std::shared_ptr<Entity> spEntity);
-	void StoppedButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Faster3ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Faster2ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Faster1ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity);
-	void NextMusicButtonPressed(std::shared_ptr<Entity> spEntity);
-	void StopMusicButtonPressed(std::shared_ptr<Entity> spEntity);
-	void ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity);
-	void MixMusicButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	std::shared_ptr<MusicSystem> musicSystem;
 
@@ -69,6 +52,20 @@ private:
 	void OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button);
 	void OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button);
 	void OnChangeInputType(InputType inputType);
+
+	//Buttons functions
+	void DistrictHovered(std::shared_ptr<Entity> spEntity);
+	void DistrictUnhovered(std::shared_ptr<Entity> spEntity);
+	void ResumeButtonPressed(std::shared_ptr<Entity> spEntity);
+	void ExitButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower3ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower2ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower1ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void PlayingButtonPressed(std::shared_ptr<Entity> spEntity);
+	void StoppedButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster3ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster2ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster1ButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	void ZoomCamera(int direction);
 	void EnterSystemOverview();
@@ -107,8 +104,6 @@ private:
 
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
-	std::weak_ptr<Entity> wpStopMusicButton;
-	std::weak_ptr<Entity> wpResumeMusicButton;
 
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;
@@ -210,7 +205,7 @@ public:
 	void PlayUnlockCameraSFX();
 	void PlayOpenDistrictViewSFX();
 	void PlayCloseDistrictViewSFX();
-	void PlayPressedButtonSFX();
+	void PlayPressedButtonSFX(std::shared_ptr<Entity>);
 	void PlayOpenEscapePanelSFX();
 
 	void PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity);
@@ -227,6 +222,12 @@ private:
 
 	void SetupMusic(std::shared_ptr<sf::Music> currentlyPlayingMusic);
 
+	void PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void NextMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void StopMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+	void MixMusicButtonPressed(std::shared_ptr<Entity> spEntity);
+
 	std::shared_ptr<sf::Sound> spEnterSelectedSystemSound;
 	std::shared_ptr<sf::Sound> spExitSelectedSystemSound;
 	std::shared_ptr<sf::Sound> spPauseSimulationSound;
@@ -241,6 +242,8 @@ private:
 	std::vector<std::weak_ptr<sf::Music>> listOfMusicToPlay;
 
 	std::weak_ptr<sf::Music> wpSelectedObjectSound;
+	std::weak_ptr<Entity> wpStopMusicButton;
+	std::weak_ptr<Entity> wpResumeMusicButton;
 
 	//Volume is in range from 0 to 1
 	float sfxVolume{ 0.7f };

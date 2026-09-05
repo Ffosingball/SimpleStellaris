@@ -161,7 +161,7 @@ void CreateDebugText()
 //Creates UI of the game
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateUI(std::shared_ptr<InputSystem> inputSys) 
+void CreateUI() 
 {
 	sf::Vector2f iconSize{100.f, 100.f};
 	sf::Vector2f uiTopPartSize{ 1000.f, 140.f };

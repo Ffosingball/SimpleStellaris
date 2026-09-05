@@ -75,8 +75,6 @@ void InputSystem::Initialize()
 	wpEscapeScreenNode = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen");
 	wpStoppedButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("StoppedButton").lock()->GetEntity();
 	wpPlayingButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
-	wpStopMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("StopButton").lock()->GetEntity();
-	wpResumeMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("ResumeButton").lock()->GetEntity();
 
 	wpInputRootNode = ECSGame::Instance().GetUINode();
 
@@ -88,6 +86,41 @@ void InputSystem::Initialize()
 
 	previousFrameOverview = OverviewType::Space;
 	systemName = "InputSystem";
+
+	//Subscribe buttons
+	ButtonSignals::OnResumeButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnExitButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnSlower3ButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnSlower2ButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnSlower1ButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnPlayingButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnStoppedButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnFaster3ButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnFaster2ButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnFaster1ButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnPreviousMusicButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnNextMusicButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnStopMusicButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnResumeMusicButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnMixMusicButtonPressed.connect(&SetupPressedButtonTexture);
+
+	ButtonSignals::OnResumeButtonPressed.connect(&InputSystem::ResumeButtonPressed, this);
+	ButtonSignals::OnExitButtonPressed.connect(&InputSystem::ExitButtonPressed, this);
+	ButtonSignals::OnSlower3ButtonPressed.connect(&InputSystem::Slower3ButtonPressed, this);
+	ButtonSignals::OnSlower2ButtonPressed.connect(&InputSystem::Slower2ButtonPressed, this);
+	ButtonSignals::OnSlower1ButtonPressed.connect(&InputSystem::Slower1ButtonPressed, this);
+	ButtonSignals::OnPlayingButtonPressed.connect(&InputSystem::PlayingButtonPressed, this);
+	ButtonSignals::OnStoppedButtonPressed.connect(&InputSystem::StoppedButtonPressed, this);
+	ButtonSignals::OnFaster3ButtonPressed.connect(&InputSystem::Faster3ButtonPressed, this);
+	ButtonSignals::OnFaster2ButtonPressed.connect(&InputSystem::Faster2ButtonPressed, this);
+	ButtonSignals::OnFaster1ButtonPressed.connect(&InputSystem::Faster1ButtonPressed, this);
+
+	ButtonSignals::OnDistrictHovered.connect(&InputSystem::DistrictHovered, this);
+	ButtonSignals::OnDistrictUnhovered.connect(&InputSystem::DistrictUnhovered, this);
+	ButtonSignals::OnButtonHovered.connect(&ButtonHovered);
+	ButtonSignals::OnButtonUnhovered.connect(&ButtonUnhovered);
+	ButtonSignals::OnButtonReleased.connect(&ButtonReleased);
+	ButtonSignals::OnButtonClicked.connect(&ButtonClicked);
 }
 
 
@@ -1492,6 +1525,32 @@ void MusicSystem::Initialize()
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient11"));
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient12"));
 
+	wpStopMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("StopButton").lock()->GetEntity();
+	wpResumeMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("ResumeButton").lock()->GetEntity();
+
+	//Subscribe buttons
+	ButtonSignals::OnResumeButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnExitButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnSlower3ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnSlower2ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnSlower1ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnPlayingButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnStoppedButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnFaster3ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnFaster2ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnFaster1ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnPreviousMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnNextMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnStopMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnResumeMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnMixMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+
+	ButtonSignals::OnPreviousMusicButtonPressed.connect(&MusicSystem::PreviousMusicButtonPressed, this);
+	ButtonSignals::OnNextMusicButtonPressed.connect(&MusicSystem::NextMusicButtonPressed, this);
+	ButtonSignals::OnStopMusicButtonPressed.connect(&MusicSystem::StopMusicButtonPressed, this);
+	ButtonSignals::OnResumeMusicButtonPressed.connect(&MusicSystem::ResumeMusicButtonPressed, this);
+	ButtonSignals::OnMixMusicButtonPressed.connect(&MusicSystem::MixMusicButtonPressed, this);
+
 	MixMusicList();
 }
 
@@ -1567,7 +1626,7 @@ void MusicSystem::PlayCloseDistrictViewSFX()
 	spDistrictViewClosedSound->play();
 }
 
-void MusicSystem::PlayPressedButtonSFX()
+void MusicSystem::PlayPressedButtonSFX(std::shared_ptr<Entity>)
 {
 	spButtonPressedSound->setVolume(overallVolume * sfxVolume * 100);
 	spButtonPressedSound->play();

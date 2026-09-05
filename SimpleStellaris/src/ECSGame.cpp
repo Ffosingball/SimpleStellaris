@@ -21,16 +21,12 @@
 void ECSGame::Init(sf::RenderWindow& renderWindow) 
 {
 	renderWindowPtr = &renderWindow;
-	//Create scene root and ui
-	root = std::make_shared<SceneNode>();
-	sceneNode = std::make_shared<SceneNode>();
-	root->AddChild(sceneNode);
-	uiNode = std::make_shared<SceneNode>();
-	root->AddChild(uiNode);
+	signals::onSceneLoaded.connect(&ECSGame::OnSceneLoaded, this);
+
 	//I noticed, that random function generates same random numbers every time when I start
-	//my game again, so to solve this issue I seed it with current time at the start of the
-	//game
+	//my game again, so to solve this issue I seed it with current time at the start of the game
 	std::srand((unsigned int)std::time(nullptr));
+
 	//Get window size
 	windowSize = renderWindow.getSize();
 	windowRelationToDefault = (float)windowSize.y / 1600.f;
@@ -51,24 +47,11 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	spInputSystem->musicSystem = spMusicSystem;
 	WorldGenerator::Instance().Initialize(spInputSystem);
 
-	//Create nodes, in which i will sort new entities which will be created during the game
-	std::weak_ptr<Entity> wpCameras = entityManager.NewEntity("Cameras");
-	sceneNode->AddChild(std::make_shared<SceneNode>(wpCameras));
-
-	std::weak_ptr<Entity> wpObjOrb = entityManager.NewEntity("ObjectOrbits");
-	uiNode->AddChild(std::make_shared<SceneNode>(wpObjOrb));
-
-	std::weak_ptr<Entity> wpSysIc = entityManager.NewEntity("SystemIcons");
-	uiNode->AddChild(std::make_shared<SceneNode>(wpSysIc));
-	
-	//Initialize all cameras
-	InitializeAllCameras(windowSize);
-	//Setup mouseIcon
-	InitializeMouseIcon();
-	//Initialize game ui
-	CreateUI(spInputSystem);
-	//Create debug text
-	CreateDebugText();
+	//Add all scenes
+	sceneManager.AddScene("SpaceWorldScene", InitializeSpaceWorldScene);
+	//Load scene
+	signals::onLoadScene("SpaceWorldScene");
+	root = newRoot;
 
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)
@@ -78,14 +61,8 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	deleteSystem.Initialize();
 
 	//Set gameState
-	gameState = GameState::Pause;
+	gameState = GameState::Stopped;
 	overviewType = OverviewType::Space;
-
-	uiNode->ChangeChildOrder(uiNode->FindChild("MouseIcon").lock(), (int)uiNode->GetAllChildren().size()-1);
-
-	//Generate world in a separate thread
-	std::thread generateWorldAsync(CreateSpaceObjects);
-	generateWorldAsync.detach();
 }
 
 
@@ -130,11 +107,19 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 #endif
 	}
 
+	//Process loading scenes
+	if (newRoot != root)
+		signals::onDeleteSceneNode(root);
+
 	//Process entities removal
 	deleteSystem.Update(root, deltaTime);
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 #endif
+
+	//Process loading scenes
+	if (newRoot != root)
+		root = newRoot;
 }
 
 

@@ -48,7 +48,7 @@ void InputSystem::DistrictUnhovered(std::shared_ptr<Entity> spEntity)
 }
 
 
-void InputSystem::ButtonHovered(std::shared_ptr<Entity> spEntity) 
+void ButtonHovered(std::shared_ptr<Entity> spEntity) 
 {
 	//std::cout << "Change hovered texture!\n";
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
@@ -67,7 +67,7 @@ void InputSystem::ButtonHovered(std::shared_ptr<Entity> spEntity)
 }
 
 
-void InputSystem::ButtonUnhovered(std::shared_ptr<Entity> spEntity)
+void ButtonUnhovered(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
@@ -85,7 +85,7 @@ void InputSystem::ButtonUnhovered(std::shared_ptr<Entity> spEntity)
 }
 
 
-void InputSystem::ButtonReleased(std::shared_ptr<Entity> spEntity)
+void ButtonReleased(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
@@ -94,7 +94,7 @@ void InputSystem::ButtonReleased(std::shared_ptr<Entity> spEntity)
 }
 
 
-void InputSystem::ButtonClicked(std::shared_ptr<Entity> spEntity)
+void ButtonClicked(std::shared_ptr<Entity> spEntity)
 {
 	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
 	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
@@ -103,131 +103,95 @@ void InputSystem::ButtonClicked(std::shared_ptr<Entity> spEntity)
 }
 
 
-void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity)
-{
-	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
-	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
-	spRecShape->shape.setTexture(spButton->hoveredPressedTexture.lock().get());
-	spRecShape->shape.setTextureRect(spButton->hoveredPressedIntRect);
-}
-
-
 void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity) 
 {
-	SetupPressedButtonTexture(spEntity);
 	ChangeEscapeScreen();
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
-void InputSystem::ExitButtonButtonPressed(std::shared_ptr<Entity> spEntity)
+void InputSystem::ExitButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	ECSGame::Instance().CloseGame();
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::Slower3ButtonPressed(std::shared_ptr<Entity> spEntity) 
 {
-	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 100);
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::Slower2ButtonPressed(std::shared_ptr<Entity> spEntity) 
 {
-	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 10);
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::Slower1ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() - 1);
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::PlayingButtonPressed(std::shared_ptr<Entity> spEntity) 
 {
-	SetupPressedButtonTexture(spEntity);
 	PauseSimulation();
 }
 
 
 void InputSystem::StoppedButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
 	ResumeSimulation();
 }
 
 
 void InputSystem::Faster3ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 100);
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::Faster2ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 10);
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
 void InputSystem::Faster1ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
 	ECSGame::Instance().SetSimulationSpeed(ECSGame::Instance().GetSimulationSpeed() + 1);
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
-void InputSystem::PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity)
+void MusicSystem::PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
-	musicSystem->PlayPreviousMusic();
-	musicSystem->PlayPressedButtonSFX();
+	PlayPreviousMusic();
 }
 
 
-void InputSystem::NextMusicButtonPressed(std::shared_ptr<Entity> spEntity)
+void MusicSystem::NextMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
-	musicSystem->PlayNextMusic();
-	musicSystem->PlayPressedButtonSFX();
+	PlayNextMusic();
 }
 
 
-void InputSystem::StopMusicButtonPressed(std::shared_ptr<Entity> spEntity) 
+void MusicSystem::StopMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
-	musicSystem->StopMusic();
+	StopMusic();
 	wpStopMusicButton.lock()->hidden = true;
 	wpResumeMusicButton.lock()->hidden = false;
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
-void InputSystem::ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity) 
+void MusicSystem::ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
-	musicSystem->ResumeMusic();
+	ResumeMusic();
 	wpStopMusicButton.lock()->hidden = false;
 	wpResumeMusicButton.lock()->hidden = true;
-	musicSystem->PlayPressedButtonSFX();
 }
 
 
-void InputSystem::MixMusicButtonPressed(std::shared_ptr<Entity> spEntity)
+void MusicSystem::MixMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
-	SetupPressedButtonTexture(spEntity);
-	musicSystem->MixMusicList();
-	musicSystem->PlayPressedButtonSFX();
+	MixMusicList();
 }

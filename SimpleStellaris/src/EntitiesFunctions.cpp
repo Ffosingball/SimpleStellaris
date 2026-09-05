@@ -89,6 +89,15 @@ std::weak_ptr<Entity> CreateNewEntityAt(const std::shared_ptr<SceneNode> parentN
 }
 
 
+void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity)
+{
+	std::shared_ptr<ButtonComponent> spButton = spEntity->FindComponent<ButtonComponent>().lock();
+	std::shared_ptr<RectangleShapeComponent> spRecShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+	spRecShape->shape.setTexture(spButton->hoveredPressedTexture.lock().get());
+	spRecShape->shape.setTextureRect(spButton->hoveredPressedIntRect);
+}
+
+
 
 //IntRect means which part of the texture to draw
 //Worst case: O(1)

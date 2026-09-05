@@ -48,9 +48,11 @@ std::shared_ptr<SystemPropertiesComponent> GetSystemPropertiesFromSpaceMap();
 bool IsWorldPosInsideOfCamera(std::shared_ptr<CameraComponent> spCamCom, sf::Vector2f worldPos);
 //Worst case: O(N) where N is number of months in a year
 void GetDateFromDays(int daysPast, int& day, std::string& month, int& year);
+void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity);
 
 
-//Initializing functions
+//Initializing scene functions
+void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode);
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
 void InitializeMouseIcon();
@@ -61,7 +63,7 @@ void CreateSpaceObjects();
 void CreateDebugText();
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateUI(std::shared_ptr<InputSystem> inputSys);
+void CreateUI();
 //Worst case: O(12N+4M) where N is number of components available in game and M number of components
 //available in game
 void InitializeAllCameras(const sf::Vector2u& windowSize);

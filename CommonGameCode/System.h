@@ -52,4 +52,7 @@ namespace signals
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityCreated;
 	inline sigslot::signal<std::weak_ptr<Entity>> onEntityDestroyed;
 	inline sigslot::signal<std::weak_ptr<SceneNode>> onDeleteSceneNode;
+	inline sigslot::signal<std::string> onLoadScene;
+	inline sigslot::signal<std::string> onLoadSceneAsync;
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onSceneLoaded;
 }

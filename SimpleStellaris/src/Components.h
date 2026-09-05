@@ -14,6 +14,32 @@
 #include <functional>
 
 
+//List of all possible button signals
+namespace ButtonSignals
+{
+	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictHovered;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictUnhovered;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonHovered;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonUnhovered;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonReleased;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonClicked;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnResumeButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnExitButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnSlower3ButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnSlower2ButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnSlower1ButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnPlayingButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnStoppedButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnFaster3ButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnFaster2ButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnFaster1ButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnPreviousMusicButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnNextMusicButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnStopMusicButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnResumeMusicButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnMixMusicButtonPressed;
+}
+
 
 //Component which tells that the object is a system of other object (for example
 // star system or planetary system)
@@ -252,15 +278,15 @@ public:
 	sf::Vector2f buttonSize{ 0.f, 0.f };
 	bool enabled{ true };
 	//Called if mouse is over the button and it pressed lmb or A(joystick)
-	std::function<void(std::shared_ptr<Entity>)> onButtonPressed;
+	sigslot::signal<std::shared_ptr<Entity>>& onButtonPressed;
 	//Called if mouse enters button area
-	std::function<void(std::shared_ptr<Entity>)> onButtonHovered;
+	sigslot::signal<std::shared_ptr<Entity>>& onButtonHovered;
 	//Called if mouse leaves button area
-	std::function<void(std::shared_ptr<Entity>)> onButtonUnhovered;
+	sigslot::signal<std::shared_ptr<Entity>>& onButtonUnhovered;
 	//Called when button is released
-	std::function<void(std::shared_ptr<Entity>)> onButtonReleased;
+	sigslot::signal<std::shared_ptr<Entity>>& onButtonReleased;
 	//Called when button is released and mouse is over the button
-	std::function<void(std::shared_ptr<Entity>)> onButtonClicked;
+	sigslot::signal<std::shared_ptr<Entity>>& onButtonClicked;
 	bool isPressed{ false };
 	bool isHovered{ false };
 

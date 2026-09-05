@@ -10,6 +10,7 @@
 #include <SFML/Graphics.hpp>
 #include "CompilerInstructions.h"
 #include "GameState.h"
+#include "SceneManager.h"
 
 //If you need to change a whole scene just call change scene method
 
@@ -34,6 +35,8 @@ public:
 	float GetDeltaTime() const { return deltaTime; }
 	//Worst case: O(1)
 	EntityManager& GetEntityManager() { return entityManager; }
+	//Worst case: O(1)
+	SceneManager& GetSceneManager() { return sceneManager; }
 	//Worst case: O(1)
 	std::shared_ptr<SceneNode> GetRoot() { return root; }
 	//Worst case: O(1)
@@ -94,10 +97,16 @@ private:
 
 	ECSGame() = default;
 
+	void OnSceneLoaded(std::shared_ptr<SceneNode> newRoot) { this->newRoot = newRoot; };
+
 	EntityManager entityManager;
+	SceneManager sceneManager;
+
 	std::shared_ptr<SceneNode> root;
 	std::shared_ptr<SceneNode> uiNode;
 	std::shared_ptr<SceneNode> sceneNode;
+	std::shared_ptr<SceneNode> newRoot;
+
 	//List of all systems is here
 	std::vector<std::shared_ptr<System>> systems;
 

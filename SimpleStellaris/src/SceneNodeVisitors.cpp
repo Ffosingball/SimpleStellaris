@@ -374,8 +374,7 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     {
                         //std::cout << "Call button hovered!\n";
                         spButton->isHovered = true;
-                        if(spButton->onButtonHovered)
-                            spButton->onButtonHovered(spEntity);
+                        spButton->onButtonHovered(spEntity);
                     }
                 }
                 else
@@ -383,8 +382,7 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     if (spButton->isHovered) 
                     {
                         spButton->isHovered = false;
-                        if (spButton->onButtonUnhovered)
-                            spButton->onButtonUnhovered(spEntity);
+                        spButton->onButtonUnhovered(spEntity);
                     }
                 }
 
@@ -393,8 +391,7 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     if (spButton->isHovered && !spButton->isPressed) 
                     {
                         spButton->isPressed= true;
-                        if (spButton->onButtonPressed)
-                            spButton->onButtonPressed(spEntity);
+                        spButton->onButtonPressed(spEntity);
 
                         inputSystem.lmbPressed = false;
                     }
@@ -404,13 +401,11 @@ void SceneNodeVisitorButton::ProcessNode(SceneNode& node)
                     if (spButton->isPressed)
                     {
                         spButton->isPressed = false;
-                        if (spButton->onButtonReleased)
-                            spButton->onButtonReleased(spEntity);
+                        spButton->onButtonReleased(spEntity);
 
                         if (spButton->isHovered)
                         {
-                            if (spButton->onButtonClicked)
-                                spButton->onButtonClicked(spEntity);
+                            spButton->onButtonClicked(spEntity);
                         }
                     }
                 }
