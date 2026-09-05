@@ -29,13 +29,13 @@ private:
 class SceneNodeVisitorButton : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorButton(InputSystem& inputSystem, sf::Vector2f mousePos, std::weak_ptr<Entity> wpFrontmost) : inputSystem{ inputSystem }, mousePosition{ mousePos }, wpFrontmostEntity{wpFrontmost} {}
+    SceneNodeVisitorButton(UISystem& uiSystem, sf::Vector2f mousePos, std::weak_ptr<Entity> wpFrontmost) : uiSystem{ uiSystem }, mousePosition{ mousePos }, wpFrontmostEntity{wpFrontmost} {}
 
     void ProcessNode(SceneNode& node) override;
 
 private:
     //References to input system
-    InputSystem& inputSystem;
+    UISystem& uiSystem;
     sf::Vector2f mousePosition;
     std::weak_ptr<Entity> wpFrontmostEntity;
 };

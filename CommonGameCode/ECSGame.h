@@ -40,9 +40,9 @@ public:
 	//Worst case: O(1)
 	std::shared_ptr<SceneNode> GetRoot() { return root; }
 	//Worst case: O(1)
-	std::shared_ptr<SceneNode> GetUINode() { return uiNode; }
+	std::shared_ptr<SceneNode> GetUINode() { return uiNode.lock(); }
 	//Worst case: O(1)
-	std::shared_ptr<SceneNode> GetSceneNode() { return sceneNode; }
+	std::shared_ptr<SceneNode> GetSceneNode() { return sceneNode.lock(); }
 	//Worst case: O(1)
 	GameState GetGameState() const { return gameState; }
 	//Worst case: O(1)
@@ -103,8 +103,8 @@ private:
 	SceneManager sceneManager;
 
 	std::shared_ptr<SceneNode> root;
-	std::shared_ptr<SceneNode> uiNode;
-	std::shared_ptr<SceneNode> sceneNode;
+	std::weak_ptr<SceneNode> uiNode;
+	std::weak_ptr<SceneNode> sceneNode;
 	std::shared_ptr<SceneNode> newRoot;
 
 	//List of all systems is here

@@ -7,6 +7,12 @@
 #include <iostream>
 
 
+System::System() 
+{
+	signals::onSceneRootChanged(&System::OnSceneChanged, this);
+}
+
+
 //DELETION SYSTEM
 //Worst case: O(1)
 void DeleteSystem::Initialize()

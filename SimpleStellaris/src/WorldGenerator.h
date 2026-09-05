@@ -97,8 +97,6 @@ private:
 
 public:
 
-	std::shared_ptr<InputSystem> spInputSystem;
-
 	//WorldGenerator() = delete;                    // Prevent construction
 	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
 	WorldGenerator& operator=(const WorldGenerator&) = delete;
@@ -118,7 +116,7 @@ public:
 	void SetWorldIsGenerated() { worldGenerated = true; }
 
 	//Call at the begining of the game
-	void Initialize(std::shared_ptr<InputSystem> spInputSystem);
+	void Initialize();
 	//Call every time when need to generate new world
 	void ResetGenerator(int seed, SpaceMapConfigurations spaceMapConfig);
 

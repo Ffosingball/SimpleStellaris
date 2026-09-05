@@ -10,11 +10,14 @@
 class System 
 {
 public:
+	System();
 	//If any of this functions will not be implemented in the child class
 	//it won't be used
 	virtual ~System() = default;
 	//To initialize the system
 	virtual void Initialize() {}
+	//To change pointers for new scene
+	virtual void OnSceneChanged() {}
 	//To end the system
 	virtual void Destroy() {}
 	//To update entities every frame
@@ -55,4 +58,5 @@ namespace signals
 	inline sigslot::signal<std::string> onLoadScene;
 	inline sigslot::signal<std::string> onLoadSceneAsync;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onSceneLoaded;
+	inline sigslot::signal<> onSceneRootChanged;
 }

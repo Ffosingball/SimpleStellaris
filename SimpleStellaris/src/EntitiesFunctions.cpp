@@ -418,283 +418,212 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 }
 
 
+//Setup text properties, where it should move. Also either xPos or yPos
+//should be not null!
+//Worst case: O(N+2M) where N is number of entities in game and M number of components in the text
+void SetupMoveTextProperties(const std::string textName, std::shared_ptr<SceneNode> nodeWithName, const float* xPos, const float* yPos, const sf::Vector2f velocity, const bool destroyAtTarget)
+{
+	//Get text by name
+	std::weak_ptr<SceneNode> wGNode = nodeWithName->FindChild(textName);
+	std::shared_ptr<Entity> sGText = wGNode.lock()->GetEntity().lock();
+	//Get components
+	std::shared_ptr<UIPartComponent> sGTextCom = sGText->FindComponent<UIPartComponent>().lock();
+	std::shared_ptr<MovementComponent> sGMovCom = sGText->FindComponent<MovementComponent>().lock();
 
-//Creates UI camera
-//Worst case: O(2N+M) where N is number of components available in game and M number of components
+	//Set animation properties for gameText
+	sGTextCom->moveIt = true;
+	sGTextCom->destroyAtTarget = destroyAtTarget;
+	//Set target position
+	if (xPos == nullptr)
+		sGTextCom->targetPosition = { sGText->GetTransformable().getPosition().x, *yPos };
+	else if (yPos == nullptr)
+		sGTextCom->targetPosition = { *xPos, sGText->GetTransformable().getPosition().y };
+	else
+		sGTextCom->targetPosition = { *xPos, *yPos };
+	//Set velocity
+	sGMovCom->velocity = velocity;
+}
+
+
+
+//This function creates a text
+//Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-void InitializeUICamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
+std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int fontSize, const std::string fontName, sf::Color color, std::weak_ptr<SceneNode> spCreateAt)
 {
-	//Create camera
-	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "UICamera").lock();
+	//create entity
+	std::shared_ptr<Entity> spUI;
+	if (spCreateAt.lock() != nullptr)
+		spUI = CreateNewEntityAt(spCreateAt.lock(), textName).lock();
+	else
+		spUI = CreateNewEntityAtUINode(textName).lock();
 	//Add component
-	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
-	//set camera properties
-	spCameraCom->view.setSize(static_cast<sf::Vector2f>(windowSize));
-	spCameraCom->view.setCenter(static_cast<sf::Vector2f>(windowSize) / 2.f);
+	//spUI->AddComponent<UIPartComponent>();
+	std::shared_ptr<TextComponent> spUICom = spUI->AddComponent<TextComponent>().lock();
+	//Get font from the resource manager
+	std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont(fontName).lock();
+	//Set text properties
+	spUICom->text = std::make_shared<sf::Text>(*fontPtr);
+	spUICom->text->setFillColor(color);
+	//spUICom->text->setOutlineColor(sf::Color(100,100,100));
+	//spUICom->text->setOutlineThickness(1.2f);
+	spUICom->text->setCharacterSize(fontSize);
+
+	return spUI;
 }
 
 
 
-//Creates a camera
-//Worst case: O(4N+M) where N is number of components available in game and M number of components
+//Creates text without moving animation
+//Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-void InitializeSpaceCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color = sf::Color{ 255,255,255 }, std::weak_ptr<SceneNode> spCreateAt)
 {
-	int cameraHeight = 300;
-	float cameraVelocity = 20.f;//14.f
-	float cameraZoomSpeed = 5.f;
-	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = {0.3f, 1.6f};
-	float outsideBordersMaxRenderDistance = 15.f;
-
-	//Create camera
-	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "SpaceCamera").lock();
-	//Add component
+	//Check if text exist then use existing one, otherwise create new one
+	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, fontName, color, spCreateAt);
+	spUI->AddComponent<MovementComponent>();
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
-	std::shared_ptr<MovementComponent> spMovementCom = spCamera->AddComponent<MovementComponent>().lock();
-	//set camera properties
-	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
-	//Set camera sizes
-	spCameraCom->view.setSize(sf::Vector2f{(float)cameraHeight*windowSizeRatio,(float)cameraHeight});
-	spCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
-	//Set zoom properties
-	spCameraCom->cameraSize = spCameraCom->view.getSize();
-	spCameraCom->zoomingBorders = zoomBorders;
-	spCameraCom->zoomingSpeed = cameraZoomSpeed;
-	spCameraCom->speedChange = velocityChange;
-	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
-	spCameraCom->moveCamera = true;
-	//Get movement com
-	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity};
+	//std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
+	std::shared_ptr<TextComponent> spTextCom = spUI->FindComponent<TextComponent>().lock();
+	//set text
+	spTextCom->text->setString(text);
+	//Set text position
+	if (centerText)
+		gel::CentreText(*spTextCom->text, sf::Vector2{ 0.f,0.f });
+
+	spUI->SetPosition(position);
+
+	return spUI;
 }
 
 
 
-//Creates a system camera
-//Worst case: O(4N+M) where N is number of components available in game and M number of components
-//available in game
-void InitializeSystemCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
+//Creates text with moving animation
+//Worst case: O(2N+9M+3K) where N is number entities in game and M number of components in text
+// and K in number of components available
+void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking = false, const bool isMoving = false, const float* targetX = nullptr, const float* targetY = nullptr, const sf::Vector2f velocity = { 0.f,0.f }, const bool skipOriginReset = false)
 {
-	int cameraHeight = 300;
-	float cameraVelocity = 20.f;//14.f
-	float cameraZoomSpeed = 15.f;
-	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = { 0.0001f, 8.f };
-	float outsideBordersMaxRenderDistance = 15.f;
-
-	//Create camera
-	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "SystemCamera").lock();
-	//Add component
+	//Create new text
+	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, "wakaeueu", sf::Color{ 255,255,255 });
 	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
-	std::shared_ptr<MovementComponent> spMovementCom = spCamera->AddComponent<MovementComponent>().lock();
-	//set camera properties
-	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
-	//Set camera sizes
-	spCameraCom->view.setSize(sf::Vector2f{ (float)cameraHeight * windowSizeRatio,(float)cameraHeight });
-	spCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
-	//Set zoom properties
-	spCameraCom->cameraSize = spCameraCom->view.getSize();
-	spCameraCom->zoomingBorders = zoomBorders;
-	spCameraCom->zoomingSpeed = cameraZoomSpeed;
-	spCameraCom->speedChange = velocityChange;
-	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
-	spCameraCom->moveCamera = false;
-	//Get movement com
-	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };
-}
-
-
-
-//Creates planet overview camera
-void InitializePlanetCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
-{
-	int cameraHeight = 1500;
-	float cameraVelocity = 120.f;//14.f
-	float cameraZoomSpeed = 20.f;
-	float velocityChange = 8.f;
-	sf::Vector2f zoomBorders = { 0.008f, 7.f };
-	float outsideBordersMaxRenderDistance = 15.f;
-
-	//Create camera
-	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "PlanetCamera").lock();
+	//std::shared_ptr<UIPartComponent> spUICom = spUI->FindComponent<UIPartComponent>().lock();
+	std::shared_ptr<TextComponent> spTextCom = spUI->FindComponent<TextComponent>().lock();
 	//Add component
-	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
-	std::shared_ptr<MovementComponent> spMovementCom = spCamera->AddComponent<MovementComponent>().lock();
-	//set camera properties
-	float windowSizeRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
-	//Set camera sizes
-	spCameraCom->view.setSize(sf::Vector2f{ (float)cameraHeight * windowSizeRatio,(float)cameraHeight });
-	spCameraCom->view.setCenter(sf::Vector2f{ 0.f,0.f });
-	//Set zoom properties
-	spCameraCom->cameraSize = spCameraCom->view.getSize();
-	spCameraCom->zoomingBorders = zoomBorders;
-	spCameraCom->zoomingSpeed = cameraZoomSpeed;
-	spCameraCom->speedChange = velocityChange;
-	spCameraCom->renderOutsideBoundsFor = outsideBordersMaxRenderDistance;
-	spCameraCom->moveCamera = false;
-	//Get movement com
-	spMovementCom->velocity = sf::Vector2f{ cameraVelocity , cameraVelocity };
-}
-
-
-
-//Creates background camera
-//Worst case: O(2N+M) where N is number of components available in game and M number of components
-//available in game
-void InitializeBackgroundCamera(std::shared_ptr<SceneNode> spCameraNode, const sf::Vector2u& windowSize)
-{
-	//Create camera
-	std::shared_ptr<Entity> spCamera = CreateNewEntityAt(spCameraNode, "BackgroundCamera").lock();
-	//Add component
-	//Get component
-	std::shared_ptr<CameraComponent> spCameraCom = spCamera->AddComponent<CameraComponent>().lock();
-	//set camera properties
-	spCameraCom->view.setSize(static_cast<sf::Vector2f>(windowSize));
-	spCameraCom->view.setCenter(static_cast<sf::Vector2f>(windowSize) / 2.f);
-}
-
-//Worst case: O(12N+4M) where N is number of components available in game and M number of components
-//available in game
-void InitializeAllCameras(const sf::Vector2u& windowSize)
-{
-	std::shared_ptr<SceneNode> spAllCam = ECSGame::Instance().GetSceneNode()->FindChild("Cameras").lock();
-	
-	InitializeSpaceCamera(spAllCam, windowSize);
-	InitializeUICamera(spAllCam, windowSize);
-	InitializeBackgroundCamera(spAllCam, windowSize);
-	InitializeSystemCamera(spAllCam, windowSize);
-	InitializePlanetCamera(spAllCam, windowSize);
-}
-
-
-
-//Worst case: O(N) where N is number of entities in provided vector
-void outputChildrens(std::vector<std::shared_ptr<SceneNode>> v) 
-{
-	for (std::shared_ptr<SceneNode> n : v) 
+	std::shared_ptr<MovementComponent> spMovCom = spUI->AddComponent<MovementComponent>().lock();
+	//set text
+	spTextCom->text->setString(text);
+	//Set text position
+	spUI->SetPosition(position);
+	//Check if text should blink
+	if (isBlinking)
 	{
-		std::cout << n->GetEntity().lock()->GetName() << '\n';
+		//Set blinking properties
+		std::shared_ptr<UIPartComponent> spUICom = spUI->AddComponent<UIPartComponent>().lock();
+		spUICom->isBlinking = true;
+		spUICom->decreasingVisibility = false;
+		spUICom->blinkTime = spUICom->blinkingPeriod;
+		spUICom->flatLine = true;
 	}
+	//Check if text should move
+	if (isMoving)
+	{
+		//Set moving animation properties
+		SetupMoveTextProperties(name, ECSGame::Instance().GetUINode(), targetX, targetY, velocity, false);
+	}
+	//Reset text origin to center of the text if needed
+	if (!skipOriginReset)
+		gel::SetTextOrigin(*(spTextCom->text), position);
 }
 
 
 
-//Worst case: O(4N) where N is number of tiles to generate
-std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(std::shared_ptr<Entity> spTileMap)
+//Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
+//number of components available in game and K number of components to add to the text
+std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge)
 {
-	sf::Vector2i tilesInTileset{ 4,5 };
-	sf::Vector2i tilesSize{ 64,64 };
-	SpaceMapConfigurations& mapConfig = WorldGenerator::Instance().getSpaceMapConfig();
+	//static int counter = 0;
+	float fontSize = 22;
+	float nebulaFontSize = 40;
 
-	//Get component
-	std::shared_ptr<TileMapComponent> spTileMapCom = spTileMap->AddComponent<TileMapComponent>().lock();
-	//set tilemap properties
-	spTileMapCom->tileMap.tileSize = tilesSize;
-	spTileMapCom->tileMap.marginSize = sf::Vector2i{ 0,0 };
-	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
-	spTileMapCom->tileMap.numTilesInTileset = tilesInTileset;
-	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
-	spTileMapCom->tileMap.mapSize = mapConfig.backgroundSize;
-	spTileMapCom->tileMap.loadTilesFromFile = false;
-	spTileMapCom->tileMap.rotateTiles = true;
-	//Iitialize all tiles
-	spTileMapCom->tileMap.Initialize(WorldGenerator::Instance().GenerateGridOfTiles(mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::Instance().GenerateGridOfRandomNumbers(mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
-	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x* mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * mapConfig.backgroundSize.y / (-2.f)) });
+	float uiSize = ECSGame::Instance().GetUISize();
+	std::string name{ "UNDEFINED" };
+	std::shared_ptr<Entity> spEntityToFollow = spNodeToFollow->GetEntity().lock();
+	if (spEntityToFollow->HasComponent<ObjectSystemComponent>())
+		name = spEntityToFollow->FindComponent<ObjectSystemComponent>().lock()->systemName;
+	else if (spEntityToFollow->HasComponent<StarComponent>())
+		name = spEntityToFollow->FindComponent<StarComponent>().lock()->starName;
+	else if (spEntityToFollow->HasComponent<PlanetComponent>())
+		name = spEntityToFollow->FindComponent<PlanetComponent>().lock()->planetName;
+	else if (spEntityToFollow->HasComponent<NebulaComponent>())
+	{
+		name = spEntityToFollow->FindComponent<NebulaComponent>().lock()->nebulaName;
+		fontSize = nebulaFontSize;
+	}
+	else
+		name = entityName;
+	//Create text
+	std::shared_ptr<Entity> spText = InitializeText(entityName, name, (int)(fontSize * uiSize), sf::Vector2f{ 0,0 }, "Pixel", false, sf::Color::White, systemNode);
 
-	return spTileMapCom;
+	//Add component
+	std::shared_ptr<UIFollowerComponent> spUIFollower = spText->AddComponent<UIFollowerComponent>().lock();
+	spUIFollower->nodeToFollow = spNodeToFollow;
+	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
+
+	std::shared_ptr<TextComponent> spUIText = spText->FindComponent<TextComponent>().lock();
+	gel::CentreText(*spUIText->text, sf::Vector2f{ 0,fontSize * 2.f * uiSize });
+	spUIText->text->setFillColor(sf::Color(229, 229, 229));
+	spUIText->text->setOutlineColor(sf::Color(50, 50, 50));
+	spUIText->text->setOutlineThickness(1.f * uiSize);
+
+	//counter++;
+
+	return spText;
 }
 
 
-void ResetWorldGenerator() 
+//Creates icons for system overview
+//Worst case: O(4N+M) where N is number of components in entity and M number of components
+//available in game
+std::shared_ptr<Entity> CreateIconForSystemOverview(std::shared_ptr<SceneNode> nodeToFollow, std::shared_ptr<SceneNode> createIconIn, std::string iconTexture, std::string name, bool hideIfZoomLarge, sf::Vector2f iconSize, bool hideIfZoomSmall, sf::Vector2f zoomLevelAtWhichHide)
 {
-	SpaceMapConfigurations mapConfig;
-	int seed = (unsigned int)gel::Randf(1000000.f, 9999999.f);
-	//std::cout << "Resetting in functions\n";
-	WorldGenerator::Instance().ResetGenerator(seed, mapConfig);
+	//if (iconTexture == "CenterOfMassIcon")
+	//	std::cout << systemNode->GetCombinedParentsNames()<<'\n';
+	float uiSize = ECSGame::Instance().GetUISize();
+
+	//Create selection icon
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt(createIconIn, name).lock();
+	//Add component
+	//spSSIcon->AddComponent<UIPartComponent>();
+	std::shared_ptr<RectangleShapeComponent> spRectShape = spSSIcon->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShape, iconSize * uiSize, iconTexture);
+	std::shared_ptr<UIFollowerComponent> spUIFollower = spSSIcon->AddComponent<UIFollowerComponent>().lock();
+	spUIFollower->nodeToFollow = nodeToFollow;
+	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
+	spUIFollower->hideIfZoomSmallEnough = hideIfZoomSmall;
+	spUIFollower->zoomLevelsAtWhichHideEntity = zoomLevelAtWhichHide;
+
+	return spSSIcon;
 }
 
 
-//Creates space objects
-//Worst case: O(2N+4M) where N is number of systems + stars to create and M number of tiles to create
-void CreateSpaceObjects() 
+
+void CreateOrbitFor(std::shared_ptr<SceneNode> spParentNode, std::string name, bool inheritParentPosition, double orbitRadius, std::weak_ptr<SceneNode> wpNodeToFollow, float outlineThikness, sf::Color outlineColor, bool hideIfZoomLarge)
 {
-	float additionalSpaceForCameraBoundaries = 30.f;
-	std::weak_ptr<Entity> wpPlay = ECSGame::Instance().GetEntityManager().NewEntity("SpaceMap");
-	std::shared_ptr<SceneNode> spNode = std::make_shared<SceneNode>(wpPlay);
-	wpPlay.lock()->AddComponent<SystemPropertiesComponent>();
+	//Create orbit
+	std::shared_ptr<Entity> spOrbitE = CreateNewEntityAt(spParentNode, name).lock();
+	//Add component
+	//spOrbitE->AddComponent<UIPartComponent>();
+	spOrbitE->inheritParentPosition = inheritParentPosition;
 
-	std::weak_ptr<Entity> wpSysN = ECSGame::Instance().GetEntityManager().NewEntity("SystemNames");
-	std::shared_ptr<SceneNode> spSysNamesNode = std::make_shared<SceneNode>(wpSysN);
-	std::weak_ptr<Entity> wpNebN = ECSGame::Instance().GetEntityManager().NewEntity("NebulasNames");
-	std::shared_ptr<SceneNode> spNebNamesNode = std::make_shared<SceneNode>(wpNebN);
+	std::shared_ptr<OrbitVisualizerComponent> spOrbitVis = spOrbitE->AddComponent<OrbitVisualizerComponent>().lock();
+	spOrbitVis->orbitShape.setPointCount(300);
+	spOrbitVis->orbitShape.setOutlineColor(outlineColor);
+	spOrbitVis->orbitShape.setOutlineThickness(outlineThikness);
+	spOrbitVis->orbitShape.setFillColor(sf::Color(0, 0, 0, 0));
+	spOrbitVis->orbitSize = orbitRadius * 0.9996;
 
-	std::weak_ptr<Entity> wpBackgroundE = ECSGame::Instance().GetEntityManager().NewEntity("Background");
-	std::shared_ptr<SceneNode> spBackgroundNode = std::make_shared<SceneNode>(wpBackgroundE);
-	std::weak_ptr<Entity> wpNebul = ECSGame::Instance().GetEntityManager().NewEntity("Nebulas");
-	spBackgroundNode->AddChild(std::make_shared<SceneNode>(wpNebul));
-
-	//Reset world generator
-	//std::cout << "Should be resetted here!\n";
-	ResetWorldGenerator();
-	SpaceMapConfigurations& mapConfig = WorldGenerator::Instance().getSpaceMapConfig();
-
-	//Firstly generate background
-	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(wpBackgroundE.lock());
-	//Secondly generate nebulas
-	WorldGenerator::Instance().GenerateNebulas(spBackgroundNode->FindChild("Nebulas").lock(), spNebNamesNode);
-	//Thirdly generate systems and stars in it
-	WorldGenerator::Instance().GenerateSpaceMap(spNode);
-	//After put rectangleShape components for all objects
-	TextureAndNameSetter txSetter(WorldGenerator::Instance().getSeed(), spSysNamesNode);
-	txSetter.wpSpaceMapNode = spNode;
-	spNode->AcceptVisitor(txSetter);
-	//Lastly set camera boundaries
-	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromSpaceCameraEntity();
-	sf::Vector2f mapSize = static_cast<sf::Vector2f>(spTileMapCom->tileMap.getMapSize());
-	spCameraCom->horizontalBorders = { mapConfig.horizontalPosBoundaries.x - additionalSpaceForCameraBoundaries, mapConfig.horizontalPosBoundaries.y + additionalSpaceForCameraBoundaries };
-	spCameraCom->verticalBorders = { mapConfig.verticalPosBoundaries.x - additionalSpaceForCameraBoundaries, mapConfig.verticalPosBoundaries.y + additionalSpaceForCameraBoundaries };
-	spCameraCom->view.setCenter(sf::Vector2f{ 0.f, 0.f });
-
-	std::shared_ptr<CameraComponent> spCameraCom2 = GetCameraFromSystemCameraEntity();
-	spCameraCom2->horizontalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
-	spCameraCom2->verticalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
-	spCameraCom2->view.setCenter(sf::Vector2f{ 0.f, 0.f });
-
-	std::shared_ptr<CameraComponent> spCameraCom3 = GetCameraFromPlanetCameraEntity();
-	spCameraCom3->horizontalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
-	spCameraCom3->verticalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
-	spCameraCom3->view.setCenter(sf::Vector2f{ 0.f, 0.f });
-
-#ifdef OUTPUT_WORLD_STATISTICS
-	SceneNodeSpaceObjectsCounter visitor(mapConfig);
-	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
-	visitor.OutputAllData();
-#endif
-
-#ifdef OUTPUT_WORLD_MEMORY_USAGE
-	SceneNodeSpaceObjectsMemorySize visitor;
-	ECSGame::Instance().GetSceneRoot()->AcceptVisitor(visitor);
-	visitor.OutputAllData();
-#endif
-
-	ECSGame::Instance().GetSceneNode()->AddChild(spNode);
-	ECSGame::Instance().GetSceneNode()->AddChild(spBackgroundNode);
-	ECSGame::Instance().GetUINode()->AddChild(spSysNamesNode);
-	ECSGame::Instance().GetUINode()->AddChild(spNebNamesNode);
-
-	ECSGame::Instance().GetSceneNode()->ChangeChildOrder(wpBackgroundE.lock(), 0);
-	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpSysN.lock(), 0);
-	ECSGame::Instance().GetUINode()->ChangeChildOrder(wpNebN.lock(), 1);
-
-	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
-	std::shared_ptr<sf::Text> spText = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen").lock()->FindChild("SeedText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock()->text;
-	spText->setString("Seed: "+std::to_string(WorldGenerator::Instance().getSeed()));
-	gel::CentreText(*spText, sf::Vector2f{0.f, 0.f});
-
-	WorldGenerator::Instance().SetWorldIsGenerated();
-	signals::onChangeInputType(InputType::World);
+	std::shared_ptr<UIFollowerComponent> spUIFollower = spOrbitE->AddComponent<UIFollowerComponent>().lock();
+	spUIFollower->nodeToFollow = wpNodeToFollow;
+	spUIFollower->hideIfZoomLargeEnough = hideIfZoomLarge;
+	spUIFollower->hideIfOutsideOfCamera = false;
 }

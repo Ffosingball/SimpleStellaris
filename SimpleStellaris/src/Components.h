@@ -12,6 +12,7 @@
 #include "SceneNode.h"
 #include "GameState.h"
 #include <functional>
+#include <sigslot/signal.hpp>
 
 
 //List of all possible button signals
@@ -278,15 +279,15 @@ public:
 	sf::Vector2f buttonSize{ 0.f, 0.f };
 	bool enabled{ true };
 	//Called if mouse is over the button and it pressed lmb or A(joystick)
-	sigslot::signal<std::shared_ptr<Entity>>& onButtonPressed;
+	std::function<void(std::shared_ptr<Entity>)> onButtonPressed;
 	//Called if mouse enters button area
-	sigslot::signal<std::shared_ptr<Entity>>& onButtonHovered;
+	std::function<void(std::shared_ptr<Entity>)> onButtonHovered;
 	//Called if mouse leaves button area
-	sigslot::signal<std::shared_ptr<Entity>>& onButtonUnhovered;
+	std::function<void(std::shared_ptr<Entity>)> onButtonUnhovered;
 	//Called when button is released
-	sigslot::signal<std::shared_ptr<Entity>>& onButtonReleased;
+	std::function<void(std::shared_ptr<Entity>)> onButtonReleased;
 	//Called when button is released and mouse is over the button
-	sigslot::signal<std::shared_ptr<Entity>>& onButtonClicked;
+	std::function<void(std::shared_ptr<Entity>)> onButtonClicked;
 	bool isPressed{ false };
 	bool isHovered{ false };
 

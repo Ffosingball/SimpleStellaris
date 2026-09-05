@@ -7,6 +7,7 @@
 #include "System.h"
 #include <functional>
 #include "SceneManager.h"
+#include "ECSGame.h"
 
 SceneManager::SceneManager() 
 {
@@ -29,9 +30,12 @@ void SceneManager::OnLoadScene(std::string sceneName)
 
 void SceneManager::LoadSceneAsynchronously(std::string sceneName)
 {
-	std::shared_ptr<SceneNode> root = std::make_shared<SceneNode>();
-	std::shared_ptr<SceneNode> sceneNode = std::make_shared<SceneNode>();
+	std::weak_ptr<Entity> wpRoot = ECSGame::Instance().GetEntityManager().NewEntity(sceneName);
+	std::shared_ptr<SceneNode> root = std::make_shared<SceneNode>(wpRoot);
+	std::weak_ptr<Entity> wpScene = ECSGame::Instance().GetEntityManager().NewEntity("Scene");
+	std::shared_ptr<SceneNode> sceneNode = std::make_shared<SceneNode>(wpScene);
 	root->AddChild(sceneNode);
+	std::weak_ptr<Entity> wpScene = ECSGame::Instance().GetEntityManager().NewEntity("UI");
 	std::shared_ptr<SceneNode> uiNode = std::make_shared<SceneNode>();
 	root->AddChild(uiNode);
 

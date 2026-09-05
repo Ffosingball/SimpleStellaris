@@ -34,12 +34,9 @@ public:
 
 	std::shared_ptr<MusicSystem> musicSystem;
 
-	//Check if left mouse button or A on joystick is presed which controls button 
-	bool lmbPressed{ false };
-	bool buttonPressed{ false };
-
 private:
 	void Initialize() override;
+	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Signals functions
 	void OnKeyPressed(sf::Event::KeyPressed key);
@@ -78,7 +75,6 @@ private:
 	void ResumeSimulation();
 	void OpenPlanetDistrictsView();
 	void ClosePlanetDistrictsView();
-	void ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition);
 	void ChangeEscapeScreen();
 
 	std::weak_ptr<TextComponent> mousePosText;
@@ -124,6 +120,8 @@ private:
 	float selectNextButtonPeriod{ 0.15f };
 	float timePassedSinceSelectedButton{0.f};
 
+	bool spaceMapScene{ false };
+
 	OverviewType previousFrameOverview = OverviewType::None;
 	GameState lastGameState = GameState::None;
 	InputType inputType = InputType::Menu;
@@ -139,6 +137,7 @@ public:
 	virtual ~MovementSystem() = default;
 private:
 	void Initialize() override;
+	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 	//Set direction to the new one
 	void OnMoveCamera(sf::Vector2f direction) { this->direction = direction; }
@@ -151,12 +150,19 @@ public:
 	DifficultyLevel level{DifficultyLevel::Medium};
 	//float zoomLevelAtWhichHideSystemNames{1.1f};
 
+	bool lmbPressed{ false };
+	bool buttonPressed{ false };
+
 	virtual ~UISystem() = default;
 private:
 	void Initialize() override;
+	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
+	void OnLMBpressed();
+	void OnLMBreleased();
 	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
+	void ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition);
 
 	std::weak_ptr<TextComponent> nodesText;
 	int numOfNodes{ 0 };
@@ -187,6 +193,8 @@ private:
 	void OnClearInfoPanel();
 	void OnHideInfoPanel();
 	void OnShowInfoPanel();
+
+	bool spaceMapScene{ false };
 };
 
 
@@ -218,6 +226,7 @@ public:
 
 private:
 	void Initialize() override;
+	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void SetupMusic(std::shared_ptr<sf::Music> currentlyPlayingMusic);
@@ -265,6 +274,7 @@ public:
 	virtual ~GameSystem() = default;
 private:
 	void Initialize() override;
+	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 };
 
@@ -276,6 +286,7 @@ public:
 
 private:
 	void Initialize() override;
+	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
 
 	void OnAddNodeToSimulate(std::shared_ptr<SceneNode> nodeToSimulate);
@@ -286,6 +297,8 @@ private:
 	std::weak_ptr<TextComponent> dateText;
 
 	std::weak_ptr<SceneNode> wpSimulationNode;
+
+	bool spaceMapScene{ false };
 };
 
 
@@ -310,4 +323,6 @@ namespace signals
 	inline sigslot::signal<> onShowInfoPanel;
 	inline sigslot::signal<> onClearInfoPanel;
 	inline sigslot::signal<InputType> onChangeInputType;
+	inline sigslot::signal<> onLMBpressed;
+	inline sigslot::signal<> onLMBreleased;
 }

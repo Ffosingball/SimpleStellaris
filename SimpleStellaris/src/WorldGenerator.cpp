@@ -23,9 +23,8 @@
 #include "GetTextureNameFunctions.h"
 
 
-void WorldGenerator::Initialize(std::shared_ptr<InputSystem> spInputSystem)
+void WorldGenerator::Initialize()
 {
-	this->spInputSystem = spInputSystem;
 	oneThird = std::make_shared<std::uniform_int_distribution<int>>(0, 2);
 	from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
 	from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
@@ -798,7 +797,6 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 	int currentRow = 0;
 	bool generateIceCaps{false};
 	float iceCapChanceMul = 0.f;
-	std::shared_ptr<InputSystem> spInputSys = spInputSystem;
 	while (currentRow < numOfRows) 
 	{
 		//Check if ice cap should be generated on this row or not
@@ -842,13 +840,13 @@ std::shared_ptr<SceneNode> WorldGenerator::GenerateDistricts(int planetSeed, std
 			
 			std::shared_ptr<ButtonComponent> spButtonCom = spDistrict->AddComponent<ButtonComponent>().lock();
 			spButtonCom->buttonSize = mapConfig.districtSize*uiSize;
-			spButtonCom->onButtonHovered = [spInputSys](std::shared_ptr<Entity> entity)
+			spButtonCom->onButtonHovered = [](std::shared_ptr<Entity> entity)
 				{
-					spInputSys->DistrictHovered(entity);
+					ButtonSignals::OnDistrictHovered(entity);
 				};
-			spButtonCom->onButtonUnhovered = [spInputSys](std::shared_ptr<Entity> entity)
+			spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
 				{
-					spInputSys->DistrictUnhovered(entity);
+					ButtonSignals::OnDistrictUnhovered(entity);
 				};
 			currentColumn++;
 		}

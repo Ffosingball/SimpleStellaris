@@ -45,7 +45,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	systems.emplace_back(std::make_shared<GameSystem>());
 
 	spInputSystem->musicSystem = spMusicSystem;
-	WorldGenerator::Instance().Initialize(spInputSystem);
+	WorldGenerator::Instance().Initialize();
 
 	//Add all scenes
 	sceneManager.AddScene("SpaceWorldScene", InitializeSpaceWorldScene);
@@ -62,7 +62,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Set gameState
 	gameState = GameState::Stopped;
-	overviewType = OverviewType::Space;
+	overviewType = OverviewType::None;
 }
 
 
@@ -119,7 +119,13 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 
 	//Process loading scenes
 	if (newRoot != root)
+	{
 		root = newRoot;
+		sceneNode = root->FindChild("Scene");
+		uiNode = root->FindChild("UI");
+
+		signals::onSceneRootChanged();
+	}
 }
 
 
@@ -200,7 +206,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	std::shared_ptr<SceneNode> spBackgroundNode;
 	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
 	{
-		spBackgroundNode = sceneNode->FindChild("Background").lock();
+		spBackgroundNode = sceneNode.lock()->FindChild("Background").lock();
 
 		//Set renderWindow to render in the camera
 		std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
@@ -221,7 +227,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//Render all scene entities
 	SceneNodeVisitorRender visitor(renderWindow);
-	sceneNode->AcceptVisitor(visitor);
+	sceneNode.lock()->AcceptVisitor(visitor);
 
 	renderedNodes += visitor.renderedEntities;
 	//DEB: visitor.OutputRenderStatistics();
@@ -235,7 +241,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	//Render all UI entities
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
-	uiNode->AcceptVisitor(visitor2);
+	uiNode.lock()->AcceptVisitor(visitor2);
 
 	renderedNodes += visitor2.renderedEntities;
 	//DEB: visitor2.OutputRenderStatistics();

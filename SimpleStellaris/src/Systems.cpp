@@ -27,63 +27,6 @@ void InputSystem::Initialize()
 	signals::onJoystickButtonReleased.connect(&InputSystem::OnJoystickButtonReleased, this);
 	signals::onChangeInputType.connect(&InputSystem::OnChangeInputType, this);
 
-	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("MouseCoordsText").lock();
-	mousePosText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	debugTextes.push_back(mctPtr->GetEntity());
-
-	std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("WorldCoordsText").lock();
-	worldPosText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	debugTextes.push_back(wctPtr->GetEntity());
-
-	std::shared_ptr<SceneNode> wsnPtr = ECSGame::Instance().GetUINode()->FindChild("SystemsNearByText").lock();
-	systemsNearByText = wsnPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	debugTextes.push_back(wsnPtr->GetEntity());
-
-	std::shared_ptr<SceneNode> wfpsPtr = ECSGame::Instance().GetUINode()->FindChild("FPSText").lock();
-	fpsText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	debugTextes.push_back(wfpsPtr->GetEntity());
-
-	wfpsPtr = ECSGame::Instance().GetUINode()->FindChild("MouseOverUIText").lock();
-	mouseOverUIText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	debugTextes.push_back(wfpsPtr->GetEntity());
-
-	std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUINode()->FindChild("SelectedSystemIcon").lock();
-	selectedSystemIcon = wsiPtr->GetEntity().lock()->FindComponent<UIFollowerComponent>().lock();
-	selectedSystemEntity = wsiPtr->GetEntity().lock();
-	//debugTextes.push_back(wsiPtr->GetEntity());
-
-	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUINode()->FindChild("MouseIcon").lock();
-	mouseIconEntity = mouseNodeSP->GetEntity().lock();
-
-	std::shared_ptr<SceneNode> s2Ptr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
-	debugTextes.push_back(s2Ptr->GetEntity());
-
-	std::shared_ptr<SceneNode> s3Ptr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
-	debugTextes.push_back(s3Ptr->GetEntity());
-
-	std::shared_ptr<SceneNode> s4Ptr = ECSGame::Instance().GetUINode()->FindChild("RenderText").lock();
-	debugTextes.push_back(s4Ptr->GetEntity());
-
-	planetDistrictsPanel = ECSGame::Instance().GetUINode()->FindChild("PlanetDistrictsPart").lock();
-
-	std::shared_ptr<SceneNode> spText = planetDistrictsPanel.lock()->FindChild("DistrictTypeText").lock();
-	districtTypeText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
-
-	spText = planetDistrictsPanel.lock()->FindChild("PlanetNameText").lock();
-	planetNameText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
-
-	wpEscapeScreenNode = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen");
-	wpStoppedButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("StoppedButton").lock()->GetEntity();
-	wpPlayingButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
-
-	wpInputRootNode = ECSGame::Instance().GetUINode();
-
-	for (std::weak_ptr<Entity> e : debugTextes) 
-	{
-		e.lock()->hidden = true;
-	}
-	showDebugText = false;
-
 	previousFrameOverview = OverviewType::Space;
 	systemName = "InputSystem";
 
@@ -121,6 +64,74 @@ void InputSystem::Initialize()
 	ButtonSignals::OnButtonUnhovered.connect(&ButtonUnhovered);
 	ButtonSignals::OnButtonReleased.connect(&ButtonReleased);
 	ButtonSignals::OnButtonClicked.connect(&ButtonClicked);
+}
+
+
+void InputSystem::OnSceneChanged() 
+{
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
+	{
+		std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("MouseCoordsText").lock();
+		mousePosText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		debugTextes.push_back(mctPtr->GetEntity());
+
+		std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("WorldCoordsText").lock();
+		worldPosText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		debugTextes.push_back(wctPtr->GetEntity());
+
+		std::shared_ptr<SceneNode> wsnPtr = ECSGame::Instance().GetUINode()->FindChild("SystemsNearByText").lock();
+		systemsNearByText = wsnPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		debugTextes.push_back(wsnPtr->GetEntity());
+
+		std::shared_ptr<SceneNode> wfpsPtr = ECSGame::Instance().GetUINode()->FindChild("FPSText").lock();
+		fpsText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		debugTextes.push_back(wfpsPtr->GetEntity());
+
+		wfpsPtr = ECSGame::Instance().GetUINode()->FindChild("MouseOverUIText").lock();
+		mouseOverUIText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		debugTextes.push_back(wfpsPtr->GetEntity());
+
+		std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUINode()->FindChild("SelectedSystemIcon").lock();
+		selectedSystemIcon = wsiPtr->GetEntity().lock()->FindComponent<UIFollowerComponent>().lock();
+		selectedSystemEntity = wsiPtr->GetEntity().lock();
+		//debugTextes.push_back(wsiPtr->GetEntity());
+
+		std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUINode()->FindChild("MouseIcon").lock();
+		mouseIconEntity = mouseNodeSP->GetEntity().lock();
+
+		std::shared_ptr<SceneNode> s2Ptr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
+		debugTextes.push_back(s2Ptr->GetEntity());
+
+		std::shared_ptr<SceneNode> s3Ptr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
+		debugTextes.push_back(s3Ptr->GetEntity());
+
+		std::shared_ptr<SceneNode> s4Ptr = ECSGame::Instance().GetUINode()->FindChild("RenderText").lock();
+		debugTextes.push_back(s4Ptr->GetEntity());
+
+		planetDistrictsPanel = ECSGame::Instance().GetUINode()->FindChild("PlanetDistrictsPart").lock();
+
+		std::shared_ptr<SceneNode> spText = planetDistrictsPanel.lock()->FindChild("DistrictTypeText").lock();
+		districtTypeText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
+
+		spText = planetDistrictsPanel.lock()->FindChild("PlanetNameText").lock();
+		planetNameText = spText->GetEntity().lock()->FindComponent<TextComponent>().lock();
+
+		wpEscapeScreenNode = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen");
+		wpStoppedButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("StoppedButton").lock()->GetEntity();
+		wpPlayingButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
+
+		wpInputRootNode = ECSGame::Instance().GetUINode();
+
+		for (std::weak_ptr<Entity> e : debugTextes)
+		{
+			e.lock()->hidden = true;
+		}
+		showDebugText = false;
+
+		spaceMapScene = true;
+	}
+	else
+		spaceMapScene = false;
 }
 
 
@@ -497,8 +508,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				}
 			}
 
-			lmbPressed = true;
-			buttonPressed = true;
+			signals::onLMBpressed();
 			break;
 		case 1:
 			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
@@ -552,8 +562,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 		switch (button.button)
 		{
 		case 0:
-			lmbPressed = true;
-			buttonPressed = true;
+			signals::onLMBpressed();
 			break;
 		case 1:
 			if(ECSGame::Instance().GetGameState()!=GameState::Stopped)
@@ -585,7 +594,7 @@ void InputSystem::OnJoystickButtonReleased(sf::Event::JoystickButtonReleased but
 	switch (button.button)
 	{
 	case 0:
-		buttonPressed = false;
+		signals::onLMBreleased();
 		break;
 	}
 }
@@ -707,8 +716,7 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 					OpenPlanetDistrictsView();
 			}
 
-			lmbPressed = true;
-			buttonPressed = true;
+			signals::onLMBpressed();
 		}
 		else if (mouseButPressed.button == sf::Mouse::Button::Right)
 		{
@@ -732,8 +740,7 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 	{
 		if (mouseButPressed.button == sf::Mouse::Button::Left)
 		{
-			lmbPressed = true;
-			buttonPressed = true;
+			signals::onLMBpressed();
 		}
 	}
 
@@ -745,21 +752,8 @@ void InputSystem::OnMouseButtonReleased(sf::Event::MouseButtonReleased mouseButR
 {
 	if (mouseButReleased.button == sf::Mouse::Button::Left)
 	{
-		buttonPressed = false;
+		signals::onLMBreleased();
 	}
-}
-
-
-void InputSystem::ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition)
-{
-	//Check that pointer is valid
-	if (wpFrontmostNode.lock() != nullptr)
-	{
-		//std::cout <<"Frontmost entity is: "<< wpFrontmostNode.lock()->GetEntity().lock()->GetName()<<"\n";
-		ECSGame::Instance().SetIsMouseOverUI(true);
-	}
-	else
-		ECSGame::Instance().SetIsMouseOverUI(false);
 }
 
 
@@ -912,175 +906,164 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		}
 	}
 
-	//Deal with mouse movement
-	sf::Vector2i mousePosition = ECSGame::Instance().GetMousePosition();
-	std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
-
-	if (direction != sf::Vector2f{ 0,0 } && spCamCom->cameraLocked)
-		CancelCameraLock();
-
-	mousePosText.lock()->text->setString("Window pos: " + std::to_string(mousePosition.x) + "; " + std::to_string(mousePosition.y));
-	sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(spCamCom->view, mousePosition);
-	//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
-	worldPosText.lock()->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
-
-	//Now get the frontmost ui part over which mouse is 
-	SceneNodeVisitorFrontmostMouseHit frontVisitor(sf::Vector2f{ mousePosition });
-	ECSGame::Instance().GetUINode()->AcceptReverseVisitor(frontVisitor);
-	ProcessFrontmostUIPart(frontVisitor.wpFrontmostNode, sf::Vector2f{ mousePosition });
-
-	if(ECSGame::Instance().IsMouseOverUI())
-		mouseOverUIText.lock()->text->setString("Mouse over UI: TRUE");
-	else
-		mouseOverUIText.lock()->text->setString("Mouse over UI: FALSE");
-
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+	if (spaceMapScene)
 	{
-		if (!ECSGame::Instance().IsMouseOverUI())
+		//Deal with mouse movement
+		sf::Vector2i mousePosition = ECSGame::Instance().GetMousePosition();
+		std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
+
+		if (direction != sf::Vector2f{ 0,0 } && spCamCom->cameraLocked)
+			CancelCameraLock();
+
+		mousePosText.lock()->text->setString("Window pos: " + std::to_string(mousePosition.x) + "; " + std::to_string(mousePosition.y));
+		sf::Vector2f positionInWorld = ConvertWindowPositionToWorld(spCamCom->view, mousePosition);
+		//sf::Vector2i positionInWindow = ConvertWorldPositionToWindow(GetCameraFromCameraEntity()->view, positionInWorld);
+		worldPosText.lock()->text->setString("World pos: " + std::to_string(positionInWorld.x) + "; " + std::to_string(positionInWorld.y));
+
+		if (ECSGame::Instance().IsMouseOverUI())
+			mouseOverUIText.lock()->text->setString("Mouse over UI: TRUE");
+		else
+			mouseOverUIText.lock()->text->setString("Mouse over UI: FALSE");
+
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
 		{
-			std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
-
-			std::string message{ "Systems nearby: " };
-			float closestDistance = 999999.f;
-			int closestSystemIndex = -1;
-			int counter{ 0 };
-			for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
+			if (!ECSGame::Instance().IsMouseOverUI())
 			{
-				std::shared_ptr<ObjectSystemComponent> spSysCom = spNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-				message += spSysCom->systemName + " (" + spNode->GetEntity().lock()->GetName() + ") " + GetSpaceSystemTypeName(spSysCom->systemType);
-				if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
-				{
-					closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
-					closestSystemIndex = counter;
-					wpSelectedSystemNode = spNode;
-				}
-				counter++;
-			}
+				std::vector<std::shared_ptr<SceneNode>> systemsNearBy = GetAllSystemsNearPosition(positionInWorld);
 
-			if (closestSystemIndex == -1)
+				std::string message{ "Systems nearby: " };
+				float closestDistance = 999999.f;
+				int closestSystemIndex = -1;
+				int counter{ 0 };
+				for (std::shared_ptr<SceneNode> spNode : systemsNearBy)
+				{
+					std::shared_ptr<ObjectSystemComponent> spSysCom = spNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
+					message += spSysCom->systemName + " (" + spNode->GetEntity().lock()->GetName() + ") " + GetSpaceSystemTypeName(spSysCom->systemType);
+					if (gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition()) < closestDistance)
+					{
+						closestDistance = gel::distanceBetween2Points(positionInWorld, spNode->GetEntity().lock()->GetPosition());
+						closestSystemIndex = counter;
+						wpSelectedSystemNode = spNode;
+					}
+					counter++;
+				}
+
+				if (closestSystemIndex == -1)
+				{
+					selectedSystemIcon.lock()->nodeToFollow = {};
+					wpSelectedSystemNode = {};
+					signals::onClearInfoPanel();
+				}
+				else
+				{
+					selectedSystemIcon.lock()->nodeToFollow = systemsNearBy[closestSystemIndex];
+					signals::onUpdateInfoPanel(wpSelectedSystemNode);
+				}
+
+				systemsNearByText.lock()->text->setString(message);
+			}
+			else
 			{
 				selectedSystemIcon.lock()->nodeToFollow = {};
 				wpSelectedSystemNode = {};
 				signals::onClearInfoPanel();
 			}
-			else
-			{
-				selectedSystemIcon.lock()->nodeToFollow = systemsNearBy[closestSystemIndex];
-				signals::onUpdateInfoPanel(wpSelectedSystemNode);
-			}
-
-			systemsNearByText.lock()->text->setString(message);
 		}
-		else
+		else if ((ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet))
 		{
-			selectedSystemIcon.lock()->nodeToFollow = {};
-			wpSelectedSystemNode = {};
-			signals::onClearInfoPanel();
-		}
-	}
-	else if ((ECSGame::Instance().GetOverviewType() == OverviewType::System || ECSGame::Instance().GetOverviewType() == OverviewType::Planet))
-	{
-		if (!ECSGame::Instance().IsMouseOverUI())
-		{
-			bool selectPlanets = true;
-			if ((spCamCom->currentZoom > zoomAtWhichStartSelectPlanets || UIHidden) && ECSGame::Instance().GetOverviewType() == OverviewType::System)
-				selectPlanets = false;
-
-			float maxDistance = ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ distanceFromMouseToIconToBeSelected, 0 }).x - ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ 0,0 }).x;
-			//std::cout << "MaxDist: "<<maxDistance<<;
-
-			SceneNodeVisitorGetClosestNodeToPosition visitor(positionInWorld, maxDistance, selectPlanets);
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+			if (!ECSGame::Instance().IsMouseOverUI())
 			{
-				std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
-				std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
-				visitor.currentOverview = OverviewType::System;
-				spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
-			}
-			else
-			{
-				visitor.currentOverview = OverviewType::Planet;
-				wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor);
-			}
+				bool selectPlanets = true;
+				if ((spCamCom->currentZoom > zoomAtWhichStartSelectPlanets || UIHidden) && ECSGame::Instance().GetOverviewType() == OverviewType::System)
+					selectPlanets = false;
 
-			if (visitor.wpClosestNode.lock() != nullptr)
-			{
-				std::shared_ptr<Entity> spE;
+				float maxDistance = ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ distanceFromMouseToIconToBeSelected, 0 }).x - ConvertWindowPositionToWorld(spCamCom->view, sf::Vector2i{ 0,0 }).x;
+				//std::cout << "MaxDist: "<<maxDistance<<;
+
+				SceneNodeVisitorGetClosestNodeToPosition visitor(positionInWorld, maxDistance, selectPlanets);
 				if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
 				{
-					wpPlanetOrStarSelected = visitor.wpClosestNode;
-					selectedSystemIcon.lock()->nodeToFollow = wpPlanetOrStarSelected;
-					spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
-					signals::onUpdateInfoPanel(wpPlanetOrStarSelected);
+					std::shared_ptr<SceneNode> spSelectedSystemNode = wpSelectedSystemNode.lock();
+					std::shared_ptr<ObjectSystemComponent> spSysCom = spSelectedSystemNode->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock();
+					visitor.currentOverview = OverviewType::System;
+					spSysCom->spAllSystemObjectsNode->AcceptVisitor(visitor);
 				}
 				else
 				{
-					wpMoonOrPlanetSelected = visitor.wpClosestNode;
-					spE = wpMoonOrPlanetSelected.lock()->GetEntity().lock();
-					std::shared_ptr<PlanetComponent> spPlanetCom = spE->FindComponent<PlanetComponent>().lock();
-					if (spPlanetCom->isMoon)
-						selectedSystemIcon.lock()->nodeToFollow = wpMoonOrPlanetSelected;
-					else
-						selectedSystemIcon.lock()->nodeToFollow = wpMoonOrPlanetSelected.lock()->FindChild("PlanetPicture");
-
-					signals::onUpdateInfoPanel(wpMoonOrPlanetSelected);
+					visitor.currentOverview = OverviewType::Planet;
+					wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor);
 				}
 
-				if (spE->HasComponent<StarComponent>())
-					systemsNearByText.lock()->text->setString(spE->GetName() + " (" + spE->FindComponent<StarComponent>().lock()->starName + ")");
-				else if (spE->HasComponent<PlanetComponent>())
+				if (visitor.wpClosestNode.lock() != nullptr)
 				{
-					std::shared_ptr<PlanetComponent> spPlanet = spE->FindComponent<PlanetComponent>().lock();
-					systemsNearByText.lock()->text->setString(spE->GetName() + " (" + spPlanet->planetName + "; " + spPlanet->planetIconTextureName + "); size: " + std::to_string(spPlanet->planetSize));
+					std::shared_ptr<Entity> spE;
+					if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+					{
+						wpPlanetOrStarSelected = visitor.wpClosestNode;
+						selectedSystemIcon.lock()->nodeToFollow = wpPlanetOrStarSelected;
+						spE = wpPlanetOrStarSelected.lock()->GetEntity().lock();
+						signals::onUpdateInfoPanel(wpPlanetOrStarSelected);
+					}
+					else
+					{
+						wpMoonOrPlanetSelected = visitor.wpClosestNode;
+						spE = wpMoonOrPlanetSelected.lock()->GetEntity().lock();
+						std::shared_ptr<PlanetComponent> spPlanetCom = spE->FindComponent<PlanetComponent>().lock();
+						if (spPlanetCom->isMoon)
+							selectedSystemIcon.lock()->nodeToFollow = wpMoonOrPlanetSelected;
+						else
+							selectedSystemIcon.lock()->nodeToFollow = wpMoonOrPlanetSelected.lock()->FindChild("PlanetPicture");
+
+						signals::onUpdateInfoPanel(wpMoonOrPlanetSelected);
+					}
+
+					if (spE->HasComponent<StarComponent>())
+						systemsNearByText.lock()->text->setString(spE->GetName() + " (" + spE->FindComponent<StarComponent>().lock()->starName + ")");
+					else if (spE->HasComponent<PlanetComponent>())
+					{
+						std::shared_ptr<PlanetComponent> spPlanet = spE->FindComponent<PlanetComponent>().lock();
+						systemsNearByText.lock()->text->setString(spE->GetName() + " (" + spPlanet->planetName + "; " + spPlanet->planetIconTextureName + "); size: " + std::to_string(spPlanet->planetSize));
+					}
+				}
+				else
+				{
+					selectedSystemIcon.lock()->nodeToFollow = {};
+					systemsNearByText.lock()->text->setString(" ");
+					signals::onClearInfoPanel();
+
+					if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+						wpPlanetOrStarSelected = {};
+					else
+						wpMoonOrPlanetSelected = {};
 				}
 			}
 			else
 			{
 				selectedSystemIcon.lock()->nodeToFollow = {};
 				systemsNearByText.lock()->text->setString(" ");
-				signals::onClearInfoPanel();
 
 				if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+				{
 					wpPlanetOrStarSelected = {};
-				else
-					wpMoonOrPlanetSelected = {};
+					signals::onClearInfoPanel();
+				}
+				//else
+				//	wpMoonOrPlanetSelected = {};
 			}
 		}
-		else 
-		{
+		else
 			selectedSystemIcon.lock()->nodeToFollow = {};
-			systemsNearByText.lock()->text->setString(" ");
 
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
-			{
-				wpPlanetOrStarSelected = {};
-				signals::onClearInfoPanel();
-			}
-			//else
-			//	wpMoonOrPlanetSelected = {};
-		}
+		fpsText.lock()->text->setString(std::to_string(ECSGame::Instance().GetFPS()) + " fps");
+
+		if (previousFrameOverview != ECSGame::Instance().GetOverviewType())
+			ChangeUIVisibility(UIHidden);
+
+		//Signal the direction to the movement system
+		signals::onMoveCamera(direction);
+
+		previousFrameOverview = ECSGame::Instance().GetOverviewType();
 	}
-	else
-		selectedSystemIcon.lock()->nodeToFollow = {};
-
-	fpsText.lock()->text->setString(std::to_string(ECSGame::Instance().GetFPS())+" fps");
-
-	if (previousFrameOverview != ECSGame::Instance().GetOverviewType())
-		ChangeUIVisibility(UIHidden);
-
-	//Signal the direction to the movement system
-	signals::onMoveCamera(direction);
-
-	//Now process all buttons
-	std::weak_ptr<Entity> wpFrontEntity;
-	if (frontVisitor.wpFrontmostNode.lock() != nullptr)
-		wpFrontEntity = frontVisitor.wpFrontmostNode.lock()->GetEntity();
-
-	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition), wpFrontEntity);
-	ECSGame::Instance().GetUINode()->AcceptVisitor(visitor);
-
-	lmbPressed = false;
-	previousFrameOverview = ECSGame::Instance().GetOverviewType();
 }
 
 
@@ -1092,6 +1075,12 @@ void MovementSystem::Initialize()
 	signals::onMoveCamera.connect(&MovementSystem::OnMoveCamera, this);
 	//signals::onZoomCamera.connect(&MovementSystem::OnZoomCamera, this);
 	systemName = "MovementSystem";
+}
+
+
+void MovementSystem::OnSceneChanged()
+{
+
 }
 
 
@@ -1116,119 +1105,173 @@ void UISystem::Initialize()
 	signals::onHideInfoPanel.connect(&UISystem::OnHideInfoPanel, this);
 	signals::onShowInfoPanel.connect(&UISystem::OnShowInfoPanel, this);
 	signals::onClearInfoPanel.connect(&UISystem::OnClearInfoPanel, this);
-
-	std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUINode()->FindChild("RenderText").lock();
-	nodesText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("MonthText").lock();
-	monthText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("DayText").lock();
-	dayText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("YearText").lock();
-	yearText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("SimulationStateText").lock();
-	simStateText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("SimulationSpeedText").lock();
-	simSpeedText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->FindChild("ViewSizeText").lock();
-	viewSizeText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->FindChild("OverviewText").lock();
-	overviewText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
-
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText0").lock();
-	infoText0 = spNode->GetEntity();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText1").lock();
-	infoText1 = spNode->GetEntity();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText2").lock();
-	infoText2 = spNode->GetEntity();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText3").lock();
-	infoText3 = spNode->GetEntity();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText4").lock();
-	infoText4 = spNode->GetEntity();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText5").lock();
-	infoText5 = spNode->GetEntity();
-	spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText6").lock();
-	infoText6 = spNode->GetEntity();
-
-	wpInfoPanel = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->GetEntity();
+	signals::onLMBpressed.connect(&UISystem::OnLMBpressed, this);
+	signals::onLMBreleased.connect(&UISystem::OnLMBreleased, this);
 
 	systemName = "UISystem";
 }
 
-void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+void UISystem::OnSceneChanged()
 {
-	nodesText.lock()->text->setString("Total nodes: "+std::to_string(numOfNodes)+"; rendered: "+std::to_string(nodesRendered));
-	
-	int days = 0;
-	std::string month;
-	int years = 0;
-	GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
-
-	dayText.lock()->text->setString(std::to_string(days));
-	gel::CentreText(*dayText.lock()->text, sf::Vector2 { 0.f, 0.f });
-
-	monthText.lock()->text->setString(month);
-	gel::CentreText(*monthText.lock()->text, sf::Vector2 { 0.f, 0.f });
-
-	yearText.lock()->text->setString(std::to_string(years));
-	gel::CentreText(*yearText.lock()->text, sf::Vector2 { 0.f, 0.f });
-
-	if (ECSGame::Instance().GetGameState() == GameState::Pause)
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
-		simStateText.lock()->text->setString("PAUSED");
-		simStateText.lock()->text->setFillColor(sf::Color::Red);
+		std::shared_ptr<SceneNode> spNode = ECSGame::Instance().GetUINode()->FindChild("RenderText").lock();
+		nodesText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("MonthText").lock();
+		monthText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("DayText").lock();
+		dayText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("YearText").lock();
+		yearText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("SimulationStateText").lock();
+		simStateText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("SimulationSpeedText").lock();
+		simSpeedText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->FindChild("ViewSizeText").lock();
+		viewSizeText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("UpperPart").lock()->FindChild("OverviewText").lock();
+		overviewText = spNode->GetEntity().lock()->FindComponent<TextComponent>().lock();
+
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText0").lock();
+		infoText0 = spNode->GetEntity();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText1").lock();
+		infoText1 = spNode->GetEntity();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText2").lock();
+		infoText2 = spNode->GetEntity();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText3").lock();
+		infoText3 = spNode->GetEntity();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText4").lock();
+		infoText4 = spNode->GetEntity();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText5").lock();
+		infoText5 = spNode->GetEntity();
+		spNode = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->FindChild("InfoText6").lock();
+		infoText6 = spNode->GetEntity();
+
+		wpInfoPanel = ECSGame::Instance().GetUINode()->FindChild("InfoPart").lock()->GetEntity();
+
+		spaceMapScene = true;
 	}
 	else
-	{
-		simStateText.lock()->text->setString("RESUMED");
-		simStateText.lock()->text->setFillColor(sf::Color::White);
-	}
-	gel::CentreText(*simStateText.lock()->text, sf::Vector2 { 0.f, 0.f });
-	
-	simSpeedText.lock()->text->setString("Simulation speed "+std::to_string((int)ECSGame::Instance().GetSimulationSpeed())+" days/second");
-	gel::CentreText(*simSpeedText.lock()->text, sf::Vector2 { 0.f, 0.f });
+		spaceMapScene = false;
+}
 
-	std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
-	OverviewType currentOverview = ECSGame::Instance().GetOverviewType();
-	float size = spCamCom->view.getSize().x;
-	std::string part{ "." };
-	if (currentOverview != OverviewType::Planet)
+void UISystem::ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition)
+{
+	//Check that pointer is valid
+	if (wpFrontmostNode.lock() != nullptr)
 	{
-		if (size > 100)
+		//std::cout <<"Frontmost entity is: "<< wpFrontmostNode.lock()->GetEntity().lock()->GetName()<<"\n";
+		ECSGame::Instance().SetIsMouseOverUI(true);
+	}
+	else
+		ECSGame::Instance().SetIsMouseOverUI(false);
+}
+
+void UISystem::OnLMBpressed()
+{
+	lmbPressed = true;
+	buttonPressed = true;
+}
+
+void UISystem::OnLMBreleased()
+{
+	buttonPressed = false;
+}
+
+void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
+{
+	if (spaceMapScene)
+	{
+		nodesText.lock()->text->setString("Total nodes: " + std::to_string(numOfNodes) + "; rendered: " + std::to_string(nodesRendered));
+
+		int days = 0;
+		std::string month;
+		int years = 0;
+		GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
+
+		dayText.lock()->text->setString(std::to_string(days));
+		gel::CentreText(*dayText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+		monthText.lock()->text->setString(month);
+		gel::CentreText(*monthText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+		yearText.lock()->text->setString(std::to_string(years));
+		gel::CentreText(*yearText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+		if (ECSGame::Instance().GetGameState() == GameState::Pause)
+		{
+			simStateText.lock()->text->setString("PAUSED");
+			simStateText.lock()->text->setFillColor(sf::Color::Red);
+		}
+		else
+		{
+			simStateText.lock()->text->setString("RESUMED");
+			simStateText.lock()->text->setFillColor(sf::Color::White);
+		}
+		gel::CentreText(*simStateText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+		simSpeedText.lock()->text->setString("Simulation speed " + std::to_string((int)ECSGame::Instance().GetSimulationSpeed()) + " days/second");
+		gel::CentreText(*simSpeedText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+		std::shared_ptr<CameraComponent> spCamCom = GetCurrentlyActiveCamera();
+		OverviewType currentOverview = ECSGame::Instance().GetOverviewType();
+		float size = spCamCom->view.getSize().x;
+		std::string part{ "." };
+		if (currentOverview != OverviewType::Planet)
+		{
+			if (size > 100)
+				part = " ";
+			else if ((int)size <= 0 && (int)((size - (int)size) * 100) < 10)
+				part = ".0" + std::to_string((int)((size - (int)size) * 100));
+			else
+				part = "." + std::to_string((int)((size - (int)size) * 100));
+		}
+		else
+		{
 			part = " ";
-		else if ((int)size <= 0 && (int)((size - (int)size) * 100) < 10)
-			part = ".0" + std::to_string((int)((size - (int)size) * 100));
-		else
-			part = "." + std::to_string((int)((size - (int)size) * 100));
-	}
-	else 
-	{
-		part = " ";
-	}
-	//std::cout << (int)size << '\n';
+		}
+		//std::cout << (int)size << '\n';
 
-	if (currentOverview == OverviewType::Space)
-		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size)+part + " light years");
-	else if(currentOverview == OverviewType::System)
-		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size) + part + " astronomical units");
-	else if (currentOverview == OverviewType::Planet)
-		viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)(size*1000.f)) + part + " kilometers");
-	gel::CentreText(*viewSizeText.lock()->text, sf::Vector2 { 0.f, 0.f });
+		if (currentOverview == OverviewType::Space)
+			viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size) + part + " light years");
+		else if (currentOverview == OverviewType::System)
+			viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)size) + part + " astronomical units");
+		else if (currentOverview == OverviewType::Planet)
+			viewSizeText.lock()->text->setString("Current camera size is " + std::to_string((int)(size * 1000.f)) + part + " kilometers");
+		gel::CentreText(*viewSizeText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
-	if (currentOverview == OverviewType::Space)
-		overviewText.lock()->text->setString("Space Overview");
-	else if(currentOverview == OverviewType::System)
-		overviewText.lock()->text->setString(wpSystemNodeSelected.lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock()->systemName + " System");
-	else if (currentOverview == OverviewType::Planet)
-	{
-		if (wpSystemNodeSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-			overviewText.lock()->text->setString(wpSystemNodeSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock()->planetName + " Planet");
-		else
-			overviewText.lock()->text->setString("Planet Overview");
+		if (currentOverview == OverviewType::Space)
+			overviewText.lock()->text->setString("Space Overview");
+		else if (currentOverview == OverviewType::System)
+			overviewText.lock()->text->setString(wpSystemNodeSelected.lock()->GetEntity().lock()->FindComponent<ObjectSystemComponent>().lock()->systemName + " System");
+		else if (currentOverview == OverviewType::Planet)
+		{
+			if (wpSystemNodeSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+				overviewText.lock()->text->setString(wpSystemNodeSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock()->planetName + " Planet");
+			else
+				overviewText.lock()->text->setString("Planet Overview");
+		}
+		gel::CentreText(*overviewText.lock()->text, sf::Vector2 { 0.f, 0.f });
 	}
-	gel::CentreText(*overviewText.lock()->text, sf::Vector2 { 0.f, 0.f });
+
+	//Now get the frontmost ui part over which mouse is 
+	sf::Vector2i mousePosition = ECSGame::Instance().GetMousePosition();
+	SceneNodeVisitorFrontmostMouseHit frontVisitor(sf::Vector2f{ mousePosition });
+	ECSGame::Instance().GetUINode()->AcceptReverseVisitor(frontVisitor);
+	ProcessFrontmostUIPart(frontVisitor.wpFrontmostNode, sf::Vector2f{ mousePosition });
+
+	//Now process all buttons
+	std::weak_ptr<Entity> wpFrontEntity;
+	if (frontVisitor.wpFrontmostNode.lock() != nullptr)
+		wpFrontEntity = frontVisitor.wpFrontmostNode.lock()->GetEntity();
+
+	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition), wpFrontEntity);
+	ECSGame::Instance().GetUINode()->AcceptVisitor(visitor);
 
 	SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera(), GetCameraFromUICameraEntity());
 	ECSGame::Instance().GetUINode()->AcceptVisitor(visitor);
+
+	lmbPressed = false;
 }
 
 void UISystem::OnRenderingComplete(int numOfNodes, int nodesRendered)
@@ -1554,6 +1597,11 @@ void MusicSystem::Initialize()
 	MixMusicList();
 }
 
+void MusicSystem::OnSceneChanged()
+{
+	
+}
+
 void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	std::shared_ptr<sf::Music> currentlyPlayingMusic = listOfMusicToPlay[currentMusicPlaying].lock();
@@ -1796,7 +1844,10 @@ void GameSystem::Initialize()
 	systemName = "GameSystem";
 }
 
-
+void GameSystem::OnSceneChanged()
+{
+	
+}
 
 //Update systems visibility
 void GameSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
@@ -1816,29 +1867,42 @@ void SimulationSystem::Initialize()
 	systemName = "SimulationSystem";
 	signals::onAddNodeToSimulate.connect(&SimulationSystem::OnAddNodeToSimulate, this);
 	signals::onRemoveNodeToSimulate.connect(&SimulationSystem::OnRemoveNodeToSimulate, this);
+}
 
-	std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
-	daysPastText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+void SimulationSystem::OnSceneChanged()
+{
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
+	{
+		std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
+		daysPastText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
 
-	std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
-	dateText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
+		dateText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
 
-	std::weak_ptr<Entity> wpObjOrb = ECSGame::Instance().GetEntityManager().NewEntity("SimulationNode");
-	ECSGame::Instance().GetSceneNode()->AddChild(std::make_shared<SceneNode>(wpObjOrb));
-	wpSimulationNode = ECSGame::Instance().GetSceneNode()->FindChild("SimulationNode");
+		std::weak_ptr<Entity> wpObjOrb = ECSGame::Instance().GetEntityManager().NewEntity("SimulationNode");
+		ECSGame::Instance().GetSceneNode()->AddChild(std::make_shared<SceneNode>(wpObjOrb));
+		wpSimulationNode = ECSGame::Instance().GetSceneNode()->FindChild("SimulationNode");
+	
+		spaceMapScene = true;
+	}
+	else
+		spaceMapScene = false;
 }
 
 void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
-	daysPastText.lock()->text->setString("Simulation speed: " + std::to_string(ECSGame::Instance().GetSimulationSpeed()) + "; Days past: " + std::to_string((int)ECSGame::Instance().GetDaysPast()));
-	int days = 0;
-	std::string month;
-	int years = 0;
-	GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
-	dateText.lock()->text->setString("Proper Date: " + std::to_string(days)+" "+month+std::to_string(years));
+	if (spaceMapScene)
+	{
+		daysPastText.lock()->text->setString("Simulation speed: " + std::to_string(ECSGame::Instance().GetSimulationSpeed()) + "; Days past: " + std::to_string((int)ECSGame::Instance().GetDaysPast()));
+		int days = 0;
+		std::string month;
+		int years = 0;
+		GetDateFromDays((int)ECSGame::Instance().GetDaysPast(), days, month, years);
+		dateText.lock()->text->setString("Proper Date: " + std::to_string(days) + " " + month + std::to_string(years));
 
-	SceneNodeVisitorMoveObjectsInSystem visitor;
-	wpSimulationNode.lock()->AcceptVisitor(visitor);
+		SceneNodeVisitorMoveObjectsInSystem visitor;
+		wpSimulationNode.lock()->AcceptVisitor(visitor);
+	}
 }
 
 void SimulationSystem::OnAddNodeToSimulate(std::shared_ptr<SceneNode> nodeToSimulate)

@@ -53,20 +53,6 @@ void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity);
 
 //Initializing scene functions
 void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode);
-//Worst case: O(3N+2M) where N is number of components in entity and M number of components
-//available in game
-void InitializeMouseIcon();
-//Worst case: O(2N+4M) where N is number of systems + stars to create and M number of tiles to create
-void CreateSpaceObjects();
-//Worst case: O((6N+3M)*K) where N is number of components in entity and M number of components
-//available in game and K number of texts to create
-void CreateDebugText();
-//Worst case: O(4N+M) where N is number of components in entity and M number of components
-//available in game
-void CreateUI();
-//Worst case: O(12N+4M) where N is number of components available in game and M number of components
-//available in game
-void InitializeAllCameras(const sf::Vector2u& windowSize);
 
 
 //Reset functions
@@ -83,7 +69,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 void InitializeMovingText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const bool isBlinking, const bool isMoving, const float* targetX, const float* targetY, const sf::Vector2f velocity, const bool skipOriginReset);
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color, std::weak_ptr<SceneNode> spCreateAt = {});
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color = sf::Color::White, std::weak_ptr<SceneNode> spCreateAt = {});
 //Worst case: O(4N+3M+6K) where N is number of components in provided entity and M is
 //number of components available in game and K number of components to add to the text
 std::shared_ptr<Entity> CreateSystemText(std::shared_ptr<SceneNode> systemNode, std::shared_ptr<SceneNode> spNodeToFollow, std::string& entityName, bool hideIfZoomLarge);
