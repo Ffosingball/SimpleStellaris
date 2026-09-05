@@ -43,15 +43,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	std::shared_ptr<MusicSystem> spMusicSystem = std::make_shared<MusicSystem>();
 	systems.emplace_back(spMusicSystem);
 	systems.emplace_back(std::make_shared<GameSystem>());
-
 	spInputSystem->musicSystem = spMusicSystem;
-	WorldGenerator::Instance().Initialize();
-
-	//Add all scenes
-	sceneManager.AddScene("SpaceWorldScene", InitializeSpaceWorldScene);
-	//Load scene
-	signals::onLoadScene("SpaceWorldScene");
-	root = newRoot;
 
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)
@@ -59,6 +51,18 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Initialize object removal system
 	deleteSystem.Initialize();
+
+	WorldGenerator::Instance().Initialize();
+
+	//Add all scenes
+	sceneManager.AddScene("SpaceWorldScene", InitializeSpaceWorldScene);
+	//Load scene
+	signals::onLoadScene("SpaceWorldScene");
+	root = newRoot;
+	sceneNode = root->FindChild("Scene");
+	uiNode = root->FindChild("UI");
+
+	signals::onSceneRootChanged();
 
 	//Set gameState
 	gameState = GameState::Stopped;
