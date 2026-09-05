@@ -20,102 +20,238 @@
 #include "Systems.h"
 #include <functional>
 #include "SceneNodeVisitors.h"
+#include "GetTextureNameFunctions.h"
 
 
-//Read data from the file
-std::vector<std::string> ReadStarNamesFromCSV(const std::string fname)
+void WorldGenerator::Initialize(std::shared_ptr<InputSystem> spInputSystem)
 {
-	std::vector<std::string> data;
-	rapidcsv::LabelParams labelParams(-1, -1); // this says that row and column
-	//data will start from index 0 --no headers expected, either horizontally or
-	//	vertically
-	rapidcsv::Document doc(fname, labelParams);
-	const size_t numRows = doc.GetRowCount();
-	size_t numColumns = 0;
-	for (size_t i = 0; i < numRows; ++i)
-	{
-		std::vector<std::string> rowData = doc.GetRow<std::string>(i);
-		if (i == 0)
-			numColumns = rowData.size();
-		for (size_t j = 0; j < numColumns; ++j)
-			data.push_back(rowData[j]);
-		// Another way, using STL: append the entire rowData at the end of "data"
-		// data.insert(data.end(), rowData.begin(), rowData.end());
-	}
-	return data;
+	this->spInputSystem = spInputSystem;
+	oneThird = std::make_shared<std::uniform_int_distribution<int>>(0, 2);
+	from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
+	from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
 }
 
 
-
-unsigned int WorldGenerator::seed = 0;
-std::shared_ptr<std::mt19937> WorldGenerator::randomizer = nullptr;
-//How much rarer tiles with nebula will be generated to usual tiles
-float WorldGenerator::nebulaRareness = 2.f;
-int WorldGenerator::numberOfNebulas = 6;
-std::vector < double > WorldGenerator::orbitsGenerated;
-std::vector<double> WorldGenerator::moonOrbitsGenerated;
-
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::starDistribution = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::giantSysDistribution = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::mediumSysDistribution = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::dwarfSysDistribution = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::binarySysDistribution = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::ternarySysDistribution = nullptr;
-std::shared_ptr<std::uniform_real_distribution<double>> WorldGenerator::closeStarsDistances = nullptr;
-std::shared_ptr<std::uniform_real_distribution<double>> WorldGenerator::afarStarsDistances = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::oneThird = std::make_shared<std::uniform_int_distribution<int>>(0,2);
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::redSupGiantPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::redGiantPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::OclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::BclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::AclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::FclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::GclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::KclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::MclassPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::brownDwarfPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::whiteDwarfPlanetsDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::neutronStarPlanetsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closerThanHabitableZoneDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::withinHabitableZoneDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::furtherThanHabitableZoneDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallRockyPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::mediumRockyPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeRockyPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallIcyPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::mediumIcyPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeIcyPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::largeGiantPlanetDist = nullptr;
-std::shared_ptr<std::uniform_real_distribution<float>> WorldGenerator::smallGiantPlanetDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::closeOrbitMoonDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::habitableZoneMoonDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::farOrbitMoonDist = nullptr;
-std::shared_ptr<std::uniform_int_distribution<int>> WorldGenerator::RingTypeDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::barrenPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::venusLikePlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::oceanicPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::earthLikeClosePlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::earthLikeMediumPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::earthLikeFarPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::titanLikePlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::moltenPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::icyPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::voulcanicPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertClosePlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertMediumPlanetDistrictsDist = nullptr;
-std::shared_ptr<std::discrete_distribution<int>> WorldGenerator::desertFarPlanetDistrictsDist = nullptr;
-std::shared_ptr<InputSystem> WorldGenerator::spInputSystem = nullptr;
-SpaceMapConfigurations WorldGenerator::mapConfig;
-bool WorldGenerator::worldGenerated = false;
-
-
-void WorldGenerator::Initialize(unsigned int seedOut)
+void WorldGenerator::ResetGenerator(int seedIn, SpaceMapConfigurations spaceMapConfig)
 {
-	seed = seedOut;
-	randomizer = std::make_shared<std::mt19937>(std::mt19937{seed});
+	seed = seedIn;
+	mapConfig = spaceMapConfig;
+	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
+	worldGenerated = false;
+	//std::cout << "Resetting in World generator\n";
+	//std::cout << mapConfig.habitableZoneWhiteDwarf.x<<"; "<< mapConfig.habitableZoneWhiteDwarf.y << '\n';
+
+	//Create all weights
+	std::vector<float> starWeights(13);
+	starWeights[0] = mapConfig.redSupGiantChance;
+	starWeights[1] = mapConfig.redGiantChance;
+	starWeights[2] = mapConfig.classOChance;
+	starWeights[3] = mapConfig.classBChance;
+	starWeights[4] = mapConfig.classAChance;
+	starWeights[5] = mapConfig.classFChance;
+	starWeights[6] = mapConfig.classGChance;
+	starWeights[7] = mapConfig.classKChance;
+	starWeights[8] = mapConfig.classMChance;
+	starWeights[9] = mapConfig.brownDwarfChance;
+	starWeights[10] = mapConfig.whiteDwarfChance;
+	starWeights[11] = mapConfig.neutronChance;
+	starWeights[12] = mapConfig.blackHoleChance;
+
+	std::vector<float> giantSystemWeights(3);
+	giantSystemWeights[0] = mapConfig.giantSingleChance;
+	giantSystemWeights[1] = mapConfig.giantBinaryChance;
+	giantSystemWeights[2] = mapConfig.giantTernaryChance;
+
+	std::vector<float> mediumSystemWeights(3);
+	mediumSystemWeights[0] = mapConfig.mediumSingleChance;
+	mediumSystemWeights[1] = mapConfig.mediumBinaryChance;
+	mediumSystemWeights[2] = mapConfig.mediumTernaryChance;
+
+	std::vector<float> dwarfsSystemWeights(3);
+	dwarfsSystemWeights[0] = mapConfig.dwarfSingleChance;
+	dwarfsSystemWeights[1] = mapConfig.dwarfBinaryChance;
+	dwarfsSystemWeights[2] = mapConfig.dwarfTernaryChance;
+
+	std::vector<float> binarySystemWeights(2);
+	binarySystemWeights[0] = mapConfig.closeBinaryChance;
+	binarySystemWeights[1] = mapConfig.afarBinaryChance;
+
+	std::vector<float> ternarySystemWeights(2);
+	ternarySystemWeights[0] = mapConfig.ternaryCloseBinaryThirdAfarChance;
+	ternarySystemWeights[1] = mapConfig.afarTernaryChance;
+
+	std::vector<float> closeOrbitWeights(4);
+	closeOrbitWeights[0] = mapConfig.closeOrbitVenusLikeChance;
+	closeOrbitWeights[1] = mapConfig.closeOrbitBarrenChance;
+	closeOrbitWeights[2] = mapConfig.closeOrbitHotJupiterChance;
+	closeOrbitWeights[3] = mapConfig.closeOrbitHotNeptuneChance;
+
+	std::vector<float> mediumOrbitWeights(7);
+	mediumOrbitWeights[0] = mapConfig.mediumOrbitVenusLikeChance;
+	mediumOrbitWeights[1] = mapConfig.mediumOrbitOceanicChance;
+	mediumOrbitWeights[2] = mapConfig.mediumOrbitEarthLikeChance;
+	mediumOrbitWeights[3] = mapConfig.mediumOrbitDesertChance;
+	mediumOrbitWeights[4] = mapConfig.mediumOrbitBarrenChance;
+	mediumOrbitWeights[5] = mapConfig.mediumOrbitHotJupiterChance;
+	mediumOrbitWeights[6] = mapConfig.mediumOrbitHotNeptuneChance;
+
+	std::vector<float> afarOrbitWeights(4);
+	afarOrbitWeights[0] = mapConfig.afarOrbitIcyChance;
+	afarOrbitWeights[1] = mapConfig.afarOrbitBarrenChance;
+	afarOrbitWeights[2] = mapConfig.afarOrbitNeptuneLikeChance;
+	afarOrbitWeights[3] = mapConfig.afarOrbitJupiterLikeChance;
+
+	std::vector<float> closeOrbitMoonWeights(3);
+	closeOrbitMoonWeights[0] = mapConfig.closerThanHabitBarrenMoonChance;
+	closeOrbitMoonWeights[1] = mapConfig.closerThanHabitVoulcanicMoonChance;
+	closeOrbitMoonWeights[2] = mapConfig.closerThanHabitVenusLikeMoonChance;
+
+	std::vector<float> farOrbitMoonWeights(4);
+	farOrbitMoonWeights[0] = mapConfig.furtherThanHabitBarrenMoonChance;
+	farOrbitMoonWeights[1] = mapConfig.furtherThanHabitVoulcanicMoonChance;
+	farOrbitMoonWeights[2] = mapConfig.furtherThanHabitTitanLikeMoonChance;
+	farOrbitMoonWeights[3] = mapConfig.furtherThanHabitIcyMoonChance;
+
+	std::vector<float> habitableZoneOrbitMoonWeights(6);
+	habitableZoneOrbitMoonWeights[0] = mapConfig.habitZoneBarrenMoonChance;
+	habitableZoneOrbitMoonWeights[1] = mapConfig.habitZoneOceanMoonChance;
+	habitableZoneOrbitMoonWeights[2] = mapConfig.habitZoneVenusLikeMoonChance;
+	habitableZoneOrbitMoonWeights[3] = mapConfig.habitZoneEarthLikeMoonChance;
+	habitableZoneOrbitMoonWeights[4] = mapConfig.habitZoneDesertMoonChance;
+	habitableZoneOrbitMoonWeights[5] = mapConfig.habitZoneVoulcanicMoonChance;
+
+	std::vector<float> barrenPlanetDistrictsWeights(4);
+	barrenPlanetDistrictsWeights[0] = mapConfig.barrenPlanetBarrenDistrictChance;
+	barrenPlanetDistrictsWeights[1] = mapConfig.barrenPlanetCratorDistrictChance;
+	barrenPlanetDistrictsWeights[2] = mapConfig.barrenPlanetMountainsDistrictChance;
+	barrenPlanetDistrictsWeights[3] = mapConfig.barrenPlanetDesertDistrictChance;
+
+	std::vector<float> venusLikePlanetDistrictsWeights(3);
+	venusLikePlanetDistrictsWeights[0] = mapConfig.venusLikePlanetVoulcanoDistrictChance;
+	venusLikePlanetDistrictsWeights[1] = mapConfig.venusLikePlanetMountainsDistrictChance;
+	venusLikePlanetDistrictsWeights[2] = mapConfig.venusLikePlanetToxicLandDistrictChance;
+
+	std::vector<float> oceanicPlanetDistrictsWeights(2);
+	oceanicPlanetDistrictsWeights[0] = mapConfig.oceanicPlanetOceanDistrictChance;
+	oceanicPlanetDistrictsWeights[1] = mapConfig.oceanicPlanetIslandsDistrictChance;
+
+	std::vector<float> earthLikeClosePlanetDistrictsWeights(6);
+	earthLikeClosePlanetDistrictsWeights[0] = mapConfig.earthLikeClosePlanetMountainsDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[1] = mapConfig.earthLikeClosePlanetOceanDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[2] = mapConfig.earthLikeClosePlanetVoulcanoDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[3] = mapConfig.earthLikeClosePlanetDesertDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[4] = mapConfig.earthLikeClosePlanetRainforestDistrictChance;
+	earthLikeClosePlanetDistrictsWeights[5] = mapConfig.earthLikeClosePlanetSteppeDistrictChance;
+
+	std::vector<float> earthLikeMediumPlanetDistrictsWeights(7);
+	earthLikeMediumPlanetDistrictsWeights[0] = mapConfig.earthLikeMediumPlanetMountainsDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[1] = mapConfig.earthLikeMediumPlanetOceanDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[2] = mapConfig.earthLikeMediumPlanetVoulcanoDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[3] = mapConfig.earthLikeMediumPlanetDesertDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[4] = mapConfig.earthLikeMediumPlanetForestDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[5] = mapConfig.earthLikeMediumPlanetRainforestDistrictChance;
+	earthLikeMediumPlanetDistrictsWeights[6] = mapConfig.earthLikeMediumPlanetSteppeDistrictChance;
+
+	std::vector<float> earthLikeFarPlanetDistrictsWeights(6);
+	earthLikeFarPlanetDistrictsWeights[0] = mapConfig.earthLikeFarPlanetMountainsDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[1] = mapConfig.earthLikeFarPlanetOceanDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[2] = mapConfig.earthLikeFarPlanetVoulcanoDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[3] = mapConfig.earthLikeFarPlanetDesertDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[4] = mapConfig.earthLikeFarPlanetForestDistrictChance;
+	earthLikeFarPlanetDistrictsWeights[5] = mapConfig.earthLikeFarPlanetSteppeDistrictChance;
+
+	std::vector<float> titanLikePlanetDistrictsWeights(4);
+	titanLikePlanetDistrictsWeights[0] = mapConfig.titanLikePlanetBarrenDistrictChance;
+	titanLikePlanetDistrictsWeights[1] = mapConfig.titanLikePlanetMountainsDistrictChance;
+	titanLikePlanetDistrictsWeights[2] = mapConfig.titanLikePlanetMethanOceanDistrictChance;
+	titanLikePlanetDistrictsWeights[3] = mapConfig.titanLikePlanetVoulcanoDistrictChance;
+
+	std::vector<float> icyPlanetDistrictsWeights(4);
+	icyPlanetDistrictsWeights[0] = mapConfig.icyPlanetIceSheetDistrictChance;
+	icyPlanetDistrictsWeights[1] = mapConfig.icyPlanetBarrenDistrictChance;
+	icyPlanetDistrictsWeights[2] = mapConfig.icyPlanetMountainsDistrictChance;
+	icyPlanetDistrictsWeights[3] = mapConfig.icyPlanetVoulcanoDistrictChance;
+
+	std::vector<float> voulcanicPlanetDistrictsWeights(2);
+	voulcanicPlanetDistrictsWeights[0] = mapConfig.voulcanicPlanetVoulcanoDistrictChance;
+	voulcanicPlanetDistrictsWeights[1] = mapConfig.voulcanicPlanetBarrenDistrictChance;
+
+	std::vector<float> moltenPlanetDistrictsWeights(2);
+	moltenPlanetDistrictsWeights[0] = mapConfig.moltenPlanetVoulcanoDistrictChance;
+	moltenPlanetDistrictsWeights[1] = mapConfig.moltenPlanetBarrenDistrictChance;
+
+	std::vector<float> desertClosePlanetDistrictsWeights(5);
+	desertClosePlanetDistrictsWeights[0] = mapConfig.desertPlanetCloseDesertDistrictChance;
+	desertClosePlanetDistrictsWeights[1] = mapConfig.desertPlanetCloseBarrenDistrictChance;
+	desertClosePlanetDistrictsWeights[2] = mapConfig.desertPlanetCloseSteppeDistrictChance;
+	desertClosePlanetDistrictsWeights[3] = mapConfig.desertPlanetCloseMountainsDistrictChance;
+	desertClosePlanetDistrictsWeights[4] = mapConfig.desertPlanetCloseVoulcanoDistrictChance;
+
+	std::vector<float> desertMediumPlanetDistrictsWeights(5);
+	desertMediumPlanetDistrictsWeights[0] = mapConfig.desertPlanetMediumDesertDistrictChance;
+	desertMediumPlanetDistrictsWeights[1] = mapConfig.desertPlanetMediumBarrenDistrictChance;
+	desertMediumPlanetDistrictsWeights[2] = mapConfig.desertPlanetMediumSteppeDistrictChance;
+	desertMediumPlanetDistrictsWeights[3] = mapConfig.desertPlanetMediumMountainsDistrictChance;
+	desertMediumPlanetDistrictsWeights[4] = mapConfig.desertPlanetMediumVoulcanoDistrictChance;
+
+	std::vector<float> desertFarPlanetDistrictsWeights(5);
+	desertFarPlanetDistrictsWeights[0] = mapConfig.desertPlanetFarDesertDistrictChance;
+	desertFarPlanetDistrictsWeights[1] = mapConfig.desertPlanetFarBarrenDistrictChance;
+	desertFarPlanetDistrictsWeights[2] = mapConfig.desertPlanetFarSteppeDistrictChance;
+	desertFarPlanetDistrictsWeights[3] = mapConfig.desertPlanetFarMountainsDistrictChance;
+	desertFarPlanetDistrictsWeights[4] = mapConfig.desertPlanetFarVoulcanoDistrictChance;
+
+	//Create all distributions
+	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
+	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>(giantSystemWeights.begin(), giantSystemWeights.end());
+	mediumSysDistribution = std::make_shared<std::discrete_distribution<int>>(mediumSystemWeights.begin(), mediumSystemWeights.end());
+	dwarfSysDistribution = std::make_shared<std::discrete_distribution<int>>(dwarfsSystemWeights.begin(), dwarfsSystemWeights.end());
+	binarySysDistribution = std::make_shared<std::discrete_distribution<int>>(binarySystemWeights.begin(), binarySystemWeights.end());
+	ternarySysDistribution = std::make_shared<std::discrete_distribution<int>>(ternarySystemWeights.begin(), ternarySystemWeights.end());
+	closeStarsDistances = std::make_shared<std::uniform_real_distribution<double>>(static_cast<double>(mapConfig.closeStarsBoundaries.x), static_cast<double>(mapConfig.closeStarsBoundaries.y));
+	afarStarsDistances = std::make_shared<std::uniform_real_distribution<double>>(static_cast<double>(mapConfig.afarStarsBoundaries.x), static_cast<double>(mapConfig.afarStarsBoundaries.y));
+	redSupGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedSupergiant.x, mapConfig.planetsAmountRedSupergiant.y);
+	redGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedGiant.x, mapConfig.planetsAmountRedGiant.y);
+	OclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassO.x, mapConfig.planetsAmountClassO.y);
+	BclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassB.x, mapConfig.planetsAmountClassB.y);
+	AclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassA.x, mapConfig.planetsAmountClassA.y);
+	FclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassF.x, mapConfig.planetsAmountClassF.y);
+	GclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassG.x, mapConfig.planetsAmountClassG.y);
+	KclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassK.x, mapConfig.planetsAmountClassK.y);
+	MclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassM.x, mapConfig.planetsAmountClassM.y);
+	brownDwarfPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountBrownDwarf.x, mapConfig.planetsAmountBrownDwarf.y);
+	whiteDwarfPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountWhiteDwarf.x, mapConfig.planetsAmountWhiteDwarf.y);
+	neutronStarPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountNeutronStar.x, mapConfig.planetsAmountNeutronStar.y);
+	closerThanHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitWeights.begin(), closeOrbitWeights.end());
+	withinHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(mediumOrbitWeights.begin(), mediumOrbitWeights.end());
+	furtherThanHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(afarOrbitWeights.begin(), afarOrbitWeights.end());
+	smallRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallRockyPlanetSizes.x, mapConfig.smallRockyPlanetSizes.y);
+	mediumRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumRockyPlanetSizes.x, mapConfig.mediumRockyPlanetSizes.y);
+	largeRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeRockyPlanetSizes.x, mapConfig.largeRockyPlanetSizes.y);
+	smallIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallIcyPlanetSizes.x, mapConfig.smallIcyPlanetSizes.y);
+	mediumIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumIcyPlanetSizes.x, mapConfig.mediumIcyPlanetSizes.y);
+	largeIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeIcyPlanetSizes.x, mapConfig.largeIcyPlanetSizes.y);
+	largeGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeGasSizes.x, mapConfig.largeGasSizes.y);
+	smallGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallGasSizes.x, mapConfig.smallGasSizes.y);
+	closeOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitMoonWeights.begin(), closeOrbitMoonWeights.end());
+	habitableZoneMoonDist = std::make_shared<std::discrete_distribution<int>>(habitableZoneOrbitMoonWeights.begin(), habitableZoneOrbitMoonWeights.end());
+	farOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(farOrbitMoonWeights.begin(), farOrbitMoonWeights.end());
+	RingTypeDist = std::make_shared<std::uniform_int_distribution<int>>(0, mapConfig.numOfAvailableRingTextures - 1);
+	barrenPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(barrenPlanetDistrictsWeights.begin(), barrenPlanetDistrictsWeights.end());
+	venusLikePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(venusLikePlanetDistrictsWeights.begin(), venusLikePlanetDistrictsWeights.end());
+	oceanicPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(oceanicPlanetDistrictsWeights.begin(), oceanicPlanetDistrictsWeights.end());
+	earthLikeClosePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeClosePlanetDistrictsWeights.begin(), earthLikeClosePlanetDistrictsWeights.end());
+	earthLikeMediumPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeMediumPlanetDistrictsWeights.begin(), earthLikeMediumPlanetDistrictsWeights.end());
+	earthLikeFarPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeFarPlanetDistrictsWeights.begin(), earthLikeFarPlanetDistrictsWeights.end());
+	titanLikePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(titanLikePlanetDistrictsWeights.begin(), titanLikePlanetDistrictsWeights.end());
+	moltenPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(moltenPlanetDistrictsWeights.begin(), moltenPlanetDistrictsWeights.end());
+	icyPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(icyPlanetDistrictsWeights.begin(), icyPlanetDistrictsWeights.end());
+	voulcanicPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(voulcanicPlanetDistrictsWeights.begin(), voulcanicPlanetDistrictsWeights.end());
+	desertClosePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertClosePlanetDistrictsWeights.begin(), desertClosePlanetDistrictsWeights.end());
+	desertMediumPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertMediumPlanetDistrictsWeights.begin(), desertMediumPlanetDistrictsWeights.end());
+	desertFarPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertFarPlanetDistrictsWeights.begin(), desertFarPlanetDistrictsWeights.end());
 }
+
 
 
 std::vector<int> WorldGenerator::GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues)
@@ -125,12 +261,12 @@ std::vector<int> WorldGenerator::GenerateGridOfTiles(sf::Vector2i gridSize, sf::
 	std::vector<int> randomNumbers(gridSize.x * gridSize.y);
 
 	std::uniform_int_distribution nextNumber{ minMaxValues.x, minMaxValues.y };
-	std::uniform_real_distribution nebulaChance{ 0.f, nebulaRareness };
-	std::uniform_int_distribution randomStep{ numberOfNebulas, minMaxValues.y - numberOfNebulas };
+	std::uniform_real_distribution nebulaChance{ 0.f, mapConfig.nebulaRarenessBackground };
+	std::uniform_int_distribution randomStep{ mapConfig.numberOfNebulasBackground, minMaxValues.y - mapConfig.numberOfNebulasBackground };
 	for (int& val : randomNumbers)
 	{
 		int nextNum = nextNumber(*randomizer);
-		if (nextNum < numberOfNebulas)
+		if (nextNum < mapConfig.numberOfNebulasBackground)
 		{
 			if (nebulaChance(*randomizer) > 1.f)
 			{
@@ -727,6 +863,8 @@ void WorldGenerator::GenerateStarProperties(std::weak_ptr<StarComponent> wpStarC
 {
 	std::shared_ptr<StarComponent> spStarCom = wpStarCom.lock();
 	std::weak_ptr<NeutronStarComponent> wpNS;
+
+	//std::cout << mapConfig.habitableZoneClassG.x << "; " << mapConfig.habitableZoneClassG.y << '\n';
 
 	switch ((*starDistribution)(*randomizer))
 	{
@@ -1740,226 +1878,12 @@ void WorldGenerator::GenerateSystemType(std::shared_ptr<std::discrete_distributi
 
 void WorldGenerator::GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode)
 {
-	if (ptrSpaceMapNode == nullptr)
-		std::cout << "Why spaceNode is nullptr?\n";
-
-	//Create all weights
-	// Floating point weights for stars
-	std::vector<float> starWeights(13);
-	starWeights[0] = mapConfig.redSupGiantChance;
-	starWeights[1] = mapConfig.redGiantChance;
-	starWeights[2] = mapConfig.classOChance;
-	starWeights[3] = mapConfig.classBChance;
-	starWeights[4] = mapConfig.classAChance;
-	starWeights[5] = mapConfig.classFChance;
-	starWeights[6] = mapConfig.classGChance;
-	starWeights[7] = mapConfig.classKChance;
-	starWeights[8] = mapConfig.classMChance;
-	starWeights[9] = mapConfig.brownDwarfChance;
-	starWeights[10] = mapConfig.whiteDwarfChance;
-	starWeights[11] = mapConfig.neutronChance;
-	starWeights[12] = mapConfig.blackHoleChance;
-
-	std::vector<float> giantSystemWeights(3);
-	giantSystemWeights[0] = mapConfig.giantSingleChance;
-	giantSystemWeights[1] = mapConfig.giantBinaryChance;
-	giantSystemWeights[2] = mapConfig.giantTernaryChance;
-
-	std::vector<float> mediumSystemWeights(3);
-	mediumSystemWeights[0] = mapConfig.mediumSingleChance;
-	mediumSystemWeights[1] = mapConfig.mediumBinaryChance;
-	mediumSystemWeights[2] = mapConfig.mediumTernaryChance;
-
-	std::vector<float> dwarfsSystemWeights(3);
-	dwarfsSystemWeights[0] = mapConfig.dwarfSingleChance;
-	dwarfsSystemWeights[1] = mapConfig.dwarfBinaryChance;
-	dwarfsSystemWeights[2] = mapConfig.dwarfTernaryChance;
-
-	std::vector<float> binarySystemWeights(2);
-	binarySystemWeights[0] = mapConfig.closeBinaryChance;
-	binarySystemWeights[1] = mapConfig.afarBinaryChance;
-
-	std::vector<float> ternarySystemWeights(2);
-	ternarySystemWeights[0] = mapConfig.ternaryCloseBinaryThirdAfarChance;
-	ternarySystemWeights[1] = mapConfig.afarTernaryChance;
-
-	std::vector<float> closeOrbitWeights(4);
-	closeOrbitWeights[0] = mapConfig.closeOrbitVenusLikeChance;
-	closeOrbitWeights[1] = mapConfig.closeOrbitBarrenChance;
-	closeOrbitWeights[2] = mapConfig.closeOrbitHotJupiterChance;
-	closeOrbitWeights[3] = mapConfig.closeOrbitHotNeptuneChance;
-
-	std::vector<float> mediumOrbitWeights(7);
-	mediumOrbitWeights[0] = mapConfig.mediumOrbitVenusLikeChance;
-	mediumOrbitWeights[1] = mapConfig.mediumOrbitOceanicChance;
-	mediumOrbitWeights[2] = mapConfig.mediumOrbitEarthLikeChance;
-	mediumOrbitWeights[3] = mapConfig.mediumOrbitDesertChance;
-	mediumOrbitWeights[4] = mapConfig.mediumOrbitBarrenChance;
-	mediumOrbitWeights[5] = mapConfig.mediumOrbitHotJupiterChance;
-	mediumOrbitWeights[6] = mapConfig.mediumOrbitHotNeptuneChance;
-
-	std::vector<float> afarOrbitWeights(4);
-	afarOrbitWeights[0] = mapConfig.afarOrbitIcyChance;
-	afarOrbitWeights[1] = mapConfig.afarOrbitBarrenChance;
-	afarOrbitWeights[2] = mapConfig.afarOrbitNeptuneLikeChance;
-	afarOrbitWeights[3] = mapConfig.afarOrbitJupiterLikeChance;
-
-	std::vector<float> closeOrbitMoonWeights(3);
-	closeOrbitMoonWeights[0] = mapConfig.closerThanHabitBarrenMoonChance;
-	closeOrbitMoonWeights[1] = mapConfig.closerThanHabitVoulcanicMoonChance;
-	closeOrbitMoonWeights[2] = mapConfig.closerThanHabitVenusLikeMoonChance;
-
-	std::vector<float> farOrbitMoonWeights(4);
-	farOrbitMoonWeights[0] = mapConfig.furtherThanHabitBarrenMoonChance;
-	farOrbitMoonWeights[1] = mapConfig.furtherThanHabitVoulcanicMoonChance;
-	farOrbitMoonWeights[2] = mapConfig.furtherThanHabitTitanLikeMoonChance;
-	farOrbitMoonWeights[3] = mapConfig.furtherThanHabitIcyMoonChance;
-
-	std::vector<float> habitableZoneOrbitMoonWeights(6);
-	habitableZoneOrbitMoonWeights[0] = mapConfig.habitZoneBarrenMoonChance;
-	habitableZoneOrbitMoonWeights[1] = mapConfig.habitZoneOceanMoonChance;
-	habitableZoneOrbitMoonWeights[2] = mapConfig.habitZoneVenusLikeMoonChance;
-	habitableZoneOrbitMoonWeights[3] = mapConfig.habitZoneEarthLikeMoonChance;
-	habitableZoneOrbitMoonWeights[4] = mapConfig.habitZoneDesertMoonChance;
-	habitableZoneOrbitMoonWeights[5] = mapConfig.habitZoneVoulcanicMoonChance;
-
-	std::vector<float> barrenPlanetDistrictsWeights(4);
-	barrenPlanetDistrictsWeights[0] = mapConfig.barrenPlanetBarrenDistrictChance;
-	barrenPlanetDistrictsWeights[1] = mapConfig.barrenPlanetCratorDistrictChance;
-	barrenPlanetDistrictsWeights[2] = mapConfig.barrenPlanetMountainsDistrictChance;
-	barrenPlanetDistrictsWeights[3] = mapConfig.barrenPlanetDesertDistrictChance;
-
-	std::vector<float> venusLikePlanetDistrictsWeights(3);
-	venusLikePlanetDistrictsWeights[0] = mapConfig.venusLikePlanetVoulcanoDistrictChance;
-	venusLikePlanetDistrictsWeights[1] = mapConfig.venusLikePlanetMountainsDistrictChance;
-	venusLikePlanetDistrictsWeights[2] = mapConfig.venusLikePlanetToxicLandDistrictChance;
-
-	std::vector<float> oceanicPlanetDistrictsWeights(2);
-	oceanicPlanetDistrictsWeights[0] = mapConfig.oceanicPlanetOceanDistrictChance;
-	oceanicPlanetDistrictsWeights[1] = mapConfig.oceanicPlanetIslandsDistrictChance;
-
-	std::vector<float> earthLikeClosePlanetDistrictsWeights(6);
-	earthLikeClosePlanetDistrictsWeights[0] = mapConfig.earthLikeClosePlanetMountainsDistrictChance;
-	earthLikeClosePlanetDistrictsWeights[1] = mapConfig.earthLikeClosePlanetOceanDistrictChance;
-	earthLikeClosePlanetDistrictsWeights[2] = mapConfig.earthLikeClosePlanetVoulcanoDistrictChance;
-	earthLikeClosePlanetDistrictsWeights[3] = mapConfig.earthLikeClosePlanetDesertDistrictChance;
-	earthLikeClosePlanetDistrictsWeights[4] = mapConfig.earthLikeClosePlanetRainforestDistrictChance;
-	earthLikeClosePlanetDistrictsWeights[5] = mapConfig.earthLikeClosePlanetSteppeDistrictChance;
-
-	std::vector<float> earthLikeMediumPlanetDistrictsWeights(7);
-	earthLikeMediumPlanetDistrictsWeights[0] = mapConfig.earthLikeMediumPlanetMountainsDistrictChance;
-	earthLikeMediumPlanetDistrictsWeights[1] = mapConfig.earthLikeMediumPlanetOceanDistrictChance;
-	earthLikeMediumPlanetDistrictsWeights[2] = mapConfig.earthLikeMediumPlanetVoulcanoDistrictChance;
-	earthLikeMediumPlanetDistrictsWeights[3] = mapConfig.earthLikeMediumPlanetDesertDistrictChance;
-	earthLikeMediumPlanetDistrictsWeights[4] = mapConfig.earthLikeMediumPlanetForestDistrictChance;
-	earthLikeMediumPlanetDistrictsWeights[5] = mapConfig.earthLikeMediumPlanetRainforestDistrictChance;
-	earthLikeMediumPlanetDistrictsWeights[6] = mapConfig.earthLikeMediumPlanetSteppeDistrictChance;
-
-	std::vector<float> earthLikeFarPlanetDistrictsWeights(6);
-	earthLikeFarPlanetDistrictsWeights[0] = mapConfig.earthLikeFarPlanetMountainsDistrictChance;
-	earthLikeFarPlanetDistrictsWeights[1] = mapConfig.earthLikeFarPlanetOceanDistrictChance;
-	earthLikeFarPlanetDistrictsWeights[2] = mapConfig.earthLikeFarPlanetVoulcanoDistrictChance;
-	earthLikeFarPlanetDistrictsWeights[3] = mapConfig.earthLikeFarPlanetDesertDistrictChance;
-	earthLikeFarPlanetDistrictsWeights[4] = mapConfig.earthLikeFarPlanetForestDistrictChance;
-	earthLikeFarPlanetDistrictsWeights[5] = mapConfig.earthLikeFarPlanetSteppeDistrictChance;
-
-	std::vector<float> titanLikePlanetDistrictsWeights(4);
-	titanLikePlanetDistrictsWeights[0] = mapConfig.titanLikePlanetBarrenDistrictChance;
-	titanLikePlanetDistrictsWeights[1] = mapConfig.titanLikePlanetMountainsDistrictChance;
-	titanLikePlanetDistrictsWeights[2] = mapConfig.titanLikePlanetMethanOceanDistrictChance;
-	titanLikePlanetDistrictsWeights[3] = mapConfig.titanLikePlanetVoulcanoDistrictChance;
-
-	std::vector<float> icyPlanetDistrictsWeights(4);
-	icyPlanetDistrictsWeights[0] = mapConfig.icyPlanetIceSheetDistrictChance;
-	icyPlanetDistrictsWeights[1] = mapConfig.icyPlanetBarrenDistrictChance;
-	icyPlanetDistrictsWeights[2] = mapConfig.icyPlanetMountainsDistrictChance;
-	icyPlanetDistrictsWeights[3] = mapConfig.icyPlanetVoulcanoDistrictChance;
-
-	std::vector<float> voulcanicPlanetDistrictsWeights(2);
-	voulcanicPlanetDistrictsWeights[0] = mapConfig.voulcanicPlanetVoulcanoDistrictChance;
-	voulcanicPlanetDistrictsWeights[1] = mapConfig.voulcanicPlanetBarrenDistrictChance;
-
-	std::vector<float> moltenPlanetDistrictsWeights(2);
-	moltenPlanetDistrictsWeights[0] = mapConfig.moltenPlanetVoulcanoDistrictChance;
-	moltenPlanetDistrictsWeights[1] = mapConfig.moltenPlanetBarrenDistrictChance;
-
-	std::vector<float> desertClosePlanetDistrictsWeights(5);
-	desertClosePlanetDistrictsWeights[0] = mapConfig.desertPlanetCloseDesertDistrictChance;
-	desertClosePlanetDistrictsWeights[1] = mapConfig.desertPlanetCloseBarrenDistrictChance;
-	desertClosePlanetDistrictsWeights[2] = mapConfig.desertPlanetCloseSteppeDistrictChance;
-	desertClosePlanetDistrictsWeights[3] = mapConfig.desertPlanetCloseMountainsDistrictChance;
-	desertClosePlanetDistrictsWeights[4] = mapConfig.desertPlanetCloseVoulcanoDistrictChance;
-
-	std::vector<float> desertMediumPlanetDistrictsWeights(5);
-	desertMediumPlanetDistrictsWeights[0] = mapConfig.desertPlanetMediumDesertDistrictChance;
-	desertMediumPlanetDistrictsWeights[1] = mapConfig.desertPlanetMediumBarrenDistrictChance;
-	desertMediumPlanetDistrictsWeights[2] = mapConfig.desertPlanetMediumSteppeDistrictChance;
-	desertMediumPlanetDistrictsWeights[3] = mapConfig.desertPlanetMediumMountainsDistrictChance;
-	desertMediumPlanetDistrictsWeights[4] = mapConfig.desertPlanetMediumVoulcanoDistrictChance;
-
-	std::vector<float> desertFarPlanetDistrictsWeights(5);
-	desertFarPlanetDistrictsWeights[0] = mapConfig.desertPlanetFarDesertDistrictChance;
-	desertFarPlanetDistrictsWeights[1] = mapConfig.desertPlanetFarBarrenDistrictChance;
-	desertFarPlanetDistrictsWeights[2] = mapConfig.desertPlanetFarSteppeDistrictChance;
-	desertFarPlanetDistrictsWeights[3] = mapConfig.desertPlanetFarMountainsDistrictChance;
-	desertFarPlanetDistrictsWeights[4] = mapConfig.desertPlanetFarVoulcanoDistrictChance;
-
-	//Create all distributions
-	starDistribution = std::make_shared<std::discrete_distribution<int>>(starWeights.begin(), starWeights.end());
-	giantSysDistribution = std::make_shared<std::discrete_distribution<int>>(giantSystemWeights.begin(), giantSystemWeights.end());
-	mediumSysDistribution = std::make_shared<std::discrete_distribution<int>>(mediumSystemWeights.begin(), mediumSystemWeights.end());
-	dwarfSysDistribution = std::make_shared<std::discrete_distribution<int>>(dwarfsSystemWeights.begin(), dwarfsSystemWeights.end());
-	binarySysDistribution = std::make_shared<std::discrete_distribution<int>>(binarySystemWeights.begin(), binarySystemWeights.end());
-	ternarySysDistribution = std::make_shared<std::discrete_distribution<int>>(ternarySystemWeights.begin(), ternarySystemWeights.end());
-	closeStarsDistances = std::make_shared<std::uniform_real_distribution<double>>(static_cast<double>(mapConfig.closeStarsBoundaries.x), static_cast<double>(mapConfig.closeStarsBoundaries.y));
-	afarStarsDistances = std::make_shared<std::uniform_real_distribution<double>>(static_cast<double>(mapConfig.afarStarsBoundaries.x), static_cast<double>(mapConfig.afarStarsBoundaries.y));
-	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x,mapConfig.horizontalPosBoundaries.y);
-	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
-	redSupGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedSupergiant.x, mapConfig.planetsAmountRedSupergiant.y);
-	redGiantPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountRedGiant.x, mapConfig.planetsAmountRedGiant.y);
-	OclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassO.x, mapConfig.planetsAmountClassO.y);
-	BclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassB.x, mapConfig.planetsAmountClassB.y);
-	AclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassA.x, mapConfig.planetsAmountClassA.y);
-	FclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassF.x, mapConfig.planetsAmountClassF.y);
-	GclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassG.x, mapConfig.planetsAmountClassG.y);
-	KclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassK.x, mapConfig.planetsAmountClassK.y);
-	MclassPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountClassM.x, mapConfig.planetsAmountClassM.y);
-	brownDwarfPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountBrownDwarf.x, mapConfig.planetsAmountBrownDwarf.y);
-	whiteDwarfPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountWhiteDwarf.x, mapConfig.planetsAmountWhiteDwarf.y);
-	neutronStarPlanetsDist = std::make_shared<std::uniform_int_distribution<int>>(mapConfig.planetsAmountNeutronStar.x, mapConfig.planetsAmountNeutronStar.y);
-	closerThanHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitWeights.begin(), closeOrbitWeights.end());
-	withinHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(mediumOrbitWeights.begin(), mediumOrbitWeights.end());
-	furtherThanHabitableZoneDist = std::make_shared<std::discrete_distribution<int>>(afarOrbitWeights.begin(), afarOrbitWeights.end());
-	smallRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallRockyPlanetSizes.x, mapConfig.smallRockyPlanetSizes.y);
-	mediumRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumRockyPlanetSizes.x, mapConfig.mediumRockyPlanetSizes.y);
-	largeRockyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeRockyPlanetSizes.x, mapConfig.largeRockyPlanetSizes.y);
-	smallIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallIcyPlanetSizes.x, mapConfig.smallIcyPlanetSizes.y);
-	mediumIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.mediumIcyPlanetSizes.x, mapConfig.mediumIcyPlanetSizes.y);
-	largeIcyPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeIcyPlanetSizes.x, mapConfig.largeIcyPlanetSizes.y);
-	largeGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.largeGasSizes.x, mapConfig.largeGasSizes.y);
-	smallGiantPlanetDist = std::make_shared<std::uniform_real_distribution<float>>(mapConfig.smallGasSizes.x, mapConfig.smallGasSizes.y);
-	closeOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(closeOrbitMoonWeights.begin(), closeOrbitMoonWeights.end());
-	habitableZoneMoonDist = std::make_shared<std::discrete_distribution<int>>(habitableZoneOrbitMoonWeights.begin(), habitableZoneOrbitMoonWeights.end());
-	farOrbitMoonDist = std::make_shared<std::discrete_distribution<int>>(farOrbitMoonWeights.begin(), farOrbitMoonWeights.end());
-	RingTypeDist = std::make_shared<std::uniform_int_distribution<int>>(0, mapConfig.numOfAvailableRingTextures-1);
-	barrenPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(barrenPlanetDistrictsWeights.begin(), barrenPlanetDistrictsWeights.end());
-	venusLikePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(venusLikePlanetDistrictsWeights.begin(), venusLikePlanetDistrictsWeights.end());
-	oceanicPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(oceanicPlanetDistrictsWeights.begin(), oceanicPlanetDistrictsWeights.end());
-	earthLikeClosePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeClosePlanetDistrictsWeights.begin(), earthLikeClosePlanetDistrictsWeights.end());
-	earthLikeMediumPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeMediumPlanetDistrictsWeights.begin(), earthLikeMediumPlanetDistrictsWeights.end());
-	earthLikeFarPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(earthLikeFarPlanetDistrictsWeights.begin(), earthLikeFarPlanetDistrictsWeights.end());
-	titanLikePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(titanLikePlanetDistrictsWeights.begin(), titanLikePlanetDistrictsWeights.end());
-	moltenPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(moltenPlanetDistrictsWeights.begin(), moltenPlanetDistrictsWeights.end());
-	icyPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(icyPlanetDistrictsWeights.begin(), icyPlanetDistrictsWeights.end());
-	voulcanicPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(voulcanicPlanetDistrictsWeights.begin(), voulcanicPlanetDistrictsWeights.end());
-	desertClosePlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertClosePlanetDistrictsWeights.begin(), desertClosePlanetDistrictsWeights.end());
-	desertMediumPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertMediumPlanetDistrictsWeights.begin(), desertMediumPlanetDistrictsWeights.end());
-	desertFarPlanetDistrictsDist = std::make_shared<std::discrete_distribution<int>>(desertFarPlanetDistrictsWeights.begin(), desertFarPlanetDistrictsWeights.end());
-
 	//Create star positions map
 	std::shared_ptr<SystemPropertiesComponent> spSysPropCom = ptrSpaceMapNode->GetEntity().lock()->FindComponent<SystemPropertiesComponent>().lock();
 	int gridWidth =(int)((mapConfig.horizontalPosBoundaries.y - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
 
+	std::uniform_real_distribution<float> XpositionDist(mapConfig.horizontalPosBoundaries.x, mapConfig.horizontalPosBoundaries.y);
+	std::uniform_real_distribution<float> YpositionDist(mapConfig.verticalPosBoundaries.x, mapConfig.verticalPosBoundaries.y);
 	
 	for (int i=0; i < mapConfig.systemAmount; i++) 
 	{
@@ -2125,782 +2049,3 @@ void WorldGenerator::GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, 
 		spNebulaCom->wpTextFollower = spUiFollower;
 	}
 }
-
-
-
-std::string GetSystemTextureName(StarType starType) 
-{
-	switch (starType)
-	{
-	case StarType::BlackHole:
-		return "BlackHole";
-		break;
-	case StarType::NeutronStar:
-		return "NeutronStarSystem";
-		break;
-	case StarType::WhiteDwarf:
-		return "WhiteDwarfSystem";
-		break;
-	case StarType::BrownDwarf:
-		return "BrownDwarfSystem";
-		break;
-	case StarType::MredDwarf:
-		return "MclassSystem";
-		break;
-	case StarType::KorangeDwarf:
-		return "KclassSystem";
-		break;
-	case StarType::GsunLike:
-		return "GclassSystem";
-		break;
-	case StarType::Ftype:
-		return "FclassSystem";
-		break;
-	case StarType::Atype:
-		return "AclassSystem";
-		break;
-	case StarType::Btype:
-		return "BclassSystem";
-		break;
-	case StarType::Otype:
-		return "OclassSystem";
-		break;
-	case StarType::RedGiant:
-		return "RedGiantSystem";
-		break;
-	case StarType::RedSupergiant:
-		return "RedSupergiantSystem";
-		break;
-	}
-
-	return "Placeholder";
-}
-
-
-std::string GetPlanetIconTextureName(PlanetType planetType, float planetSize, SpaceMapConfigurations& mapConfig, std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet)
-{
-	switch (planetType)
-	{
-	case PlanetType::BarrenDark:
-		if(planetSize<mapConfig.smallRockyPlanetSizes.y)
-			return "SmallDarkBarrenPlanetIcon";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "MediumDarkBarrenPlanetIcon";
-		else
-			return "LargeDarkBarrenPlanetIcon";
-	case PlanetType::BarrenGrey:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-			return "SmallGreyBarrenPlanetIcon";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "MediumGreyBarrenPlanetIcon";
-		else
-			return "LargeGreyBarrenPlanetIcon";
-	case PlanetType::BarrenMarsLike:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-			return "SmallRedBarrenPlanetIcon";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "MediumRedBarrenPlanetIcon";
-		else
-			return "LargeRedBarrenPlanetIcon";
-	case PlanetType::VenusLike:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-			return "SmallVenusLikePlanetIcon";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "MediumVenusLikePlanetIcon";
-		else
-			return "LargeVenusLikePlanetIcon";
-	case PlanetType::Oceanic:
-		if (planetSize < mapConfig.smallIcyPlanetSizes.y)
-			return "SmallOceanicPlanetIcon";
-		else if (planetSize < mapConfig.mediumIcyPlanetSizes.y)
-			return "MediumOceanicPlanetIcon";
-		else
-			return "LargeOceanicPlanetIcon";
-	case PlanetType::EarthLike:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-		{
-			if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-				return "SmallCloseEarthLikePlanetIcon";
-			else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-				return "SmallEarthLikePlanetIcon";
-			else
-				return "SmallAfarEarthLikePlanetIcon";
-		}
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-		{
-			if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-				return "MediumCloseEarthLikePlanetIcon";
-			else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-				return "MediumEarthLikePlanetIcon";
-			else
-				return "MediumAfarEarthLikePlanetIcon";
-		}
-		else
-		{
-			if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-				return "LargeCloseEarthLikePlanetIcon";
-			else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-				return "LargeEarthLikePlanetIcon";
-			else
-				return "LargeAfarEarthLikePlanetIcon";
-		}
-	case PlanetType::TitanLike:
-		return "TitanLikePlanetIcon";
-	case PlanetType::Molten:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-			return "SmallMoltenPlanetIcon";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "MediumMoltenPlanetIcon";
-		else
-			return "LargeMoltenPlanetIcon";
-	case PlanetType::Icy:
-		if (planetSize < mapConfig.smallIcyPlanetSizes.y)
-			return "SmallIcyPlanetIcon";
-		else if (planetSize < mapConfig.mediumIcyPlanetSizes.y)
-			return "MediumIcyPlanetIcon";
-		else
-			return "LargeIcyPlanetIcon";
-	case PlanetType::Voulcanic:
-		return "VoulcanicPlanetIcon";
-	case PlanetType::Desert:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-			return "SmallDesertPlanetIcon";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "MediumDesertPlanetIcon";
-		else
-			return "LargeDesertPlanetIcon";
-	case PlanetType::HotJupiter:
-		return "HotJupiterPlanetIcon";
-	case PlanetType::HotNeptune:
-		return "HotNeptunePlanetIcon";
-	case PlanetType::JupiterLike:
-		return "JupiterLikePlanetIcon";
-	case PlanetType::SaturnLike:
-		return "SaturnLikePlanetIcon";
-	case PlanetType::NeptuneLike:
-		return "NeptuneLikePlanetIcon";
-	case PlanetType::UranusLike:
-		return "UranusLikePlanetIcon";
-	}
-
-	return "Placeholder";
-}
-
-
-std::string GetPlanetTextureName(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitablePlanet)
-{
-	switch (planetType)
-	{
-	case PlanetType::BarrenDark:
-		return "DarkBarren";
-	case PlanetType::BarrenGrey:
-		return "GreyBarren";
-	case PlanetType::BarrenMarsLike:
-		return "RedBarren";
-	case PlanetType::VenusLike:
-		return "VenusLike";
-	case PlanetType::Oceanic:
-		return "Oceanic";
-	case PlanetType::EarthLike:
-		if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Close)
-			return "CloseEarthLike";
-		else if (wpHabitablePlanet.lock()->distanceToStar == DistanceToStar::Medium)
-			return "EarthLike";
-		else
-			return "AfarEarthLike";
-	case PlanetType::TitanLike:
-		return "TitanLike";
-	case PlanetType::Molten:
-		return "Molten";
-	case PlanetType::Icy:
-		return "Icy";
-	case PlanetType::Voulcanic:
-		return "Voulcanic";
-	case PlanetType::Desert:
-		return "Desert";
-	case PlanetType::HotJupiter:
-		return "HotJupiter";
-	case PlanetType::HotNeptune:
-		return "HotNeptune";
-	case PlanetType::JupiterLike:
-		return "JupiterLike";
-	case PlanetType::SaturnLike:
-		return "SaturnLike";
-	case PlanetType::NeptuneLike:
-		return "NeptuneLike";
-	case PlanetType::UranusLike:
-		return "UranusLike";
-	}
-
-	return "Placeholder";
-}
-
-
-
-void TextureSetter::SetSystemTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType)
-{
-	SetupRectangleShape(spRectShape, WorldGenerator::mapConfig.systemEntitySize, GetSystemTextureName(starType));
-}
-
-
-void TextureSetter::SetStarTexture(std::shared_ptr<RectangleShapeComponent> spRectShape, StarType starType, float starSize)
-{
-	sf::Vector2i pictureSize{ 300,300 };
-	std::string textureName{ "Placeholder" };
-
-	//float starSizeMultiplier = 9.f;
-	switch (starType)
-	{
-	case StarType::BlackHole:
-		textureName = "BlackHole";
-		break;
-	case StarType::NeutronStar:
-		textureName = "NeutronStar";
-		break;
-	case StarType::WhiteDwarf:
-		textureName = "WhiteDwarf";
-		break;
-	case StarType::BrownDwarf:
-		textureName = "BrownDwarf";
-		break;
-	case StarType::MredDwarf:
-		textureName = "Mclass";
-		break;
-	case StarType::KorangeDwarf:
-		textureName = "Kclass";
-		break;
-	case StarType::GsunLike:
-		textureName = "Gclass";
-		break;
-	case StarType::Ftype:
-		textureName = "Fclass";
-		break;
-	case StarType::Atype:
-		textureName = "Aclass";
-		break;
-	case StarType::Btype:
-		textureName = "Bclass";
-		break;
-	case StarType::Otype:
-		textureName = "Oclass";
-		break;
-	case StarType::RedGiant:
-		textureName = "RedGiant";
-		break;
-	case StarType::RedSupergiant:
-		textureName = "RedGiant";
-		break;
-	}
-
-	float starSizeMultiplier = 1.34f;
-	SetupRectangleShape(spRectShape, sf::Vector2f{ static_cast<float>(WorldGenerator::mapConfig.sunDiameter), static_cast<float>(WorldGenerator::mapConfig.sunDiameter) } * starSize * starSizeMultiplier, textureName);
-}
-
-
-void TextureSetter::SetSystemName(std::shared_ptr<ObjectSystemComponent> spSpaceSys, StarType starType) 
-{
-	//0 - dim, 1 - medium, 2 - bright
-	int starBrightness{ 1 };
-	switch (starType)
-	{
-	case StarType::BlackHole:
-		starBrightness = 0;
-		break;
-	case StarType::NeutronStar:
-		starBrightness = 0;
-		break;
-	case StarType::WhiteDwarf:
-		starBrightness = 0;
-		break;
-	case StarType::BrownDwarf:
-		starBrightness = 0;
-		break;
-	case StarType::MredDwarf:
-		starBrightness = 1;
-		break;
-	case StarType::KorangeDwarf:
-		starBrightness = 2;
-		break;
-	case StarType::GsunLike:
-		starBrightness = 2;
-		break;
-	case StarType::Ftype:
-		starBrightness = 2;
-		break;
-	case StarType::Atype:
-		starBrightness = 2;
-		break;
-	case StarType::Btype:
-		starBrightness = 2;
-		break;
-	case StarType::Otype:
-		starBrightness = 2;
-		break;
-	case StarType::RedGiant:
-		starBrightness = 2;
-		break;
-	case StarType::RedSupergiant:
-		starBrightness = 2;
-		break;
-	}
-
-	std::shared_ptr<std::uniform_int_distribution<int>> nameDist;
-
-	if (starBrightness == 0) 
-	{
-		if (listOfDimStarNames.size() <= 0) 
-		{
-#ifdef OUTPUT_WORLD_GENERATION_MESSAGES
-			std::cout << "Run out of names for dim systems!\n";
-#endif
-			spSpaceSys->systemName = "N_D";
-		}
-		else 
-		{
-			nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfDimStarNames.size()-1);
-			int pos = (*nameDist)(*randomizer);
-			spSpaceSys->systemName = listOfDimStarNames[pos];
-
-			// Move last element into removed position
-			listOfDimStarNames[pos] = listOfDimStarNames.back();
-			listOfDimStarNames.pop_back();
-		}
-	}
-	else if (starBrightness == 1) 
-	{
-		if (listOfMediumStarNames.size() <= 0)
-		{
-#ifdef OUTPUT_WORLD_GENERATION_MESSAGES
-			std::cout << "Run out of names for medium systems!\n";
-#endif
-			spSpaceSys->systemName = "N_M";
-		}
-		else
-		{
-			nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfMediumStarNames.size() - 1);
-			int pos = (*nameDist)(*randomizer);
-			spSpaceSys->systemName = listOfMediumStarNames[pos];
-
-			// Move last element into removed position
-			listOfMediumStarNames[pos] = listOfMediumStarNames.back();
-			listOfMediumStarNames.pop_back();
-		}
-	}
-	else
-	{
-		if (listOfBrightStarNames.size() <= 0)
-		{
-#ifdef OUTPUT_WORLD_GENERATION_MESSAGES
-			std::cout << "Run out of names for bright systems!\n";
-#endif
-			if (listOfMediumStarNames.size() <= 0)
-			{
-#ifdef OUTPUT_WORLD_GENERATION_MESSAGES
-				std::cout << "Run out of names for medium systems!\n";
-#endif
-				spSpaceSys->systemName = "N_M";
-			}
-			else
-			{
-				nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfMediumStarNames.size() - 1);
-				int pos = (*nameDist)(*randomizer);
-				spSpaceSys->systemName = listOfMediumStarNames[pos];
-
-				// Move last element into removed position
-				listOfMediumStarNames[pos] = listOfMediumStarNames.back();
-				listOfMediumStarNames.pop_back();
-			}
-		}
-		else
-		{
-			nameDist = std::make_shared<std::uniform_int_distribution<int>>(0, listOfBrightStarNames.size() - 1);
-			int pos = (*nameDist)(*randomizer);
-			spSpaceSys->systemName = listOfBrightStarNames[pos];
-
-			// Move last element into removed position
-			listOfBrightStarNames[pos] = listOfBrightStarNames.back();
-			listOfBrightStarNames.pop_back();
-		}
-	}
-}
-
-
-TextureSetter::TextureSetter(unsigned int seedOut, std::weak_ptr<SceneNode> wpSystemNamesNode) : seed{ seedOut }, wpSystemNamesNode{wpSystemNamesNode}
-{
-	processHiddenNode = true;
-
-	seed = seedOut;
-	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
-
-	listOfBrightStarNames = ReadStarNamesFromCSV("media/other/big_stars_names_1240.csv");
-	listOfMediumStarNames = ReadStarNamesFromCSV("media/other/star_names_5000.csv");
-	listOfDimStarNames = ReadStarNamesFromCSV("media/other/small_stars_names_1000.csv");
-}
-
-
-
-void SetPlanetName(std::shared_ptr<SceneNode> spNodeWithPlanets, std::string name, int firstASCIIchar) 
-{
-	std::vector<std::shared_ptr<SceneNode>> children = spNodeWithPlanets->GetAllChildren();
-	if (!children.empty())
-	{
-		SortedPlanetComponentsList sortedPlanets;
-		for (std::shared_ptr<SceneNode> child : children)
-		{
-			if(child->GetEntity().lock()->HasComponent<PlanetComponent>())
-				sortedPlanets.AddPlanetComponent(child->GetEntity().lock()->FindComponent<PlanetComponent>().lock());
-		}
-
-		int counter = firstASCIIchar;
-		while (sortedPlanets.Size() > 0)
-		{
-			sortedPlanets.DequeuePlanetComponent().lock()->planetName = name + '-' + static_cast<char>(counter);
-			counter++;
-		}
-	}
-}
-
-
-std::string GetRomanNumber(int number) 
-{
-	switch (number) 
-	{
-	case 1:
-		return "I";
-	case 2:
-		return "II";
-	case 3:
-		return "III";
-	case 4:
-		return "IV";
-	case 5:
-		return "V";
-	case 6:
-		return "VI";
-	case 7:
-		return "VII";
-	case 8:
-		return "VIII";
-	}
-
-	return "UNDEFINED";
-}
-
-
-std::string GetRingIconTextureName(PlanetType planetType, float planetSize, SpaceMapConfigurations& mapConfig)
-{
-	switch (planetType)
-	{
-	case PlanetType::BarrenDark:
-	case PlanetType::BarrenGrey:
-	case PlanetType::BarrenMarsLike:
-	case PlanetType::VenusLike:
-	case PlanetType::EarthLike:
-	case PlanetType::Molten:
-	case PlanetType::Desert:
-		if (planetSize < mapConfig.smallRockyPlanetSizes.y)
-			return "RingIconSmallRocky";
-		else if (planetSize < mapConfig.mediumRockyPlanetSizes.y)
-			return "RingIconMediumRocky";
-		else
-			return "RingIconLargeRocky";
-	case PlanetType::Icy:
-	case PlanetType::Oceanic:
-		if (planetSize < mapConfig.smallIcyPlanetSizes.y)
-			return "RingIconSmallRocky";
-		else if (planetSize < mapConfig.mediumIcyPlanetSizes.y)
-			return "RingIconMediumRocky";
-		else
-			return "RingIconLargeRocky";
-	case PlanetType::Voulcanic:
-	case PlanetType::TitanLike:
-		return "RingIconSmallRocky";
-	case PlanetType::HotJupiter:
-	case PlanetType::HotNeptune:
-	case PlanetType::JupiterLike:
-	case PlanetType::SaturnLike:
-	case PlanetType::NeptuneLike:
-	case PlanetType::UranusLike:
-		if (planetSize < mapConfig.largeGasSizes.x)
-			return "RingIconSmallGas";
-		else
-			return "RingIconLargeGas";
-	}
-
-	return "Placeholder";
-}
-
-
-
-void TextureSetter::ProcessNode(SceneNode& node) 
-{
-	std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
-	//Check if pointer is valid
-	if (spEntity != nullptr)
-	{
-		//Check if entity has system component
-		if (spEntity->HasComponent<ObjectSystemComponent>())
-		{
-			std::shared_ptr<ObjectSystemComponent> spComSys = spEntity->FindComponent<ObjectSystemComponent>().lock();
-			if (spComSys->spAllSystemObjectsNode != nullptr)
-			{
-				std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
-
-				if (spComSys->systemType == SpaceSystemType::Single)
-				{
-					std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
-					std::shared_ptr<StarComponent> spStar1Com = ptrStar1Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-					SetSystemTexture(spRectShape, spStar1Com->starType);
-					SetSystemName(spComSys, spStar1Com->starType);
-
-					//Now set star names
-					spStar1Com->starName = spComSys->systemName;
-
-					//Now set planet names
-					SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
-				}
-				else if (spComSys->systemType == SpaceSystemType::BinaryClose || spComSys->systemType == SpaceSystemType::BinaryAfar)
-				{
-					std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
-					std::shared_ptr<StarComponent> spStar1Com = ptrStar1Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-					std::shared_ptr<SceneNode> ptrStar2Node = spComSys->spAllSystemObjectsNode->FindChild("Star2").lock();
-					std::shared_ptr<StarComponent> spStar2Com = ptrStar2Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-
-					SetSystemTexture(spRectShape, std::max(spStar1Com->starType, spStar2Com->starType));
-					SetSystemName(spComSys, std::max(spStar1Com->starType, spStar2Com->starType));
-
-					//Now set star names
-					if (spStar1Com->starType > spStar2Com->starType)
-					{
-						spStar1Com->starName = spComSys->systemName + " A";
-						spStar2Com->starName = spComSys->systemName + " B";
-					}
-					else
-					{
-						spStar2Com->starName = spComSys->systemName + " A";
-						spStar1Com->starName = spComSys->systemName + " B";
-					}
-
-					if (spComSys->systemType == SpaceSystemType::BinaryClose)
-					{
-						//Now set planet names
-						SetPlanetName(spComSys->spAllSystemObjectsNode, spComSys->systemName, 99);
-					}
-					else
-					{
-						//Now set planet names
-						SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
-						SetPlanetName(ptrStar2Node, spStar2Com->starName, 97);
-					}
-				}
-				else
-				{
-					std::shared_ptr<StarComponent> spStar1Com;
-					std::shared_ptr<StarComponent> spStar2Com;
-					std::shared_ptr<StarComponent> spStar3Com;
-
-					if (spComSys->systemType == SpaceSystemType::TernaryAfar)
-					{
-						std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
-						spStar1Com = ptrStar1Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-						std::shared_ptr<SceneNode> ptrStar2Node = spComSys->spAllSystemObjectsNode->FindChild("Star2").lock();
-						spStar2Com = ptrStar2Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-						std::shared_ptr<SceneNode> ptrStar3Node = spComSys->spAllSystemObjectsNode->FindChild("Star3").lock();
-						spStar3Com = ptrStar3Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-					}
-					else
-					{
-						std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
-						spStar1Com = ptrStar1Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-						std::shared_ptr<SceneNode> ptrInsideSysNode = spComSys->spAllSystemObjectsNode->FindChild("InsideSystem").lock();
-						std::shared_ptr<SceneNode> ptrStar2Node = ptrInsideSysNode->FindChild("Star2").lock();
-						spStar2Com = ptrStar2Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-						std::shared_ptr<SceneNode> ptrStar3Node = ptrInsideSysNode->FindChild("Star3").lock();
-						spStar3Com = ptrStar3Node->GetEntity().lock()->FindComponent<StarComponent>().lock();
-					}
-
-					SetSystemTexture(spRectShape, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
-					SetSystemName(spComSys, std::max(std::max(spStar1Com->starType, spStar2Com->starType), spStar3Com->starType));
-
-					//Now set star names
-					if (spStar1Com->starType > spStar2Com->starType && spStar1Com->starType > spStar3Com->starType)
-					{
-						spStar1Com->starName = spComSys->systemName + " A";
-
-						if (spStar2Com->starType > spStar3Com->starType)
-						{
-							spStar2Com->starName = spComSys->systemName + " B";
-							spStar3Com->starName = spComSys->systemName + " C";
-						}
-						else
-						{
-							spStar3Com->starName = spComSys->systemName + " B";
-							spStar2Com->starName = spComSys->systemName + " C";
-						}
-					}
-					else if (spStar2Com->starType > spStar1Com->starType && spStar2Com->starType > spStar3Com->starType)
-					{
-						spStar2Com->starName = spComSys->systemName + " A";
-
-						if (spStar1Com->starType > spStar3Com->starType)
-						{
-							spStar1Com->starName = spComSys->systemName + " B";
-							spStar3Com->starName = spComSys->systemName + " C";
-						}
-						else
-						{
-							spStar3Com->starName = spComSys->systemName + " B";
-							spStar1Com->starName = spComSys->systemName + " C";
-						}
-					}
-					else
-					{
-						spStar3Com->starName = spComSys->systemName + " A";
-
-						if (spStar1Com->starType > spStar2Com->starType)
-						{
-							spStar1Com->starName = spComSys->systemName + " B";
-							spStar2Com->starName = spComSys->systemName + " C";
-						}
-						else
-						{
-							spStar2Com->starName = spComSys->systemName + " B";
-							spStar1Com->starName = spComSys->systemName + " C";
-						}
-					}
-
-
-					if (spComSys->systemType == SpaceSystemType::TernaryAfar)
-					{
-						std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
-						std::shared_ptr<SceneNode> ptrStar2Node = spComSys->spAllSystemObjectsNode->FindChild("Star2").lock();
-						std::shared_ptr<SceneNode> ptrStar3Node = spComSys->spAllSystemObjectsNode->FindChild("Star3").lock();
-
-						//Now set planet names
-						SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
-						SetPlanetName(ptrStar2Node, spStar2Com->starName, 97);
-						SetPlanetName(ptrStar3Node, spStar3Com->starName, 97);
-					}
-					else
-					{
-						std::shared_ptr<SceneNode> ptrStar1Node = spComSys->spAllSystemObjectsNode->FindChild("Star1").lock();
-						std::shared_ptr<SceneNode> ptrInsideSysNode = spComSys->spAllSystemObjectsNode->FindChild("InsideSystem").lock();
-
-						//Now set planet names
-						SetPlanetName(ptrStar1Node, spStar1Com->starName, 97);
-						SetPlanetName(ptrInsideSysNode, spComSys->systemName, 100);
-					}
-				}
-
-				//Create text name entity for system
-				std::string name{ "SystemNameText" };
-				CreateSystemText(wpSystemNamesNode.lock(), node.GetSharedPtrToItself(), name, true);
-				
-				//Create habitable planet icon
-				VisitorCountHabitablePlanets visitor;
-				spComSys->spAllSystemObjectsNode->AcceptVisitor(visitor);
-				if (visitor.counter > 0)
-				{
-					std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), wpSystemNamesNode.lock(), std::to_string(visitor.counter) + "HabitablePlanetIcon", spComSys->systemName + "HabitableIcon", true, WorldGenerator::mapConfig.habitablePlanetIconSize);
-					spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
-				}
-
-				spComSys->spAllSystemObjectsNode->AcceptVisitor(*this);
-			}
-		}
-		else if (spEntity->HasComponent<StarComponent>())
-		{
-			std::shared_ptr<StarComponent> spStar = spEntity->FindComponent<StarComponent>().lock();
-			std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
-			spEntity->hidden = true;
-
-			SetStarTexture(spRectShape, spStar->starType, spStar->starSize);
-		}
-		else if (spEntity->HasComponent<PlanetComponent>())
-		{
-			std::shared_ptr<PlanetComponent> spPlanet = spEntity->FindComponent<PlanetComponent>().lock();
-			spPlanet->planetIconTextureName = GetPlanetIconTextureName(spPlanet->planetType, spPlanet->planetSize, WorldGenerator::mapConfig, spEntity->FindComponent<HabitablePlanetComponent>().lock());
-			spEntity->hidden = true;
-
-			if (spPlanet->isMoon) 
-			{
-				std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
-				SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spPlanet->planetSize* WorldGenerator::mapConfig.earthDiameter, GetPlanetTextureName(spPlanet->planetType, spEntity->FindComponent<HabitablePlanetComponent>().lock()));
-			}
-			else 
-			{
-				std::vector<std::shared_ptr<SceneNode>> children = node.GetAllChildren();
-				if (!children.empty())
-				{
-					SortedPlanetComponentsList sortedPlanets;
-					for (std::shared_ptr<SceneNode> child : children)
-					{
-						if (child->GetEntity().lock()->HasComponent<PlanetComponent>())
-							sortedPlanets.AddPlanetComponent(child->GetEntity().lock()->FindComponent<PlanetComponent>().lock());
-					}
-
-					int counter = 1;
-					while (sortedPlanets.Size() > 0)
-					{
-						//sortedPlanets.DequeuePlanetComponent().lock()->planetName = "Nem";
-						//sortedPlanets.DequeuePlanetComponent().lock()->planetName = name + ' ' + GetRomanNumber(counter);
-						sortedPlanets.DequeuePlanetComponent().lock()->planetName = spPlanet->planetName + ' ' + GetRomanNumber(counter);
-						counter++;
-					}
-				}
-			}
-		}
-		else if (spEntity->HasComponent<RingComponent>())
-		{
-			std::shared_ptr<RingComponent> spRingCom = spEntity->FindComponent<RingComponent>().lock();
-
-			std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->AddComponent<RectangleShapeComponent>().lock();
-			SetupRectangleShape(spRectShape, sf::Vector2f{ 1.f,1.f }* spRingCom->ringSize* WorldGenerator::mapConfig.earthDiameter, "Ring"+std::to_string(spRingCom->ringNumber));
-
-			std::shared_ptr<PlanetComponent> spPlanetCom = node.GetParent().lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
-			spRingCom->ringIconTextureName = GetRingIconTextureName(spPlanetCom->planetType,spPlanetCom->planetSize, WorldGenerator::mapConfig);
-		}
-	}
-}
-
-
-
-//Sorted by distance to the star from smallest to largest
-void SortedPlanetComponentsList::AddPlanetComponent(std::shared_ptr<PlanetComponent> spPlanCom) 
-{
-	if (sortedListOfPlanetCom.size() == 0)
-	{
-		sortedListOfPlanetCom.push_back(spPlanCom);
-		return;
-	}
-
-	for (int i = 0; i < sortedListOfPlanetCom.size(); i++) 
-	{
-		if (spPlanCom->orbitRadius > sortedListOfPlanetCom[i]->orbitRadius)
-			continue;
-		else
-		{
-			sortedListOfPlanetCom.insert(sortedListOfPlanetCom.begin() + i, spPlanCom);
-			return;
-		}
-	}
-
-	sortedListOfPlanetCom.push_back(spPlanCom);
-}
-
-
-
-std::weak_ptr<PlanetComponent> SortedPlanetComponentsList::DequeuePlanetComponent() 
-{
-	if (sortedListOfPlanetCom.size() > 0)
-	{
-		std::weak_ptr wpFirst = sortedListOfPlanetCom[0];
-		sortedListOfPlanetCom.erase(sortedListOfPlanetCom.begin());
-		return wpFirst;
-	}
-	else
-		return {};
-}
-
-
-int SortedPlanetComponentsList::Size() { return (int)sortedListOfPlanetCom.size(); }

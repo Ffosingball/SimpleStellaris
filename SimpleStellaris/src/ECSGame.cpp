@@ -49,9 +49,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	systems.emplace_back(std::make_shared<GameSystem>());
 
 	spInputSystem->musicSystem = spMusicSystem;
-
-	WorldGenerator::Initialize((unsigned int)gel::Randf(1000000.f, 9999999.f));
-	WorldGenerator::spInputSystem = spInputSystem;
+	WorldGenerator::Instance().Initialize(spInputSystem);
 
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpCameras = entityManager.NewEntity("Cameras");

@@ -24,17 +24,20 @@
     <ClCompile Include="src\Components.cpp" />
     <ClCompile Include="src\ECSGame.cpp" />
     <ClCompile Include="src\EntitiesFunctions.cpp" />
+    <ClCompile Include="src\GetTextureNameFunctions.cpp" />
     <ClCompile Include="src\InitializeUIEntities.cpp" />
     <ClCompile Include="src\RenderVisitors.cpp" />
     <ClCompile Include="src\SceneNodeVisitors.cpp" />
     <ClCompile Include="src\SimpleStellaris.cpp" />
     <ClCompile Include="src\SpaceObjectTypes.cpp" />
     <ClCompile Include="src\Systems.cpp" />
+    <ClCompile Include="src\TextureAndNameSetter.cpp" />
     <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Components.h" />
     <ClInclude Include="src\EntitiesFunctions.h" />
+    <ClInclude Include="src\GetTextureNameFunctions.h" />
     <ClInclude Include="src\SceneNodeVisitors.h" />
     <ClInclude Include="src\SpaceMapConfiguration.h" />
     <ClInclude Include="src\SpaceObjectTypes.h" />

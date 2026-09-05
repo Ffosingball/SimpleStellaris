@@ -129,7 +129,7 @@ void InputSystem::OpenPlanetDistrictsView()
 		std::shared_ptr<PlanetComponent> spPlanetCom = wpMoonOrPlanetSelected.lock()->GetEntity().lock()->FindComponent<PlanetComponent>().lock();
 		if (spPlanetCom->planetDistrictsSeed != -1)
 		{
-			std::shared_ptr<SceneNode> spDistrictsNode = WorldGenerator::GenerateDistricts(spPlanetCom->planetDistrictsSeed, wpMoonOrPlanetSelected.lock());
+			std::shared_ptr<SceneNode> spDistrictsNode = WorldGenerator::Instance().GenerateDistricts(spPlanetCom->planetDistrictsSeed, wpMoonOrPlanetSelected.lock());
 			planetDistrictsPanel.lock()->AddChild(spDistrictsNode);
 			wpDistrictsShown = spDistrictsNode;
 		}
@@ -219,7 +219,7 @@ void InputSystem::EnterPlanetFromSystemOverview()
 		spRectShape->shape.setFillColor(color);
 	}
 
-	float earthDiameter = WorldGenerator::mapConfig.earthDiameter;
+	float earthDiameter = WorldGenerator::Instance().getSpaceMapConfig().earthDiameter;
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(false, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
@@ -269,7 +269,7 @@ void InputSystem::ExitPlanetToSystemOverview()
 
 	ECSGame::Instance().SetOverviewType(OverviewType::System);
 
-	float earthDiameter = WorldGenerator::mapConfig.earthDiameter;
+	float earthDiameter = WorldGenerator::Instance().getSpaceMapConfig().earthDiameter;
 	SceneNodeVisitorChangeSinglePlanetVisibility visitor2(true, ECSGame::Instance().GetUINode()->FindChild("SystemIcons").lock(), ECSGame::Instance().GetUINode()->FindChild("ObjectOrbits").lock(), earthDiameter);
 	wpPlanetOrStarSelected.lock()->AcceptVisitor(visitor2);
 
@@ -1348,7 +1348,7 @@ void UISystem::OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode)
 			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period,1) + " days");
 		else
 			spText3->setString("Orbital period: " + gel::roundNumberForOutput(period / 365,1) + " years");
-		spText4->setString("Radius: " + std::to_string((int)(spPlanetCom->planetSize * 500.f * WorldGenerator::mapConfig.earthDiameter)) + " km");
+		spText4->setString("Radius: " + std::to_string((int)(spPlanetCom->planetSize * 500.f * WorldGenerator::Instance().getSpaceMapConfig().earthDiameter)) + " km");
 		spText5->setString("Mass: " + gel::roundNumberForOutput(gel::sphereVolume(spPlanetCom->planetSize / 2.f) * 2.f, 2) + " earth masses");
 
 		if (!spPlanetCom->isMoon)

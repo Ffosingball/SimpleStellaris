@@ -23,101 +23,119 @@
 class WorldGenerator 
 {
 private:
-	static unsigned int seed;
-	static std::shared_ptr<std::mt19937> randomizer;
-	static float nebulaRareness;
-	static int numberOfNebulas;
-	static std::vector<double> orbitsGenerated;
-	static std::vector<double> moonOrbitsGenerated;
+	unsigned int seed{0};
+	SpaceMapConfigurations mapConfig;
+
+	std::shared_ptr<std::mt19937> randomizer;
+    std::vector<double> orbitsGenerated;
+	std::vector<double> moonOrbitsGenerated;
+	bool worldGenerated{false};
 
 	//Distributions
-	static std::shared_ptr<std::discrete_distribution<int>> starDistribution;
-	static std::shared_ptr<std::discrete_distribution<int>> giantSysDistribution;
-	static std::shared_ptr<std::discrete_distribution<int>> mediumSysDistribution;
-	static std::shared_ptr<std::discrete_distribution<int>> dwarfSysDistribution;
-	static std::shared_ptr<std::discrete_distribution<int>> binarySysDistribution;
-	static std::shared_ptr<std::discrete_distribution<int>> ternarySysDistribution;
-	static std::shared_ptr<std::uniform_real_distribution<double>> closeStarsDistances;
-	static std::shared_ptr<std::uniform_real_distribution<double>> afarStarsDistances;
-	static std::shared_ptr<std::uniform_int_distribution<int>> oneThird;
-	static std::shared_ptr<std::uniform_real_distribution<float>> from0to1Dist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> from0to2_3Dist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> redSupGiantPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> redGiantPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> OclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> BclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> AclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> FclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> GclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> KclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> MclassPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> brownDwarfPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> whiteDwarfPlanetsDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> neutronStarPlanetsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> closerThanHabitableZoneDist;
-	static std::shared_ptr<std::discrete_distribution<int>> withinHabitableZoneDist;
-	static std::shared_ptr<std::discrete_distribution<int>> furtherThanHabitableZoneDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> smallRockyPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> mediumRockyPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> largeRockyPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> smallIcyPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> mediumIcyPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> largeIcyPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> smallGiantPlanetDist;
-	static std::shared_ptr<std::uniform_real_distribution<float>> largeGiantPlanetDist;
-	static std::shared_ptr<std::discrete_distribution<int>> closeOrbitMoonDist;
-	static std::shared_ptr<std::discrete_distribution<int>> habitableZoneMoonDist;
-	static std::shared_ptr<std::discrete_distribution<int>> farOrbitMoonDist;
-	static std::shared_ptr<std::uniform_int_distribution<int>> RingTypeDist;
-	static std::shared_ptr<std::discrete_distribution<int>> barrenPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> venusLikePlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> oceanicPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> earthLikeClosePlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> earthLikeMediumPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> earthLikeFarPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> titanLikePlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> moltenPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> icyPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> voulcanicPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> desertClosePlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> desertMediumPlanetDistrictsDist;
-	static std::shared_ptr<std::discrete_distribution<int>> desertFarPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> starDistribution;
+	std::shared_ptr<std::discrete_distribution<int>> giantSysDistribution;
+	std::shared_ptr<std::discrete_distribution<int>> mediumSysDistribution;
+	std::shared_ptr<std::discrete_distribution<int>> dwarfSysDistribution;
+	std::shared_ptr<std::discrete_distribution<int>> binarySysDistribution;
+	std::shared_ptr<std::discrete_distribution<int>> ternarySysDistribution;
+	std::shared_ptr<std::uniform_real_distribution<double>> closeStarsDistances;
+	std::shared_ptr<std::uniform_real_distribution<double>> afarStarsDistances;
+	std::shared_ptr<std::uniform_int_distribution<int>> oneThird;
+	std::shared_ptr<std::uniform_real_distribution<float>> from0to1Dist;
+	std::shared_ptr<std::uniform_real_distribution<float>> from0to2_3Dist;
+	std::shared_ptr<std::uniform_int_distribution<int>> redSupGiantPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> redGiantPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> OclassPlanetsDist;
+    std::shared_ptr<std::uniform_int_distribution<int>> BclassPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> AclassPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> FclassPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> GclassPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> KclassPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> MclassPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> brownDwarfPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> whiteDwarfPlanetsDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> neutronStarPlanetsDist;
+	std::shared_ptr<std::discrete_distribution<int>> closerThanHabitableZoneDist;
+	std::shared_ptr<std::discrete_distribution<int>> withinHabitableZoneDist;
+	std::shared_ptr<std::discrete_distribution<int>> furtherThanHabitableZoneDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> smallRockyPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> mediumRockyPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> largeRockyPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> smallIcyPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> mediumIcyPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> largeIcyPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> smallGiantPlanetDist;
+	std::shared_ptr<std::uniform_real_distribution<float>> largeGiantPlanetDist;
+	std::shared_ptr<std::discrete_distribution<int>> closeOrbitMoonDist;
+	std::shared_ptr<std::discrete_distribution<int>> habitableZoneMoonDist;
+	std::shared_ptr<std::discrete_distribution<int>> farOrbitMoonDist;
+	std::shared_ptr<std::uniform_int_distribution<int>> RingTypeDist;
+	std::shared_ptr<std::discrete_distribution<int>> barrenPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> venusLikePlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> oceanicPlanetDistrictsDist;
+    std::shared_ptr<std::discrete_distribution<int>> earthLikeClosePlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> earthLikeMediumPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> earthLikeFarPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> titanLikePlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> moltenPlanetDistrictsDist;
+    std::shared_ptr<std::discrete_distribution<int>> icyPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> voulcanicPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> desertClosePlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> desertMediumPlanetDistrictsDist;
+	std::shared_ptr<std::discrete_distribution<int>> desertFarPlanetDistrictsDist;
 
-	WorldGenerator() = delete;                    // Prevent construction
-	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
-	WorldGenerator& operator=(const WorldGenerator&) = delete;
+	WorldGenerator() = default;
 
-	static void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty);
-	static void GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, std::weak_ptr<Entity> wpEntity);
-	static void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
-	static void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, float starMass, bool inheritPosition);
-	static void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
-	static void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, float mainPlanetSize, DistanceToStar habitDistToStar);
-	static void GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType);
-	static PlanetDistrictType GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier, std::mt19937& planetRandomizer);
+	void GenerateSystemType(std::shared_ptr<std::discrete_distribution<int>> systemTypeDist, std::shared_ptr<ObjectSystemComponent> spSystemCom, std::shared_ptr<SceneNode> wpSystemNode, std::shared_ptr<Entity> spStar1Entuty);
+	void GenerateStarProperties(std::weak_ptr<StarComponent> wpStarCom, std::weak_ptr<Entity> wpEntity);
+	void GeneratePlanets(std::shared_ptr<SceneNode> spSystemOrStarNode, double distanceBetweenStars, bool singleStarSystem, bool inheritPosition);
+	void GenerateSinglePlanet(sf::Vector2f orbitBoundaries, sf::Vector2f habitableZoneBoundaries, int num, std::shared_ptr<SceneNode> spNode, float starMass, bool inheritPosition);
+	void GenerateMoons(std::shared_ptr<PlanetComponent> spPlanet, sf::Vector2f habitableZoneBoundaries, std::shared_ptr<SceneNode> spNode);
+	void CreateMoon(std::shared_ptr<std::uniform_real_distribution<float>> spMoonOrbitDist, float maxMoonSize, int orbitType, std::shared_ptr<SceneNode> spNode, int num, float mainPlanetSize, DistanceToStar habitDistToStar);
+	void GenerateRings(std::shared_ptr<SceneNode> spPlanetNode, float planetSize, PlanetType planetType);
+	PlanetDistrictType GetDistrictType(PlanetType planetType, std::weak_ptr<HabitablePlanetComponent> wpHabitPlanet, std::string& districtTextureName, bool generateIceCaps, float iceCapChanceMultiplier, std::mt19937& planetRandomizer);
 
 public:
 
-	static std::shared_ptr<InputSystem> spInputSystem;
-	static SpaceMapConfigurations mapConfig;
-	static bool worldGenerated;
+	std::shared_ptr<InputSystem> spInputSystem;
 
-	static int const getSeed() { return seed; }
-	static void Initialize(unsigned int seed);
+	//WorldGenerator() = delete;                    // Prevent construction
+	WorldGenerator(const WorldGenerator&) = delete;         // Prevent copying
+	WorldGenerator& operator=(const WorldGenerator&) = delete;
+
+	static WorldGenerator& Instance()
+	{
+		static WorldGenerator worldGen;
+		return worldGen;
+	}
+
+	//Getters
+	int const getSeed() { return seed; }
+	SpaceMapConfigurations& const getSpaceMapConfig() { return mapConfig; }
+	bool const IsWorldGenerated() { return worldGenerated; }
+
+	//Setter
+	void SetWorldIsGenerated() { worldGenerated = true; }
+
+	//Call at the begining of the game
+	void Initialize(std::shared_ptr<InputSystem> spInputSystem);
+	//Call every time when need to generate new world
+	void ResetGenerator(int seed, SpaceMapConfigurations spaceMapConfig);
+
 	//Min and max value are used so vector 0,3 all values 0,1,2,3 will be generated
-	static std::vector<int> GenerateGridOfRandomNumbers(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
-	static std::vector<int> GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
-	static void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode);
-	static void GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, std::shared_ptr<SceneNode> spSystemNamesNode);
-	static std::shared_ptr<SceneNode> GenerateDistricts(int planetSeed, std::shared_ptr<SceneNode> spPlanetNode);
+	std::vector<int> GenerateGridOfRandomNumbers(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
+	std::vector<int> GenerateGridOfTiles(sf::Vector2i gridSize, sf::Vector2i minMaxValues);
+	void GenerateSpaceMap(std::shared_ptr<SceneNode> ptrSpaceMapNode);
+	void GenerateNebulas(std::shared_ptr<SceneNode> ptrNebulasNode, std::shared_ptr<SceneNode> spSystemNamesNode);
+	std::shared_ptr<SceneNode> GenerateDistricts(int planetSeed, std::shared_ptr<SceneNode> spPlanetNode);
 };
 
 
 //To set rectangleShapes and textures for all objects and generate names
-class TextureSetter : public SceneNodeVisitor
+class TextureAndNameSetter : public SceneNodeVisitor
 {
 public:
-	TextureSetter(unsigned int seed, std::weak_ptr<SceneNode> wpSystemNamesNode);
+	TextureAndNameSetter(unsigned int seed, std::weak_ptr<SceneNode> wpSystemNamesNode);
 
 	void ProcessNode(SceneNode& node) override;
 

@@ -586,8 +586,8 @@ void SceneNodeVisitorChangeSingleSystemVisibility::ProcessNode(SceneNode& node)
                     node.AcceptVisitor(visitor);
                     if (visitor.counter > 0)
                     {
-                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, std::to_string(visitor.counter) + "HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", true, WorldGenerator::mapConfig.habitablePlanetIconSystemViewSize);
-                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
+                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, std::to_string(visitor.counter) + "HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", true, WorldGenerator::Instance().getSpaceMapConfig().habitablePlanetIconSystemViewSize);
+                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::Instance().getSpaceMapConfig().habitablePlanetIconOffset;
                     }
                 }
                 else
@@ -708,8 +708,8 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     //Create habitable planet icon
                     if (spEntity->HasComponent<HabitablePlanetComponent>())
                     {
-                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, "1HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", false, WorldGenerator::mapConfig.habitablePlanetIconSystemViewSize, true);
-                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
+                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(node.GetSharedPtrToItself(), spSystemIconsNode, "1HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", false, WorldGenerator::Instance().getSpaceMapConfig().habitablePlanetIconSystemViewSize, true);
+                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::Instance().getSpaceMapConfig().habitablePlanetIconOffset;
                     }
                 }
                 else 
@@ -734,8 +734,8 @@ void SceneNodeVisitorChangeSinglePlanetVisibility::ProcessNode(SceneNode& node)
                     //Create habitable planet icon
                     if (spEntity->HasComponent<HabitablePlanetComponent>())
                     {
-                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, "1HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", false, WorldGenerator::mapConfig.habitablePlanetIconSystemViewSize, true);
-                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::mapConfig.habitablePlanetIconOffset;
+                        std::shared_ptr<Entity> spIcEn = CreateIconForSystemOverview(spPlanetPicNode, spSystemIconsNode, "1HabitablePlanetIcon", spPlanet->planetName + "HabitableIcon", false, WorldGenerator::Instance().getSpaceMapConfig().habitablePlanetIconSystemViewSize, true);
+                        spIcEn->FindComponent<UIFollowerComponent>().lock()->offset = WorldGenerator::Instance().getSpaceMapConfig().habitablePlanetIconOffset;
                     }
                 }
             }

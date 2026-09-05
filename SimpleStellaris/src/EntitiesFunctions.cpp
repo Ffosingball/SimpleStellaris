@@ -373,8 +373,9 @@ std::vector<std::shared_ptr<SceneNode>> GetAllSystemsNearPosition(sf::Vector2f p
 	if (spSysPropCom == nullptr)
 		spSysPropCom = GetSystemPropertiesFromSpaceMap();
 
-	int yPos = (int)((position.y - WorldGenerator::mapConfig.verticalPosBoundaries.x) / WorldGenerator::mapConfig.minDistanceBetweenSystems);
-	int xPos = (int)((position.x - WorldGenerator::mapConfig.horizontalPosBoundaries.x) / WorldGenerator::mapConfig.minDistanceBetweenSystems);
+	SpaceMapConfigurations& mapConfig = WorldGenerator::Instance().getSpaceMapConfig();
+	int yPos = (int)((position.y - mapConfig.verticalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
+	int xPos = (int)((position.x - mapConfig.horizontalPosBoundaries.x) / mapConfig.minDistanceBetweenSystems);
 
 	std::vector<std::shared_ptr<SceneNode>> systemsNearby;
 	if (spSysPropCom->systemsPositions.find(GetKeyForSystemsPosition(sf::Vector2i{ xPos, yPos })) != spSysPropCom->systemsPositions.end())
@@ -578,6 +579,7 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(std::shared_ptr<Entity
 {
 	sf::Vector2i tilesInTileset{ 4,5 };
 	sf::Vector2i tilesSize{ 64,64 };
+	SpaceMapConfigurations& mapConfig = WorldGenerator::Instance().getSpaceMapConfig();
 
 	//Get component
 	std::shared_ptr<TileMapComponent> spTileMapCom = spTileMap->AddComponent<TileMapComponent>().lock();
@@ -587,14 +589,23 @@ std::shared_ptr<TileMapComponent> GenerateBackgroundTiles(std::shared_ptr<Entity
 	spTileMapCom->tileMap.paddingSize = sf::Vector2i{ 0,0 };
 	spTileMapCom->tileMap.numTilesInTileset = tilesInTileset;
 	spTileMapCom->tileMap.tilesTexturePath = "media/textures/SpaceBackground.png";
-	spTileMapCom->tileMap.mapSize = WorldGenerator::mapConfig.backgroundSize;
+	spTileMapCom->tileMap.mapSize = mapConfig.backgroundSize;
 	spTileMapCom->tileMap.loadTilesFromFile = false;
 	spTileMapCom->tileMap.rotateTiles = true;
 	//Iitialize all tiles
-	spTileMapCom->tileMap.Initialize(WorldGenerator::GenerateGridOfTiles(WorldGenerator::mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::GenerateGridOfRandomNumbers(WorldGenerator::mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
-	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x* WorldGenerator::mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * WorldGenerator::mapConfig.backgroundSize.y / (-2.f)) });
+	spTileMapCom->tileMap.Initialize(WorldGenerator::Instance().GenerateGridOfTiles(mapConfig.backgroundSize, sf::Vector2i{ 0, (tilesInTileset.x * tilesInTileset.y) - 1 }), WorldGenerator::Instance().GenerateGridOfRandomNumbers(mapConfig.backgroundSize, sf::Vector2i{ 0, 3 }));
+	spTileMap->SetPosition(sf::Vector2f{(float)(tilesSize.x* mapConfig.backgroundSize.x/(-2.f)),(float)(tilesSize.y * mapConfig.backgroundSize.y / (-2.f)) });
 
 	return spTileMapCom;
+}
+
+
+void ResetWorldGenerator() 
+{
+	SpaceMapConfigurations mapConfig;
+	int seed = (unsigned int)gel::Randf(1000000.f, 9999999.f);
+	//std::cout << "Resetting in functions\n";
+	WorldGenerator::Instance().ResetGenerator(seed, mapConfig);
 }
 
 
@@ -617,31 +628,36 @@ void CreateSpaceObjects()
 	std::weak_ptr<Entity> wpNebul = ECSGame::Instance().GetEntityManager().NewEntity("Nebulas");
 	spBackgroundNode->AddChild(std::make_shared<SceneNode>(wpNebul));
 
+	//Reset world generator
+	//std::cout << "Should be resetted here!\n";
+	ResetWorldGenerator();
+	SpaceMapConfigurations& mapConfig = WorldGenerator::Instance().getSpaceMapConfig();
+
 	//Firstly generate background
 	std::shared_ptr<TileMapComponent> spTileMapCom = GenerateBackgroundTiles(wpBackgroundE.lock());
 	//Secondly generate nebulas
-	WorldGenerator::GenerateNebulas(spBackgroundNode->FindChild("Nebulas").lock(), spNebNamesNode);
+	WorldGenerator::Instance().GenerateNebulas(spBackgroundNode->FindChild("Nebulas").lock(), spNebNamesNode);
 	//Thirdly generate systems and stars in it
-	WorldGenerator::GenerateSpaceMap(spNode);
+	WorldGenerator::Instance().GenerateSpaceMap(spNode);
 	//After put rectangleShape components for all objects
-	TextureSetter txSetter(WorldGenerator::getSeed(), spSysNamesNode);
+	TextureAndNameSetter txSetter(WorldGenerator::Instance().getSeed(), spSysNamesNode);
 	txSetter.wpSpaceMapNode = spNode;
 	spNode->AcceptVisitor(txSetter);
 	//Lastly set camera boundaries
 	std::shared_ptr<CameraComponent> spCameraCom = GetCameraFromSpaceCameraEntity();
 	sf::Vector2f mapSize = static_cast<sf::Vector2f>(spTileMapCom->tileMap.getMapSize());
-	spCameraCom->horizontalBorders = { WorldGenerator::mapConfig.horizontalPosBoundaries.x - additionalSpaceForCameraBoundaries, WorldGenerator::mapConfig.horizontalPosBoundaries.y + additionalSpaceForCameraBoundaries };
-	spCameraCom->verticalBorders = { WorldGenerator::mapConfig.verticalPosBoundaries.x - additionalSpaceForCameraBoundaries, WorldGenerator::mapConfig.verticalPosBoundaries.y + additionalSpaceForCameraBoundaries };
+	spCameraCom->horizontalBorders = { mapConfig.horizontalPosBoundaries.x - additionalSpaceForCameraBoundaries, mapConfig.horizontalPosBoundaries.y + additionalSpaceForCameraBoundaries };
+	spCameraCom->verticalBorders = { mapConfig.verticalPosBoundaries.x - additionalSpaceForCameraBoundaries, mapConfig.verticalPosBoundaries.y + additionalSpaceForCameraBoundaries };
 	spCameraCom->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 	std::shared_ptr<CameraComponent> spCameraCom2 = GetCameraFromSystemCameraEntity();
-	spCameraCom2->horizontalBorders = { -WorldGenerator::mapConfig.afarStarsBoundaries.y*2.f, WorldGenerator::mapConfig.afarStarsBoundaries.y*2.f };
-	spCameraCom2->verticalBorders = { -WorldGenerator::mapConfig.afarStarsBoundaries.y*2.f, WorldGenerator::mapConfig.afarStarsBoundaries.y*2.f };
+	spCameraCom2->horizontalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
+	spCameraCom2->verticalBorders = { -mapConfig.afarStarsBoundaries.y*2.f, mapConfig.afarStarsBoundaries.y*2.f };
 	spCameraCom2->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 	std::shared_ptr<CameraComponent> spCameraCom3 = GetCameraFromPlanetCameraEntity();
-	spCameraCom3->horizontalBorders = { -WorldGenerator::mapConfig.planetCameraMaxBoundary, WorldGenerator::mapConfig.planetCameraMaxBoundary };
-	spCameraCom3->verticalBorders = { -WorldGenerator::mapConfig.planetCameraMaxBoundary, WorldGenerator::mapConfig.planetCameraMaxBoundary };
+	spCameraCom3->horizontalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
+	spCameraCom3->verticalBorders = { -mapConfig.planetCameraMaxBoundary, mapConfig.planetCameraMaxBoundary };
 	spCameraCom3->view.setCenter(sf::Vector2f{ 0.f, 0.f });
 
 #ifdef OUTPUT_WORLD_STATISTICS
@@ -667,9 +683,9 @@ void CreateSpaceObjects()
 
 	ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
 	std::shared_ptr<sf::Text> spText = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen").lock()->FindChild("SeedText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock()->text;
-	spText->setString("Seed: "+std::to_string(WorldGenerator::getSeed()));
+	spText->setString("Seed: "+std::to_string(WorldGenerator::Instance().getSeed()));
 	gel::CentreText(*spText, sf::Vector2f{0.f, 0.f});
 
-	WorldGenerator::worldGenerated = true;
+	WorldGenerator::Instance().SetWorldIsGenerated();
 	signals::onChangeInputType(InputType::World);
 }

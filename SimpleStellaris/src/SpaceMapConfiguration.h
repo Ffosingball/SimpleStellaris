@@ -6,6 +6,8 @@ struct SpaceMapConfigurations
 {
 	//Background configs
 	sf::Vector2i backgroundSize{ 18,18 };
+	float nebulaRarenessBackground = 2.f;
+	int numberOfNebulasBackground = 6;
 
 	//System configs
 	int systemAmount{ 1000 };
