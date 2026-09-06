@@ -114,13 +114,28 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 
 	//Process loading scenes
 	if (newRoot != root)
-		signals::onDeleteSceneNode(root);
+	{
+		signals::onDeleteSceneNode(uiNode);
+		signals::onDeleteSceneNode(sceneNode);
+	}
 
 	//Process entities removal
 	deleteSystem.Update(root, deltaTime);
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 #endif
+
+	if (newRoot != root) 
+	{
+		std::cout << "Entities left: \n\n";
+		entityManager.OutputAllEntitiesNames();
+
+		std::cout << "\nNodes left: \n\n";
+		if (root != nullptr)
+			root->OutputTree("");
+		else
+			std::cout << "No nodes left\n";
+	}
 
 	//Process loading scenes
 	if (newRoot != root)
@@ -211,7 +226,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	int renderedNodes{ 0 };
 	std::shared_ptr<SceneNode> spBackgroundNode;
-	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
+	if ((overviewType == OverviewType::System || overviewType == OverviewType::Planet) && ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
 		spBackgroundNode = sceneNode.lock()->FindChild("Background").lock();
 

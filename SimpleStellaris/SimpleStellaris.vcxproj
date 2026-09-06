@@ -25,6 +25,7 @@
     <ClCompile Include="src\ECSGame.cpp" />
     <ClCompile Include="src\EntitiesFunctions.cpp" />
     <ClCompile Include="src\GetTextureNameFunctions.cpp" />
+    <ClCompile Include="src\InitializeMainMenuScene.cpp" />
     <ClCompile Include="src\InitializeSpaceWorldScene.cpp" />
     <ClCompile Include="src\RenderVisitors.cpp" />
     <ClCompile Include="src\SceneNodeVisitors.cpp" />

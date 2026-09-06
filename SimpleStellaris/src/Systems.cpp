@@ -73,8 +73,13 @@ void InputSystem::Initialize()
 
 void InputSystem::OnSceneChanged() 
 {
+	std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUINode()->FindChild("MouseIcon").lock();
+	mouseIconEntity = mouseNodeSP->GetEntity().lock();
+
 	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
+		debugTextes.clear();
+
 		std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("MouseCoordsText").lock();
 		mousePosText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
 		debugTextes.push_back(mctPtr->GetEntity());
@@ -99,9 +104,6 @@ void InputSystem::OnSceneChanged()
 		selectedSystemIcon = wsiPtr->GetEntity().lock()->FindComponent<UIFollowerComponent>().lock();
 		selectedSystemEntity = wsiPtr->GetEntity().lock();
 		//debugTextes.push_back(wsiPtr->GetEntity());
-
-		std::shared_ptr<SceneNode> mouseNodeSP = ECSGame::Instance().GetUINode()->FindChild("MouseIcon").lock();
-		mouseIconEntity = mouseNodeSP->GetEntity().lock();
 
 		std::shared_ptr<SceneNode> s2Ptr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
 		debugTextes.push_back(s2Ptr->GetEntity());

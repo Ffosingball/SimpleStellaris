@@ -1064,7 +1064,7 @@ const void ResourceManager::LoadAllResources()
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
 
-				name = "StartGameMenuPressedButton";
+				name = "StartGamePressedButton";
 				textureSize.position = sf::Vector2i{ 0,255 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);

@@ -121,14 +121,21 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 	std::weak_ptr<SceneNode> wCamNode = ECSGame::Instance().GetSceneNode()->FindChild("Cameras");
 	
 	std::shared_ptr<Entity> sCamera;
-	if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
-		sCamera = wCamNode.lock()->FindChild("SpaceCamera").lock()->GetEntity().lock();
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
-		sCamera = wCamNode.lock()->FindChild("SystemCamera").lock()->GetEntity().lock();
-	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
-		sCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
-	else
-		std::cout << "Overview type is None!";
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
+	{
+		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+			sCamera = wCamNode.lock()->FindChild("SpaceCamera").lock()->GetEntity().lock();
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+			sCamera = wCamNode.lock()->FindChild("SystemCamera").lock()->GetEntity().lock();
+		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+			sCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
+		else
+			std::cout << "Overview type is None!";
+	}
+	else 
+	{
+		sCamera = wCamNode.lock()->FindChild("BackgroundCamera").lock()->GetEntity().lock();
+	}
 
 	return sCamera->FindComponent<CameraComponent>().lock();
 }
