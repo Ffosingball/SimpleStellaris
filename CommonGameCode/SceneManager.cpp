@@ -23,20 +23,23 @@ void SceneManager::AddScene(std::string sceneName, std::function<void(std::share
 
 void SceneManager::OnLoadScene(std::string sceneName) 
 {
-	std::thread loadSceneAsync(LoadSceneAsynchronously, sceneName);
+	std::thread loadSceneAsync(&SceneManager::LoadSceneAsynchronously, this, sceneName);
 	loadSceneAsync.detach();
 }
 
 
 void SceneManager::LoadSceneAsynchronously(std::string sceneName)
 {
+	ECSGame::Instance().SetGameState(GameState::Loading);
+	ECSGame::Instance().SetDeltaTimeMultiplier(0.f);
+
 	std::weak_ptr<Entity> wpRoot = ECSGame::Instance().GetEntityManager().NewEntity(sceneName);
 	std::shared_ptr<SceneNode> root = std::make_shared<SceneNode>(wpRoot);
 	std::weak_ptr<Entity> wpScene = ECSGame::Instance().GetEntityManager().NewEntity("Scene");
 	std::shared_ptr<SceneNode> sceneNode = std::make_shared<SceneNode>(wpScene);
 	root->AddChild(sceneNode);
-	std::weak_ptr<Entity> wpScene = ECSGame::Instance().GetEntityManager().NewEntity("UI");
-	std::shared_ptr<SceneNode> uiNode = std::make_shared<SceneNode>();
+	std::weak_ptr<Entity> wpUI = ECSGame::Instance().GetEntityManager().NewEntity("UI");
+	std::shared_ptr<SceneNode> uiNode = std::make_shared<SceneNode>(wpUI);
 	root->AddChild(uiNode);
 
 	scenesInitializers[sceneName](sceneNode, uiNode);

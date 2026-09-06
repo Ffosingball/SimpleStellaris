@@ -136,7 +136,7 @@ private:
 	//Pointer to the window
 	sf::RenderWindow* renderWindowPtr = nullptr;
 	//Flag if mouse over ui part or not!
-	bool isMouseOverUI{false};
+	bool isMouseOverUI{true};
 
 	float deltaTimeMultiplier{ 1.f };
 	float uiDeltaTime{0.f};

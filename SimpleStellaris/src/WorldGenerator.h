@@ -109,7 +109,7 @@ public:
 
 	//Getters
 	int const getSeed() { return seed; }
-	SpaceMapConfigurations& const getSpaceMapConfig() { return mapConfig; }
+	SpaceMapConfigurations& getSpaceMapConfig() { return mapConfig; }
 	bool const IsWorldGenerated() { return worldGenerated; }
 
 	//Setter

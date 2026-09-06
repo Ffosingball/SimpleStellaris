@@ -159,9 +159,9 @@ void InitializeBackgroundCamera(std::shared_ptr<SceneNode> spCameraNode, const s
 
 //Worst case: O(12N+4M) where N is number of components available in game and M number of components
 //available in game
-void InitializeAllCameras(const sf::Vector2u& windowSize)
+void InitializeAllCameras(const sf::Vector2u& windowSize, std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
 {
-	std::shared_ptr<SceneNode> spAllCam = ECSGame::Instance().GetSceneNode()->FindChild("Cameras").lock();
+	std::shared_ptr<SceneNode> spAllCam = sceneNode->FindChild("Cameras").lock();
 
 	InitializeSpaceCamera(spAllCam, windowSize);
 	InitializeUICamera(spAllCam, windowSize);
@@ -286,19 +286,20 @@ void CreateSpaceObjects()
 	WorldGenerator::Instance().SetWorldIsGenerated();
 	ECSGame::Instance().SetGameState(GameState::Pause);
 	ECSGame::Instance().SetOverviewType(OverviewType::Space);
+	ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
 	signals::onChangeInputType(InputType::World);
 }
 
 
 //Worst case: O(3N+2M) where N is number of components in entity and M number of components
 //available in game
-void InitializeMouseIcon()
+void InitializeMouseIcon(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
 {
 	sf::Vector2f mouseSize{ 60.f, 60.f };
 	float uiSize = ECSGame::Instance().GetUISize();
 
 	std::weak_ptr<Entity> wpMouseIcon = ECSGame::Instance().GetEntityManager().NewEntity("MouseIcon");
-	ECSGame::Instance().GetUINode()->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
+	uiNode->AddChild(std::make_shared<SceneNode>(wpMouseIcon));
 	//Add components
 	//wpMouseIcon.lock()->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape = wpMouseIcon.lock()->AddComponent<RectangleShapeComponent>().lock();
@@ -309,7 +310,7 @@ void InitializeMouseIcon()
 //Creates UI of the game
 //Worst case: O(4N+M) where N is number of components in entity and M number of components
 //available in game
-void CreateUI()
+void CreateUI(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
 {
 	sf::Vector2f iconSize{ 100.f, 100.f };
 	sf::Vector2f uiTopPartSize{ 1000.f, 140.f };
@@ -331,9 +332,8 @@ void CreateUI()
 	sf::Color escapeMenuPanelColor = sf::Color{ 0,0,0,230 };
 
 	float uiSize = ECSGame::Instance().GetUISize();
-	std::shared_ptr<SceneNode> spUIRootNode = ECSGame::Instance().GetUINode();
 	//CREATE SELECTION ICON
-	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAtUINode("SelectedSystemIcon").lock();
+	std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt(uiNode,"SelectedSystemIcon").lock();
 	//Add component
 	//spSSIcon->AddComponent<UIPartComponent>();
 	spSSIcon->AddComponent<UIFollowerComponent>();
@@ -342,22 +342,22 @@ void CreateUI()
 	spSSIcon->hidden = true;
 
 	//CREATE Upper and lower parts of ui
-	std::shared_ptr<Entity> spToPart = CreateNewEntityAtUINode("UpperPart").lock();
+	std::shared_ptr<Entity> spToPart = CreateNewEntityAt(uiNode, "UpperPart").lock();
 	//Add component
 	//spToPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape2 = spToPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape2, uiTopPartSize * uiSize, "TopUIPart");
 	spToPart->SetPosition(sf::Vector2f{ 1280.f,uiTopPartSize.y / 2.f } * uiSize);
 
-	std::shared_ptr<Entity> spLoPart = CreateNewEntityAtUINode("LowerPart").lock();
+	std::shared_ptr<Entity> spLoPart = CreateNewEntityAt(uiNode, "LowerPart").lock();
 	//Add component
 	//spLoPart->AddComponent<UIPartComponent>();
 	std::shared_ptr<RectangleShapeComponent> spRectShape3 = spLoPart->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShape3, uiBottomPartSize * uiSize, "BottomUIPart");
 	spLoPart->SetPosition(sf::Vector2f{ 1280.f,1600.f - (uiBottomPartSize.y / 2.f) } * uiSize);
 
-	std::shared_ptr<SceneNode> spLowerPartNode = spUIRootNode->FindChild(*spLoPart).lock();
-	std::shared_ptr<SceneNode> spUpperPartNode = spUIRootNode->FindChild(*spToPart).lock();
+	std::shared_ptr<SceneNode> spLowerPartNode = uiNode->FindChild(*spLoPart).lock();
+	std::shared_ptr<SceneNode> spUpperPartNode = uiNode->FindChild(*spToPart).lock();
 	//CREATE UI textes
 	InitializeText("MonthText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 140.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
 	InitializeText("DayText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -110.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
@@ -368,7 +368,7 @@ void CreateUI()
 	InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, -20.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
 
 	//CREATE SIDE part of ui
-	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAtUINode("InfoPart").lock();
+	std::shared_ptr<Entity> spInfoPart = CreateNewEntityAt(uiNode, "InfoPart").lock();
 	spInfoPart->hidden = true;
 	//Add component
 	//spInfoPart->AddComponent<UIPartComponent>();
@@ -376,7 +376,7 @@ void CreateUI()
 	SetupRectangleShape(spRectShape4, uiInfoPartSize * uiSize, "UIPartSide");
 	spInfoPart->SetPosition(sf::Vector2f{ 390.f, 800.f } * uiSize);
 
-	std::shared_ptr<SceneNode> spInfoPartNode = spUIRootNode->FindChild(*spInfoPart).lock();
+	std::shared_ptr<SceneNode> spInfoPartNode = uiNode->FindChild(*spInfoPart).lock();
 	//CREATE INFO textes
 	std::shared_ptr<Entity> spTextEn = InitializeText("InfoText0", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 	spTextEn = InitializeText("InfoText1", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
@@ -387,7 +387,7 @@ void CreateUI()
 	spTextEn = InitializeText("InfoText6", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
 
 	//CREATE PLANET DISTRICTS panel
-	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAtUINode("PlanetDistrictsPart").lock();
+	std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAt(uiNode, "PlanetDistrictsPart").lock();
 	spPlDisPart->hidden = true;
 	//Add component
 	//spPlDisPart->AddComponent<UIPartComponent>();
@@ -395,7 +395,7 @@ void CreateUI()
 	SetupRectangleShape(spRectShape5, planetDisPartSize * uiSize, "UIPartPlanetDistricts");
 	spPlDisPart->SetPosition(sf::Vector2f{ 1280.f, 800.f } * uiSize);
 
-	std::shared_ptr<SceneNode> spPlDisNode = spUIRootNode->FindChild(*spPlDisPart).lock();
+	std::shared_ptr<SceneNode> spPlDisNode = uiNode->FindChild(*spPlDisPart).lock();
 	//CREATE Planet Districts textes
 	spTextEn = InitializeText("PlanetNameText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 0.f, -380.f } * uiSize, fontName, true, importantColor, spPlDisNode);
 	spTextEn = InitializeText("DistrictsText", "Planet Districts:", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, -300.f } * uiSize, fontName, false, usualColor, spPlDisNode);
@@ -410,7 +410,7 @@ void CreateUI()
 	spTextEn = InitializeText("BuildingsText", "Buildings list:", (int)(infoFontSize * uiSize), sf::Vector2f{ 600.f, -300.f } * uiSize, fontName, true, usualColor, spPlDisNode);
 
 	//CREATE MUSIC PLAYER panel
-	std::shared_ptr<Entity> spMusPart = CreateNewEntityAtUINode("MusicPlayerPart").lock();
+	std::shared_ptr<Entity> spMusPart = CreateNewEntityAt(uiNode, "MusicPlayerPart").lock();
 	//Add component
 	//spPlDisPart->AddComponent<UIPartComponent>();
 	spRectShape = spMusPart->AddComponent<RectangleShapeComponent>().lock();
@@ -418,7 +418,7 @@ void CreateUI()
 	spRectShape->shape.rotate(sf::Angle(sf::degrees(180)));
 	spMusPart->SetPosition(sf::Vector2f{ 2450.f, -130.f } * uiSize);
 
-	std::shared_ptr<SceneNode> spMusNode = spUIRootNode->FindChild(*spMusPart).lock();
+	std::shared_ptr<SceneNode> spMusNode = uiNode->FindChild(*spMusPart).lock();
 	//CREATE MUSIC PLAYER text
 	spTextEn = InitializeText("MusicPlayerText", "Music Player", (int)(metricsFontSize * uiSize), sf::Vector2f{ -40.f, 150.f } * uiSize, fontName, true, usualColor, spMusNode);
 
@@ -558,7 +558,7 @@ void CreateUI()
 		{ButtonSignals::OnButtonClicked(entity); };
 
 	//CREATE Loading screen
-	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAtUINode("LoadingScreen").lock();
+	std::shared_ptr<Entity> spLoadScreen = CreateNewEntityAt(uiNode, "LoadingScreen").lock();
 	spLoadScreen->hidden = false;
 	//Add component
 	spRectShape = spLoadScreen->AddComponent<RectangleShapeComponent>().lock();
@@ -567,12 +567,12 @@ void CreateUI()
 	spRectShape->shape.setFillColor(escapeMenuPanelColor);
 	spLoadScreen->SetPosition(sf::Vector2f{ 1280.f, 800.f } * uiSize);
 
-	std::shared_ptr<SceneNode> spLoadSNode = spUIRootNode->FindChild(*spLoadScreen).lock();
+	std::shared_ptr<SceneNode> spLoadSNode = uiNode->FindChild(*spLoadScreen).lock();
 	//CREATE Loading screen textes
 	spTextEn = InitializeText("LoadingText", "Generating...", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, true, importantColor, spLoadSNode);
 
 	//CREATE escape menu screen
-	std::shared_ptr<Entity> spEscScreen = CreateNewEntityAtUINode("EscapeMenuScreen").lock();
+	std::shared_ptr<Entity> spEscScreen = CreateNewEntityAt(uiNode, "EscapeMenuScreen").lock();
 	spEscScreen->hidden = true;
 	//Add component
 	spRectShape = spEscScreen->AddComponent<RectangleShapeComponent>().lock();
@@ -581,7 +581,7 @@ void CreateUI()
 	spRectShape->shape.setFillColor(escapeMenuPanelColor);
 	spEscScreen->SetPosition(sf::Vector2f{ 1280.f, 800.f } * uiSize);
 
-	std::shared_ptr<SceneNode> spEscapeNode = spUIRootNode->FindChild(*spEscScreen).lock();
+	std::shared_ptr<SceneNode> spEscapeNode = uiNode->FindChild(*spEscScreen).lock();
 	//CREATE escape menu textes
 	spTextEn = InitializeText("EscapeText", "Game paused", (int)(mainMenuMainFontSize * uiSize), sf::Vector2f{ 0.f, -160.f } * uiSize, fontName, true, importantColor, spEscapeNode);
 	spTextEn = InitializeText("SeedText", "Seed: ", (int)(infoFontSize * uiSize), sf::Vector2f{ 0.f, 750.f } * uiSize, fontName, true, usualColor, spEscapeNode);
@@ -860,20 +860,20 @@ void CreateUI()
 //Create debugging text at the top right corner
 //Worst case: O((6N+3M)*K) where N is number of components in entity and M number of components
 //available in game and K number of texts to create
-void CreateDebugText()
+void CreateDebugText(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
 {
 	float fontSize = 20.f;
 	std::string fontName = "PixelBold";
 
 	float uiSize = ECSGame::Instance().GetUISize();
-	InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, false);
-	InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false);
-	InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false);
-	InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false);
-	InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false);
-	InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false);
-	InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false);
-	InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 175.f } * uiSize, fontName, false);
+	InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+	InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 175.f } * uiSize, fontName, false, sf::Color::White, uiNode);
 }
 
 
@@ -891,13 +891,13 @@ void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared
 	uiNode->AddChild(std::make_shared<SceneNode>(wpSysIc));
 
 	//Initialize all cameras
-	InitializeAllCameras(ECSGame::Instance().GetWindowSize());
+	InitializeAllCameras(ECSGame::Instance().GetWindowSize(), sceneNode, uiNode);
 	//Setup mouseIcon
-	InitializeMouseIcon();
+	InitializeMouseIcon(sceneNode, uiNode);
 	//Initialize game ui
-	CreateUI();
+	CreateUI(sceneNode, uiNode);
 	//Create debug text
-	CreateDebugText();
+	CreateDebugText(sceneNode, uiNode);
 
 	uiNode->ChangeChildOrder(uiNode->FindChild("MouseIcon").lock(), (int)uiNode->GetAllChildren().size() - 1);
 

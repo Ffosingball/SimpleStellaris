@@ -105,7 +105,8 @@ void ButtonClicked(std::shared_ptr<Entity> spEntity)
 
 void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity) 
 {
-	ChangeEscapeScreen();
+	if(ECSGame::Instance().GetGameState()!=GameState::Loading)
+		ChangeEscapeScreen();
 }
 
 

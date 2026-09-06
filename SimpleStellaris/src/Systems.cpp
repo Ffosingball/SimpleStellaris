@@ -415,188 +415,203 @@ void InputSystem::ChangeEscapeScreen()
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
 {
-	if (inputType==InputType::World)
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
 	{
-		if (key.code == sf::Keyboard::Key::Space)
+		if (inputType == InputType::World)
 		{
-			if (ECSGame::Instance().GetGameState() == GameState::Game)
-				PauseSimulation();
-			else if (ECSGame::Instance().GetGameState() == GameState::Pause)
-				ResumeSimulation();
-		}
-		else if (key.code == sf::Keyboard::Key::Q)
-		{
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
-				ExitSystemOverview();
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && districtViewOpened)
-				ClosePlanetDistrictsView();
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
-				ExitPlanetToSystemOverview();
-		}
-		else if (key.code == sf::Keyboard::Key::Escape)
-		{
-			ChangeEscapeScreen();
-		}
-		else if (key.code == sf::Keyboard::Key::F3)
-		{
-			showDebugText = !showDebugText;
-			for (std::weak_ptr<Entity> e : debugTextes)
+			if (key.code == sf::Keyboard::Key::Space)
 			{
-				e.lock()->hidden = showDebugText;
+				if (ECSGame::Instance().GetGameState() == GameState::Game)
+					PauseSimulation();
+				else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+					ResumeSimulation();
+			}
+			else if (key.code == sf::Keyboard::Key::Q)
+			{
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+					ExitSystemOverview();
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && districtViewOpened)
+					ClosePlanetDistrictsView();
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+					ExitPlanetToSystemOverview();
+			}
+			else if (key.code == sf::Keyboard::Key::Escape)
+			{
+				ChangeEscapeScreen();
+			}
+			else if (key.code == sf::Keyboard::Key::F3)
+			{
+				showDebugText = !showDebugText;
+				for (std::weak_ptr<Entity> e : debugTextes)
+				{
+					e.lock()->hidden = showDebugText;
+				}
+			}
+			else if (key.code == sf::Keyboard::Key::Tab)
+			{
+				if (infoPanelIsShown)
+					signals::onHideInfoPanel();
+				else
+					signals::onShowInfoPanel();
+				infoPanelIsShown = !infoPanelIsShown;
+			}
+			else if (key.code == sf::Keyboard::Key::Z)
+			{
+				UIHidden = !UIHidden;
+				ChangeUIVisibility(UIHidden);
 			}
 		}
-		else if (key.code == sf::Keyboard::Key::Tab)
+		else
 		{
-			if (infoPanelIsShown)
-				signals::onHideInfoPanel();
-			else
-				signals::onShowInfoPanel();
-			infoPanelIsShown = !infoPanelIsShown;
+			if (key.code == sf::Keyboard::Key::Escape)
+			{
+				ChangeEscapeScreen();
+			}
 		}
-		else if (key.code == sf::Keyboard::Key::Z)
-		{
-			UIHidden = !UIHidden;
-			ChangeUIVisibility(UIHidden);
-		}
-	}
-	else 
-	{
-		if (key.code == sf::Keyboard::Key::Escape)
-		{
-			ChangeEscapeScreen();
-		}
-	}
 
-	lastInputByJoystick = false;
+		lastInputByJoystick = false;
+	}
 }
 
 
 void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 {
-	//lastInputByJoystick = false;
+	//if (ECSGame::Instance().GetGameState() != GameState::Loading)
+	//{
+		//lastInputByJoystick = false;
+	//}
 }
 
 
 void InputSystem::OnJoystickMoved(sf::Event::JoystickMoved joystickMoved)
 {
-	
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
+	{
+
+	}
 }
 
 
 void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button)
 {
-	if (inputType == InputType::World)
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
 	{
-		switch (button.button)
+		if (inputType == InputType::World)
 		{
-		case 0:
-			if(ECSGame::Instance().IsMouseOverUI())
-				OnChangeInputType(InputType::Menu);
-			else
+			switch (button.button)
 			{
+			case 0:
+				if (ECSGame::Instance().IsMouseOverUI())
+					OnChangeInputType(InputType::Menu);
+				else
+				{
+					if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+						EnterSystemOverview();
+					else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+					{
+						if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+							EnterPlanetFromSystemOverview();
+					}
+					else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+					{
+						if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+							OpenPlanetDistrictsView();
+					}
+				}
+
+				signals::onLMBpressed();
+				break;
+			case 1:
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+					ExitSystemOverview();
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && districtViewOpened)
+					ClosePlanetDistrictsView();
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+					ExitPlanetToSystemOverview();
+				break;
+			case 2:
 				if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
-					EnterSystemOverview();
+				{
+					LockCameraOnNode(wpSelectedSystemNode);
+				}
 				else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
 				{
-					if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-						EnterPlanetFromSystemOverview();
+					LockCameraOnNode(wpPlanetOrStarSelected);
 				}
 				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
 				{
-					if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-						OpenPlanetDistrictsView();
+					LockCameraOnNode(wpMoonOrPlanetSelected);
 				}
+				else
+					CancelCameraLock();
+				break;
+			case 3:
+				if (infoPanelIsShown)
+					signals::onHideInfoPanel();
+				else
+					signals::onShowInfoPanel();
+				infoPanelIsShown = !infoPanelIsShown;
+				break;
+			case 4:
+				UIHidden = !UIHidden;
+				ChangeUIVisibility(UIHidden);
+				break;
+			case 5:
+				if (ECSGame::Instance().GetGameState() == GameState::Game)
+					PauseSimulation();
+				else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+					ResumeSimulation();
+				break;
+			case 6:
+				ChangeEscapeScreen();
+				OnChangeInputType(InputType::Menu);
+				break;
 			}
-
-			signals::onLMBpressed();
-			break;
-		case 1:
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
-				ExitSystemOverview();
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && districtViewOpened)
-				ClosePlanetDistrictsView();
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
-				ExitPlanetToSystemOverview();
-			break;
-		case 2:
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
-			{
-				LockCameraOnNode(wpSelectedSystemNode);
-			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
-			{
-				LockCameraOnNode(wpPlanetOrStarSelected);
-			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
-			{
-				LockCameraOnNode(wpMoonOrPlanetSelected);
-			}
-			else
-				CancelCameraLock();
-			break;
-		case 3:
-			if (infoPanelIsShown)
-				signals::onHideInfoPanel();
-			else
-				signals::onShowInfoPanel();
-			infoPanelIsShown = !infoPanelIsShown;
-			break;
-		case 4:
-			UIHidden = !UIHidden;
-			ChangeUIVisibility(UIHidden);
-			break;
-		case 5:
-			if (ECSGame::Instance().GetGameState() == GameState::Game)
-				PauseSimulation();
-			else if (ECSGame::Instance().GetGameState() == GameState::Pause)
-				ResumeSimulation();
-			break;
-		case 6:
-			ChangeEscapeScreen();
-			OnChangeInputType(InputType::Menu);
-			break;
 		}
-	}
-	else 
-	{
-		switch (button.button)
+		else
 		{
-		case 0:
-			signals::onLMBpressed();
-			break;
-		case 1:
-			if(ECSGame::Instance().GetGameState()!=GameState::Stopped)
+			switch (button.button)
+			{
+			case 0:
+				signals::onLMBpressed();
+				break;
+			case 1:
+				if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+					OnChangeInputType(InputType::World);
+				break;
+			case 2:
+				if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+					OnChangeInputType(InputType::World);
+				break;
+			case 5:
+				if (ECSGame::Instance().GetGameState() == GameState::Game)
+					PauseSimulation();
+				else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+					ResumeSimulation();
+				break;
+			case 6:
 				OnChangeInputType(InputType::World);
-			break;
-		case 2:
-			if (ECSGame::Instance().GetGameState() != GameState::Stopped)
-				OnChangeInputType(InputType::World);
-			break;
-		case 5:
-			if (ECSGame::Instance().GetGameState() == GameState::Game)
-				PauseSimulation();
-			else if (ECSGame::Instance().GetGameState() == GameState::Pause)
-				ResumeSimulation();
-			break;
-		case 6:
-			OnChangeInputType(InputType::World);
-			ChangeEscapeScreen();
-			break;
+				ChangeEscapeScreen();
+				break;
+			}
 		}
-	}
 
-	lastInputByJoystick = true;
+		lastInputByJoystick = true;
+	}
 }
 
 
 void InputSystem::OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button)
 {
-	switch (button.button)
-	{
-	case 0:
-		signals::onLMBreleased();
-		break;
-	}
+	//if (ECSGame::Instance().GetGameState() != GameState::Loading)
+	//{
+		switch (button.button)
+		{
+		case 0:
+			signals::onLMBreleased();
+			break;
+		}
+	//}
 }
 
 
@@ -660,8 +675,14 @@ void InputSystem::ZoomCamera(int direction)
 
 void InputSystem::OnMouseWheelScrolled(sf::Event::MouseWheelScrolled mw) 
 {
-	lastInputByJoystick = false;
-	ZoomCamera((int)mw.delta);
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
+	{
+		if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
+		{
+			lastInputByJoystick = false;
+			ZoomCamera((int)mw.delta);
+		}
+	}
 }
 
 
@@ -687,6 +708,7 @@ void InputSystem::OnChangeInputType(InputType inType)
 			mouseIconEntity.lock()->hidden = false;
 		}
 
+		//std::cout << "Changed input type" << '\n';
 		inputType = inType;
 	}
 }
@@ -694,57 +716,60 @@ void InputSystem::OnChangeInputType(InputType inType)
 
 void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed)
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Stopped && inputType == InputType::Menu)
+	if (ECSGame::Instance().GetGameState() == GameState::Game && inputType == InputType::Menu)
 		OnChangeInputType(InputType::World);
 
-	if (inputType == InputType::World)
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
 	{
-		if (mouseButPressed.button == sf::Mouse::Button::Left)
+		if (inputType == InputType::World)
 		{
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+			if (mouseButPressed.button == sf::Mouse::Button::Left)
 			{
-				EnterSystemOverview();
-			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
-			{
-				if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-					EnterPlanetFromSystemOverview();
-			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
-			{
-				if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
-					OpenPlanetDistrictsView();
-			}
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+				{
+					EnterSystemOverview();
+				}
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+				{
+					if (wpPlanetOrStarSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+						EnterPlanetFromSystemOverview();
+				}
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+				{
+					if (wpMoonOrPlanetSelected.lock()->GetEntity().lock()->HasComponent<PlanetComponent>())
+						OpenPlanetDistrictsView();
+				}
 
-			signals::onLMBpressed();
+				signals::onLMBpressed();
+			}
+			else if (mouseButPressed.button == sf::Mouse::Button::Right)
+			{
+				if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+				{
+					LockCameraOnNode(wpSelectedSystemNode);
+				}
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
+				{
+					LockCameraOnNode(wpPlanetOrStarSelected);
+				}
+				else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
+				{
+					LockCameraOnNode(wpMoonOrPlanetSelected);
+				}
+				else
+					CancelCameraLock();
+			}
 		}
-		else if (mouseButPressed.button == sf::Mouse::Button::Right)
+		else
 		{
-			if (ECSGame::Instance().GetOverviewType() == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
+			if (mouseButPressed.button == sf::Mouse::Button::Left)
 			{
-				LockCameraOnNode(wpSelectedSystemNode);
+				signals::onLMBpressed();
 			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::System && wpPlanetOrStarSelected.lock() != nullptr)
-			{
-				LockCameraOnNode(wpPlanetOrStarSelected);
-			}
-			else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet && wpMoonOrPlanetSelected.lock() != nullptr)
-			{
-				LockCameraOnNode(wpMoonOrPlanetSelected);
-			}
-			else
-				CancelCameraLock();
 		}
-	}
-	else 
-	{
-		if (mouseButPressed.button == sf::Mouse::Button::Left)
-		{
-			signals::onLMBpressed();
-		}
-	}
 
-	lastInputByJoystick = false;
+		lastInputByJoystick = false;
+	}
 }
 
 
@@ -778,130 +803,133 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	//Set direction to 0,0
 	sf::Vector2f direction{ 0,0 };
 
-	//Get continuous input
-	if (inputType == InputType::World)
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+		//Get continuous input
+		if (inputType == InputType::World)
 		{
-			//Change direction to positive
-			direction.y -= 1.f;
-			lastInputByJoystick = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-		{
-			//Change direction to negative
-			direction.y += 1.f;
-			lastInputByJoystick = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-		{
-			direction.x -= 1.f;
-			lastInputByJoystick = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-		{
-			direction.x += 1.f;
-			lastInputByJoystick = false;
-		}
-
-		if (joystickConnected)
-		{
-			//Get LEFT joysticks position
-			float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
-			float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-
-			if (abs(x) > minValForJoystick || abs(y) > minValForJoystick)
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 			{
-				direction = sf::Vector2f{ x / 50.f, y / 50.f };
-				lastInputByJoystick = true;
+				//Change direction to positive
+				direction.y -= 1.f;
+				lastInputByJoystick = false;
 			}
 
-			//Get RIGHT joysticks position
-			float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::U);
-			float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
-
-			//std::cout << "V: " << v<<'\n';
-			if (abs(u) > minValForJoystick || abs(v) > minValForJoystick)
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
 			{
-				sf::Vector2i previousMousePos = ECSGame::Instance().GetMousePosition();
-				float mouseSpeed = 100.f / mouseSpeedFromJoystick;
-				//std::cout <<"Move Y: " << (int)roundf(v / mouseSpeed) << '\n';
-				//lastMouseSpeed = sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) };
-				ECSGame::Instance().SetMousePosition(sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) });
-				lastInputByJoystick = true;
+				//Change direction to negative
+				direction.y += 1.f;
+				lastInputByJoystick = false;
 			}
 
-			//Get LT and RT
-			float z = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z);
-			if (abs(z) > minValForJoystick)
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 			{
-				lastInputByJoystick = true;
-				ZoomCamera((int)z);
+				direction.x -= 1.f;
+				lastInputByJoystick = false;
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+			{
+				direction.x += 1.f;
+				lastInputByJoystick = false;
+			}
+
+			if (joystickConnected)
+			{
+				//Get LEFT joysticks position
+				float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+				float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
+
+				if (abs(x) > minValForJoystick || abs(y) > minValForJoystick)
+				{
+					direction = sf::Vector2f{ x / 50.f, y / 50.f };
+					lastInputByJoystick = true;
+				}
+
+				//Get RIGHT joysticks position
+				float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::U);
+				float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+
+				//std::cout << "V: " << v<<'\n';
+				if (abs(u) > minValForJoystick || abs(v) > minValForJoystick)
+				{
+					sf::Vector2i previousMousePos = ECSGame::Instance().GetMousePosition();
+					float mouseSpeed = 100.f / mouseSpeedFromJoystick;
+					//std::cout <<"Move Y: " << (int)roundf(v / mouseSpeed) << '\n';
+					//lastMouseSpeed = sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) };
+					ECSGame::Instance().SetMousePosition(sf::Vector2i{ previousMousePos.x + (int)roundf(u / mouseSpeed), previousMousePos.y + (int)roundf(v / mouseSpeed) });
+					lastInputByJoystick = true;
+				}
+
+				//Get LT and RT
+				float z = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z);
+				if (abs(z) > minValForJoystick)
+				{
+					lastInputByJoystick = true;
+					ZoomCamera((int)z);
+				}
 			}
 		}
-	}
-	else 
-	{
-		if (joystickConnected && timePassedSinceSelectedButton>=selectNextButtonPeriod) 
+		else
 		{
-			//Get Crest joysticks position
-			float povX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovX);
-			float povY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovY);
-			//Get right joystick movement
-			float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
-			float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-
-			//std::cout << "V: " << v<<'\n';
-			if (abs(u) > minValForJoystick || abs(v) > minValForJoystick || abs(povX) > minValForJoystick || abs(povY) > minValForJoystick)
+			if (joystickConnected && timePassedSinceSelectedButton >= selectNextButtonPeriod)
 			{
-				//Get Direction
-				//Crest input has priority over right joystick
-				int direction = -1;//0 top, 1 left, 2 bottom, 3 right
-				if (abs(povX) > abs(povY)  && abs(povX) > minValForJoystick)
-				{
-					if (povX < 0)
-						direction = 3;
-					else
-						direction = 1;
-				}
-				else if (abs(povY) > minValForJoystick) 
-				{
-					if (povY > 0)
-						direction = 2;
-					else
-						direction = 0;
-				}
-				else if (abs(u) > abs(v) && abs(u) > minValForJoystick)
-				{
-					if (u < 0)
-						direction = 3;
-					else
-						direction = 1;
-				}
-				else if (abs(v) > minValForJoystick)
-				{
-					if (v < 0)
-						direction = 2;
-					else
-						direction = 0;
-				}
+				//Get Crest joysticks position
+				float povX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovX);
+				float povY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovY);
+				//Get right joystick movement
+				float u = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+				float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
 
-				//Get Button to move to
-				sf::Vector2i tempPos = ECSGame::Instance().GetMousePosition();
-				VisitorGetClosestButtonAtDirection visitor(direction, sf::Vector2f{(float)tempPos.x,(float)tempPos.y});
-				wpInputRootNode.lock()->AcceptReverseVisitor(visitor);
-				if (visitor.wpClosestButton.lock() != nullptr)
+				//std::cout << "V: " << v<<'\n';
+				if (abs(u) > minValForJoystick || abs(v) > minValForJoystick || abs(povX) > minValForJoystick || abs(povY) > minValForJoystick)
 				{
-					//Set new mouse position
-					sf::Vector2f pos = visitor.wpClosestButton.lock()->GetCombinedPosition();
-					ECSGame::Instance().SetMousePosition(sf::Vector2i{(int)pos.x,(int)pos.y});
-				}
+					//Get Direction
+					//Crest input has priority over right joystick
+					int direction = -1;//0 top, 1 left, 2 bottom, 3 right
+					if (abs(povX) > abs(povY) && abs(povX) > minValForJoystick)
+					{
+						if (povX < 0)
+							direction = 3;
+						else
+							direction = 1;
+					}
+					else if (abs(povY) > minValForJoystick)
+					{
+						if (povY > 0)
+							direction = 2;
+						else
+							direction = 0;
+					}
+					else if (abs(u) > abs(v) && abs(u) > minValForJoystick)
+					{
+						if (u < 0)
+							direction = 3;
+						else
+							direction = 1;
+					}
+					else if (abs(v) > minValForJoystick)
+					{
+						if (v < 0)
+							direction = 2;
+						else
+							direction = 0;
+					}
 
-				lastInputByJoystick = true;
-				timePassedSinceSelectedButton = 0.f;
+					//Get Button to move to
+					sf::Vector2i tempPos = ECSGame::Instance().GetMousePosition();
+					VisitorGetClosestButtonAtDirection visitor(direction, sf::Vector2f{ (float)tempPos.x,(float)tempPos.y });
+					wpInputRootNode.lock()->AcceptReverseVisitor(visitor);
+					if (visitor.wpClosestButton.lock() != nullptr)
+					{
+						//Set new mouse position
+						sf::Vector2f pos = visitor.wpClosestButton.lock()->GetCombinedPosition();
+						ECSGame::Instance().SetMousePosition(sf::Vector2i{ (int)pos.x,(int)pos.y });
+					}
+
+					lastInputByJoystick = true;
+					timePassedSinceSelectedButton = 0.f;
+				}
 			}
 		}
 	}
@@ -1203,7 +1231,7 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 			simStateText.lock()->text->setString("PAUSED");
 			simStateText.lock()->text->setFillColor(sf::Color::Red);
 		}
-		else
+		else if (ECSGame::Instance().GetGameState() == GameState::Game)
 		{
 			simStateText.lock()->text->setString("RESUMED");
 			simStateText.lock()->text->setFillColor(sf::Color::White);
@@ -1265,8 +1293,8 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 	if (frontVisitor.wpFrontmostNode.lock() != nullptr)
 		wpFrontEntity = frontVisitor.wpFrontmostNode.lock()->GetEntity();
 
-	SceneNodeVisitorButton visitor(*this, sf::Vector2f(mousePosition), wpFrontEntity);
-	ECSGame::Instance().GetUINode()->AcceptVisitor(visitor);
+	SceneNodeVisitorButton visitorBut(*this, sf::Vector2f(mousePosition), wpFrontEntity);
+	ECSGame::Instance().GetUINode()->AcceptVisitor(visitorBut);
 
 	SceneNodeVisitorUI visitor(*this, GetCurrentlyActiveCamera(), GetCameraFromUICameraEntity());
 	ECSGame::Instance().GetUINode()->AcceptVisitor(visitor);
@@ -1535,7 +1563,7 @@ void MusicSystem::PlayPreviousMusic()
 	listOfMusicToPlay[currentMusicPlaying].lock()->pause();
 	currentMusicPlaying--;
 	if (currentMusicPlaying < 0)
-		currentMusicPlaying = listOfMusicToPlay.size() - 1;
+		currentMusicPlaying = (int)listOfMusicToPlay.size() - 1;
 
 	SetupMusic(listOfMusicToPlay[currentMusicPlaying].lock());
 }
@@ -1568,9 +1596,6 @@ void MusicSystem::Initialize()
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient11"));
 	listOfMusicToPlay.push_back(ResourceManager::Instance().GetMusic("Ambient12"));
 
-	wpStopMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("StopButton").lock()->GetEntity();
-	wpResumeMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("ResumeButton").lock()->GetEntity();
-
 	//Subscribe buttons
 	ButtonSignals::OnResumeButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnExitButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
@@ -1599,7 +1624,11 @@ void MusicSystem::Initialize()
 
 void MusicSystem::OnSceneChanged()
 {
-	
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
+	{
+		wpStopMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("StopButton").lock()->GetEntity();
+		wpResumeMusicButton = ECSGame::Instance().GetUINode()->FindChild("MusicPlayerPart").lock()->FindChild("ResumeButton").lock()->GetEntity();
+	}
 }
 
 void MusicSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)

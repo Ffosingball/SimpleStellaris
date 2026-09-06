@@ -127,6 +127,8 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 		sCamera = wCamNode.lock()->FindChild("SystemCamera").lock()->GetEntity().lock();
 	else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
 		sCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
+	else
+		std::cout << "Overview type is None!";
 
 	return sCamera->FindComponent<CameraComponent>().lock();
 }
@@ -477,7 +479,7 @@ std::shared_ptr<Entity> CreateGenericText(const std::string textName, const int 
 //Creates text without moving animation
 //Worst case: O(6N+3M) where N is number of components in entity and M number of components
 //available in game
-std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color = sf::Color{ 255,255,255 }, std::weak_ptr<SceneNode> spCreateAt)
+std::shared_ptr<Entity> InitializeText(const std::string name, const std::string text, const int fontSize, const sf::Vector2f position, const std::string fontName, bool centerText, sf::Color color, std::weak_ptr<SceneNode> spCreateAt)
 {
 	//Check if text exist then use existing one, otherwise create new one
 	std::shared_ptr<Entity> spUI = CreateGenericText(name, fontSize, fontName, color, spCreateAt);

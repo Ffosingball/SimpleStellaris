@@ -66,7 +66,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Set gameState
 	gameState = GameState::Stopped;
-	overviewType = OverviewType::None;
+	overviewType = OverviewType::Space;
 }
 
 
@@ -91,7 +91,7 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 	mousePosition = sf::Mouse::getPosition(renderWindow);
 
 	//Update simulation time
-	if (ECSGame::Instance().GetGameState() != GameState::Pause)
+	if (ECSGame::Instance().GetGameState() == GameState::Game)
 	{
 		daysPast += deltaTime * simulationSpeed;
 	}
@@ -129,6 +129,8 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 		uiNode = root->FindChild("UI");
 
 		signals::onSceneRootChanged();
+		gameState = GameState::Stopped;
+		deltaTimeMultiplier = 1.f;
 	}
 }
 

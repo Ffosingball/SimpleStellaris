@@ -26,6 +26,7 @@
     <ClCompile Include="ParticlesAndConfigs.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="SFMLApplication.cpp" />
     <ClCompile Include="TileMap.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="ParticlesAndConfigs.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SceneNodeVisitor.h" />
     <ClInclude Include="SFMLApplication.h" />

@@ -9,7 +9,7 @@
 
 System::System() 
 {
-	signals::onSceneRootChanged(&System::OnSceneChanged, this);
+	signals::onSceneRootChanged.connect(&System::OnSceneChanged, this);
 }
 
 
