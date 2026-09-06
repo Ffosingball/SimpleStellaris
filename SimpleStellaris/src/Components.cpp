@@ -49,3 +49,13 @@ std::string PrintComponentName(std::shared_ptr<Component> spComponent)
 	else
 		return "---";
 }
+
+
+ObjectSystemComponent::~ObjectSystemComponent() 
+{
+	if (spAllSystemObjectsNode != nullptr)
+	{
+		spAllSystemObjectsNode->DeleteAllEntities();
+		spAllSystemObjectsNode.reset();
+	}
+}

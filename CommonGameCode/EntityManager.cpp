@@ -32,10 +32,17 @@ void EntityManager::DestroyEntity(std::weak_ptr<Entity> entity)
 	signals::onEntityDestroyed(entity);
 
 	std::shared_ptr<Entity> target = entity.lock();
+	//std::cout << "Remove entity\n";
 
+	//if(entities)
 	//Check if entity exist in the list
 	if (entities.contains(target))
-		entities.erase(target);
+	{
+		if (entities.erase(target) <= 0)
+			std::cout << "Entity was not deleted\n";
+	}
+	else
+		std::cout << "Entity NOT contained\n";
 }
 
 //Worst case: O(N) where N is number of entities in game

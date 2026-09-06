@@ -36,6 +36,7 @@ void WorldGenerator::Initialize()
 void WorldGenerator::ResetGenerator(int seedIn, SpaceMapConfigurations spaceMapConfig)
 {
 	seed = seedIn;
+	//std::cout << "Seed received: " << seed << '\n';
 	mapConfig = spaceMapConfig;
 	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
 	worldGenerated = false;

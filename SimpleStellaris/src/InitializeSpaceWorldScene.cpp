@@ -202,7 +202,9 @@ namespace SpaceWorldScene
 	void ResetWorldGenerator()
 	{
 		SpaceMapConfigurations mapConfig;
-		int seed = (unsigned int)gel::Randf(1000000.f, 9999999.f);
+		std::random_device rd;
+		int seed = rd();
+		//std::cout << "Seed got: " << seed << '\n';
 		//std::cout << "Resetting in functions\n";
 		WorldGenerator::Instance().ResetGenerator(seed, mapConfig);
 	}
@@ -274,17 +276,17 @@ namespace SpaceWorldScene
 		visitor.OutputAllData();
 #endif
 
-		ECSGame::Instance().GetSceneNode()->AddChild(spNode);
-		ECSGame::Instance().GetSceneNode()->AddChild(spBackgroundNode);
-		ECSGame::Instance().GetUINode()->AddChild(spSysNamesNode);
-		ECSGame::Instance().GetUINode()->AddChild(spNebNamesNode);
+		sceneNode->AddChild(spNode);
+		sceneNode->AddChild(spBackgroundNode);
+		uiNode->AddChild(spSysNamesNode);
+		uiNode->AddChild(spNebNamesNode);
 
-		ECSGame::Instance().GetSceneNode()->ChangeChildOrder(wpBackgroundE.lock(), 0);
-		ECSGame::Instance().GetUINode()->ChangeChildOrder(wpSysN.lock(), 0);
-		ECSGame::Instance().GetUINode()->ChangeChildOrder(wpNebN.lock(), 1);
+		sceneNode->ChangeChildOrder(wpBackgroundE.lock(), 0);
+		uiNode->ChangeChildOrder(wpSysN.lock(), 0);
+		uiNode->ChangeChildOrder(wpNebN.lock(), 1);
 
-		ECSGame::Instance().GetUINode()->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
-		std::shared_ptr<sf::Text> spText = ECSGame::Instance().GetUINode()->FindChild("EscapeMenuScreen").lock()->FindChild("SeedText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock()->text;
+		uiNode->FindChild("LoadingScreen").lock()->GetEntity().lock()->hidden = true;
+		std::shared_ptr<sf::Text> spText = uiNode->FindChild("EscapeMenuScreen").lock()->FindChild("SeedText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock()->text;
 		spText->setString("Seed: " + std::to_string(WorldGenerator::Instance().getSeed()));
 		gel::CentreText(*spText, sf::Vector2f{ 0.f, 0.f });
 
@@ -934,6 +936,9 @@ void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared
 	SpaceWorldScene::CreateDebugText(sceneNode, uiNode);
 
 	uiNode->ChangeChildOrder(uiNode->FindChild("MouseIcon").lock(), (int)uiNode->GetAllChildren().size() - 1);
+
+	ECSGame::Instance().ResetDaysPast();
+	ECSGame::Instance().SetSimulationSpeed(10.f);
 
 	//Generate world in a separate thread
 	std::thread generateWorldAsync(SpaceWorldScene::CreateSpaceObjects, sceneNode, uiNode);

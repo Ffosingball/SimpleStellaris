@@ -1090,7 +1090,7 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 
 		fpsText.lock()->text->setString(std::to_string(ECSGame::Instance().GetFPS()) + " fps");
 
-		if (previousFrameOverview != ECSGame::Instance().GetOverviewType())
+		if (previousFrameOverview != ECSGame::Instance().GetOverviewType() && ECSGame::Instance().GetGameState()!=GameState::Loading)
 			ChangeUIVisibility(UIHidden);
 
 		//Signal the direction to the movement system

@@ -25,6 +25,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//I noticed, that random function generates same random numbers every time when I start
 	//my game again, so to solve this issue I seed it with current time at the start of the game
+	//std::cout << (unsigned int)std::time(nullptr) << '\n';
 	std::srand((unsigned int)std::time(nullptr));
 
 	//Get window size
@@ -117,7 +118,14 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 	{
 		signals::onDeleteSceneNode(uiNode);
 		signals::onDeleteSceneNode(sceneNode);
+		entityManager.DestroyEntity(root->GetEntity());
 	}
+
+	/*if (newRoot != root)
+	{
+		std::cout << "Entities before: ";
+		std::cout << entityManager.GetEntities().size() << '\n';
+	}*/
 
 	//Process entities removal
 	deleteSystem.Update(root, deltaTime);
@@ -125,17 +133,16 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 #endif
 
-	if (newRoot != root) 
+	/*if (newRoot != root)
 	{
-		std::cout << "Entities left: \n\n";
-		entityManager.OutputAllEntitiesNames();
+		std::cout << "Entities left: ";
+		std::cout << entityManager.GetEntities().size() << '\n';
 
-		std::cout << "\nNodes left: \n\n";
-		if (root != nullptr)
-			root->OutputTree("");
+		if (uiNode.lock() != nullptr || sceneNode.lock() != nullptr)
+			std::cout << "Some Nodes left: \n";
 		else
 			std::cout << "No nodes left\n";
-	}
+	}*/
 
 	//Process loading scenes
 	if (newRoot != root)
@@ -143,6 +150,9 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 		root = newRoot;
 		sceneNode = root->FindChild("Scene");
 		uiNode = root->FindChild("UI");
+
+		//if (root->GetEntity().lock()->GetName() == "MainMenuScene")
+		//	entityManager.OutputAllEntitiesNames();
 
 		signals::onSceneRootChanged();
 		gameState = GameState::Stopped;

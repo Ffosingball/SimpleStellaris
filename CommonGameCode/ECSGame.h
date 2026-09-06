@@ -80,6 +80,8 @@ public:
 	//Worst case: O(1)
 	void SetSimulationSpeed(float simSpeed);
 	//Worst case: O(1)
+	void ResetDaysPast() { daysPast = 0.f; }
+	//Worst case: O(1)
 	void SetMousePosition(sf::Vector2i newMousePos) const;
 	//Worst case: O(1)
 	void SetIsMouseOverUI(bool mouseOverUI) { isMouseOverUI = mouseOverUI; }

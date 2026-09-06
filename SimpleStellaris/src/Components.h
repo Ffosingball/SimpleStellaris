@@ -55,6 +55,8 @@ public:
 	//0 - outside of nebula, 1 - at the center of it
 	float distToTheNebula{0.f};
 	std::shared_ptr<SceneNode> spAllSystemObjectsNode;
+
+	~ObjectSystemComponent();
 };
 
 

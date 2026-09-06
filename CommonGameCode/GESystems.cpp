@@ -35,11 +35,15 @@ void DeleteSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 
 		if (nodeToDelete.lock() != nullptr)
 		{
+			//std::cout << "Deleteing nodes...\n";
 			//Delete all entities in the child node, sceneNode themselves will be deleted automatically
 			nodeToDelete.lock()->DeleteAllEntities();
 			//Remove from scene
-			if(nodeToDelete.lock()->GetParent().lock()!=nullptr)
+			if (nodeToDelete.lock()->GetParent().lock() != nullptr)
+			{
+				//std::cout << "Removing node\n";
 				nodeToDelete.lock()->GetParent().lock()->RemoveNode(nodeToDelete);
+			}
 		}
 	}
 }
