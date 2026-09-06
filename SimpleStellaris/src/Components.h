@@ -39,6 +39,8 @@ namespace ButtonSignals
 	inline sigslot::signal<std::shared_ptr<Entity>> OnStopMusicButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnResumeMusicButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnMixMusicButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnExitToMainMenuButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnStartGameButtonPressed;
 }
 
 

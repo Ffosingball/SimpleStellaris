@@ -24,6 +24,8 @@ void ButtonHovered(std::shared_ptr<Entity> spEntity);
 void ButtonUnhovered(std::shared_ptr<Entity> spEntity);
 void ButtonReleased(std::shared_ptr<Entity> spEntity);
 void ButtonClicked(std::shared_ptr<Entity> spEntity);
+void ExitToMainMenuButtonPressed(std::shared_ptr<Entity> spEntity);
+void StartGameButtonPressed(std::shared_ptr<Entity> spEntity);
 
 
 //Input system processes inputs

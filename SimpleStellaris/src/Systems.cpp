@@ -46,6 +46,8 @@ void InputSystem::Initialize()
 	ButtonSignals::OnStopMusicButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnResumeMusicButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnMixMusicButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnStartGameButtonPressed.connect(&SetupPressedButtonTexture);
 
 	ButtonSignals::OnResumeButtonPressed.connect(&InputSystem::ResumeButtonPressed, this);
 	ButtonSignals::OnExitButtonPressed.connect(&InputSystem::ExitButtonPressed, this);
@@ -64,6 +66,8 @@ void InputSystem::Initialize()
 	ButtonSignals::OnButtonUnhovered.connect(&ButtonUnhovered);
 	ButtonSignals::OnButtonReleased.connect(&ButtonReleased);
 	ButtonSignals::OnButtonClicked.connect(&ButtonClicked);
+	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&ExitToMainMenuButtonPressed);
+	ButtonSignals::OnStartGameButtonPressed.connect(&StartGameButtonPressed);
 }
 
 
@@ -1612,6 +1616,8 @@ void MusicSystem::Initialize()
 	ButtonSignals::OnStopMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnResumeMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnMixMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnStartGameButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 
 	ButtonSignals::OnPreviousMusicButtonPressed.connect(&MusicSystem::PreviousMusicButtonPressed, this);
 	ButtonSignals::OnNextMusicButtonPressed.connect(&MusicSystem::NextMusicButtonPressed, this);

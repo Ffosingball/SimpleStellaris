@@ -196,3 +196,15 @@ void MusicSystem::MixMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	MixMusicList();
 }
+
+
+void ExitToMainMenuButtonPressed(std::shared_ptr<Entity> spEntity) 
+{
+	signals::onLoadSceneAsync("MainMenuScene");
+}
+
+
+void StartGameButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	signals::onLoadSceneAsync("SpaceWorldScene");
+}

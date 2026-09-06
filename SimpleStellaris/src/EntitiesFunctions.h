@@ -53,6 +53,7 @@ void SetupPressedButtonTexture(std::shared_ptr<Entity> spEntity);
 
 //Initializing scene functions
 void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode);
+void InitializeMainMenuScene(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode);
 
 
 //Reset functions

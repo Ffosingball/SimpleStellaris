@@ -1028,6 +1028,46 @@ const void ResourceManager::LoadAllResources()
 				textureSize.position = sf::Vector2i{ 0,119 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitToMainMenuButton";
+				textureSize.position = sf::Vector2i{ 0,136 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitToMainMenuHoveredButton";
+				textureSize.position = sf::Vector2i{ 0,153 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitToMainMenuHoveredPressedButton";
+				textureSize.position = sf::Vector2i{ 0,170 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "ExitToMainMenuPressedButton";
+				textureSize.position = sf::Vector2i{ 0,187 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StartGameButton";
+				textureSize.position = sf::Vector2i{ 0,204 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StartGameHoveredButton";
+				textureSize.position = sf::Vector2i{ 0,221 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StartGameHoveredPressedButton";
+				textureSize.position = sf::Vector2i{ 0,238 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "StartGameMenuPressedButton";
+				textureSize.position = sf::Vector2i{ 0,255 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 			}
 		}
 		{

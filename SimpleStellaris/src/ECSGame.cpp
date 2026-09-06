@@ -56,8 +56,9 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Add all scenes
 	sceneManager.AddScene("SpaceWorldScene", InitializeSpaceWorldScene);
+	sceneManager.AddScene("MainMenuScene", InitializeMainMenuScene);
 	//Load scene
-	signals::onLoadScene("SpaceWorldScene");
+	signals::onLoadScene("MainMenuScene");
 	root = newRoot;
 	sceneNode = root->FindChild("Scene");
 	uiNode = root->FindChild("UI");

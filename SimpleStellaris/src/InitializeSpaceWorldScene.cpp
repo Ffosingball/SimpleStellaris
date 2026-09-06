@@ -318,13 +318,13 @@ void CreateUI(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> u
 	sf::Vector2f uiInfoPartSize{ 800.f, 500.f };
 	sf::Vector2f planetDisPartSize{ 1650.f, 900.f };
 	sf::Vector2f escapeMenuSize{ 2560.f, 1600.f };
-	sf::Vector2f buttonSize{ 800.f, 80.f };
+	sf::Vector2f buttonSize{ 600.f, 60.f };
 	sf::Vector2f playerButtonSize{ 80.f, 30.f };
 	float dateFontSize = 32;
 	float simulationFontSize = 25;
 	float metricsFontSize = 22;
 	float mainFontSize = 40;
-	float mainMenuMainFontSize = 120;
+	float mainMenuMainFontSize = 90;
 	float infoFontSize = 21;
 	std::string fontName = "PixelBold";
 	sf::Color importantColor = sf::Color{ 235, 175, 38 };
@@ -588,7 +588,7 @@ void CreateUI(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> u
 
 	//CREATE RESUME button
 	spButton = CreateNewEntityAt(spEscapeNode, "ResumeButton").lock();
-	spButton->SetPosition(sf::Vector2f{ 0.f,0.f } * uiSize);
+	spButton->SetPosition(sf::Vector2f{ 0.f,-20.f } * uiSize);
 
 	spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShapeCom, buttonSize * uiSize, "ResumeButton");
@@ -614,7 +614,7 @@ void CreateUI(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> u
 
 	//CREATE EXIT GAME button
 	std::shared_ptr<Entity> spButton2 = CreateNewEntityAt(spEscapeNode, "ExitGameButton").lock();
-	spButton2->SetPosition(sf::Vector2f{ 0.f,100.f } * uiSize);
+	spButton2->SetPosition(sf::Vector2f{ 0.f,140.f } * uiSize);
 
 	spRectShapeCom = spButton2->AddComponent<RectangleShapeComponent>().lock();
 	SetupRectangleShape(spRectShapeCom, buttonSize * uiSize, "ExitGameButton");
@@ -633,6 +633,33 @@ void CreateUI(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> u
 		{ButtonSignals::OnButtonUnhovered(entity); };
 	spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
 		{ ButtonSignals::OnExitButtonPressed(entity); };
+	spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
+		{ButtonSignals::OnButtonReleased(entity); };
+	spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
+		{ButtonSignals::OnButtonClicked(entity); };
+
+
+	//CREATE EXIT TO MAIN MENU button
+	std::shared_ptr<Entity> spButton2 = CreateNewEntityAt(spEscapeNode, "ExitToMainMenuButton").lock();
+	spButton2->SetPosition(sf::Vector2f{ 0.f,60.f }* uiSize);
+
+	spRectShapeCom = spButton2->AddComponent<RectangleShapeComponent>().lock();
+	SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ExitToMainMenuButton");
+
+	spButtonCom = spButton2->AddComponent<ButtonComponent>().lock();
+	spButtonCom->buttonSize = sf::Vector2{ buttonSize.x * 0.65f,buttonSize.y } * uiSize;
+
+	spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuButton", spButtonCom->unhoveredIntRect).lock();
+	spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuHoveredButton", spButtonCom->hoveredIntRect).lock();
+	spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuHoveredPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+	spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuPressedButton", spButtonCom->pressedIntRect).lock();
+
+	spButtonCom->onButtonHovered = [](std::shared_ptr<Entity> entity)
+		{ButtonSignals::OnButtonHovered(entity); };
+	spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
+		{ButtonSignals::OnButtonUnhovered(entity); };
+	spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
+		{ ButtonSignals::OnExitToMainMenuButtonPressed(entity); };
 	spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
 		{ButtonSignals::OnButtonReleased(entity); };
 	spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)

@@ -28,6 +28,8 @@ void WorldGenerator::Initialize()
 	oneThird = std::make_shared<std::uniform_int_distribution<int>>(0, 2);
 	from0to1Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 1.f);
 	from0to2_3Dist = std::make_shared<std::uniform_real_distribution<float>>(0.f, 2.f / 3.f);
+
+	randomizer = std::make_shared<std::mt19937>(std::mt19937{ seed });
 }
 
 
