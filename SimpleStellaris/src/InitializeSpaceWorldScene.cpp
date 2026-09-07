@@ -18,6 +18,7 @@
 #include "SceneNodeVisitors.h"
 #include "CompilerInstructions.h"
 #include "ButtonsFunctions.h"
+#include "TextFunctions.h"
 
 
 namespace SpaceWorldScene
@@ -292,7 +293,7 @@ namespace SpaceWorldScene
 		gel::CentreText(*spText, sf::Vector2f{ 0.f, 0.f });
 
 		WorldGenerator::Instance().SetWorldIsGenerated();
-		ECSGame::Instance().SetGameState(GameState::Pause);
+		ECSGame::Instance().SetGameState(GameState::Resumed);
 		ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
 		signals::onChangeInputType(InputType::World);
 	}
@@ -902,15 +903,35 @@ namespace SpaceWorldScene
 		float fontSize = 20.f;
 		std::string fontName = "PixelBold";
 
+		std::weak_ptr<Entity> wpObjOrb = ECSGame::Instance().GetEntityManager().NewEntity("DebugPanel");
+		wpObjOrb.lock()->hidden = true;
+		std::shared_ptr<SceneNode> spDebugNode = std::make_shared<SceneNode>(wpObjOrb);
+		uiNode->AddChild(spDebugNode);
+
 		float uiSize = ECSGame::Instance().GetUISize();
-		InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false, sf::Color::White, uiNode);
-		InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 175.f } * uiSize, fontName, false, sf::Color::White, uiNode);
+		std::shared_ptr<Entity> spTextEn = InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		std::shared_ptr<TextComponent> spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextEn = InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextEn = InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextEn = InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+
+		spTextEn = InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateDaysPastDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
+
+		spTextEn = InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateDateDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
+
+		spTextEn = InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextEn = InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 175.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
 	}
 }
 

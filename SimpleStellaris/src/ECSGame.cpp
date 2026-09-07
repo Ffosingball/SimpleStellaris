@@ -67,7 +67,7 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	signals::onSceneRootChanged();
 
 	//Set gameState
-	gameState = GameState::Stopped;
+	gameState = GameState::Paused;
 }
 
 
@@ -148,7 +148,7 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 		//	entityManager.OutputAllEntitiesNames();
 
 		signals::onSceneRootChanged();
-		gameState = GameState::Stopped;
+		gameState = GameState::Paused;
 		deltaTimeMultiplier = 1.f;
 	}
 }

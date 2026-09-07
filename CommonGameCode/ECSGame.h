@@ -54,8 +54,6 @@ public:
 	//Worst case: O(1)
 	int GetFPS() const { return previousFPS; }
 	//Worst case: O(1)
-	float GetSimulationDeltaTime() const;
-	//Worst case: O(1)
 	bool IsMouseOverUI() const { return isMouseOverUI; }
 	//Worst case: O(1)
 	float GetUIDeltaTime() const { return uiDeltaTime; }

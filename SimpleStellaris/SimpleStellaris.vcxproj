@@ -44,6 +44,7 @@
     <ClInclude Include="src\SpaceMapConfiguration.h" />
     <ClInclude Include="src\SpaceObjectTypes.h" />
     <ClInclude Include="src\Systems.h" />
+    <ClInclude Include="src\TextFunctions.h" />
     <ClInclude Include="src\WorldGenerator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

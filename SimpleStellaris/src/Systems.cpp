@@ -77,41 +77,18 @@ void InputSystem::OnSceneChanged()
 
 	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
-		debugTextes.clear();
+		std::shared_ptr<SceneNode> spDebugNode = ECSGame::Instance().GetUINode()->FindChild("DebugPanel").lock();
+		debugPanel = spDebugNode->GetEntity();
 
-		std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("MouseCoordsText").lock();
-		mousePosText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-		debugTextes.push_back(mctPtr->GetEntity());
-
-		std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("WorldCoordsText").lock();
-		worldPosText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-		debugTextes.push_back(wctPtr->GetEntity());
-
-		std::shared_ptr<SceneNode> wsnPtr = ECSGame::Instance().GetUINode()->FindChild("SystemsNearByText").lock();
-		systemsNearByText = wsnPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-		debugTextes.push_back(wsnPtr->GetEntity());
-
-		std::shared_ptr<SceneNode> wfpsPtr = ECSGame::Instance().GetUINode()->FindChild("FPSText").lock();
-		fpsText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-		debugTextes.push_back(wfpsPtr->GetEntity());
-
-		wfpsPtr = ECSGame::Instance().GetUINode()->FindChild("MouseOverUIText").lock();
-		mouseOverUIText = wfpsPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-		debugTextes.push_back(wfpsPtr->GetEntity());
+		mousePosText = spDebugNode->FindChild("MouseCoordsText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		worldPosText = spDebugNode->FindChild("WorldCoordsText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		systemsNearByText = spDebugNode->FindChild("SystemsNearByText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		fpsText = spDebugNode->FindChild("FPSText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		mouseOverUIText = spDebugNode->FindChild("MouseOverUIText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
 
 		std::shared_ptr<SceneNode> wsiPtr = ECSGame::Instance().GetUINode()->FindChild("SelectedSystemIcon").lock();
 		selectedSystemIcon = wsiPtr->GetEntity().lock()->FindComponent<UIFollowerComponent>().lock();
 		selectedSystemEntity = wsiPtr->GetEntity().lock();
-		//debugTextes.push_back(wsiPtr->GetEntity());
-
-		std::shared_ptr<SceneNode> s2Ptr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
-		debugTextes.push_back(s2Ptr->GetEntity());
-
-		std::shared_ptr<SceneNode> s3Ptr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
-		debugTextes.push_back(s3Ptr->GetEntity());
-
-		std::shared_ptr<SceneNode> s4Ptr = ECSGame::Instance().GetUINode()->FindChild("RenderText").lock();
-		debugTextes.push_back(s4Ptr->GetEntity());
 
 		planetDistrictsPanel = ECSGame::Instance().GetUINode()->FindChild("PlanetDistrictsPart").lock();
 
@@ -125,12 +102,6 @@ void InputSystem::OnSceneChanged()
 		wpStoppedButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("StoppedButton").lock()->GetEntity();
 		wpPlayingButton = ECSGame::Instance().GetUINode()->FindChild("LowerPart").lock()->FindChild("PlayingButton").lock()->GetEntity();
 
-		for (std::weak_ptr<Entity> e : debugTextes)
-		{
-			e.lock()->hidden = true;
-		}
-		showDebugText = false;
-
 		wpSpaceSceneStates = ECSGame::Instance().GetRoot()->GetEntity().lock()->FindComponent<SpaceSceneStatesComponent>();
 
 		spaceMapScene = true;
@@ -138,7 +109,6 @@ void InputSystem::OnSceneChanged()
 		UIHidden = false;
 		districtViewOpened = false;
 		currentDistrictShown = -1;
-		showDebugText = false;
 	}
 	else
 		spaceMapScene = false;
@@ -374,7 +344,7 @@ void ChangeUIVisibility(bool hide)
 
 void InputSystem::PauseSimulation() 
 {
-	ECSGame::Instance().SetGameState(GameState::Pause);
+	wpSpaceSceneStates.lock()->simulationState = GameState::Paused;
 	musicSystem->PlayPauseSimulationSFX();
 	wpPlayingButton.lock()->hidden = true;
 	wpStoppedButton.lock()->hidden = false;
@@ -383,7 +353,7 @@ void InputSystem::PauseSimulation()
 
 void InputSystem::ResumeSimulation()
 {
-	ECSGame::Instance().SetGameState(GameState::Game);
+	wpSpaceSceneStates.lock()->simulationState = GameState::Resumed;
 	musicSystem->PlayResumeSimulationSFX();
 	wpPlayingButton.lock()->hidden = false;
 	wpStoppedButton.lock()->hidden = true;
@@ -399,7 +369,7 @@ void InputSystem::ChangeEscapeScreen()
 
 		ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
 		OnChangeInputType(InputType::World);
-		ECSGame::Instance().SetGameState(lastGameState);
+		ECSGame::Instance().SetGameState(GameState::Resumed);
 	}
 	else 
 	{
@@ -408,8 +378,7 @@ void InputSystem::ChangeEscapeScreen()
 
 		ECSGame::Instance().SetDeltaTimeMultiplier(0.f);
 		OnChangeInputType(InputType::Menu);
-		lastGameState = ECSGame::Instance().GetGameState();
-		ECSGame::Instance().SetGameState(GameState::Stopped);
+		ECSGame::Instance().SetGameState(GameState::Paused);
 
 		if (lastInputByJoystick) 
 		{
@@ -432,9 +401,9 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 		{
 			if (key.code == sf::Keyboard::Key::Space)
 			{
-				if (ECSGame::Instance().GetGameState() == GameState::Game)
+				if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed)
 					PauseSimulation();
-				else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+				else if (wpSpaceSceneStates.lock()->simulationState == GameState::Paused)
 					ResumeSimulation();
 			}
 			else if (key.code == sf::Keyboard::Key::Q)
@@ -452,11 +421,7 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 			}
 			else if (key.code == sf::Keyboard::Key::F3)
 			{
-				showDebugText = !showDebugText;
-				for (std::weak_ptr<Entity> e : debugTextes)
-				{
-					e.lock()->hidden = showDebugText;
-				}
+				debugPanel.lock()->hidden = !debugPanel.lock()->hidden;
 			}
 			else if (key.code == sf::Keyboard::Key::Tab)
 			{
@@ -568,9 +533,9 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				ChangeUIVisibility(UIHidden);
 				break;
 			case 5:
-				if (ECSGame::Instance().GetGameState() == GameState::Game)
+				if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed)
 					PauseSimulation();
-				else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+				else if (wpSpaceSceneStates.lock()->simulationState == GameState::Paused)
 					ResumeSimulation();
 				break;
 			case 6:
@@ -587,17 +552,17 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				signals::onLMBpressed();
 				break;
 			case 1:
-				if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+				if (ECSGame::Instance().GetGameState() != GameState::Paused)
 					OnChangeInputType(InputType::World);
 				break;
 			case 2:
-				if (ECSGame::Instance().GetGameState() != GameState::Stopped)
+				if (ECSGame::Instance().GetGameState() != GameState::Paused)
 					OnChangeInputType(InputType::World);
 				break;
 			case 5:
-				if (ECSGame::Instance().GetGameState() == GameState::Game)
+				if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed)
 					PauseSimulation();
-				else if (ECSGame::Instance().GetGameState() == GameState::Pause)
+				else if (wpSpaceSceneStates.lock()->simulationState == GameState::Paused)
 					ResumeSimulation();
 				break;
 			case 6:
@@ -717,13 +682,13 @@ void InputSystem::OnChangeInputType(InputType inType)
 
 void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPressed)
 {
-	if (ECSGame::Instance().GetGameState() == GameState::Game && inputType == InputType::Menu)
-		OnChangeInputType(InputType::World);
-
 	if (ECSGame::Instance().GetGameState() != GameState::Loading)
 	{
 		if (inputType == InputType::World)
 		{
+			if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed && inputType == InputType::Menu)
+				OnChangeInputType(InputType::World);
+
 			if (mouseButPressed.button == sf::Mouse::Button::Left)
 			{
 				if (wpSpaceSceneStates.lock()->overviewType == OverviewType::Space && wpSelectedSystemNode.lock() != nullptr)
@@ -1238,12 +1203,12 @@ void UISystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		yearText.lock()->text->setString(std::to_string(years));
 		gel::CentreText(*yearText.lock()->text, sf::Vector2 { 0.f, 0.f });
 
-		if (ECSGame::Instance().GetGameState() == GameState::Pause)
+		if (wpSpaceSceneStates.lock()->simulationState == GameState::Paused)
 		{
 			simStateText.lock()->text->setString("PAUSED");
 			simStateText.lock()->text->setFillColor(sf::Color::Red);
 		}
-		else if (ECSGame::Instance().GetGameState() == GameState::Game)
+		else if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed)
 		{
 			simStateText.lock()->text->setString("RESUMED");
 			simStateText.lock()->text->setFillColor(sf::Color::White);
@@ -1935,12 +1900,6 @@ void SimulationSystem::OnSceneChanged()
 {
 	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
-		std::shared_ptr<SceneNode> mctPtr = ECSGame::Instance().GetUINode()->FindChild("DaysPastText").lock();
-		daysPastText = mctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-
-		std::shared_ptr<SceneNode> wctPtr = ECSGame::Instance().GetUINode()->FindChild("DateText").lock();
-		dateText = wctPtr->GetEntity().lock()->FindComponent<TextComponent>().lock();
-
 		std::weak_ptr<Entity> wpObjOrb = ECSGame::Instance().GetEntityManager().NewEntity("SimulationNode");
 		ECSGame::Instance().GetSceneNode()->AddChild(std::make_shared<SceneNode>(wpObjOrb));
 		wpSimulationNode = ECSGame::Instance().GetSceneNode()->FindChild("SimulationNode");
@@ -1957,15 +1916,8 @@ void SimulationSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 {
 	if (spaceMapScene)
 	{
-		if (ECSGame::Instance().GetGameState() == GameState::Game)
+		if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed)
 			wpSpaceSceneStates.lock()->daysPast += deltaTime * wpSpaceSceneStates.lock()->simulationSpeed;
-
-		daysPastText.lock()->text->setString("Simulation speed: " + std::to_string(wpSpaceSceneStates.lock()->simulationSpeed) + "; Days past: " + std::to_string((int)wpSpaceSceneStates.lock()->daysPast));
-		int days = 0;
-		std::string month;
-		int years = 0;
-		GetDateFromDays((int)wpSpaceSceneStates.lock()->daysPast, days, month, years);
-		dateText.lock()->text->setString("Proper Date: " + std::to_string(days) + " " + month + std::to_string(years));
 
 		SceneNodeVisitorMoveObjectsInSystem visitor(wpSpaceSceneStates.lock()->daysPast);
 		wpSimulationNode.lock()->AcceptVisitor(visitor);

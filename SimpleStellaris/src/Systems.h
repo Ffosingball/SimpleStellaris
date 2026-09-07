@@ -69,7 +69,6 @@ private:
 	std::weak_ptr<TextComponent> systemsNearByText;
 	std::weak_ptr<TextComponent> fpsText;
 	std::weak_ptr<TextComponent> mouseOverUIText;
-	std::vector<std::weak_ptr<Entity>> debugTextes;
 	std::weak_ptr<TextComponent> districtTypeText;
 	std::weak_ptr<TextComponent> planetNameText;
 
@@ -84,6 +83,7 @@ private:
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
 	std::weak_ptr<SceneNode> wpInputRootNode;
 	std::weak_ptr<SceneNode> wpDistrictsOfPlanetShown;
+	std::weak_ptr<Entity> debugPanel;
 
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
@@ -110,10 +110,8 @@ private:
 	bool UIHidden{ false };
 	bool districtViewOpened{ false };
 	int currentDistrictShown = -1;
-	bool showDebugText = false;
 
 	OverviewType previousFrameOverview = OverviewType::None;
-	GameState lastGameState = GameState::None;
 	InputType inputType = InputType::Menu;
 };
 
@@ -298,11 +296,7 @@ private:
 	void OnRemoveNodeToSimulate(std::shared_ptr<SceneNode> nodeToNotSimulate);
 	//void OnPlanetOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 
-	std::weak_ptr<TextComponent> daysPastText;
-	std::weak_ptr<TextComponent> dateText;
-
 	std::weak_ptr<SceneNode> wpSimulationNode;
-
 	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
 
 	bool spaceMapScene{ false };

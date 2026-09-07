@@ -290,6 +290,29 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             //std::cout << "Radius: " << spOrbitVisualizer->orbitShape.getRadius()<<'\n';
             spOrbitVisualizer->orbitShape.setOrigin(sf::Vector2f{ spOrbitVisualizer->orbitShape.getRadius(), spOrbitVisualizer->orbitShape.getRadius() });
         } 
+
+        if (spEntity->HasComponent<TextComponent>()) 
+        {
+            std::shared_ptr<TextComponent> spText = spEntity->FindComponent<TextComponent>().lock();
+
+            if (spText->updateText) 
+            {
+                spText->updateText(spText->text);
+
+                switch (spText->textAlignment) 
+                {
+                case TextAlignment::Left:
+                    gel::AlignTextToLeftSide(*spText->text, sf::Vector2f{0.f,0.f});
+                    break;
+                case TextAlignment::Center:
+                    gel::CentreText(*spText->text, sf::Vector2f{ 0.f,0.f });
+                    break;
+                case TextAlignment::Right:
+                    gel::AlignTextToRightSide(*spText->text, sf::Vector2f{ 0.f,0.f });
+                    break;
+                }
+            }
+        }
     }
 }
 

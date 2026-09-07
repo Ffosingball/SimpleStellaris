@@ -29,6 +29,18 @@ namespace gel
 		text.setPosition(sf::Vector2f{ 0.f, position.y });
 	}
 
+	//Aligns text at right side
+	//Worst case: O(1)
+	void AlignTextToRightSide(sf::Text& text, const sf::Vector2f& position)
+	{
+		//Calculate correct origin
+		sf::Vector2f centre = text.getGlobalBounds().size / 2.f;
+		sf::Vector2f localBounds = centre + text.getLocalBounds().position;
+		//Then set origin and position
+		text.setOrigin(sf::Vector2f{ localBounds.x*2.f, localBounds.y });
+		text.setPosition(sf::Vector2f{ position.x*2.f, position.y });
+	}
+
 	//Worst case: O(1)
 	void SetTextOrigin(sf::Text& text, const sf::Vector2f& position)
 	{

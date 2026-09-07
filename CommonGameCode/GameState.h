@@ -3,9 +3,8 @@
 //Game states, tells whether the simulation is stopped or not
 enum class GameState 
 {
-	Pause,
-	Game,
-	Stopped,//It is used when exiting space world, so game will only process mouse and some joysticks input
+	Paused,
+	Resumed,
 	Loading,
 	None
 };

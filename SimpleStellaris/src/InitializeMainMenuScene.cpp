@@ -18,6 +18,7 @@
 #include "SceneNodeVisitors.h"
 #include "CompilerInstructions.h"
 #include "ButtonsFunctions.h"
+#include "TextFunctions.h"
 
 
 namespace MainMenuScene

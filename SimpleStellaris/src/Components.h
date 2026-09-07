@@ -218,6 +218,14 @@ public:
 };
 
 
+enum class TextAlignment
+{
+	Left,
+	Center,
+	Right
+};
+
+
 
 //Text component which has text
 class TextComponent : public Component
@@ -225,6 +233,10 @@ class TextComponent : public Component
 public:
 	//Stores text
 	std::shared_ptr<sf::Text> text;
+	//Stores function which will update text which it shows
+	std::function<void(std::shared_ptr<sf::Text>)> updateText;
+	//Stores how text should be aligned
+	TextAlignment textAlignment = TextAlignment::Center;
 };
 
 
@@ -295,4 +307,6 @@ public:
 	float simulationSpeed{ 10.f };
 	//Stores current overview type
 	OverviewType overviewType = OverviewType::Space;
+	//Stores simulation state
+	GameState simulationState = GameState::Paused;
 };

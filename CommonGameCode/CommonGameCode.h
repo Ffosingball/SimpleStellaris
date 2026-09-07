@@ -39,6 +39,9 @@ namespace gel
 	//Aligns text at left side
 	//Worst case: O(1)
 	void AlignTextToLeftSide(sf::Text& text, const sf::Vector2f& position);
+	//Aligns text at right side
+	//Worst case: O(1)
+	void AlignTextToRightSide(sf::Text& text, const sf::Vector2f& position);
 	//Formats float number to string
 	//Worst case: O(N) where N is number of digits in the number
 	std::string roundNumberForOutput(float n, int digitsAfterSeparator);
