@@ -15,35 +15,6 @@
 #include <sigslot/signal.hpp>
 
 
-//List of all possible button signals
-namespace ButtonSignals
-{
-	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictHovered;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictUnhovered;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonHovered;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonUnhovered;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonReleased;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnButtonClicked;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnResumeButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnExitButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnSlower3ButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnSlower2ButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnSlower1ButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnPlayingButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnStoppedButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnFaster3ButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnFaster2ButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnFaster1ButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnPreviousMusicButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnNextMusicButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnStopMusicButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnResumeMusicButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnMixMusicButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnExitToMainMenuButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnStartGameButtonPressed;
-}
-
-
 //Component which tells that the object is a system of other object (for example
 // star system or planetary system)
 class ObjectSystemComponent : public Component 
@@ -312,4 +283,16 @@ class DistrictComponent : public Component
 public:
 	PlanetDistrictType districtType = PlanetDistrictType::None;
 	int districtID{-1};
+};
+
+
+class SpaceSceneStatesComponent : public Component 
+{
+public:
+	//Simulation time in days
+	float daysPast{ 0.f };
+	//Simulation speed
+	float simulationSpeed{ 10.f };
+	//Stores current overview type
+	OverviewType overviewType = OverviewType::Space;
 };

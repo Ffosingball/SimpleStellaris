@@ -20,14 +20,6 @@ enum class InputType
 };
 
 
-void ButtonHovered(std::shared_ptr<Entity> spEntity);
-void ButtonUnhovered(std::shared_ptr<Entity> spEntity);
-void ButtonReleased(std::shared_ptr<Entity> spEntity);
-void ButtonClicked(std::shared_ptr<Entity> spEntity);
-void ExitToMainMenuButtonPressed(std::shared_ptr<Entity> spEntity);
-void StartGameButtonPressed(std::shared_ptr<Entity> spEntity);
-
-
 //Input system processes inputs
 class InputSystem :public System 
 {
@@ -56,15 +48,8 @@ private:
 	void DistrictHovered(std::shared_ptr<Entity> spEntity);
 	void DistrictUnhovered(std::shared_ptr<Entity> spEntity);
 	void ResumeButtonPressed(std::shared_ptr<Entity> spEntity);
-	void ExitButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Slower3ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Slower2ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Slower1ButtonPressed(std::shared_ptr<Entity> spEntity);
 	void PlayingButtonPressed(std::shared_ptr<Entity> spEntity);
 	void StoppedButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Faster3ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Faster2ButtonPressed(std::shared_ptr<Entity> spEntity);
-	void Faster1ButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	void ZoomCamera(int direction);
 	void EnterSystemOverview();
@@ -103,6 +88,8 @@ private:
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
 
+	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
+
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;
 	float minValForJoystick = 5.f;
@@ -110,19 +97,20 @@ private:
 	//How many times zoom on joystick slower than on mouse
 	float zoomSpeedJoystickSlowing= 0.2f;
 	//sf::Vector2i lastMouseSpeed{ 0,0 };
-	bool showDebugText = false;
 	float zoomAtWhichStartSelectPlanets{0.8f};
 	//In window pixels
 	int distanceFromMouseToIconToBeSelected{60};
-	bool infoPanelIsShown{ false };
-	bool UIHidden{ false };
-	bool districtViewOpened{ false };
-	int currentDistrictShown = -1;
 
 	float selectNextButtonPeriod{ 0.15f };
 	float timePassedSinceSelectedButton{0.f};
 
+	//Space World Scene related values
 	bool spaceMapScene{ false };
+	bool infoPanelIsShown{ false };
+	bool UIHidden{ false };
+	bool districtViewOpened{ false };
+	int currentDistrictShown = -1;
+	bool showDebugText = false;
 
 	OverviewType previousFrameOverview = OverviewType::None;
 	GameState lastGameState = GameState::None;
@@ -196,6 +184,8 @@ private:
 	void OnHideInfoPanel();
 	void OnShowInfoPanel();
 
+	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
+
 	bool spaceMapScene{ false };
 };
 
@@ -261,9 +251,11 @@ private:
 	float musicVolume{ 1.f };
 	float overallVolume{ 1.f };
 	int currentMusicPlaying{ 0 };
-	bool playMusic{ true };
 	bool musicStopped{ false };
 	sf::Time goToNextMusicBefore = sf::seconds(1.f);
+
+	//Space World Scene related values
+	bool playMusic{ true };
 };
 
 
@@ -278,6 +270,10 @@ private:
 	void Initialize() override;
 	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+
+	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
+
+	bool spaceMapScene{ false };
 };
 
 
@@ -285,6 +281,13 @@ class SimulationSystem :public System
 {
 public:
 	virtual ~SimulationSystem() = default;
+
+	void Faster3ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster2ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Faster1ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower3ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower2ButtonPressed(std::shared_ptr<Entity> spEntity);
+	void Slower1ButtonPressed(std::shared_ptr<Entity> spEntity);
 
 private:
 	void Initialize() override;
@@ -299,6 +302,8 @@ private:
 	std::weak_ptr<TextComponent> dateText;
 
 	std::weak_ptr<SceneNode> wpSimulationNode;
+
+	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
 
 	bool spaceMapScene{ false };
 };

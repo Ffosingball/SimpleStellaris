@@ -241,12 +241,12 @@ private:
 class SceneNodeVisitorMoveObjectsInSystem : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorMoveObjectsInSystem() { processHiddenNode = true; }// : simulateOnlyMoons(simOnlyMoons) {}
+    SceneNodeVisitorMoveObjectsInSystem(float daysPast) : daysPast(daysPast) { processHiddenNode = true; }// : simulateOnlyMoons(simOnlyMoons) {}
 
     void ProcessNode(SceneNode& node) override;
 
-//private:
-//   bool simulateOnlyMoons{ false };
+private:
+    float daysPast{0.f};
 };
 
 

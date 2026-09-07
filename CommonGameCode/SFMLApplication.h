@@ -29,5 +29,7 @@ namespace gel
 		virtual void Render(sf::RenderWindow& renderWindow) {}
 		//It is called when some event is happened
 		virtual void HandleEvent(const std::optional<sf::Event>& event) {}
+		//It is called before exiting the game
+		virtual void ExitGame() {}
 	};
 }

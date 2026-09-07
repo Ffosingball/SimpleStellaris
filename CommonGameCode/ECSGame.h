@@ -46,8 +46,6 @@ public:
 	//Worst case: O(1)
 	GameState GetGameState() const { return gameState; }
 	//Worst case: O(1)
-	OverviewType GetOverviewType() const { return overviewType; }
-	//Worst case: O(1)
 	sf::Vector2u GetWindowSize() const { return windowSize; }
 	//Worst case: O(1)
 	float GetUISize() const { return windowRelationToDefault; }
@@ -55,10 +53,6 @@ public:
 	sf::Vector2i GetMousePosition() const { return mousePosition; }
 	//Worst case: O(1)
 	int GetFPS() const { return previousFPS; }
-	//Worst case: O(1)
-	float GetDaysPast() const { return daysPast; }
-	//Worst case: O(1)
-	float GetSimulationSpeed() const { return simulationSpeed; }
 	//Worst case: O(1)
 	float GetSimulationDeltaTime() const;
 	//Worst case: O(1)
@@ -74,13 +68,7 @@ public:
 	//Worst case: O(1)
 	void SetGameState(GameState gState) { gameState=gState; }
 	//Worst case: O(1)
-	void SetOverviewType(OverviewType ovType) { overviewType = ovType; }
-	//Worst case: O(1)
 	void CloseGame() { closeGame = true; }
-	//Worst case: O(1)
-	void SetSimulationSpeed(float simSpeed);
-	//Worst case: O(1)
-	void ResetDaysPast() { daysPast = 0.f; }
 	//Worst case: O(1)
 	void SetMousePosition(sf::Vector2i newMousePos) const;
 	//Worst case: O(1)
@@ -93,6 +81,7 @@ public:
 	void Update(const float deltaTime, sf::RenderWindow& renderWindow) override;
 	void Render(sf::RenderWindow& renderWindow) override;
 	void HandleEvent(const std::optional<sf::Event>& event) override;
+	void ExitGame() override;
 	virtual ~ECSGame() = default;
 
 private:
@@ -123,16 +112,10 @@ private:
 	int fps{ 0 };
 	//Stores current gameState
 	GameState gameState = GameState::None;
-	//Stores current overview type
-	OverviewType overviewType = OverviewType::None;
 	//Boolean to check if window should be closed or not
 	bool closeGame{false};
 	//System which deletes all required entities at the end of the frame
 	DeleteSystem deleteSystem;
-	//Simulation time in days
-	float daysPast{ 0.f };
-	//Simulation speed
-	float simulationSpeed{ 10.f };
 	//This is needed to keep UI size the same on every monitor
 	float windowRelationToDefault{ 1.f };
 	//Pointer to the window

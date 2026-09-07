@@ -123,11 +123,12 @@ std::shared_ptr<CameraComponent> GetCurrentlyActiveCamera()
 	std::shared_ptr<Entity> sCamera;
 	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
-		if (ECSGame::Instance().GetOverviewType() == OverviewType::Space)
+		OverviewType overviewType = ECSGame::Instance().GetRoot()->GetEntity().lock()->FindComponent<SpaceSceneStatesComponent>().lock()->overviewType;
+		if (overviewType == OverviewType::Space)
 			sCamera = wCamNode.lock()->FindChild("SpaceCamera").lock()->GetEntity().lock();
-		else if (ECSGame::Instance().GetOverviewType() == OverviewType::System)
+		else if (overviewType == OverviewType::System)
 			sCamera = wCamNode.lock()->FindChild("SystemCamera").lock()->GetEntity().lock();
-		else if (ECSGame::Instance().GetOverviewType() == OverviewType::Planet)
+		else if (overviewType == OverviewType::Planet)
 			sCamera = wCamNode.lock()->FindChild("PlanetCamera").lock()->GetEntity().lock();
 		else
 			std::cout << "Overview type is None!";

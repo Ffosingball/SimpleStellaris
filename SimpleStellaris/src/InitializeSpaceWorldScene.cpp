@@ -17,6 +17,7 @@
 #include "WorldGenerator.h"
 #include "SceneNodeVisitors.h"
 #include "CompilerInstructions.h"
+#include "ButtonsFunctions.h"
 
 
 namespace SpaceWorldScene
@@ -292,7 +293,6 @@ namespace SpaceWorldScene
 
 		WorldGenerator::Instance().SetWorldIsGenerated();
 		ECSGame::Instance().SetGameState(GameState::Pause);
-		ECSGame::Instance().SetOverviewType(OverviewType::Space);
 		ECSGame::Instance().SetDeltaTimeMultiplier(1.f);
 		signals::onChangeInputType(InputType::World);
 	}
@@ -312,6 +312,9 @@ namespace SpaceWorldScene
 		std::shared_ptr<RectangleShapeComponent> spRectShape = wpMouseIcon.lock()->AddComponent<RectangleShapeComponent>().lock();
 		SetupRectangleShape(spRectShape, mouseSize * uiSize, "MouseIcon");
 		spRectShape->shape.setPosition({ 32,32 });
+
+		sf::Vector2i pos = ECSGame::Instance().GetMousePosition();
+		wpMouseIcon.lock()->SetPosition(sf::Vector2f{ (float)pos.x,(float)pos.y });
 	}
 
 	//Creates UI of the game
@@ -914,7 +917,7 @@ namespace SpaceWorldScene
 //Initialize SpaceWorldScene
 void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode) 
 {
-	ECSGame::Instance().SetOverviewType(OverviewType::Space);
+	sceneNode->GetParent().lock()->GetEntity().lock()->AddComponent<SpaceSceneStatesComponent>();
 
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpCameras = ECSGame::Instance().GetEntityManager().NewEntity("Cameras");
@@ -936,9 +939,6 @@ void InitializeSpaceWorldScene(std::shared_ptr<SceneNode> sceneNode, std::shared
 	SpaceWorldScene::CreateDebugText(sceneNode, uiNode);
 
 	uiNode->ChangeChildOrder(uiNode->FindChild("MouseIcon").lock(), (int)uiNode->GetAllChildren().size() - 1);
-
-	ECSGame::Instance().ResetDaysPast();
-	ECSGame::Instance().SetSimulationSpeed(10.f);
 
 	//Generate world in a separate thread
 	std::thread generateWorldAsync(SpaceWorldScene::CreateSpaceObjects, sceneNode, uiNode);

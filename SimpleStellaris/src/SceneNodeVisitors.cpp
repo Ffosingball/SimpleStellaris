@@ -331,7 +331,7 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             std::shared_ptr<StarComponent> spStarCom = spEntity->FindComponent<StarComponent>().lock();
 
             //Move star
-            double rotation = (spStarCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spStarCom->initialRotationPosition;
+            double rotation = (spStarCom->rotationalVelocity * static_cast<double>(daysPast)) + spStarCom->initialRotationPosition;
             //std::cout << "Double: " << std::sin(rotation) * spStarCom->orbitRadius << '\n';
             spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spStarCom->orbitRadius), static_cast<float>(std::cos(rotation) * spStarCom->orbitRadius)));
             //std::cout <<"Time: " << ECSGame::Instance().GetDaysPast() << "; Double: " << std::sin(rotation) * spStarCom->orbitRadius << "; Float: " << spEntity->GetPosition().x << '\n';
@@ -341,7 +341,7 @@ void SceneNodeVisitorMoveObjectsInSystem::ProcessNode(SceneNode& node)
             //Get planet component
             std::shared_ptr<PlanetComponent> spPlanetCom = spEntity->FindComponent<PlanetComponent>().lock();
 
-            double rotation = (spPlanetCom->rotationalVelocity * static_cast<double>(ECSGame::Instance().GetDaysPast())) + spPlanetCom->initialRotationPosition;
+            double rotation = (spPlanetCom->rotationalVelocity * static_cast<double>(daysPast)) + spPlanetCom->initialRotationPosition;
             spEntity->SetPosition(sf::Vector2f(static_cast<float>(std::sin(rotation) * spPlanetCom->orbitRadius), static_cast<float>(std::cos(rotation) * spPlanetCom->orbitRadius)));
         
             //std::cout << node.GetCombinedParentsNames() << '\n';

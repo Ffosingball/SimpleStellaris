@@ -86,5 +86,8 @@
     <ClInclude Include="src\GetTextureNameFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ButtonsFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

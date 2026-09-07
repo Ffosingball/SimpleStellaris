@@ -21,6 +21,7 @@
 #include <functional>
 #include "SceneNodeVisitors.h"
 #include "GetTextureNameFunctions.h"
+#include "ButtonsFunctions.h"
 
 
 void WorldGenerator::Initialize()

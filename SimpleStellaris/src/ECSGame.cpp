@@ -68,7 +68,6 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 
 	//Set gameState
 	gameState = GameState::Stopped;
-	overviewType = OverviewType::Space;
 }
 
 
@@ -79,8 +78,8 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 	//Change deltatime
 	deltaTime = deltaT * deltaTimeMultiplier;
 	uiDeltaTime = deltaT;
-	timeSinceStart += deltaTime;
 
+	timeSinceStart += uiDeltaTime;
 	if (timeSinceStart > 1.f)
 	{
 		timeSinceStart -= 1.f;
@@ -91,12 +90,6 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 
 	//Get mousePosition
 	mousePosition = sf::Mouse::getPosition(renderWindow);
-
-	//Update simulation time
-	if (ECSGame::Instance().GetGameState() == GameState::Game)
-	{
-		daysPast += deltaTime * simulationSpeed;
-	}
 
 #ifdef OUTPUT_FRAME_TIMING
 	//for debbuging purposes
@@ -236,21 +229,25 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 	int renderedNodes{ 0 };
 	std::shared_ptr<SceneNode> spBackgroundNode;
-	if ((overviewType == OverviewType::System || overviewType == OverviewType::Planet) && ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
-		spBackgroundNode = sceneNode.lock()->FindChild("Background").lock();
+		OverviewType overviewType = root->GetEntity().lock()->FindComponent<SpaceSceneStatesComponent>().lock()->overviewType;
+		if ((overviewType == OverviewType::System || overviewType == OverviewType::Planet))
+		{
+			spBackgroundNode = sceneNode.lock()->FindChild("Background").lock();
 
-		//Set renderWindow to render in the camera
-		std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
-		renderWindow.setView(sBackCameraCom->view);
+			//Set renderWindow to render in the camera
+			std::shared_ptr<CameraComponent> sBackCameraCom = GetCameraFromBackgroundCameraEntity();
+			renderWindow.setView(sBackCameraCom->view);
 
-		//Render only background
-		SceneNodeVisitorRender visitor(renderWindow);
-		spBackgroundNode->AcceptVisitor(visitor);
+			//Render only background
+			SceneNodeVisitorRender visitor(renderWindow);
+			spBackgroundNode->AcceptVisitor(visitor);
 
-		spBackgroundNode->GetEntity().lock()->hidden = true;
+			spBackgroundNode->GetEntity().lock()->hidden = true;
 
-		renderedNodes += visitor.renderedEntities;
+			renderedNodes += visitor.renderedEntities;
+		}
 	}
 
 	//Set renderWindow to render in the camera
@@ -285,26 +282,14 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	root->AcceptVisitor(visitor3);
 
 	signals::onRenderingComplete(visitor3.counter, renderedNodes);
-	if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
+	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
-		spBackgroundNode->GetEntity().lock()->hidden = false;
+		OverviewType overviewType = root->GetEntity().lock()->FindComponent<SpaceSceneStatesComponent>().lock()->overviewType;
+		if (overviewType == OverviewType::System || overviewType == OverviewType::Planet)
+		{
+			spBackgroundNode->GetEntity().lock()->hidden = false;
+		}
 	}
-}
-
-
-void ECSGame::SetSimulationSpeed(float simSpeed) 
-{
-	if (simSpeed > 0.f)
-		simulationSpeed = simSpeed;
-}
-
-
-float ECSGame::GetSimulationDeltaTime() const 
-{
-	if (gameState == GameState::Game)
-		return deltaTime * simulationSpeed;
-	else
-		return 0.f;
 }
 
 
@@ -324,4 +309,10 @@ void ECSGame::ChangeScene(std::shared_ptr<SceneNode> newSceneNode, std::shared_p
 
 	uiNode = newUINode;
 	sceneNode = newSceneNode;
+}
+
+
+void ECSGame::ExitGame() 
+{
+	root->DeleteAllEntities();
 }

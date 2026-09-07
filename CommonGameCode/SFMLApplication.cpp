@@ -82,7 +82,7 @@ namespace gel
             //Display image from the double buffer
             renderWindow.display();
         }
+
+        ExitGame();
 	}
-
-
 }

@@ -193,7 +193,8 @@ void SceneNode::DeleteAllEntities()
 	for (auto child : children)
 		child->DeleteAllEntities();
 
-	ECSGame::Instance().GetEntityManager().DestroyEntity(entity);
+	if(entity.lock()!=nullptr)
+		ECSGame::Instance().GetEntityManager().DestroyEntity(entity);
 }
 
 //This function finds and returns scene node which contains this entity

@@ -17,6 +17,7 @@
 #include "WorldGenerator.h"
 #include "SceneNodeVisitors.h"
 #include "CompilerInstructions.h"
+#include "ButtonsFunctions.h"
 
 
 namespace MainMenuScene
@@ -82,6 +83,9 @@ namespace MainMenuScene
 		std::shared_ptr<RectangleShapeComponent> spRectShape = wpMouseIcon.lock()->AddComponent<RectangleShapeComponent>().lock();
 		SetupRectangleShape(spRectShape, mouseSize * uiSize, "MouseIcon");
 		spRectShape->shape.setPosition({ 32,32 });
+
+		sf::Vector2i pos = ECSGame::Instance().GetMousePosition();
+		wpMouseIcon.lock()->SetPosition(sf::Vector2f{(float)pos.x,(float)pos.y});
 	}
 
 
@@ -194,8 +198,6 @@ namespace MainMenuScene
 //Initialize MainMenuScene
 void InitializeMainMenuScene(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
 {
-	ECSGame::Instance().SetOverviewType(OverviewType::Space);
-
 	//Create nodes, in which i will sort new entities which will be created during the game
 	std::weak_ptr<Entity> wpCameras = ECSGame::Instance().GetEntityManager().NewEntity("Cameras");
 	sceneNode->AddChild(std::make_shared<SceneNode>(wpCameras));

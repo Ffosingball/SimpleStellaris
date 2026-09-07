@@ -36,6 +36,7 @@
     <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ButtonsFunctions.h" />
     <ClInclude Include="src\Components.h" />
     <ClInclude Include="src\EntitiesFunctions.h" />
     <ClInclude Include="src\GetTextureNameFunctions.h" />
