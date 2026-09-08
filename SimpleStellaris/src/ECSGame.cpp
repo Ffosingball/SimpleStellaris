@@ -189,6 +189,12 @@ void ECSGame::HandleEvent(const std::optional<sf::Event>& event)
 	{
 		signals::onJoystickButtonReleased(*joystickButReleased);
 	}
+
+	//Check if text entered
+	if (const auto* textEntered = event->getIf<sf::Event::TextEntered>())
+	{
+		signals::onTextEntered(*textEntered);
+	}
 }
 
 //Render all entities

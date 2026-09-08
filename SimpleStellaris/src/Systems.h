@@ -16,6 +16,7 @@ enum class InputType
 {
 	World,
 	Menu,
+	InputBox,
 	None
 };
 
@@ -30,6 +31,7 @@ private:
 	void Initialize() override;
 	void OnSceneChanged() override;
 	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+	
 	//Signals functions
 	void OnKeyPressed(sf::Event::KeyPressed key);
 	void OnKeyReleased(sf::Event::KeyReleased key);
@@ -41,6 +43,8 @@ private:
 	void OnJoystickButtonPressed(sf::Event::JoystickButtonPressed button);
 	void OnJoystickButtonReleased(sf::Event::JoystickButtonReleased button);
 	void OnChangeInputType(InputType inputType);
+	void OnTextEntered(sf::Event::TextEntered textEntered);
+	void OnInputBoxSelected(std::weak_ptr<Entity> wpInBoxSelected);
 
 	//Buttons functions
 	void DistrictHovered(std::shared_ptr<Entity> spEntity);
@@ -79,6 +83,7 @@ private:
 	std::weak_ptr<Entity> wpPlayingButton;
 
 	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
+	std::weak_ptr<Entity> wpInputBoxSelected;
 
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;
@@ -103,6 +108,7 @@ private:
 
 	OverviewType previousFrameOverview = OverviewType::None;
 	InputType inputType = InputType::Menu;
+	InputType previousInputType = InputType::Menu;
 };
 
 //Processes all movement
@@ -277,6 +283,9 @@ namespace signals
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;
 	inline sigslot::signal<sf::Event::JoystickButtonReleased> onJoystickButtonReleased;
 	inline sigslot::signal<InputType> onChangeInputType;
+	inline sigslot::signal<sf::Event::TextEntered> onTextEntered;
+	inline sigslot::signal<std::weak_ptr<Entity>> onInputBoxSelected;
+	inline sigslot::signal<std::weak_ptr<Entity>> onInputBoxUnselected;
 
 	//Simulation system signals
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onAddNodeToSimulate;

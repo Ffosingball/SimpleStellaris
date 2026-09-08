@@ -93,15 +93,19 @@ namespace MainMenuScene
 	void CreateUI(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
 	{
 		float mainMenuMainFontSize = 90;
+		float usualFontSize = 30;
 		sf::Vector2f buttonSize{ 600.f, 60.f };
 		sf::Vector2f menuSize{ 2560.f, 1600.f };
+		sf::Vector2f inputBoxSize{ 300.f, 30.f };
 		sf::Color mainMenuPanelColor = sf::Color{ 0,0,0,100 };
+		sf::Color inputBoxColor = sf::Color{ 50,50,50,100 };
 		std::string fontName = "PixelBold";
 		sf::Color importantColor = sf::Color{ 235, 175, 38 };
+		sf::Color usualColor = sf::Color{ 255, 255, 255 };
 
 		float uiSize = ECSGame::Instance().GetUISize();
 
-		//CREATE escape menu screen
+		//CREATE main menu screen
 		std::shared_ptr<Entity> spEscScreen = CreateNewEntityAt(uiNode, "MainMenuScreen").lock();
 		spEscScreen->hidden = false;
 		//Add component
@@ -169,6 +173,66 @@ namespace MainMenuScene
 			{ButtonSignals::OnButtonReleased(entity); };
 		spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
 			{ButtonSignals::OnButtonClicked(entity); };
+
+		//CREATE generation config screen
+		std::shared_ptr<Entity> spGenScreen = CreateNewEntityAt(uiNode, "GenerationConfigScreen").lock();
+		spGenScreen->hidden = false;
+		//Add component
+		spRectShape = spGenScreen->AddComponent<RectangleShapeComponent>().lock();
+		spRectShape->shape.setSize(menuSize * uiSize);
+		spRectShape->shape.setOrigin(spRectShape->shape.getSize() / 2.f);
+		spRectShape->shape.setFillColor(mainMenuPanelColor);
+		spGenScreen->SetPosition(sf::Vector2f{ 1280.f, 800.f } * uiSize);
+
+		std::shared_ptr<SceneNode> spGenNode = uiNode->FindChild(*spGenScreen).lock();
+		//CREATE seed text
+		std::shared_ptr<Entity> spTextEn = InitializeText("SeedText", "Seed: ", (int)(usualFontSize * uiSize), sf::Vector2f{ -100.f, 0.f } * uiSize, fontName, true, usualColor, spGenNode);
+	
+		//CREATE INPUT BOX
+		std::shared_ptr<Entity> spInputBox = CreateNewEntityAt(spEscapeNode, "SeedInputBox").lock();
+		spInputBox->SetPosition(sf::Vector2f{ 200.f,60.f } * uiSize);
+
+		//rectShape
+		spRectShapeCom = spInputBox->AddComponent<RectangleShapeComponent>().lock();
+		spRectShape->shape.setSize(inputBoxSize* uiSize);
+		spRectShape->shape.setOrigin(spRectShape->shape.getSize() / 2.f);
+		spRectShape->shape.setFillColor(inputBoxColor);
+
+		//button
+		spButtonCom = spInputBox->AddComponent<ButtonComponent>().lock();
+		spButtonCom->buttonSize = inputBoxSize * uiSize;
+
+		spButtonCom->onButtonHovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnInputBoxHovered(entity); };
+		spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnInputBoxUnhovered(entity); };
+		spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
+			{ ButtonSignals::OnInputBoxPressed(entity); };
+
+		//inputBox
+		std::shared_ptr<InputBoxComponent> spInputBoxCom = spInputBox->AddComponent<InputBoxComponent>().lock();
+		spInputBoxCom->text = std::to_string(WorldGenerator::Instance().getSeed());
+		spInputBoxCom->cursorPosition = (int)spInputBoxCom->text.size();
+
+		//text
+		std::shared_ptr<TextComponent> spTextCom = spInputBox->AddComponent<TextComponent>().lock();
+		spTextCom->textAlignment = TextAlignment::Left;
+		spTextCom->updateText = [spInputBoxCom](std::shared_ptr<sf::Text> spText) 
+			{
+				if (spInputBoxCom->focused)
+				{
+					if (spInputBoxCom->showLine)
+					{
+						std::string textToShow = spInputBoxCom->text;
+						textToShow.insert(spInputBoxCom->cursorPosition, 1, '|');
+						spText->setString(textToShow);
+					}
+					else
+						spText->setString(spInputBoxCom->text);
+				}
+				else
+					spText->setString(spInputBoxCom->text);
+			};
 	}
 
 

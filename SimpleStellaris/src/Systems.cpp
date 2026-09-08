@@ -27,6 +27,8 @@ void InputSystem::Initialize()
 	signals::onJoystickButtonPressed.connect(&InputSystem::OnJoystickButtonPressed, this);
 	signals::onJoystickButtonReleased.connect(&InputSystem::OnJoystickButtonReleased, this);
 	signals::onChangeInputType.connect(&InputSystem::OnChangeInputType, this);
+	signals::onTextEntered.connect(&InputSystem::OnTextEntered, this);
+	signals::onInputBoxSelected.connect(&InputSystem::OnInputBoxSelected, this);
 
 	previousFrameOverview = OverviewType::Space;
 	systemName = "InputSystem";
@@ -63,6 +65,10 @@ void InputSystem::Initialize()
 	ButtonSignals::OnButtonClicked.connect(&ButtonSignals::ButtonClicked);
 	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&ButtonSignals::ExitToMainMenuButtonPressed);
 	ButtonSignals::OnStartGameButtonPressed.connect(&ButtonSignals::StartGameButtonPressed);
+	ButtonSignals::OnInputBoxPressed.connect(&ButtonSignals::InputBoxPressed);
+	ButtonSignals::OnInputBoxHovered.connect(&ButtonSignals::InputBoxHovered);
+	ButtonSignals::OnInputBoxUnhovered.connect(&ButtonSignals::InputBoxUnhovered);
+	signals::onInputBoxUnselected.connect(&ButtonSignals::InputBoxUnselected);
 }
 
 
@@ -429,11 +435,55 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 				ChangeUIVisibility(UIHidden);
 			}
 		}
-		else
+		else if (inputType == InputType::Menu)
 		{
 			if (key.code == sf::Keyboard::Key::Escape)
 			{
 				ChangeEscapeScreen();
+			}
+		}
+		else if (inputType == InputType::InputBox) 
+		{
+			std::shared_ptr<InputBoxComponent> spInputBox = wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock();
+
+			if (key.code == sf::Keyboard::Key::Escape)
+			{
+				signals::onInputBoxUnselected(wpInputBoxSelected);
+				inputType = previousInputType;
+				wpInputBoxSelected = {};
+				spInputBox->focused = false;
+			}
+			else if (key.code == sf::Keyboard::Key::Enter) 
+			{
+				signals::onInputBoxUnselected(wpInputBoxSelected);
+				inputType = previousInputType;
+				wpInputBoxSelected = {};
+				spInputBox->focused = false;
+			}
+			else if (key.code == sf::Keyboard::Key::Backspace)
+			{
+				if (spInputBox->cursorPosition > 0)
+				{
+					spInputBox->text.erase(spInputBox->cursorPosition - 1, 1);
+					spInputBox->cursorPosition--;
+				}
+			}
+			else if (key.code == sf::Keyboard::Key::Delete)
+			{
+				if (spInputBox->cursorPosition < spInputBox->text.size())
+					spInputBox->text.erase(spInputBox->cursorPosition + 1, 1);
+			}
+			else if (key.code == sf::Keyboard::Key::Left)
+			{
+				spInputBox->cursorPosition--;
+				if (spInputBox->cursorPosition < 0)
+					spInputBox->cursorPosition = 0;
+			}
+			else if (key.code == sf::Keyboard::Key::Right)
+			{
+				spInputBox->cursorPosition++;
+				if (spInputBox->cursorPosition > spInputBox->text.size())
+					spInputBox->cursorPosition = (int)spInputBox->text.size();
 			}
 		}
 
@@ -453,10 +503,10 @@ void InputSystem::OnKeyReleased(sf::Event::KeyReleased key)
 
 void InputSystem::OnJoystickMoved(sf::Event::JoystickMoved joystickMoved)
 {
-	if (ECSGame::Instance().GetGameState() != GameState::Loading)
-	{
+	//if (ECSGame::Instance().GetGameState() != GameState::Loading)
+	//{
 
-	}
+	//}
 }
 
 
@@ -536,7 +586,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				break;
 			}
 		}
-		else
+		else if (inputType == InputType::Menu)
 		{
 			switch (button.button)
 			{
@@ -560,6 +610,31 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 			case 6:
 				OnChangeInputType(InputType::World);
 				ChangeEscapeScreen();
+				break;
+			}
+		}
+		else if (inputType == InputType::InputBox)
+		{
+			std::shared_ptr<InputBoxComponent> spInputBox = wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock();
+
+			switch (button.button)
+			{
+			case 0:
+				signals::onInputBoxUnselected(wpInputBoxSelected);
+				inputType = previousInputType;
+				wpInputBoxSelected = {};
+				spInputBox->focused = false;
+				break;
+			case 1:
+				if (spInputBox->cursorPosition >= spInputBox->text.size())if (spInputBox->cursorPosition > 0)
+				{
+					spInputBox->text.erase(spInputBox->cursorPosition - 1, 1);
+					spInputBox->cursorPosition--;
+				}
+				break;
+			case 2:
+				if (spInputBox->cursorPosition < spInputBox->text.size())
+					spInputBox->text.erase(spInputBox->cursorPosition + 1, 1);
 				break;
 			}
 		}
@@ -718,10 +793,22 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 					CancelCameraLock();
 			}
 		}
-		else
+		else if(inputType == InputType::Menu)
 		{
 			if (mouseButPressed.button == sf::Mouse::Button::Left)
 			{
+				signals::onLMBpressed();
+			}
+		}
+		else if (inputType == InputType::InputBox)
+		{
+			if (mouseButPressed.button == sf::Mouse::Button::Left)
+			{
+				signals::onInputBoxUnselected(wpInputBoxSelected);
+				inputType = previousInputType;
+				wpInputBoxSelected = {};
+				wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock()->focused = false;
+				
 				signals::onLMBpressed();
 			}
 		}
@@ -737,6 +824,33 @@ void InputSystem::OnMouseButtonReleased(sf::Event::MouseButtonReleased mouseButR
 	{
 		signals::onLMBreleased();
 	}
+}
+
+
+void InputSystem::OnTextEntered(sf::Event::TextEntered textEntered) 
+{
+	if (inputType == InputType::InputBox)
+	{
+		if (textEntered.unicode >= 32 && textEntered.unicode != 127)
+		{
+			// Normal character
+			std::shared_ptr<InputBoxComponent> spInputBox = wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock();
+			spInputBox->text.insert(spInputBox->cursorPosition, 1, static_cast<char>(textEntered.unicode));
+			spInputBox->cursorPosition++;
+		}
+	}
+}
+
+
+void InputSystem::OnInputBoxSelected(std::weak_ptr<Entity> wpInBoxSelected)
+{
+	wpInputBoxSelected = wpInBoxSelected;
+	std::shared_ptr<InputBoxComponent> spInputBox = wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock();
+	spInputBox->focused = true;
+	spInputBox->timePassed = 0.f;
+	spInputBox->cursorPosition = (int)spInputBox->text.size();
+	previousInputType = inputType;
+	inputType = InputType::InputBox;
 }
 
 

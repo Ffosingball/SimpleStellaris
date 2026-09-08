@@ -83,6 +83,44 @@ namespace ButtonSignals
 	{
 		ECSGame::Instance().CloseGame();
 	}
+
+
+	void InputBoxHovered(std::shared_ptr<Entity> spEntity) 
+	{
+		float outlineThikness = 4.f;
+		sf::Color outlineColor = sf::Color{ 255,255,255 };
+
+		std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+		spRectShape->shape.setOutlineThickness(outlineThikness);
+		spRectShape->shape.setOutlineColor(outlineColor);
+	}
+
+
+	void InputBoxUnhovered(std::shared_ptr<Entity> spEntity) 
+	{
+		std::shared_ptr<InputBoxComponent> spInputBox = spEntity->FindComponent<InputBoxComponent>().lock();
+
+		if (!spInputBox->focused)
+		{
+			std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+			spRectShape->shape.setOutlineThickness(0.f);
+			spRectShape->shape.setFillColor(sf::Color::White);
+		}
+	}
+
+
+	void InputBoxPressed(std::shared_ptr<Entity> spEntity) 
+	{
+		signals::onInputBoxSelected(spEntity);
+	}
+
+
+	void InputBoxUnselected(std::weak_ptr<Entity> wpEntity) 
+	{
+		std::shared_ptr<RectangleShapeComponent> spRectShape = wpEntity.lock()->FindComponent<RectangleShapeComponent>().lock();
+		spRectShape->shape.setOutlineThickness(0.f);
+		spRectShape->shape.setFillColor(sf::Color::White);
+	}
 }
 
 void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity)

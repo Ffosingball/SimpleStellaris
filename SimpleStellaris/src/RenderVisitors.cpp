@@ -33,7 +33,8 @@ void SceneNodeVisitorRender::ProcessNode(SceneNode& node)
             renderWindow.draw(spEntityRecShape->shape, states);
             renderedEntities++;
         }
-        else if (spEntity->HasComponent<TileMapComponent>())
+        
+        if (spEntity->HasComponent<TileMapComponent>())
         {
             //Get component
             std::shared_ptr<TileMapComponent> spEntityTileMap = spEntity->FindComponent<TileMapComponent>().lock();
@@ -76,7 +77,8 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
             renderWindow.draw(spEntityRecShape->shape, states);
             renderedEntities++;
         }
-        else if (spEntity->HasComponent<TextComponent>())
+        
+        if (spEntity->HasComponent<TextComponent>())
         {
             //Get component
             std::shared_ptr<TextComponent> spEntityUI = spEntity->FindComponent<TextComponent>().lock();
@@ -87,7 +89,8 @@ void SceneNodeVisitorRenderUI::ProcessNode(SceneNode& node)
             renderWindow.draw(*(spEntityUI->text), states);
             renderedEntities++;
         }
-        else if (spEntity->HasComponent<OrbitVisualizerComponent>())
+        
+        if (spEntity->HasComponent<OrbitVisualizerComponent>())
         {
             //Get component
             std::shared_ptr<OrbitVisualizerComponent> spEntityUI = spEntity->FindComponent<OrbitVisualizerComponent>().lock();

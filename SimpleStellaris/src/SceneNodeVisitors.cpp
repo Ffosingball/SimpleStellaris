@@ -271,6 +271,20 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                 }
             }
         }
+
+        if (spEntity->HasComponent<InputBoxComponent>())
+        {
+            std::shared_ptr<InputBoxComponent> spInBoxCom = spEntity->FindComponent<InputBoxComponent>().lock();
+
+            if (spInBoxCom->focused)
+            {
+                spInBoxCom->timePassed += ECSGame::Instance().GetUIDeltaTime();
+                if ((int)(spInBoxCom->timePassed / spInBoxCom->blinkPeriod) % 2 == 0)
+                    spInBoxCom->showLine = true;
+                else
+                    spInBoxCom->showLine = false;
+            }
+        }
     }
 }
 

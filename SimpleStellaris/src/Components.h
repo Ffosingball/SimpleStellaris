@@ -322,3 +322,16 @@ public:
 	//Stores district of which planet is selected
 	std::weak_ptr<PlanetComponent> wpSelectedPlanet;
 };
+
+
+class InputBoxComponent : public Component 
+{
+public:
+	std::string text;
+	int cursorPosition{0};
+	bool focused{false};
+
+	float timePassed{0.f};
+	bool showLine{ true };
+	float blinkPeriod{ 0.5f };
+};

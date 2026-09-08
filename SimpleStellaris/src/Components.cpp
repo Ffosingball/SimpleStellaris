@@ -50,6 +50,8 @@ std::string PrintComponentName(std::shared_ptr<Component> spComponent)
 		return "DistrictComponent";
 	else if (std::dynamic_pointer_cast<SpaceSceneStatesComponent>(spComponent))
 		return "SpaceSceneStatesComponent";
+	else if (std::dynamic_pointer_cast<InputBoxComponent>(spComponent))
+		return "InputBoxComponent";
 	else
 		return "---";
 }
