@@ -36,15 +36,12 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	ResourceManager::Instance().LoadAllResources();
 	
 	//Create and add systems to the list
-	std::shared_ptr<InputSystem> spInputSystem = std::make_shared<InputSystem>();
-	systems.emplace_back(spInputSystem);
+	systems.emplace_back(std::make_shared<InputSystem>());
 	systems.emplace_back(std::make_shared<SimulationSystem>());
 	systems.emplace_back(std::make_shared<MovementSystem>());
 	systems.emplace_back(std::make_shared<UISystem>());
-	std::shared_ptr<MusicSystem> spMusicSystem = std::make_shared<MusicSystem>();
-	systems.emplace_back(spMusicSystem);
+	systems.emplace_back(std::make_shared<MusicSystem>());
 	systems.emplace_back(std::make_shared<GameSystem>());
-	spInputSystem->musicSystem = spMusicSystem;
 
 	//Initialize Systems
 	for (std::shared_ptr<System> system : systems)
@@ -114,28 +111,11 @@ void ECSGame::Update(const float deltaT, sf::RenderWindow& renderWindow)
 		entityManager.DestroyEntity(root->GetEntity());
 	}
 
-	/*if (newRoot != root)
-	{
-		std::cout << "Entities before: ";
-		std::cout << entityManager.GetEntities().size() << '\n';
-	}*/
-
 	//Process entities removal
 	deleteSystem.Update(root, deltaTime);
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --" << deleteSystem.GetSystemName() << ": " << timer.restart().asSeconds() << '\n';
 #endif
-
-	/*if (newRoot != root)
-	{
-		std::cout << "Entities left: ";
-		std::cout << entityManager.GetEntities().size() << '\n';
-
-		if (uiNode.lock() != nullptr || sceneNode.lock() != nullptr)
-			std::cout << "Some Nodes left: \n";
-		else
-			std::cout << "No nodes left\n";
-	}*/
 
 	//Process loading scenes
 	if (newRoot != root)

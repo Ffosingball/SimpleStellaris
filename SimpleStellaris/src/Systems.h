@@ -26,8 +26,6 @@ class InputSystem :public System
 public:
 	virtual ~InputSystem() = default;
 
-	std::shared_ptr<MusicSystem> musicSystem;
-
 private:
 	void Initialize() override;
 	void OnSceneChanged() override;
@@ -157,6 +155,13 @@ public:
 
 	virtual ~MusicSystem() = default;
 
+private:
+	void Initialize() override;
+	void OnSceneChanged() override;
+	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
+
+	void SetupMusic(std::shared_ptr<sf::Music> currentlyPlayingMusic);
+
 	void PlayEnterSelectedSystemSFX();
 	void PlayExitSelectedSystemSFX();
 	void PlayPauseSimulationSFX();
@@ -167,22 +172,16 @@ public:
 	void PlayCloseDistrictViewSFX();
 	void PlayPressedButtonSFX(std::shared_ptr<Entity>);
 	void PlayOpenEscapePanelSFX();
-
 	void PlaySelectedObjectSound(std::shared_ptr<Entity> spSelectedEntity);
 	void StopSelectedObjectSound();
+
 	void PlayNextMusic();
 	void PlayPreviousMusic();
 	void MixMusicList();
 	void StopMusic();
 	void ResumeMusic();
 
-private:
-	void Initialize() override;
-	void OnSceneChanged() override;
-	void Update(std::shared_ptr<SceneNode> scene, float deltaTime) override;
-
-	void SetupMusic(std::shared_ptr<sf::Music> currentlyPlayingMusic);
-
+	//Buttons functions
 	void PreviousMusicButtonPressed(std::shared_ptr<Entity> spEntity);
 	void NextMusicButtonPressed(std::shared_ptr<Entity> spEntity);
 	void StopMusicButtonPressed(std::shared_ptr<Entity> spEntity);
@@ -266,6 +265,7 @@ private:
 //List of all possible signals
 namespace signals
 {
+	//Input system signals
 	inline sigslot::signal<sf::Event::KeyPressed> onKeyPressed;
 	inline sigslot::signal<sf::Event::KeyReleased> onKeyReleased;
 	inline sigslot::signal<sf::Event::MouseWheelScrolled> onMouseWheelScrolled;
@@ -273,14 +273,31 @@ namespace signals
 	inline sigslot::signal<sf::Event::MouseButtonPressed> onMouseButtonPressed;
 	inline sigslot::signal<sf::Event::MouseButtonReleased> onMouseButtonReleased;
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
-	inline sigslot::signal<std::shared_ptr<SceneNode>> onAddNodeToSimulate;
-	inline sigslot::signal<std::shared_ptr<SceneNode>> onRemoveNodeToSimulate;
 	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;
 	inline sigslot::signal<sf::Event::JoystickButtonReleased> onJoystickButtonReleased;
+	inline sigslot::signal<InputType> onChangeInputType;
+
+	//Simulation system signals
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onAddNodeToSimulate;
+	inline sigslot::signal<std::shared_ptr<SceneNode>> onRemoveNodeToSimulate;
+
+	//UI system signals
 	inline sigslot::signal<> onHideInfoPanel;
 	inline sigslot::signal<> onShowInfoPanel;
-	inline sigslot::signal<InputType> onChangeInputType;
 	inline sigslot::signal<> onLMBpressed;
 	inline sigslot::signal<> onLMBreleased;
+
+	//Music system signals
+	inline sigslot::signal<std::shared_ptr<Entity>> onPlaySelectedObjectSound;
+	inline sigslot::signal<> onPlayLockCameraSFX;
+	inline sigslot::signal<> onStopSelectedObjectSound;
+	inline sigslot::signal<> onPlayUnlockCameraSFX;
+	inline sigslot::signal<> onPlayOpenDistrictViewSFX;
+	inline sigslot::signal<> onPlayCloseDistrictViewSFX;
+	inline sigslot::signal<> onPlayEnterSelectedSystemSFX;
+	inline sigslot::signal<> onPlayExitSelectedSystemSFX;
+	inline sigslot::signal<> onPlayPauseSimulationSFX;
+	inline sigslot::signal<> onPlayResumeSimulationSFX;
+	inline sigslot::signal<> onPlayOpenEscapePanelSFX;
 }

@@ -113,9 +113,9 @@ void InputSystem::LockCameraOnNode(std::weak_ptr<SceneNode> wpNodeToLockOn)
 
 	std::shared_ptr<Entity> spEntity = wpNodeToLockOn.lock()->GetEntity().lock();
 	if ((spEntity->HasComponent<StarComponent>() || spEntity->HasComponent<PlanetComponent>()) && !spEntity->HasComponent<ObjectSystemComponent>())
-		musicSystem->PlaySelectedObjectSound(spEntity);
+		signals::onPlaySelectedObjectSound(spEntity);
 
-	musicSystem->PlayLockCameraSFX();
+	signals::onPlayLockCameraSFX();
 }
 
 
@@ -125,8 +125,8 @@ void InputSystem::CancelCameraLock()
 	spCameraCom->cameraLocked = false;
 	spCameraCom->wpNodeLockedOn = {};
 
-	musicSystem->StopSelectedObjectSound();
-	musicSystem->PlayUnlockCameraSFX();
+	signals::onStopSelectedObjectSound();
+	signals::onPlayUnlockCameraSFX();
 }
 
 
@@ -151,7 +151,7 @@ void InputSystem::OpenPlanetDistrictsView()
 
 		wpSpaceSceneStates.lock()->wpSelectedPlanet = spPlanetCom;
 
-		musicSystem->PlayOpenDistrictViewSFX();
+		signals::onPlayOpenDistrictViewSFX();
 	}
 }
 
@@ -169,7 +169,7 @@ void InputSystem::ClosePlanetDistrictsView()
 	districtViewOpened = false;
 	wpSpaceSceneStates.lock()->wpSelectedPlanet = {};
 
-	musicSystem->PlayCloseDistrictViewSFX();
+	signals::onPlayCloseDistrictViewSFX();
 }
 
 
@@ -205,7 +205,7 @@ void InputSystem::EnterSystemOverview()
 
 	wpSpaceSceneStates.lock()->wpSelectedNodeIn = wpSelectedSystemNode;
 	signals::onAddNodeToSimulate(spSysCom->spAllSystemObjectsNode);
-	musicSystem->PlayEnterSelectedSystemSFX();
+	signals::onPlayEnterSelectedSystemSFX();
 }
 
 
@@ -247,7 +247,7 @@ void InputSystem::EnterPlanetFromSystemOverview()
 	sSystemCameraCom->moveCamera = false;
 
 	wpSpaceSceneStates.lock()->wpSelectedNodeIn = wpPlanetOrStarSelected;
-	musicSystem->PlayEnterSelectedSystemSFX();
+	signals::onPlayEnterSelectedSystemSFX();
 }
 
 
@@ -273,7 +273,7 @@ void InputSystem::ExitSystemOverview()
 
 	wpSpaceSceneStates.lock()->wpSelectedNodeIn = {};
 	signals::onRemoveNodeToSimulate(spSysCom->spAllSystemObjectsNode);
-	musicSystem->PlayExitSelectedSystemSFX();
+	signals::onPlayExitSelectedSystemSFX();
 }
 
 
@@ -299,7 +299,7 @@ void InputSystem::ExitPlanetToSystemOverview()
 	sPlanetCameraCom->moveCamera = false;
 
 	wpSpaceSceneStates.lock()->wpSelectedNodeIn = wpSelectedSystemNode;
-	musicSystem->PlayExitSelectedSystemSFX();
+	signals::onPlayExitSelectedSystemSFX();
 }
 
 
@@ -337,7 +337,7 @@ void ChangeUIVisibility(bool hide)
 void InputSystem::PauseSimulation() 
 {
 	wpSpaceSceneStates.lock()->simulationState = GameState::Paused;
-	musicSystem->PlayPauseSimulationSFX();
+	signals::onPlayPauseSimulationSFX();
 	wpPlayingButton.lock()->hidden = true;
 	wpStoppedButton.lock()->hidden = false;
 }
@@ -346,7 +346,7 @@ void InputSystem::PauseSimulation()
 void InputSystem::ResumeSimulation()
 {
 	wpSpaceSceneStates.lock()->simulationState = GameState::Resumed;
-	musicSystem->PlayResumeSimulationSFX();
+	signals::onPlayResumeSimulationSFX();
 	wpPlayingButton.lock()->hidden = false;
 	wpStoppedButton.lock()->hidden = true;
 }
@@ -379,7 +379,7 @@ void InputSystem::ChangeEscapeScreen()
 		}
 	}
 
-	musicSystem->PlayOpenEscapePanelSFX();
+	signals::onPlayOpenEscapePanelSFX();
 }
 
 
@@ -1195,6 +1195,18 @@ void MusicSystem::Initialize()
 {
 	systemName = "MusicSystem";
 
+	signals::onPlayCloseDistrictViewSFX.connect(&MusicSystem::PlayCloseDistrictViewSFX, this);
+	signals::onPlayOpenDistrictViewSFX.connect(&MusicSystem::PlayOpenDistrictViewSFX, this);
+	signals::onPlayEnterSelectedSystemSFX.connect(&MusicSystem::PlayEnterSelectedSystemSFX, this);
+	signals::onPlayExitSelectedSystemSFX.connect(&MusicSystem::PlayExitSelectedSystemSFX, this);
+	signals::onPlayLockCameraSFX.connect(&MusicSystem::PlayLockCameraSFX, this);
+	signals::onPlayUnlockCameraSFX.connect(&MusicSystem::PlayUnlockCameraSFX, this);
+	signals::onPlayOpenEscapePanelSFX.connect(&MusicSystem::PlayOpenEscapePanelSFX, this);
+	signals::onPlayPauseSimulationSFX.connect(&MusicSystem::PlayPauseSimulationSFX, this);
+	signals::onPlayResumeSimulationSFX.connect(&MusicSystem::PlayResumeSimulationSFX, this);
+	signals::onPlaySelectedObjectSound.connect(&MusicSystem::PlaySelectedObjectSound, this);
+	signals::onStopSelectedObjectSound.connect(&MusicSystem::StopSelectedObjectSound, this);
+
 	spEnterSelectedSystemSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("EnterSFX").lock());
 	spExitSelectedSystemSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("ExitSFX").lock());
 	spResumeSimulationSound = std::make_shared<sf::Sound>(*ResourceManager::Instance().GetSoundBuffer("ResumeSFX").lock());
@@ -1225,8 +1237,8 @@ void MusicSystem::Initialize()
 	ButtonSignals::OnSlower3ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnSlower2ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnSlower1ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
-	ButtonSignals::OnPlayingButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
-	ButtonSignals::OnStoppedButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	//ButtonSignals::OnPlayingButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	//ButtonSignals::OnStoppedButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnFaster3ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnFaster2ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnFaster1ButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
