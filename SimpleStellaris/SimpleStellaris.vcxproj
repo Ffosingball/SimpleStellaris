@@ -32,6 +32,7 @@
     <ClCompile Include="src\SimpleStellaris.cpp" />
     <ClCompile Include="src\SpaceObjectTypes.cpp" />
     <ClCompile Include="src\Systems.cpp" />
+    <ClCompile Include="src\TextFunctions.cpp" />
     <ClCompile Include="src\TextureAndNameSetter.cpp" />
     <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>

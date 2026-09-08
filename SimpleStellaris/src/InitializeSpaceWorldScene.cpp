@@ -370,13 +370,40 @@ namespace SpaceWorldScene
 		std::shared_ptr<SceneNode> spLowerPartNode = uiNode->FindChild(*spLoPart).lock();
 		std::shared_ptr<SceneNode> spUpperPartNode = uiNode->FindChild(*spToPart).lock();
 		//CREATE UI textes
-		InitializeText("MonthText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 140.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
-		InitializeText("DayText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -110.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
-		InitializeText("YearText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 380.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
-		InitializeText("SimulationStateText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -300.f, 0.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-		InitializeText("SimulationSpeedText", " ", (int)(simulationFontSize * uiSize), sf::Vector2f{ 0.f, -60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
-		InitializeText("ViewSizeText", " ", (int)(metricsFontSize * uiSize), sf::Vector2f{ 0.f, 30.f } * uiSize, fontName, true, usualColor, spUpperPartNode);
-		InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, -20.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
+		std::shared_ptr<Entity> spTextEn = InitializeText("MonthText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 140.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+		std::shared_ptr<TextComponent> spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateMonthText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
+		spTextEn = InitializeText("DayText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -110.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateDayText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
+		spTextEn = InitializeText("YearText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 380.f, 0.f } * uiSize, fontName, true, importantColor, spLowerPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateYearText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
+		spTextEn = InitializeText("SimulationStateText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ -300.f, 0.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateSimulationStateText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
+		spTextEn = InitializeText("SimulationSpeedText", " ", (int)(simulationFontSize * uiSize), sf::Vector2f{ 0.f, -60.f } * uiSize, fontName, true, usualColor, spLowerPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateSimulationSpeedText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
+		spTextEn = InitializeText("ViewSizeText", " ", (int)(metricsFontSize * uiSize), sf::Vector2f{ 0.f, 30.f } * uiSize, fontName, true, usualColor, spUpperPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateViewSizeText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
+		spTextEn = InitializeText("OverviewText", " ", (int)(mainFontSize * uiSize), sf::Vector2f{ 0.f, -20.f } * uiSize, fontName, true, importantColor, spUpperPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateOverviewText;
+		spTextCom->textAlignment = TextAlignment::Center;
 
 		//CREATE SIDE part of ui
 		std::shared_ptr<Entity> spInfoPart = CreateNewEntityAt(uiNode, "InfoPart").lock();
@@ -389,13 +416,40 @@ namespace SpaceWorldScene
 
 		std::shared_ptr<SceneNode> spInfoPartNode = uiNode->FindChild(*spInfoPart).lock();
 		//CREATE INFO textes
-		std::shared_ptr<Entity> spTextEn = InitializeText("InfoText0", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextEn = InitializeText("InfoText0", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText0;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("InfoText1", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, -120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText1;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("InfoText2", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f,-60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText2;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("InfoText3", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 0.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText3;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("InfoText4", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 60.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText4;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("InfoText5", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 120.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText5;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("InfoText6", " ", (int)(infoFontSize * uiSize), sf::Vector2f{ -370.f, 180.f } * uiSize, fontName, true, usualColor, spInfoPartNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateInfoText6;
+		spTextCom->textAlignment = TextAlignment::Left;
 
 		//CREATE PLANET DISTRICTS panel
 		std::shared_ptr<Entity> spPlDisPart = CreateNewEntityAt(uiNode, "PlanetDistrictsPart").lock();
@@ -409,10 +463,19 @@ namespace SpaceWorldScene
 		std::shared_ptr<SceneNode> spPlDisNode = uiNode->FindChild(*spPlDisPart).lock();
 		//CREATE Planet Districts textes
 		spTextEn = InitializeText("PlanetNameText", " ", (int)(dateFontSize * uiSize), sf::Vector2f{ 0.f, -380.f } * uiSize, fontName, true, importantColor, spPlDisNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdatePlanetNameDistrictText;
+		spTextCom->textAlignment = TextAlignment::Center;
+		
 		spTextEn = InitializeText("DistrictsText", "Planet Districts:", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, -300.f } * uiSize, fontName, false, usualColor, spPlDisNode);
 		gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
+		
 		spTextEn = InitializeText("DistrictTypeText", "Type: ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 310.f } * uiSize, fontName, false, usualColor, spPlDisNode);
 		gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateDistrictTypeText;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
 		spTextEn = InitializeText("DistrictPopulationText", "Population ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 340.f } * uiSize, fontName, false, usualColor, spPlDisNode);
 		gel::AlignTextToLeftSide(*spTextEn->FindComponent<TextComponent>().lock()->text, sf::Vector2f { 0.f, 0.f });
 		spTextEn = InitializeText("DistrictIndustryText", "Industry ", (int)(infoFontSize * uiSize), sf::Vector2f{ -700.f, 370.f } * uiSize, fontName, false, usualColor, spPlDisNode);
@@ -462,6 +525,7 @@ namespace SpaceWorldScene
 
 		//CREATE STOP MUSIC button
 		spButton = CreateNewEntityAt(spMusNode, "StopButton").lock();
+		std::shared_ptr<Entity> spButRes = CreateNewEntityAt(spMusNode, "ResumeButton").lock();
 		spButton->SetPosition(sf::Vector2f{ -50.f, 200.f } * uiSize);
 		spButton->hidden = false;
 
@@ -480,22 +544,23 @@ namespace SpaceWorldScene
 			{ButtonSignals::OnButtonHovered(entity); };
 		spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
 			{ButtonSignals::OnButtonUnhovered(entity); };
-		spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
-			{ ButtonSignals::OnStopMusicButtonPressed(entity); };
+		spButtonCom->onButtonPressed = [spButton, spButRes](std::shared_ptr<Entity> entity)
+			{ ButtonSignals::OnStopMusicButtonPressed(entity); 
+			spButton->hidden = true;
+			spButRes->hidden = false; };
 		spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
 			{ButtonSignals::OnButtonReleased(entity); };
 		spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
 			{ButtonSignals::OnButtonClicked(entity); };
 
 		//CREATE RESUME MUSIC button
-		spButton = CreateNewEntityAt(spMusNode, "ResumeButton").lock();
-		spButton->SetPosition(sf::Vector2f{ -50.f, 200.f } * uiSize);
-		spButton->hidden = true;
+		spButRes->SetPosition(sf::Vector2f{ -50.f, 200.f } * uiSize);
+		spButRes->hidden = true;
 
-		spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+		spRectShapeCom = spButRes->AddComponent<RectangleShapeComponent>().lock();
 		SetupRectangleShape(spRectShapeCom, playerButtonSize * uiSize, "StoppedButton");
 
-		spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+		spButtonCom = spButRes->AddComponent<ButtonComponent>().lock();
 		spButtonCom->buttonSize = sf::Vector2{ playerButtonSize.x * 0.5f,buttonSize.y } * uiSize;
 
 		spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("StoppedButton", spButtonCom->unhoveredIntRect).lock();
@@ -507,8 +572,10 @@ namespace SpaceWorldScene
 			{ButtonSignals::OnButtonHovered(entity); };
 		spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
 			{ButtonSignals::OnButtonUnhovered(entity); };
-		spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
-			{ ButtonSignals::OnResumeMusicButtonPressed(entity); };
+		spButtonCom->onButtonPressed = [spButton, spButRes](std::shared_ptr<Entity> entity)
+			{ ButtonSignals::OnResumeMusicButtonPressed(entity); 
+			spButton->hidden = false;
+			spButRes->hidden = true; };
 		spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
 			{ButtonSignals::OnButtonReleased(entity); };
 		spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
@@ -909,29 +976,43 @@ namespace SpaceWorldScene
 		uiNode->AddChild(spDebugNode);
 
 		float uiSize = ECSGame::Instance().GetUISize();
-		std::shared_ptr<Entity> spTextEn = InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 0.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		std::shared_ptr<Entity> spTextEn = InitializeText("MouseCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 13.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
 		std::shared_ptr<TextComponent> spTextCom = spTextEn->FindComponent<TextComponent>().lock();
-		spTextEn = InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 25.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom->updateText = TextUpdateFunctions::UpdateMousePositionDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
+		spTextEn = InitializeText("WorldCoordsText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 38.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
 		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
-		spTextEn = InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
-		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
-		spTextEn = InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 75.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
-		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateWorldPositionDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
 
-		spTextEn = InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 100.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		//spTextEn = InitializeText("SystemsNearByText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 50.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		//spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+
+		spTextEn = InitializeText("FPSText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 63.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateFPSDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
+
+		spTextEn = InitializeText("DaysPastText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 88.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
 		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
 		spTextCom->updateText = TextUpdateFunctions::UpdateDaysPastDebugText;
 		spTextCom->textAlignment = TextAlignment::Left;
 
-		spTextEn = InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 125.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextEn = InitializeText("DateText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 113.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
 		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
 		spTextCom->updateText = TextUpdateFunctions::UpdateDateDebugText;
 		spTextCom->textAlignment = TextAlignment::Left;
 
-		spTextEn = InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 150.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextEn = InitializeText("RenderText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 138.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
 		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
-		spTextEn = InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 175.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
+		spTextCom->updateText = TextUpdateFunctions::UpdateNodesDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
+		
+		spTextEn = InitializeText("MouseOverUIText", " ", (int)(fontSize * uiSize), sf::Vector2f{ 0.f, 163.f } * uiSize, fontName, false, sf::Color::White, spDebugNode);
 		spTextCom = spTextEn->FindComponent<TextComponent>().lock();
+		spTextCom->updateText = TextUpdateFunctions::UpdateMouseOverUIDebugText;
+		spTextCom->textAlignment = TextAlignment::Left;
 	}
 }
 

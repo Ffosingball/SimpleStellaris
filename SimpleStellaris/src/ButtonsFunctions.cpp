@@ -92,8 +92,7 @@ void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity)
 	sf::Color fillColor = sf::Color{ 200,200,200 };
 
 	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
-	districtTypeText.lock()->text->setString("Type: " + GetPlanetDistrictName(spDistrict->districtType));
-	gel::AlignTextToLeftSide(*districtTypeText.lock()->text, sf::Vector2 { 0.f, 0.f });
+	wpSpaceSceneStates.lock()->wpSelectedDistrict = spDistrict;
 
 	std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
 	spRectShape->shape.setOutlineThickness(outlineThikness);
@@ -111,8 +110,7 @@ void InputSystem::DistrictUnhovered(std::shared_ptr<Entity> spEntity)
 	std::shared_ptr<DistrictComponent> spDistrict = spEntity->FindComponent<DistrictComponent>().lock();
 	if (currentDistrictShown == spDistrict->districtID)
 	{
-		districtTypeText.lock()->text->setString("Type: ");
-		gel::AlignTextToLeftSide(*districtTypeText.lock()->text, sf::Vector2 { 0.f, 0.f });
+		wpSpaceSceneStates.lock()->wpSelectedDistrict = {};
 		currentDistrictShown = -1;
 	}
 
@@ -132,24 +130,24 @@ void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity)
 void SimulationSystem::Slower3ButtonPressed(std::shared_ptr<Entity> spEntity) 
 {
 	wpSpaceSceneStates.lock()->simulationSpeed -= 100;
-	if (wpSpaceSceneStates.lock()->simulationSpeed < 0)
-		wpSpaceSceneStates.lock()->simulationSpeed = 0;
+	if (wpSpaceSceneStates.lock()->simulationSpeed < 1)
+		wpSpaceSceneStates.lock()->simulationSpeed = 1;
 }
 
 
 void SimulationSystem::Slower2ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	wpSpaceSceneStates.lock()->simulationSpeed -= 10;
-	if (wpSpaceSceneStates.lock()->simulationSpeed < 0)
-		wpSpaceSceneStates.lock()->simulationSpeed = 0;
+	if (wpSpaceSceneStates.lock()->simulationSpeed < 1)
+		wpSpaceSceneStates.lock()->simulationSpeed = 1;
 }
 
 
 void SimulationSystem::Slower1ButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	wpSpaceSceneStates.lock()->simulationSpeed -= 1;
-	if (wpSpaceSceneStates.lock()->simulationSpeed < 0)
-		wpSpaceSceneStates.lock()->simulationSpeed = 0;
+	if (wpSpaceSceneStates.lock()->simulationSpeed < 1)
+		wpSpaceSceneStates.lock()->simulationSpeed = 1;
 }
 
 
@@ -198,16 +196,12 @@ void MusicSystem::NextMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 void MusicSystem::StopMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	StopMusic();
-	wpStopMusicButton.lock()->hidden = true;
-	wpResumeMusicButton.lock()->hidden = false;
 }
 
 
 void MusicSystem::ResumeMusicButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	ResumeMusic();
-	wpStopMusicButton.lock()->hidden = false;
-	wpResumeMusicButton.lock()->hidden = true;
 }
 
 

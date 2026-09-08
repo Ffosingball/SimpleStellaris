@@ -76,12 +76,26 @@ private:
 };
 
 
-
 //To process entities with UI components
 class SceneNodeVisitorUI : public SceneNodeVisitor
 {
 public:
-    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom, std::shared_ptr<CameraComponent> uiCameraCom) : uiSystem(system), spCamCom(activeCameraCom), spUICamCom(uiCameraCom) { processHiddenNode = true; }
+    SceneNodeVisitorUI(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom, std::shared_ptr<CameraComponent> uiCameraCom) : uiSystem(system), spCamCom(activeCameraCom), spUICamCom(uiCameraCom) {}
+
+    void ProcessNode(SceneNode& node) override;
+private:
+    UISystem& uiSystem;
+    std::shared_ptr<CameraComponent> spCamCom;
+    std::shared_ptr<CameraComponent> spUICamCom;
+};
+
+
+
+//To process entities with UI components and ignores hidden
+class SceneNodeVisitorUIProcessHidden : public SceneNodeVisitor
+{
+public:
+    SceneNodeVisitorUIProcessHidden(UISystem& system, std::shared_ptr<CameraComponent> activeCameraCom, std::shared_ptr<CameraComponent> uiCameraCom) : uiSystem(system), spCamCom(activeCameraCom), spUICamCom(uiCameraCom) { processHiddenNode = true; }
 
     void ProcessNode(SceneNode& node) override;
 private:

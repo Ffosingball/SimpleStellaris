@@ -240,48 +240,6 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
             }
         }
 
-        //Check if entity has UIFollower component
-        if (spEntity->HasComponent<UIFollowerComponent>())
-        {
-            std::shared_ptr<UIFollowerComponent> spEntityFollower = spEntity->FindComponent<UIFollowerComponent>().lock();
-
-            bool hide = false;
-            if (spEntityFollower->nodeToFollow.lock() == nullptr)
-                hide = true;
-            else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock() == nullptr)
-                hide = true;
-            else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock()->hidden)
-                hide = true;
-            else if (spEntityFollower->hideAnyway)
-                hide = true;
-            else if (spEntityFollower->hideIfZoomLargeEnough) 
-            {
-                if (spCamCom->currentZoom > spEntityFollower->zoomLevelsAtWhichHideEntity.y)
-                    hide = true;
-                else 
-                    hide = false;
-            }
-            else if (spEntityFollower->hideIfZoomSmallEnough)
-            {
-                if (spCamCom->currentZoom < spEntityFollower->zoomLevelsAtWhichHideEntity.x)
-                    hide = true;
-                else
-                    hide = false;
-            }
-
-            if (hide)
-                spEntity->hidden = true;
-            else if(spEntityFollower->hideIfOutsideOfCamera && !IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
-                spEntity->hidden = true;
-            else
-            {
-                spEntity->hidden = false;
-                sf::Vector2f positionToFollow = spEntityFollower->nodeToFollow.lock()->GetCombinedPosition();
-                sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
-                spEntity->SetPosition({ (float)convertedPosition.x+spEntityFollower->offset.x, (float)convertedPosition.y + spEntityFollower->offset.y });
-            }
-        }
-
         //Check if entity has OrbitVisualizer component
         if (spEntity->HasComponent<OrbitVisualizerComponent>())
         {
@@ -311,6 +269,61 @@ void SceneNodeVisitorUI::ProcessNode(SceneNode& node)
                     gel::AlignTextToRightSide(*spText->text, sf::Vector2f{ 0.f,0.f });
                     break;
                 }
+            }
+        }
+    }
+}
+
+
+
+//UI processing function
+void SceneNodeVisitorUIProcessHidden::ProcessNode(SceneNode& node)
+{
+    std::shared_ptr<Entity> spEntity = node.GetEntity().lock();
+    //Get deltatime
+    float dt = ECSGame::Instance().GetDeltaTime();
+    //Check that pointer is valid
+    if (spEntity != nullptr)
+    {
+        //Check if entity has UIFollower component
+        if (spEntity->HasComponent<UIFollowerComponent>())
+        {
+            std::shared_ptr<UIFollowerComponent> spEntityFollower = spEntity->FindComponent<UIFollowerComponent>().lock();
+
+            bool hide = false;
+            if (spEntityFollower->nodeToFollow.lock() == nullptr)
+                hide = true;
+            else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock() == nullptr)
+                hide = true;
+            else if (spEntityFollower->nodeToFollow.lock()->GetEntity().lock()->hidden)
+                hide = true;
+            else if (spEntityFollower->hideAnyway)
+                hide = true;
+            else if (spEntityFollower->hideIfZoomLargeEnough)
+            {
+                if (spCamCom->currentZoom > spEntityFollower->zoomLevelsAtWhichHideEntity.y)
+                    hide = true;
+                else
+                    hide = false;
+            }
+            else if (spEntityFollower->hideIfZoomSmallEnough)
+            {
+                if (spCamCom->currentZoom < spEntityFollower->zoomLevelsAtWhichHideEntity.x)
+                    hide = true;
+                else
+                    hide = false;
+            }
+
+            if (hide)
+                spEntity->hidden = true;
+            else if (spEntityFollower->hideIfOutsideOfCamera && !IsWorldPosInsideOfCamera(spCamCom, spEntityFollower->nodeToFollow.lock()->GetCombinedPosition()))
+                spEntity->hidden = true;
+            else
+            {
+                spEntity->hidden = false;
+                sf::Vector2f positionToFollow = spEntityFollower->nodeToFollow.lock()->GetCombinedPosition();
+                sf::Vector2i convertedPosition = ConvertWorldPositionToWindow(spCamCom->view, positionToFollow);
+                spEntity->SetPosition({ (float)convertedPosition.x + spEntityFollower->offset.x, (float)convertedPosition.y + spEntityFollower->offset.y });
             }
         }
     }

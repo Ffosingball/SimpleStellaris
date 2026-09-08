@@ -227,7 +227,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	std::cout << "  --Check Game Closure: " << timer.restart().asSeconds() << '\n';
 #endif
 
-	int renderedNodes{ 0 };
+	nodesRendered = 0;
 	std::shared_ptr<SceneNode> spBackgroundNode;
 	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
@@ -246,7 +246,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 
 			spBackgroundNode->GetEntity().lock()->hidden = true;
 
-			renderedNodes += visitor.renderedEntities;
+			nodesRendered += visitor.renderedEntities;
 		}
 	}
 
@@ -258,7 +258,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRender visitor(renderWindow);
 	sceneNode.lock()->AcceptVisitor(visitor);
 
-	renderedNodes += visitor.renderedEntities;
+	nodesRendered += visitor.renderedEntities;
 	//DEB: visitor.OutputRenderStatistics();
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --Scene Rendering: " << timer.restart().asSeconds() << '\n';
@@ -272,7 +272,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	SceneNodeVisitorRenderUI visitor2(renderWindow);
 	uiNode.lock()->AcceptVisitor(visitor2);
 
-	renderedNodes += visitor2.renderedEntities;
+	nodesRendered += visitor2.renderedEntities;
 	//DEB: visitor2.OutputRenderStatistics();
 #ifdef OUTPUT_FRAME_TIMING
 	std::cout << "  --UI Rendering: " << timer.restart().asSeconds() << '\n';
@@ -281,7 +281,7 @@ void ECSGame::Render(sf::RenderWindow& renderWindow)
 	VisitorCountAllNodes visitor3;
 	root->AcceptVisitor(visitor3);
 
-	signals::onRenderingComplete(visitor3.counter, renderedNodes);
+	nodesInTheScene = visitor3.counter;
 	if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "SpaceWorldScene")
 	{
 		OverviewType overviewType = root->GetEntity().lock()->FindComponent<SpaceSceneStatesComponent>().lock()->overviewType;

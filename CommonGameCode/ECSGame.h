@@ -57,6 +57,8 @@ public:
 	bool IsMouseOverUI() const { return isMouseOverUI; }
 	//Worst case: O(1)
 	float GetUIDeltaTime() const { return uiDeltaTime; }
+	int GetNodesInTheScene() const { return nodesInTheScene; }
+	int GetNodesRendered() const { return nodesRendered; }
 
 	//Getter and setter
 	float GetDeltaTimeMultiplier() { return deltaTimeMultiplier; }
@@ -123,4 +125,8 @@ private:
 
 	float deltaTimeMultiplier{ 1.f };
 	float uiDeltaTime{0.f};
+
+	//Stores how many nodes in the scene and how many rendered
+	int nodesRendered{0};
+	int nodesInTheScene{0};
 };

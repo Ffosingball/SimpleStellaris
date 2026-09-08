@@ -64,14 +64,6 @@ private:
 	void ClosePlanetDistrictsView();
 	void ChangeEscapeScreen();
 
-	std::weak_ptr<TextComponent> mousePosText;
-	std::weak_ptr<TextComponent> worldPosText;
-	std::weak_ptr<TextComponent> systemsNearByText;
-	std::weak_ptr<TextComponent> fpsText;
-	std::weak_ptr<TextComponent> mouseOverUIText;
-	std::weak_ptr<TextComponent> districtTypeText;
-	std::weak_ptr<TextComponent> planetNameText;
-
 	std::weak_ptr<UIFollowerComponent> selectedSystemIcon;
 	std::weak_ptr<Entity> selectedSystemEntity;
 	std::weak_ptr<Entity> mouseIconEntity;
@@ -149,42 +141,12 @@ private:
 
 	void OnLMBpressed();
 	void OnLMBreleased();
-	void OnSystemOverviewSet(std::shared_ptr<SceneNode> nodeToSimulate);
 	void ProcessFrontmostUIPart(std::weak_ptr<SceneNode> wpFrontmostNode, sf::Vector2f mousePosition);
 
-	std::weak_ptr<TextComponent> nodesText;
-	int numOfNodes{ 0 };
-	int nodesRendered{ 0 };
-
-	std::weak_ptr<TextComponent> monthText;
-	std::weak_ptr<TextComponent> dayText;
-	std::weak_ptr<TextComponent> yearText;
-	std::weak_ptr<TextComponent> simStateText;
-	std::weak_ptr<TextComponent> simSpeedText;
-	std::weak_ptr<TextComponent> viewSizeText;
-	std::weak_ptr<TextComponent> overviewText;
-
-	std::weak_ptr<Entity> infoText0;
-	std::weak_ptr<Entity> infoText1;
-	std::weak_ptr<Entity> infoText2;
-	std::weak_ptr<Entity> infoText3;
-	std::weak_ptr<Entity> infoText4;
-	std::weak_ptr<Entity> infoText5;
-	std::weak_ptr<Entity> infoText6;
 	std::weak_ptr<Entity> wpInfoPanel;
 
-	std::weak_ptr<SceneNode> wpSystemNodeSelected;
-	std::weak_ptr<SceneNode> wpObjectNodeToTellInfoAbout;
-
-	void OnRenderingComplete(int numOfNodes, int nodesRendered);
-	void OnUpdateInfoPanel(std::weak_ptr<SceneNode> wpObjectNode);
-	void OnClearInfoPanel();
 	void OnHideInfoPanel();
 	void OnShowInfoPanel();
-
-	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
-
-	bool spaceMapScene{ false };
 };
 
 
@@ -241,8 +203,6 @@ private:
 	std::vector<std::weak_ptr<sf::Music>> listOfMusicToPlay;
 
 	std::weak_ptr<sf::Music> wpSelectedObjectSound;
-	std::weak_ptr<Entity> wpStopMusicButton;
-	std::weak_ptr<Entity> wpResumeMusicButton;
 
 	//Volume is in range from 0 to 1
 	float sfxVolume{ 0.7f };
@@ -315,14 +275,11 @@ namespace signals
 	inline sigslot::signal<sf::Vector2f> onMoveCamera;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onAddNodeToSimulate;
 	inline sigslot::signal<std::shared_ptr<SceneNode>> onRemoveNodeToSimulate;
-	inline sigslot::signal<int, int> onRenderingComplete;
 	inline sigslot::signal<sf::Event::JoystickMoved> onJoystickMoved;
 	inline sigslot::signal<sf::Event::JoystickButtonPressed> onJoystickButtonPressed;
 	inline sigslot::signal<sf::Event::JoystickButtonReleased> onJoystickButtonReleased;
-	inline sigslot::signal<std::weak_ptr<SceneNode>> onUpdateInfoPanel;
 	inline sigslot::signal<> onHideInfoPanel;
 	inline sigslot::signal<> onShowInfoPanel;
-	inline sigslot::signal<> onClearInfoPanel;
 	inline sigslot::signal<InputType> onChangeInputType;
 	inline sigslot::signal<> onLMBpressed;
 	inline sigslot::signal<> onLMBreleased;

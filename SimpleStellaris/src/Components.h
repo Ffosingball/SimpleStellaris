@@ -309,4 +309,16 @@ public:
 	OverviewType overviewType = OverviewType::Space;
 	//Stores simulation state
 	GameState simulationState = GameState::Paused;
+	//Stores last selected object by mouse
+	std::weak_ptr<SceneNode> wpSelectedObjectByMouse;
+	//Date derived from daysPast
+	int day{ 0 };
+	std::string month;
+	int year{ 0 };
+	//Stores node in which player currently is
+	std::weak_ptr<SceneNode> wpSelectedNodeIn;
+	//Stores currently selected district
+	std::weak_ptr<DistrictComponent> wpSelectedDistrict;
+	//Stores district of which planet is selected
+	std::weak_ptr<PlanetComponent> wpSelectedPlanet;
 };
