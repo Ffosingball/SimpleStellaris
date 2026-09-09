@@ -329,6 +329,8 @@ namespace SpaceWorldScene
 		sf::Color usualColor = sf::Color{ 255,255,255 };
 		sf::Color escapeMenuPanelColor = sf::Color{ 0,0,0,230 };
 
+		ECSGame::Instance().SetMousePosition(sf::Vector2i{ (int)ECSGame::Instance().GetWindowSize().x/2, (int)ECSGame::Instance().GetWindowSize().y / 2 });
+
 		float uiSize = ECSGame::Instance().GetUISize();
 		//CREATE SELECTION ICON
 		std::shared_ptr<Entity> spSSIcon = CreateNewEntityAt(uiNode, "SelectedSystemIcon").lock();

@@ -151,6 +151,17 @@ namespace ButtonSignals
 		std::shared_ptr<RectangleShapeComponent> spRectShape = wpEntity.lock()->FindComponent<RectangleShapeComponent>().lock();
 		spRectShape->shape.setOutlineThickness(0.f);
 	}
+
+
+	void ChangeSeedButtonPressed(std::shared_ptr<Entity> spEntity) 
+	{
+		if (ECSGame::Instance().GetGameState() != GameState::Loading)
+		{
+			std::shared_ptr<InputBoxComponent> spInputBoxCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("SeedInputBox").lock()->GetEntity().lock()->FindComponent<InputBoxComponent>().lock();
+			std::random_device rd;
+			spInputBoxCom->text = std::to_string((int)rd());
+		}
+	}
 }
 
 void InputSystem::DistrictHovered(std::shared_ptr<Entity> spEntity)
@@ -208,7 +219,7 @@ void InputSystem::StartGameButtonPressed(std::shared_ptr<Entity> spEntity)
 	{
 		std::shared_ptr<InputBoxComponent> spInputBoxCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("SeedInputBox").lock()->GetEntity().lock()->FindComponent<InputBoxComponent>().lock();
 		std::random_device rd;
-		spInputBoxCom->text = std::to_string(rd());
+		spInputBoxCom->text = std::to_string((int)rd());
 
 		std::shared_ptr<TextComponent> spTextCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("ErrorText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
 		spTextCom->text->setString(" ");

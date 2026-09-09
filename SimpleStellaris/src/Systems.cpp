@@ -53,6 +53,7 @@ void InputSystem::Initialize()
 	ButtonSignals::OnCreateWorldButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnBackToMainMenuButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnStartGameButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnChangeSeedButtonPressed.connect(&SetupPressedButtonTexture);
 
 	ButtonSignals::OnResumeButtonPressed.connect(&InputSystem::ResumeButtonPressed, this);
 	ButtonSignals::OnPlayingButtonPressed.connect(&InputSystem::PlayingButtonPressed, this);
@@ -73,6 +74,17 @@ void InputSystem::Initialize()
 	ButtonSignals::OnInputBoxHovered.connect(&ButtonSignals::InputBoxHovered);
 	ButtonSignals::OnInputBoxUnhovered.connect(&ButtonSignals::InputBoxUnhovered);
 	signals::onInputBoxUnselected.connect(&ButtonSignals::InputBoxUnselected);
+	ButtonSignals::OnChangeSeedButtonPressed.connect(&ButtonSignals::ChangeSeedButtonPressed);
+
+	if (sf::Joystick::isConnected(0) != joystickConnected)
+	{
+		if (sf::Joystick::isConnected(0))
+			lastInputByJoystick = true;
+		else
+			lastInputByJoystick = false;
+
+		joystickConnected = sf::Joystick::isConnected(0);
+	}
 }
 
 
@@ -678,8 +690,11 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 					ResumeSimulation();
 				break;
 			case 6:
-				OnChangeInputType(InputType::World);
-				ChangeEscapeScreen();
+				if (spaceMapScene)
+				{
+					OnChangeInputType(InputType::World);
+					ChangeEscapeScreen();
+				}
 				break;
 			}
 		}
@@ -696,7 +711,7 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				spInputBox->focused = false;
 				break;
 			case 1:
-				if (spInputBox->cursorPosition >= spInputBox->text.size())
+				if (spInputBox->cursorPosition > 0)
 				{
 					spInputBox->text.erase(spInputBox->cursorPosition - 1, 1);
 					spInputBox->cursorPosition--;
@@ -709,6 +724,18 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 					spInputBox->text.erase(spInputBox->cursorPosition, 1);
 					spInputBox->timePassed = 0.f;
 				}
+				break;
+			case 4:
+				spInputBox->cursorPosition--;
+				spInputBox->timePassed = 0.f;
+				if (spInputBox->cursorPosition < 0)
+					spInputBox->cursorPosition = 0;
+				break;
+			case 5:
+				spInputBox->cursorPosition++;
+				spInputBox->timePassed = 0.f;
+				if (spInputBox->cursorPosition > spInputBox->text.size())
+					spInputBox->cursorPosition = (int)spInputBox->text.size();
 				break;
 			}
 		}
@@ -1099,13 +1126,13 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		}
 	}
 
-	if (lastInputByJoystick && inputType == InputType::World)
+	if (lastInputByJoystick && inputType != InputType::World)
 	{
-		mouseIconEntity.lock()->hidden = false;
+		mouseIconEntity.lock()->hidden = true;
 	}
 	else
 	{
-		mouseIconEntity.lock()->hidden = true;
+		mouseIconEntity.lock()->hidden = false;
 	}
 
 	if (spaceMapScene)
@@ -1456,6 +1483,7 @@ void MusicSystem::Initialize()
 	ButtonSignals::OnMixMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnCreateWorldButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnChangeSeedButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 
 	ButtonSignals::OnPreviousMusicButtonPressed.connect(&MusicSystem::PreviousMusicButtonPressed, this);
 	ButtonSignals::OnNextMusicButtonPressed.connect(&MusicSystem::NextMusicButtonPressed, this);

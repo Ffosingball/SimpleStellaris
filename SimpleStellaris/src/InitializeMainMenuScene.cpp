@@ -98,6 +98,7 @@ namespace MainMenuScene
 		sf::Vector2f buttonSize{ 600.f, 60.f };
 		sf::Vector2f menuSize{ 2560.f, 1600.f };
 		sf::Vector2f inputBoxSize{ 500.f, 40.f };
+		sf::Vector2f changeSeedButtonSize{ 100.f, 40.f };
 		sf::Color mainMenuPanelColor = sf::Color{ 0,0,0,100 };
 		sf::Color inputBoxColor = sf::Color{ 100,100,100,140 };
 		std::string fontName = "PixelBold";
@@ -250,6 +251,32 @@ namespace MainMenuScene
 				else
 					spText->setString(spInputBoxCom->text);
 			};
+
+		//CREATE Change seed button
+		spButton = CreateNewEntityAt(spGenNode, "ChangeSeedButton").lock();
+		spButton->SetPosition(sf::Vector2f{ 500.f, 0.f }* uiSize);
+
+		spRectShapeCom = spButton->AddComponent<RectangleShapeComponent>().lock();
+		SetupRectangleShape(spRectShapeCom, changeSeedButtonSize* uiSize, "MixButton");
+
+		spButtonCom = spButton->AddComponent<ButtonComponent>().lock();
+		spButtonCom->buttonSize = sf::Vector2{ changeSeedButtonSize.x * 0.5f,changeSeedButtonSize.y } * uiSize;
+
+		spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("MixButton", spButtonCom->unhoveredIntRect).lock();
+		spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("MixHoveredButton", spButtonCom->hoveredIntRect).lock();
+		spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("MixPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+		spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("MixPressedButton", spButtonCom->pressedIntRect).lock();
+
+		spButtonCom->onButtonHovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonHovered(entity); };
+		spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonUnhovered(entity); };
+		spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
+			{ ButtonSignals::OnChangeSeedButtonPressed(entity); };
+		spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonReleased(entity); };
+		spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonClicked(entity); };
 
 		//CREATE BACK TO MENU button
 		std::shared_ptr<Entity> spButtonBack = CreateNewEntityAt(spGenNode, "BackToMainMenuButton").lock();

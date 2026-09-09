@@ -28,7 +28,8 @@ namespace ButtonSignals
 	void InputBoxUnhovered(std::shared_ptr<Entity> spEntity);
 	void InputBoxPressed(std::shared_ptr<Entity> spEntity);
 	void InputBoxUnselected(std::weak_ptr<Entity> wpEntity);
-	void CreateWorldButtonPressed(std::shared_ptr<Entity> wpEntity);
+	void CreateWorldButtonPressed(std::shared_ptr<Entity> spEntity);
+	void ChangeSeedButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictHovered;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictUnhovered;
@@ -58,4 +59,5 @@ namespace ButtonSignals
 	inline sigslot::signal<std::shared_ptr<Entity>> OnBackToMainMenuButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnStartGameButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnCreateWorldButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnChangeSeedButtonPressed;
 }
