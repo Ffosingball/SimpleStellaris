@@ -33,5 +33,20 @@ Keyboard and mouse:
 Logitech joystick:
 - Left joystick or D-pad - select another button (depends on the direction)
 - A - press selected button
-- X, B - cancel menu input if in the world overview
+- X - cancel menu input if in the world overview
+- B - cancel menu input if in the world overview; close screen if in main menu
 - RB - pause/resume simulation if in world overview
+
+
+INPUT BOX INPUT:
+Keyboard and mouse:
+- Arrows Left and Right - move left and right the cursor in the input box
+- Backspace - remove character at left of the cursor
+- Delete - remove character at right of the cursor
+- Enter, ESC, LMB - exit input box
+
+Logitech joystick:
+- LB and RB - move left and right the cursor in the input box
+- B - remove character at left of the cursor
+- X - remove character at right of the cursor
+- A - exit input box
