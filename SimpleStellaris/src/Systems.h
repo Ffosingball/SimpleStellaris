@@ -52,6 +52,8 @@ private:
 	void ResumeButtonPressed(std::shared_ptr<Entity> spEntity);
 	void PlayingButtonPressed(std::shared_ptr<Entity> spEntity);
 	void StoppedButtonPressed(std::shared_ptr<Entity> spEntity);
+	void BackToMainMenuButtonPressed(std::shared_ptr<Entity> spEntity);
+	void StartGameButtonPressed(std::shared_ptr<Entity> spEntity);
 
 	void ZoomCamera(int direction);
 	void EnterSystemOverview();
@@ -65,25 +67,31 @@ private:
 	void OpenPlanetDistrictsView();
 	void ClosePlanetDistrictsView();
 	void ChangeEscapeScreen();
+	void ChangeMainMenuScreen();
 
+	//Space world scene
 	std::weak_ptr<UIFollowerComponent> selectedSystemIcon;
 	std::weak_ptr<Entity> selectedSystemEntity;
-	std::weak_ptr<Entity> mouseIconEntity;
 	std::weak_ptr<SceneNode> wpSelectedSystemNode;
 	std::weak_ptr<SceneNode> wpPlanetOrStarSelected;
 	std::weak_ptr<SceneNode> wpMoonOrPlanetSelected;
 	std::weak_ptr<SceneNode> planetDistrictsPanel;
 	std::weak_ptr<SceneNode> wpDistrictsShown;
 	std::weak_ptr<SceneNode> wpEscapeScreenNode;
-	std::weak_ptr<SceneNode> wpInputRootNode;
 	std::weak_ptr<SceneNode> wpDistrictsOfPlanetShown;
 	std::weak_ptr<Entity> debugPanel;
-
 	std::weak_ptr<Entity> wpStoppedButton;
 	std::weak_ptr<Entity> wpPlayingButton;
-
 	std::weak_ptr<SpaceSceneStatesComponent> wpSpaceSceneStates;
+
+	//main menu scene
+	std::weak_ptr<SceneNode> wpCreateWorldPanel;
+	std::weak_ptr<SceneNode> wpMainMenuPanel;
+
+	//Any scene
 	std::weak_ptr<Entity> wpInputBoxSelected;
+	std::weak_ptr<Entity> mouseIconEntity;
+	std::weak_ptr<SceneNode> wpInputRootNode;
 
 	bool joystickConnected = false;
 	bool lastInputByJoystick = false;
@@ -101,6 +109,7 @@ private:
 
 	//Space World Scene related values
 	bool spaceMapScene{ false };
+	bool mainMenuScene{ false };
 	bool infoPanelIsShown{ false };
 	bool UIHidden{ false };
 	bool districtViewOpened{ false };

@@ -73,9 +73,35 @@ namespace ButtonSignals
 	}
 
 
-	void StartGameButtonPressed(std::shared_ptr<Entity> spEntity)
+	bool ResetWorldGenerator()
 	{
-		signals::onLoadSceneAsync("SpaceWorldScene");
+		SpaceMapConfigurations mapConfig;
+		std::shared_ptr<InputBoxComponent> spInputBoxCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("SeedInputBox").lock()->GetEntity().lock()->FindComponent<InputBoxComponent>().lock();
+		int seed = 0;
+		bool success = true;
+		try 
+		{
+			seed = std::stoi(spInputBoxCom->text);
+		}
+		catch (const std::out_of_range&)
+		{
+			return false;
+		}
+
+		WorldGenerator::Instance().ResetGenerator(seed, mapConfig);
+		return true;
+	}
+
+	void CreateWorldButtonPressed(std::shared_ptr<Entity> spEntity)
+	{
+		if(ResetWorldGenerator())
+			signals::onLoadSceneAsync("SpaceWorldScene");
+		else
+		{
+			std::shared_ptr<TextComponent> spTextCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("ErrorText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
+			spTextCom->text->setString("Number is out of range!");
+			gel::AlignTextToLeftSide(*spTextCom->text, sf::Vector2f{ 0.f,0.f });
+		}
 	}
 
 
@@ -104,13 +130,18 @@ namespace ButtonSignals
 		{
 			std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
 			spRectShape->shape.setOutlineThickness(0.f);
-			spRectShape->shape.setFillColor(sf::Color::White);
 		}
 	}
 
 
 	void InputBoxPressed(std::shared_ptr<Entity> spEntity) 
 	{
+		float outlineThikness = 4.f;
+		sf::Color outlineColor = sf::Color{ 255,255,255 };
+
+		std::shared_ptr<RectangleShapeComponent> spRectShape = spEntity->FindComponent<RectangleShapeComponent>().lock();
+		spRectShape->shape.setOutlineThickness(outlineThikness);
+		spRectShape->shape.setOutlineColor(outlineColor);
 		signals::onInputBoxSelected(spEntity);
 	}
 
@@ -119,7 +150,6 @@ namespace ButtonSignals
 	{
 		std::shared_ptr<RectangleShapeComponent> spRectShape = wpEntity.lock()->FindComponent<RectangleShapeComponent>().lock();
 		spRectShape->shape.setOutlineThickness(0.f);
-		spRectShape->shape.setFillColor(sf::Color::White);
 	}
 }
 
@@ -162,6 +192,29 @@ void InputSystem::ResumeButtonPressed(std::shared_ptr<Entity> spEntity)
 {
 	if(ECSGame::Instance().GetGameState()!=GameState::Loading)
 		ChangeEscapeScreen();
+}
+
+
+void InputSystem::BackToMainMenuButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
+		ChangeMainMenuScreen();
+}
+
+
+void InputSystem::StartGameButtonPressed(std::shared_ptr<Entity> spEntity)
+{
+	if (ECSGame::Instance().GetGameState() != GameState::Loading)
+	{
+		std::shared_ptr<InputBoxComponent> spInputBoxCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("SeedInputBox").lock()->GetEntity().lock()->FindComponent<InputBoxComponent>().lock();
+		std::random_device rd;
+		spInputBoxCom->text = std::to_string(rd());
+
+		std::shared_ptr<TextComponent> spTextCom = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen").lock()->FindChild("ErrorText").lock()->GetEntity().lock()->FindComponent<TextComponent>().lock();
+		spTextCom->text->setString(" ");
+
+		ChangeMainMenuScreen();
+	}
 }
 
 

@@ -201,17 +201,6 @@ namespace SpaceWorldScene
 	}
 
 
-	void ResetWorldGenerator()
-	{
-		SpaceMapConfigurations mapConfig;
-		std::random_device rd;
-		int seed = rd();
-		//std::cout << "Seed got: " << seed << '\n';
-		//std::cout << "Resetting in functions\n";
-		WorldGenerator::Instance().ResetGenerator(seed, mapConfig);
-	}
-
-
 	//Creates space objects
 	//Worst case: O(2N+4M) where N is number of systems + stars to create and M number of tiles to create
 	void CreateSpaceObjects(std::shared_ptr<SceneNode> sceneNode, std::shared_ptr<SceneNode> uiNode)
@@ -232,8 +221,6 @@ namespace SpaceWorldScene
 		spBackgroundNode->AddChild(std::make_shared<SceneNode>(wpNebul));
 
 		//Reset world generator
-		//std::cout << "Should be resetted here!\n";
-		ResetWorldGenerator();
 		SpaceMapConfigurations& mapConfig = WorldGenerator::Instance().getSpaceMapConfig();
 
 		//Firstly generate background

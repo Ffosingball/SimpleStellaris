@@ -330,6 +330,8 @@ public:
 	std::string text;
 	int cursorPosition{0};
 	bool focused{false};
+	bool acceptOnlyDigits{ false };
+	int maxLength{ 30 };
 
 	float timePassed{0.f};
 	bool showLine{ true };

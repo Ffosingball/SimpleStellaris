@@ -1068,6 +1068,26 @@ const void ResourceManager::LoadAllResources()
 				textureSize.position = sf::Vector2i{ 0,255 };
 				textures.emplace(name, texture);
 				texturesIntRects.emplace(name, textureSize);
+
+				name = "CreateWorldButton";
+				textureSize.position = sf::Vector2i{ 0,272 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "CreateWorldHoveredButton";
+				textureSize.position = sf::Vector2i{ 0,289 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "CreateWorldHoveredPressedButton";
+				textureSize.position = sf::Vector2i{ 0,306 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
+
+				name = "CreateWorldPressedButton";
+				textureSize.position = sf::Vector2i{ 0,323 };
+				textures.emplace(name, texture);
+				texturesIntRects.emplace(name, textureSize);
 			}
 		}
 		{

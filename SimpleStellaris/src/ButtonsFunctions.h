@@ -23,12 +23,12 @@ namespace ButtonSignals
 	void ButtonReleased(std::shared_ptr<Entity> spEntity);
 	void ButtonClicked(std::shared_ptr<Entity> spEntity);
 	void ExitToMainMenuButtonPressed(std::shared_ptr<Entity> spEntity);
-	void StartGameButtonPressed(std::shared_ptr<Entity> spEntity);
 	void ExitButtonPressed(std::shared_ptr<Entity> spEntity);
 	void InputBoxHovered(std::shared_ptr<Entity> spEntity);
 	void InputBoxUnhovered(std::shared_ptr<Entity> spEntity);
 	void InputBoxPressed(std::shared_ptr<Entity> spEntity);
 	void InputBoxUnselected(std::weak_ptr<Entity> wpEntity);
+	void CreateWorldButtonPressed(std::shared_ptr<Entity> wpEntity);
 
 	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictHovered;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnDistrictUnhovered;
@@ -52,8 +52,10 @@ namespace ButtonSignals
 	inline sigslot::signal<std::shared_ptr<Entity>> OnResumeMusicButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnMixMusicButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnExitToMainMenuButtonPressed;
-	inline sigslot::signal<std::shared_ptr<Entity>> OnStartGameButtonPressed;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnInputBoxHovered;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnInputBoxUnhovered;
 	inline sigslot::signal<std::shared_ptr<Entity>> OnInputBoxPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnBackToMainMenuButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnStartGameButtonPressed;
+	inline sigslot::signal<std::shared_ptr<Entity>> OnCreateWorldButtonPressed;
 }

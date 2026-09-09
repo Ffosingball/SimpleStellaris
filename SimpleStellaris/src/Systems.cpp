@@ -50,21 +50,25 @@ void InputSystem::Initialize()
 	ButtonSignals::OnResumeMusicButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnMixMusicButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnCreateWorldButtonPressed.connect(&SetupPressedButtonTexture);
+	ButtonSignals::OnBackToMainMenuButtonPressed.connect(&SetupPressedButtonTexture);
 	ButtonSignals::OnStartGameButtonPressed.connect(&SetupPressedButtonTexture);
 
 	ButtonSignals::OnResumeButtonPressed.connect(&InputSystem::ResumeButtonPressed, this);
 	ButtonSignals::OnPlayingButtonPressed.connect(&InputSystem::PlayingButtonPressed, this);
 	ButtonSignals::OnStoppedButtonPressed.connect(&InputSystem::StoppedButtonPressed, this);
-
+	ButtonSignals::OnBackToMainMenuButtonPressed.connect(&InputSystem::BackToMainMenuButtonPressed, this);
+	ButtonSignals::OnStartGameButtonPressed.connect(&InputSystem::StartGameButtonPressed, this);
 	ButtonSignals::OnDistrictHovered.connect(&InputSystem::DistrictHovered, this);
 	ButtonSignals::OnDistrictUnhovered.connect(&InputSystem::DistrictUnhovered, this);
+
 	ButtonSignals::OnExitButtonPressed.connect(&ButtonSignals::ExitButtonPressed);
 	ButtonSignals::OnButtonHovered.connect(&ButtonSignals::ButtonHovered);
 	ButtonSignals::OnButtonUnhovered.connect(&ButtonSignals::ButtonUnhovered);
 	ButtonSignals::OnButtonReleased.connect(&ButtonSignals::ButtonReleased);
 	ButtonSignals::OnButtonClicked.connect(&ButtonSignals::ButtonClicked);
 	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&ButtonSignals::ExitToMainMenuButtonPressed);
-	ButtonSignals::OnStartGameButtonPressed.connect(&ButtonSignals::StartGameButtonPressed);
+	ButtonSignals::OnCreateWorldButtonPressed.connect(&ButtonSignals::CreateWorldButtonPressed);
 	ButtonSignals::OnInputBoxPressed.connect(&ButtonSignals::InputBoxPressed);
 	ButtonSignals::OnInputBoxHovered.connect(&ButtonSignals::InputBoxHovered);
 	ButtonSignals::OnInputBoxUnhovered.connect(&ButtonSignals::InputBoxUnhovered);
@@ -99,13 +103,25 @@ void InputSystem::OnSceneChanged()
 		wpSpaceSceneStates = ECSGame::Instance().GetRoot()->GetEntity().lock()->FindComponent<SpaceSceneStatesComponent>();
 
 		spaceMapScene = true;
+		mainMenuScene = false;
 		infoPanelIsShown = false;
 		UIHidden = false;
 		districtViewOpened = false;
 		currentDistrictShown = -1;
 	}
-	else
+	else if (ECSGame::Instance().GetRoot()->GetEntity().lock()->GetName() == "MainMenuScene")
+	{
+		wpCreateWorldPanel = ECSGame::Instance().GetUINode()->FindChild("GenerationConfigScreen");
+		wpMainMenuPanel = ECSGame::Instance().GetUINode()->FindChild("MainMenuScreen");
+	
 		spaceMapScene = false;
+		mainMenuScene = true;
+	}
+	else
+	{
+		spaceMapScene = false;
+		mainMenuScene = false;
+	}
 }
 
 
@@ -389,6 +405,37 @@ void InputSystem::ChangeEscapeScreen()
 }
 
 
+void InputSystem::ChangeMainMenuScreen()
+{
+	if (!wpMainMenuPanel.lock()->GetEntity().lock()->hidden)
+	{
+		wpMainMenuPanel.lock()->GetEntity().lock()->hidden = true;
+		wpCreateWorldPanel.lock()->GetEntity().lock()->hidden = false;
+		wpInputRootNode = wpCreateWorldPanel;
+
+		if (lastInputByJoystick)
+		{
+			sf::Vector2f pos = wpCreateWorldPanel.lock()->FindChild("CreateWorldButton").lock()->GetCombinedPosition();
+			ECSGame::Instance().SetMousePosition(sf::Vector2i{ (int)pos.x,(int)pos.y });
+		}
+	}
+	else
+	{
+		wpMainMenuPanel.lock()->GetEntity().lock()->hidden = false;
+		wpCreateWorldPanel.lock()->GetEntity().lock()->hidden = true;
+		wpInputRootNode = ECSGame::Instance().GetUINode();
+
+		if (lastInputByJoystick)
+		{
+			sf::Vector2f pos = wpMainMenuPanel.lock()->FindChild("StartGameButton").lock()->GetCombinedPosition();
+			ECSGame::Instance().SetMousePosition(sf::Vector2i{ (int)pos.x,(int)pos.y });
+		}
+	}
+
+	signals::onPlayOpenEscapePanelSFX();
+}
+
+
 
 //Process keys they are pressed
 void InputSystem::OnKeyPressed(sf::Event::KeyPressed key) 
@@ -439,7 +486,13 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 		{
 			if (key.code == sf::Keyboard::Key::Escape)
 			{
-				ChangeEscapeScreen();
+				if (spaceMapScene)
+					ChangeEscapeScreen();
+				else if (mainMenuScene)
+				{
+					if (wpMainMenuPanel.lock()->GetEntity().lock()->hidden)
+						ChangeMainMenuScreen();
+				}
 			}
 		}
 		else if (inputType == InputType::InputBox) 
@@ -466,22 +519,28 @@ void InputSystem::OnKeyPressed(sf::Event::KeyPressed key)
 				{
 					spInputBox->text.erase(spInputBox->cursorPosition - 1, 1);
 					spInputBox->cursorPosition--;
+					spInputBox->timePassed = 0.f;
 				}
 			}
 			else if (key.code == sf::Keyboard::Key::Delete)
 			{
 				if (spInputBox->cursorPosition < spInputBox->text.size())
-					spInputBox->text.erase(spInputBox->cursorPosition + 1, 1);
+				{
+					spInputBox->text.erase(spInputBox->cursorPosition, 1);
+					spInputBox->timePassed = 0.f;
+				}
 			}
 			else if (key.code == sf::Keyboard::Key::Left)
 			{
 				spInputBox->cursorPosition--;
+				spInputBox->timePassed = 0.f;
 				if (spInputBox->cursorPosition < 0)
 					spInputBox->cursorPosition = 0;
 			}
 			else if (key.code == sf::Keyboard::Key::Right)
 			{
 				spInputBox->cursorPosition++;
+				spInputBox->timePassed = 0.f;
 				if (spInputBox->cursorPosition > spInputBox->text.size())
 					spInputBox->cursorPosition = (int)spInputBox->text.size();
 			}
@@ -594,12 +653,23 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				signals::onLMBpressed();
 				break;
 			case 1:
-				if (ECSGame::Instance().GetGameState() != GameState::Paused)
-					OnChangeInputType(InputType::World);
+				if (spaceMapScene)
+				{
+					if (wpEscapeScreenNode.lock()->GetEntity().lock()->hidden)
+						OnChangeInputType(InputType::World);
+				}
+				else if (mainMenuScene)
+				{
+					if(wpMainMenuPanel.lock()->GetEntity().lock()->hidden)
+						ChangeMainMenuScreen();
+				}
 				break;
 			case 2:
-				if (ECSGame::Instance().GetGameState() != GameState::Paused)
-					OnChangeInputType(InputType::World);
+				if (spaceMapScene)
+				{
+					if (wpEscapeScreenNode.lock()->GetEntity().lock()->hidden)
+						OnChangeInputType(InputType::World);
+				}
 				break;
 			case 5:
 				if (wpSpaceSceneStates.lock()->simulationState == GameState::Resumed)
@@ -626,15 +696,19 @@ void InputSystem::OnJoystickButtonPressed(sf::Event::JoystickButtonPressed butto
 				spInputBox->focused = false;
 				break;
 			case 1:
-				if (spInputBox->cursorPosition >= spInputBox->text.size())if (spInputBox->cursorPosition > 0)
+				if (spInputBox->cursorPosition >= spInputBox->text.size())
 				{
 					spInputBox->text.erase(spInputBox->cursorPosition - 1, 1);
 					spInputBox->cursorPosition--;
+					spInputBox->timePassed = 0.f;
 				}
 				break;
 			case 2:
-				if (spInputBox->cursorPosition < spInputBox->text.size())
-					spInputBox->text.erase(spInputBox->cursorPosition + 1, 1);
+				if (spInputBox->cursorPosition <= spInputBox->text.size())
+				{
+					spInputBox->text.erase(spInputBox->cursorPosition, 1);
+					spInputBox->timePassed = 0.f;
+				}
 				break;
 			}
 		}
@@ -806,8 +880,8 @@ void InputSystem::OnMouseButtonPressed(sf::Event::MouseButtonPressed mouseButPre
 			{
 				signals::onInputBoxUnselected(wpInputBoxSelected);
 				inputType = previousInputType;
-				wpInputBoxSelected = {};
 				wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock()->focused = false;
+				wpInputBoxSelected = {};
 				
 				signals::onLMBpressed();
 			}
@@ -835,8 +909,27 @@ void InputSystem::OnTextEntered(sf::Event::TextEntered textEntered)
 		{
 			// Normal character
 			std::shared_ptr<InputBoxComponent> spInputBox = wpInputBoxSelected.lock()->FindComponent<InputBoxComponent>().lock();
-			spInputBox->text.insert(spInputBox->cursorPosition, 1, static_cast<char>(textEntered.unicode));
-			spInputBox->cursorPosition++;
+			if (spInputBox->text.size() < spInputBox->maxLength)
+			{
+				if (!spInputBox->acceptOnlyDigits)
+				{
+					spInputBox->text.insert(spInputBox->cursorPosition, 1, static_cast<char>(textEntered.unicode));
+					spInputBox->cursorPosition++;
+				}
+				else 
+				{
+					if (textEntered.unicode >= U'0' && textEntered.unicode <= U'9')
+					{
+						spInputBox->text.insert(spInputBox->cursorPosition, 1, static_cast<char>(textEntered.unicode));
+						spInputBox->cursorPosition++;
+					}
+					else if (textEntered.unicode == U'-' && spInputBox->cursorPosition == 0 && spInputBox->text.find('-') == std::string::npos)
+					{
+						spInputBox->text.insert(0, 1, static_cast<char>(textEntered.unicode));
+						spInputBox->cursorPosition++;
+					}
+				}
+			}
 		}
 	}
 }
@@ -1006,13 +1099,13 @@ void InputSystem::Update(std::shared_ptr<SceneNode> scene, float deltaTime)
 		}
 	}
 
-	if (lastInputByJoystick && inputType == InputType::Menu)
+	if (lastInputByJoystick && inputType == InputType::World)
 	{
-		mouseIconEntity.lock()->hidden = true;
+		mouseIconEntity.lock()->hidden = false;
 	}
 	else
 	{
-		mouseIconEntity.lock()->hidden = false;
+		mouseIconEntity.lock()->hidden = true;
 	}
 
 	if (spaceMapScene)
@@ -1362,7 +1455,7 @@ void MusicSystem::Initialize()
 	ButtonSignals::OnResumeMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnMixMusicButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 	ButtonSignals::OnExitToMainMenuButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
-	ButtonSignals::OnStartGameButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
+	ButtonSignals::OnCreateWorldButtonPressed.connect(&MusicSystem::PlayPressedButtonSFX, this);
 
 	ButtonSignals::OnPreviousMusicButtonPressed.connect(&MusicSystem::PreviousMusicButtonPressed, this);
 	ButtonSignals::OnNextMusicButtonPressed.connect(&MusicSystem::NextMusicButtonPressed, this);

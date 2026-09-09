@@ -26,7 +26,8 @@ void ECSGame::Init(sf::RenderWindow& renderWindow)
 	//I noticed, that random function generates same random numbers every time when I start
 	//my game again, so to solve this issue I seed it with current time at the start of the game
 	//std::cout << (unsigned int)std::time(nullptr) << '\n';
-	std::srand((unsigned int)std::time(nullptr));
+	std::random_device rd;
+	std::srand(rd());
 
 	//Get window size
 	windowSize = renderWindow.getSize();

@@ -94,14 +94,17 @@ namespace MainMenuScene
 	{
 		float mainMenuMainFontSize = 90;
 		float usualFontSize = 30;
+		float inputBoxFontSize = 28;
 		sf::Vector2f buttonSize{ 600.f, 60.f };
 		sf::Vector2f menuSize{ 2560.f, 1600.f };
-		sf::Vector2f inputBoxSize{ 300.f, 30.f };
+		sf::Vector2f inputBoxSize{ 500.f, 40.f };
 		sf::Color mainMenuPanelColor = sf::Color{ 0,0,0,100 };
-		sf::Color inputBoxColor = sf::Color{ 50,50,50,100 };
+		sf::Color inputBoxColor = sf::Color{ 100,100,100,140 };
 		std::string fontName = "PixelBold";
+		std::shared_ptr<sf::Font> fontPtr = ResourceManager::Instance().GetFont(fontName).lock();
 		sf::Color importantColor = sf::Color{ 235, 175, 38 };
 		sf::Color usualColor = sf::Color{ 255, 255, 255 };
+		sf::Color errorColor = sf::Color{ 240, 94, 78 };
 
 		float uiSize = ECSGame::Instance().GetUISize();
 
@@ -176,7 +179,7 @@ namespace MainMenuScene
 
 		//CREATE generation config screen
 		std::shared_ptr<Entity> spGenScreen = CreateNewEntityAt(uiNode, "GenerationConfigScreen").lock();
-		spGenScreen->hidden = false;
+		spGenScreen->hidden = true;
 		//Add component
 		spRectShape = spGenScreen->AddComponent<RectangleShapeComponent>().lock();
 		spRectShape->shape.setSize(menuSize * uiSize);
@@ -186,17 +189,20 @@ namespace MainMenuScene
 
 		std::shared_ptr<SceneNode> spGenNode = uiNode->FindChild(*spGenScreen).lock();
 		//CREATE seed text
-		std::shared_ptr<Entity> spTextEn = InitializeText("SeedText", "Seed: ", (int)(usualFontSize * uiSize), sf::Vector2f{ -100.f, 0.f } * uiSize, fontName, true, usualColor, spGenNode);
-	
+		spTextEn = InitializeText("SeedText", "Seed: ", (int)(usualFontSize * uiSize), sf::Vector2f{ -140.f, 0.f } * uiSize, fontName, true, usualColor, spGenNode);
+		//CREATE error text
+		spTextEn = InitializeText("ErrorText", " ", (int)(usualFontSize * uiSize), sf::Vector2f{ -140.f, 50.f } * uiSize, fontName, true, errorColor, spGenNode);
+
 		//CREATE INPUT BOX
-		std::shared_ptr<Entity> spInputBox = CreateNewEntityAt(spEscapeNode, "SeedInputBox").lock();
-		spInputBox->SetPosition(sf::Vector2f{ 200.f,60.f } * uiSize);
+		std::shared_ptr<Entity> spInputBox = CreateNewEntityAt(spGenNode, "SeedInputBox").lock();
+		spInputBox->SetPosition(sf::Vector2f{ 200.f,0.f } * uiSize);
+		std::shared_ptr<SceneNode> spInBoxNode = spGenNode->FindChild(*spInputBox).lock();
 
 		//rectShape
 		spRectShapeCom = spInputBox->AddComponent<RectangleShapeComponent>().lock();
-		spRectShape->shape.setSize(inputBoxSize* uiSize);
-		spRectShape->shape.setOrigin(spRectShape->shape.getSize() / 2.f);
-		spRectShape->shape.setFillColor(inputBoxColor);
+		spRectShapeCom->shape.setSize(inputBoxSize* uiSize);
+		spRectShapeCom->shape.setOrigin(spRectShapeCom->shape.getSize() / 2.f);
+		spRectShapeCom->shape.setFillColor(inputBoxColor);
 
 		//button
 		spButtonCom = spInputBox->AddComponent<ButtonComponent>().lock();
@@ -213,26 +219,89 @@ namespace MainMenuScene
 		std::shared_ptr<InputBoxComponent> spInputBoxCom = spInputBox->AddComponent<InputBoxComponent>().lock();
 		spInputBoxCom->text = std::to_string(WorldGenerator::Instance().getSeed());
 		spInputBoxCom->cursorPosition = (int)spInputBoxCom->text.size();
+		spInputBoxCom->acceptOnlyDigits = true;
+		spInputBoxCom->maxLength = 11;
 
 		//text
-		std::shared_ptr<TextComponent> spTextCom = spInputBox->AddComponent<TextComponent>().lock();
+		std::shared_ptr<Entity> spInputBoxText = CreateNewEntityAt(spInBoxNode, "InputBoxText").lock();
+		spInputBoxText->SetPosition(sf::Vector2f{ -inputBoxSize.x / 2.f, 0.f });
+		std::shared_ptr<TextComponent> spTextCom = spInputBoxText->AddComponent<TextComponent>().lock();
+		spTextCom->text = std::make_shared<sf::Text>(*fontPtr);
+		spTextCom->text->setCharacterSize(inputBoxFontSize);
 		spTextCom->textAlignment = TextAlignment::Left;
 		spTextCom->updateText = [spInputBoxCom](std::shared_ptr<sf::Text> spText) 
 			{
 				if (spInputBoxCom->focused)
 				{
+					std::string textToShow = spInputBoxCom->text;
 					if (spInputBoxCom->showLine)
 					{
-						std::string textToShow = spInputBoxCom->text;
+						//std::cout << "show line\n";
 						textToShow.insert(spInputBoxCom->cursorPosition, 1, '|');
 						spText->setString(textToShow);
 					}
 					else
-						spText->setString(spInputBoxCom->text);
+					{
+						//std::cout << "DO NOT show\n";
+						textToShow.insert(spInputBoxCom->cursorPosition, 1, '.');
+						spText->setString(textToShow);
+					}
 				}
 				else
 					spText->setString(spInputBoxCom->text);
 			};
+
+		//CREATE BACK TO MENU button
+		std::shared_ptr<Entity> spButtonBack = CreateNewEntityAt(spGenNode, "BackToMainMenuButton").lock();
+		spButtonBack->SetPosition(sf::Vector2f{ -1000.f,750.f }* uiSize);
+
+		spRectShapeCom = spButtonBack->AddComponent<RectangleShapeComponent>().lock();
+		SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "ExitToMainMenuButton");
+
+		spButtonCom = spButtonBack->AddComponent<ButtonComponent>().lock();
+		spButtonCom->buttonSize = sf::Vector2{ buttonSize.x * 0.65f,buttonSize.y } * uiSize;
+
+		spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuButton", spButtonCom->unhoveredIntRect).lock();
+		spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuHoveredButton", spButtonCom->hoveredIntRect).lock();
+		spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuHoveredPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+		spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("ExitToMainMenuPressedButton", spButtonCom->pressedIntRect).lock();
+
+		spButtonCom->onButtonHovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonHovered(entity); };
+		spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonUnhovered(entity); };
+		spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
+			{ ButtonSignals::OnBackToMainMenuButtonPressed(entity); };
+		spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonReleased(entity); };
+		spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonClicked(entity); };
+
+		//CREATE CREATE WORLD button
+		std::shared_ptr<Entity> spButtonCW = CreateNewEntityAt(spGenNode, "CreateWorldButton").lock();
+		spButtonCW->SetPosition(sf::Vector2f{ 1000.f,750.f }* uiSize);
+
+		spRectShapeCom = spButtonCW->AddComponent<RectangleShapeComponent>().lock();
+		SetupRectangleShape(spRectShapeCom, buttonSize* uiSize, "CreateWorldButton");
+
+		spButtonCom = spButtonCW->AddComponent<ButtonComponent>().lock();
+		spButtonCom->buttonSize = sf::Vector2{ buttonSize.x * 0.8f,buttonSize.y } * uiSize;
+
+		spButtonCom->unhoveredTexture = ResourceManager::Instance().GetTexture("CreateWorldButton", spButtonCom->unhoveredIntRect).lock();
+		spButtonCom->hoveredTexture = ResourceManager::Instance().GetTexture("CreateWorldHoveredButton", spButtonCom->hoveredIntRect).lock();
+		spButtonCom->hoveredPressedTexture = ResourceManager::Instance().GetTexture("CreateWorldHoveredPressedButton", spButtonCom->hoveredPressedIntRect).lock();
+		spButtonCom->pressedTexture = ResourceManager::Instance().GetTexture("CreateWorldPressedButton", spButtonCom->pressedIntRect).lock();
+
+		spButtonCom->onButtonHovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonHovered(entity); };
+		spButtonCom->onButtonUnhovered = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonUnhovered(entity); };
+		spButtonCom->onButtonPressed = [](std::shared_ptr<Entity> entity)
+			{ ButtonSignals::OnCreateWorldButtonPressed(entity); };
+		spButtonCom->onButtonReleased = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonReleased(entity); };
+		spButtonCom->onButtonClicked = [](std::shared_ptr<Entity> entity)
+			{ButtonSignals::OnButtonClicked(entity); };
 	}
 
 
